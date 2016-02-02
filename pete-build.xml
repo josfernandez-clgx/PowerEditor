@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<project name="PETE" default="init" basedir=".">
+	<!-- Load build properties -->
+	<property file="${basedir}/local-build.properties" />
+	<property file="${basedir}/build.properties" />
+	
+	<!-- prepare -->
+	<target name="init">
+		<tstamp>
+			<format property="BUILD_STAMP" pattern="yyyy-MM-dd" />
+			<format property="FULL_DATE" pattern="yyyy.MM.dd.HH.mm" />
+		</tstamp>
+	</target>
+	
+	<!-- PETE Tasks -->
+	<target name="check-pete-db">
+		<uptodate property="peteDB.isUpToDate"
+		          srcfile="${db.dir}/MB-PEDB-EMPTY.mdb"
+		          targetfile="${pete.dir}/PowerEditor/database/.uptodate-flag" />
+	</target>
+
+	<target name="update-pete-db" depends="check-pete-db" unless="peteDB.isUpToDate">
+		<echo message="Replacing PETE DB from ${db.dir}..." />
+		<copy file="${db.dir}/MB-PEDB-EMPTY.mdb"
+		      tofile="${pete.dir}/PowerEditor/database/PETE-REF-PEDB.mdb"
+		      overwrite="yes"
+		      verbose="true" />
+		<concat destfile="${pete.dir}/PowerEditor/database/.uptodate-flag">PETE-REF-PEDB.mdb</concat>
+	</target>
+
+	<target name="stop-pete-tomcat">
+		<exec dir="." executable="net">
+			<arg value="stop" />
+			<arg value="${tomcat.servicename}" />
+		</exec>
+	</target>
+
+	<target name="start-pete-tomcat">
+		<exec dir="." executable="net">
+			<arg value="start" />
+			<arg value="${tomcat.servicename}" />
+		</exec>
+	</target>
+
+	<target name="clean-pete-tomcat">
+		<delete dir="${tomcat.dir}/webapps/${deploy.root}${deploy.suffix}" />
+	</target>
+
+	<target name="update-pete-pe" depends="stop-pete-tomcat,update-pete-pe-war,clean-pete-tomcat,start-pete-tomcat">
+	</target>
+
+	<target name="build-pete-pe-war">
+		<ant antfile="${basedir}/build.xml" target="war" inheritall="false"/>
+		<property name="war.pete" value="${build.dir}/powereditor-pete.war" />
+		<copy file="${build.dir}/${deploy.war}" tofile="${war.pete}" />
+		<war destfile="${war.pete}" update="true" webxml="src/config/PE-PETE-web.xml">
+		</war>
+	</target>
+
+	<target name="update-pete-pe-war" depends="build-pete-pe-war">
+		<copy file="${war.pete}" tofile="${tomcat.dir}/webapps/powereditor.war" />
+	</target>
+
+</project>

@@ -1,0 +1,9 @@
+#
+# Each line that doesn't begin with '#' is used for testing message parser.
+#
+$
+s
+name(s).
+~!%()/\|
+Test: i.e. $100,000.00. 1:2 1 : 2 (1+-*/%@\\#$^&*):Best-fit analysis \"some quote\" inclusion
+Borrower(some text) Goal: %column 1%, Amortization Term: %cellValue%; rule name = %ruleName%, |Group| points ($|Applicants.Borrower.CREDIT_SCORE|) and %columnMessages(1,5,4)%.

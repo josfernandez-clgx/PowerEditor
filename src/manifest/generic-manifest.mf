@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Built-By: PowerEditor Build
+
+Name: @mf.section@
+Specification-Title: @mf.title@
+Specification-Version: @version@
+Specification-Vendor: @company@
+Implementation-Title: @mf.title@
+Implementation-Version: @version@ build:@build@ @TODAY@
+Implementation-Vendor: @company@

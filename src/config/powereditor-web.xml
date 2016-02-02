@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:web="http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+	version="2.4">
+	
+	<display-name>MindBox PowerEditor</display-name>
+	<description>This is MindBox Powereditor. To contact MindBox visit MindBox.com</description>
+
+	<!-- Settings for Crystal Reports support -->
+	<!-- Context Param -->
+	<context-param>
+		<param-name>crystal_image_uri</param-name>
+		<param-value>crystalreportviewers115</param-value>
+	</context-param>
+	<!-- Context Param End -->
+
+	<listener>
+		<listener-class>com.sun.xml.ws.transport.http.servlet.WSServletContextListener</listener-class>
+	</listener>
+	
+	<!--  Cross Site Scripting Filter -->
+	<filter>
+		<filter-name>CrossSiteScriptingFilter</filter-name>
+		<filter-class>com.mindbox.pe.server.servlet.CrossSiteScriptingFilter</filter-class>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>CrossSiteScriptingFilter</filter-name>
+		<url-pattern>*.jsp</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>CrossSiteScriptingFilter</filter-name>
+		<url-pattern>/auth/*</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>CrossSiteScriptingFilter</filter-name>
+		<url-pattern>/includes/*</url-pattern>
+	</filter-mapping>
+	
+	<!-- Config for the Servlet that handles request from Applet Client -->
+	<servlet>
+		<servlet-name>PowerEditorServlet</servlet-name>
+		<description>PowerEditor Servlet</description>
+		<servlet-class>com.mindbox.pe.server.servlet.PowerEditorServlet</servlet-class>
+		<init-param>
+			<param-name>ConfigurationFile</param-name>
+			<param-value>@pe.config@</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet>
+		<servlet-name>WebServiceServlet</servlet-name>
+		<servlet-class>com.sun.xml.ws.transport.http.servlet.WSServlet</servlet-class>
+		<load-on-startup>2</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>WebServiceServlet</servlet-name>
+		<url-pattern>/PowerEditorWebService</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>PowerEditorServlet</servlet-name>
+		<url-pattern>/PowerEditorServlet</url-pattern>
+	</servlet-mapping>
+
+	<session-config>
+		<session-timeout>10</session-timeout>
+	</session-config>
+
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+		<welcome-file>index.jsp</welcome-file>
+	</welcome-file-list>
+
+	<!-- ===============================================================
+		NOTE FOR WebSphere:
+		The following system-property tags should be removed for websphere.
+		=============================================================== -->
+	<system-property javax.xml.parsers.DocumentBuilderFactory="org.apache.xerces.jaxp.DocumentBuilderFactoryImpl" />
+	<system-property javax.xml.parsers.SAXParserFactory="org.apache.xerces.jaxp.SAXParserFactoryImpl" />
+</web-app>

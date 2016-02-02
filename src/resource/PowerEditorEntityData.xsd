@@ -1,0 +1,99 @@
+<xsd:schema 
+	targetNamespace="http://www.mindbox.com"
+	xmlns="http://www.mindbox.com"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	elementFormDefault="qualified"
+    version="1.0"
+	xml:lang="EN">	
+        
+ <xsd:annotation>
+  <xsd:documentation xml:lang="en">
+   XML Schema defining the structure of PowerEditor Entity Data XML files.
+   Copyright 2007 MDA MindBox, Inc. All rights reserved.
+   
+   VERSION.......: 1.1
+   LAST-UPDATED..: 2007-09-21 
+  </xsd:documentation>
+ </xsd:annotation>
+
+ <xsd:element name="powereditor-data">
+   <xsd:complexType>
+    <xsd:sequence>
+     <xsd:element name="entity-data"   type="EntityDataElement"   minOccurs="0" maxOccurs="1"/>
+    </xsd:sequence>
+   </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="entity-link">
+   <xsd:complexType>
+     <xsd:attribute name="id"   type="xsd:positiveInteger" use="required"/>
+     <xsd:attribute name="type" type="xsd:string" use="required"/>
+   </xsd:complexType>
+ </xsd:element>
+
+ <xsd:element name="activation-dates">
+   <xsd:complexType>
+     <xsd:attribute name="effectiveDateID" type="xsd:positiveInteger"/>
+     <xsd:attribute name="expirationDateID" type="xsd:positiveInteger"/>
+    </xsd:complexType>
+ </xsd:element>
+
+<!--================= EntityData Element Declaration =======================-->
+
+ <xsd:complexType name="EntityDataElement">
+  <xsd:sequence>
+  	<!-- @since 4.5.0 -->
+  	<xsd:element name="category" minOccurs="0" maxOccurs="unbounded">
+  	  <xsd:complexType>
+        <xsd:sequence>
+          <xsd:element name="property" minOccurs="1" maxOccurs="unbounded">
+            <xsd:complexType>
+              <xsd:attribute name="name"     type="xsd:string"          use="required"/>
+              <xsd:attribute name="value"    type="xsd:string"          use="required"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="parent" maxOccurs="unbounded">
+           <xsd:complexType>
+             <xsd:sequence>
+               <xsd:element name="parentID" type="xsd:positiveInteger" />
+               <xsd:element ref="activation-dates" minOccurs="0"/>
+             </xsd:sequence>
+           </xsd:complexType>
+          </xsd:element>
+        </xsd:sequence>
+        <xsd:attribute name="id"       type="xsd:positiveInteger" use="required"/>
+        <xsd:attribute name="type"     type="xsd:string" use="required"/>
+        <!-- @deprecated; use parent elements instead -->
+        <xsd:attribute name="parentID" type="xsd:integer" default="-1"/>
+      </xsd:complexType>
+  	</xsd:element>
+
+  	<xsd:element name="entity" minOccurs="0" maxOccurs="unbounded">
+  	  <xsd:complexType>
+        <xsd:sequence>
+          <xsd:element name="property" minOccurs="1" maxOccurs="unbounded">
+            <xsd:complexType>
+              <xsd:attribute name="name"     type="xsd:string"          use="required"/>
+              <xsd:attribute name="value"    type="xsd:string"          use="required"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="association" minOccurs="0" maxOccurs="unbounded">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element ref="entity-link"/>
+                <xsd:element ref="activation-dates" minOccurs="0"/>
+              </xsd:sequence>
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:sequence>
+        <xsd:attribute name="id"       type="xsd:positiveInteger" use="required"/>
+        <xsd:attribute name="type"     type="xsd:string" use="required"/>
+        <xsd:attribute name="parentID" type="xsd:integer" default="-1"/>
+      </xsd:complexType>
+  	</xsd:element>
+  	
+  </xsd:sequence>
+ </xsd:complexType>
+ 
+</xsd:schema>
+	

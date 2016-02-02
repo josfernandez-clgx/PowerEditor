@@ -1,0 +1,353 @@
+<?xml version="1.0"?>
+<powereditor-data>
+  <entity-data>
+    <entity-types>
+      <entity-type type="channel" displayName="Channel"/>
+      <entity-type type="investor" displayName="Investor"/>
+      <entity-type type="product" displayName="Product"/>
+      <entity-type type="category" displayName="Product Category"/>
+    </entity-types>
+	<entity id="1" type="channel">
+		<property name="name" value="Retail"/>
+		<property name="isBase" value="true"/>
+	</entity>
+	<entity id="1" type="investor">
+		<property name="name" value="MB Investor"/>
+		<property name="description" value="MB Investor for PowerEditor"/>
+	</entity>
+	<entity id="2" type="investor">
+		<property name="name" value="Investment Firm"/>
+		<property name="description" value="A generic investment firm investor"/>
+		<association>
+		  <entity-link id="1" type="channel"/>
+		  <activation-dates>
+			<activation-date>2004-01-01T01:00:00</activation-date>
+			<expiration-date>2005-01-01T00:00:00</expiration-date>
+		  </activation-dates>
+		</association>
+	</entity>
+    <entity id="1" type="category" parentID="-1">
+      <property name="name" value="Mortgage Product Categories"/>
+    </entity>
+    <entity id="11" type="category" parentID="1">
+      <property name="name" value="Conventional"/>
+    </entity>
+    <entity id="111" type="category" parentID="11">
+      <property name="name" value="Conforming"/>
+    </entity>
+    <entity id="112" type="category" parentID="11">
+      <property name="name" value="Sub-Prime"/>
+    </entity>
+    <entity id="113" type="category" parentID="11">
+      <property name="name" value="Home Equity"/>
+    </entity>
+    <entity id="114" type="category" parentID="11">
+      <property name="name" value="Non-Conforming"/>
+    </entity>
+    <entity id="12" type="category" parentID="1">
+      <property name="name" value="FHA"/>
+    </entity>
+    <entity id="13" type="category" parentID="1">
+      <property name="name" value="VA"/>
+    </entity>
+    <entity id="100" type="product">
+      <property name="name" value="MB Product 100"/>
+      <property name="code" value="P200-200"/>
+      <property name="description" value="MindBox  Product - FHA &amp; VA"/>
+      <property name="activation.date" value="2004-02-26T00:00:00"/>
+      <property name="expiration.date" value="2004-11-30T00:00:00"/>
+      <property name="clone.generation" value="2"/>
+      <property name="deferred.limit" value="0"/>
+      <property name="lien.priority" value="1"/>
+      <property name="loan.type" value="FNMA"/>
+      <property name="status" value="Draft"/>
+      <property name="status.change.date" value="2004-02-26T00:00:00"/>
+      <property name="amortization.terms" value="280,360"/>
+      <property name="amortization.type" value="Fixed"/>
+      <property name="arm.first.adjust.cap" value="0.0"/>
+      <property name="arm.first.adjust.period" value="0"/>
+      <property name="arm.first.payment.cap" value="0.0"/>
+      <property name="arm.first.payment.period" value="0"/>
+      <property name="arm.index.name" value=""/>
+      <property name="arm.index.value" value="0.0"/>
+      <property name="arm.later.adjust.cap" value="0.0"/>
+      <property name="arm.later.adjust.period" value="0"/>
+      <property name="arm.later.payment.cap" value="0.0"/>
+      <property name="arm.later.payment.period" value="0"/>
+      <property name="arm.reamort.period" value="0"/>
+      <association>
+        <entity-link id="1" type="channel"/>
+        <activation-dates>
+          <activation-date>2003-10-01T00:00:00</activation-date>
+        </activation-dates>
+      </association>
+      <association>
+        <entity-link id="1" type="investor"/>
+        <activation-dates>
+          <activation-date>2003-10-01T00:00:00</activation-date>
+        </activation-dates>
+      </association>
+      <association>
+        <entity-link id="12" type="category"/>
+      </association>
+      <association>
+        <entity-link id="13" type="category"/>
+      </association>
+    </entity>
+	<entity id="200" type="product" parentID="100">
+		<property name="name" value="MB Product"/>
+		<property name="description" value="MB Base(root) Product"/>
+		<property name="code" value="MBPD200"/>
+	    <property name="activation.date" value="2004-02-26T00:00:00"/>
+		<association>
+		  <entity-link id="1" type="channel"/>
+		  <activation-dates>
+			<activation-date>2004-03-01T00:00:00</activation-date>
+			<expiration-date></expiration-date>
+		  </activation-dates>
+		</association>
+		<association>
+		  <entity-link id="2" type="investor"/>
+		  <activation-dates>
+			<activation-date>2004-03-01T00:00:00</activation-date>
+			<expiration-date>2005-02-28T00:00:00</expiration-date>
+		  </activation-dates>
+		</association>
+		<association>
+		  <entity-link id="112" type="category"/>
+		  <activation-dates>
+			<activation-date>2004-03-01T00:00:00</activation-date>
+		  </activation-dates>
+		</association>
+	</entity>
+  </entity-data>
+  <next-id-data>
+    <next-id type="Filter" seed="100" cache="3"/>
+    <next-id type="Grid" seed="100000" cache="20"/>
+    <next-id type="Product" seed="10000" cache="3"/>
+    <next-id type="SEQUENTIAL" seed="1000" cache="1"/>
+    <next-id type="SimpleEntity" seed="500" cache="5"/>
+  </next-id-data>
+  <filter-data>
+    <filter id="100" type="product" name="All Products">
+   	  <criteria/>
+   	</filter>
+    <filter id="101" type="channel" name="All Channels">
+   	  <criteria/>
+   	</filter>
+    <filter id="102" type="investor" name="All Investors">
+   	  <criteria/>
+   	</filter>
+  </filter-data>
+  <security-data>
+    <privileges>
+      <privilege id="11" name="Deploy" displayName="Deploy"/>
+      <privilege id="12" name="ManageUsers" displayName="Manage Users"/>
+      <privilege id="31" name="ManageLocks" displayName="Manage Locks"/>
+      <privilege id="32" name="ExportData" displayName="Export Data"/>
+      <privilege id="33" name="ImportData" displayName="Import Data"/>
+    </privileges>
+    <roles>
+      <role id="1" name="Administrator">
+        <privilege-link>11</privilege-link>
+        <privilege-link>12</privilege-link>
+        <privilege-link>12</privilege-link>
+        <privilege-link>32</privilege-link>
+      </role>
+      <role id="2" name="Manager">
+        <privilege-link>11</privilege-link>
+      </role>
+    </roles>
+    <users>
+      <user id="demo" name="demo" password="demo" status="active">
+        <role-link>1</role-link>
+        <role-link>2</role-link>
+		<entity-link id="1" type="channel"/>
+		<entity-link id="1" type="investor"/>
+      </user>
+    </users>
+  </security-data>
+  <grid-data>
+    <grid type="guideline" templateID="999991">
+      <context>
+        <entity-link id="1" type="investor"/>
+      </context>
+      <column-names>
+        <column>Message-Text</column>
+        <column>Doc Type</column>
+        <column>TwoCol</column>
+        <column>Occupancy</column>
+        <column>BirthDate</column>
+        <column>Message-Text-2</column>
+      </column-names>
+      <activation id="30000" status="Draft" parentID="-1" statusChangedOn="2003-12-05T11:03:00" createdOn="2003-12-05T11:03:00">
+        <activation-dates>
+          <activation-date>2003-12-05T11:03:00</activation-date>
+        </activation-dates>
+        <grid-values>
+          <row>
+            <cell-value></cell-value>
+            <cell-value>SISA</cell-value>
+            <cell-value>[200-500]</cell-value>
+            <cell-value>Item 2</cell-value>
+            <cell-value></cell-value>
+            <cell-value></cell-value>
+          </row>
+          <row>
+            <cell-value></cell-value>
+            <cell-value>NINA,SISA,ND</cell-value>
+            <cell-value>[-500-500]</cell-value>
+            <cell-value>Not Item 1</cell-value>
+            <cell-value></cell-value>
+            <cell-value></cell-value>
+          </row>
+          <row>
+            <cell-value></cell-value>
+            <cell-value>NIFA,NINA,SISA,ND,SIFA,FAD,NRFA</cell-value>
+            <cell-value>[0-100]</cell-value>
+            <cell-value>Item 1,Item 2,Item 3</cell-value>
+            <cell-value></cell-value>
+            <cell-value></cell-value>
+          </row>
+          <row>
+            <cell-value></cell-value>
+            <cell-value>ND</cell-value>
+            <cell-value>[250-400]</cell-value>
+            <cell-value>Item 1</cell-value>
+            <cell-value></cell-value>
+            <cell-value></cell-value>
+          </row>
+        </grid-values>
+        <comment></comment>
+      </activation>
+    </grid>
+    <grid type="guideline" templateID="999991">
+      <context>
+        <entity-link id="111" type="category"/>
+        <entity-link id="113" type="category"/>
+      </context>
+      <column-names>
+        <column>Message-Text</column>
+        <column>Doc Type</column>
+        <column>TwoCol</column>
+        <column>Occupancy</column>
+        <column>BirthDate</column>
+        <column>Message-Text-2</column>
+      </column-names>
+      <activation id="30020" status="Draft" parentID="-1" statusChangedOn="2003-12-05T11:34:00" createdOn="2003-12-05T11:34:00">
+        <activation-dates>
+          <activation-date>2003-12-05T11:34:00</activation-date>
+        </activation-dates>
+        <grid-values>
+          <row>
+            <cell-value></cell-value>
+            <cell-value>NINA,SISA,ND,SIFA,FAD,NRFA</cell-value>
+            <cell-value>[500-500]</cell-value>
+            <cell-value>Item 1,Item 2,Item 3</cell-value>
+            <cell-value></cell-value>
+            <cell-value></cell-value>
+          </row>
+          <row>
+            <cell-value></cell-value>
+            <cell-value>Not NINA,ND,FAD,NRFA</cell-value>
+            <cell-value>[200-400]</cell-value>
+            <cell-value>Not Item 3</cell-value>
+            <cell-value></cell-value>
+            <cell-value></cell-value>
+          </row>
+          <row>
+            <cell-value></cell-value>
+            <cell-value>NIFA,NINA,SISA,ND</cell-value>
+            <cell-value>[100-200]</cell-value>
+            <cell-value>Item 3</cell-value>
+            <cell-value></cell-value>
+            <cell-value></cell-value>
+          </row>
+          <row>
+            <cell-value></cell-value>
+            <cell-value>SIFA</cell-value>
+            <cell-value>[500-500]</cell-value>
+            <cell-value></cell-value>
+            <cell-value></cell-value>
+            <cell-value></cell-value>
+          </row>
+        </grid-values>
+        <comment></comment>
+      </activation>
+    </grid>
+    <grid type="parameter" templateID="8000">
+      <context>
+      </context>
+      <column-names>
+        <column>MI Company</column>
+
+        <column>Min Premium</column>
+        <column>Min Renewal</column>
+        <column>Max Renewal</column>
+      </column-names>
+      <activation id="422" status="Draft" parentID="-1" statusChangedOn="2004-01-14T00:05:22">
+        <activation-dates>
+          <activation-date>2004-03-11T00:00:00</activation-date>
+        </activation-dates>
+        <grid-values>
+          <row>
+            <cell-value>MGIC</cell-value>
+            <cell-value>0.0</cell-value>
+            <cell-value>40.0</cell-value>
+            <cell-value>0.0</cell-value>
+          </row>
+          <row>
+            <cell-value></cell-value>
+            <cell-value>0.0</cell-value>
+            <cell-value>0.0</cell-value>
+            <cell-value>0.0</cell-value>
+          </row>
+        </grid-values>
+      </activation>
+    </grid>
+
+  </grid-data>
+  <message-data>
+  	<message id="2300" templateID="2000" columnID="2" channel="Retail">
+        <activation-dates>
+          <activation-date>2003-03-01T10:30:00</activation-date>
+          <expiration-date>2003-12-31T23:59:59</expiration-date>
+        </activation-dates>
+  		<text>Sample message - |Transaction.Occupancy| &gt; %column 2%, %cellValue%</text>
+  	</message>
+  	<message id="2301" templateID="2001">
+        <activation-dates>
+          <activation-date>2003-02-01T22:00:00</activation-date>
+        </activation-dates>
+  		<text>Message 2301 has %cellValue%</text>
+  	</message>
+  </message-data>
+  <rule-data>
+  	<ruleset id="101" name="A RuleSet" status="Production" usage="Stipulation">
+        <activation-dates>
+          <activation-date>2004-01-01T00:00:00</activation-date>
+          <expiration-date></expiration-date>
+        </activation-dates>
+        <context>
+        </context>
+        <rules>
+        	<rule id="2000"/>
+        	<rule id="2001"/>
+        	<rule id="2003"/>
+        </rules>
+        <description>A sample rule set</description>
+  	</ruleset>
+  	<ruleset id="102" name="Two RuleSet" status="Draft" usage="Documentation">
+        <activation-dates>
+          <activation-date>2004-01-09T20:00:00</activation-date>
+        </activation-dates>
+        <context>
+          <entity-link id="112" type="category"/>
+        </context>
+        <rules>
+        	<rule id="2009"/>
+        </rules>
+        <description>Second sample rule set</description>
+  	</ruleset>
+  </rule-data>
+</powereditor-data>

@@ -1,0 +1,49 @@
+
+BODY { margin-top: 0px; margin-left: 0px; margin-right: 0px; margin-bottom: 0px; 
+       color: #000000; background-color: #ffffff; font-size: 10pt; font-family: Arial,Helvetica,SansSerif;}
+
+.usage { padding: 4px; margin-top: 16px; margin-bottom: 8px; color: #ffffff; background-color: #000000; font-size: 14pt; font-weight: bold; width: 99%; }
+
+.template { padding: 3px; margin-top: 12px; margin-bottom: 12px; color: #000000; background-color: #ffffff; font-size: 12pt; font-weight: bold; width: 99%; }
+
+.colheading { color: #000000; background-color: #c4c4c4; font-size: 10pt; font-weight: bold; }
+
+.row1 { color: #000000; background-color: #ffffff; font-size: 10pt; }
+
+.row2 { color: #000000; background-color: #e8e8e8; font-size: 10pt; }
+
+.small { color: #000000; background-color: #ffffff; font-size: 8pt; }
+
+.error { color: #a80000; font-weight: bold; }
+
+UL { list-style: square; margin-top: 0px; margin-bottom: 0px; margin-left; 0px; margin-right: 0px; }
+
+TD { vertical-align: top; }
+
+TABLE#guideline { border: solid #2a2a2a 2px; }
+
+TABLE#guideline TD { border: solid #a8a8a8 1px; }
+
+TABLE#grid { border: solid #6a6a6a 1px; }
+
+TABLE#grid TD { border: solid #6a6a6a 1px; }
+
+TABLE#parameter { border: 0px; }
+
+TABLE#parameter TD { border: 0px; }
+
+TABLE#rule { border: solid #6a6a6a 1px; }
+
+TABLE#rule TD { border: solid #6a6a6a 1px; }
+
+/* Rule element styles */
+
+.action    { color: #0000ff; font-weight: bold; }
+.any       { color: #ff0000; font-weight: bold; }
+.bracket   { color: #0000ff; }
+.keyword   { color: #000000; font-weight: bold; }
+.operator  { color: #ff0000; font-weight: bold; }
+.parameter { color: #0000ff; }
+.reference { color: #000000; }
+.refinmsg  { color: #008000; font-weight: bold; }
+.value     { color: #000000; }

@@ -1,0 +1,1652 @@
+<?xml version="1.0"?>
+<project name="Power Editor" default="main" basedir=".">
+
+	<!-- Load build properties -->
+	<property file="${basedir}/local-build.properties" />
+	<property file="${basedir}/build.properties" />
+
+	<path id="common.classpath">
+		<pathelement location="${common.lib.dir}/commons-beanutils.jar" />
+		<pathelement location="${common.lib.dir}/commons-collections.jar" />
+		<pathelement location="${common.lib.dir}/commons-digester.jar" />
+		<pathelement location="${common.lib.dir}/commons-codec.jar" />
+		<pathelement location="${common.lib.dir}/commons-lang-2.1.jar" />
+		<pathelement location="${common.lib.dir}/commons-logging.jar" />
+		<pathelement location="${common.lib.dir}/commons-validator.jar" />
+		<pathelement location="${common.lib.dir}/log4j-1.2.8.jar" />
+		<pathelement location="${common.lib.dir}/net.sf.oval_1.0.jar" />
+		<pathelement location="${parser.jar}" />
+	</path>
+	<path id="client.classpath">
+		<path refid="common.classpath" />
+		<pathelement path="${common.dir}/classes" />
+		<pathelement location="${client.lib.dir}/MDateSelector.jar" />
+	</path>
+	<path id="server.classpath">
+		<path refid="common.classpath" />
+		<pathelement path="${common.dir}/classes" />
+		<pathelement location="${server.lib.dir}/commons-dbcp-1.2.2.jar" />
+		<pathelement location="${server.lib.dir}/commons-pool-1.3.jar" />
+		<pathelement location="${server.lib.dir}/jsdk23.jar" />
+		<pathelement location="${server.lib.dir}/crystal-reports/jrcerom.jar" />
+		<pathelement location="${server.lib.dir}/crystal-reports/rascore.jar" />
+		<pathelement location="${server.lib.dir}/crystal-reports/rasapp.jar" />
+		<pathelement location="${server.lib.dir}/crystal-reports/webreporting.jar" />
+		<pathelement location="${server.lib.dir}/web-services/xws-security.jar" />
+		<pathelement location="${server.lib.dir}/ojdbc14.jar" />
+	</path>
+	<path id="wsgen.classpath">
+		<pathelement path="${server.dir}/classes" />
+		<path refid="server.classpath" />
+	</path>
+	<path id="tools.classpath">
+		<pathelement path="${common.dir}/classes" />
+		<pathelement path="${client.dir}/classes" />
+		<pathelement path="${server.dir}/classes" />
+		<path refid="common.classpath" />
+		<path refid="client.classpath" />
+		<path refid="server.classpath" />
+	</path>
+	<path id="test.classpath">
+		<path refid="tools.classpath" />
+		<pathelement location="${test.lib.dir}/junit.jar" />
+		<pathelement location="${test.lib.dir}/abbot.jar" />
+		<pathelement location="${test.lib.dir}/commons-logging.jar" />
+		<pathelement location="${test.lib.dir}/commons-httpclient-3.0.1.jar" />
+		<!-- abbot needs this -->
+		<pathelement location="${test.lib.dir}/jdom.jar" />
+		<pathelement location="${test.lib.dir}/easymock.jar" />
+		<pathelement location="${test.lib.dir}/easymockclassextension.jar" />
+		<!-- easymock class extension needs this -->
+		<pathelement location="${test.lib.dir}/cglib-nodep-2.1_3.jar" />
+		<!-- for XPath support -->
+		<pathelement location="${test.lib.dir}/xalan.jar" />
+	</path>
+
+	<path id="javadoc.classpath">
+		<path refid="test.classpath" />
+	</path>
+
+	<patternset id="manifest-source-files">
+		<include name="build.properties" />
+		<include name="src/manifest/generic-manifest.mf" />
+	</patternset>
+
+	<filterset id="manifest-filters">
+		<filtersfile file="${basedir}/build.properties" />
+		<filter token="TODAY" value="${TODAY} at ${TSTAMP}" />
+	</filterset>
+
+	<target name="main" depends="install-war" />
+	<target name="dist-all" depends="dist,dist-docs" description="Creates all distribution files" />
+	<target name="dist" depends="dist-zip,dist-version-tool" description="Creates a distribution Zip file" />
+	<target name="war" depends="editor-war" description="Creates the PowerEditor war file" />
+	<target name="archive" depends="src-archive" />
+	<target name="all" depends="spotless,archive,dist" />
+
+	<!-- prepare -->
+	<target name="prepare">
+		<tstamp>
+			<format property="BUILD_STAMP" pattern="yyyy-MM-dd" />
+			<format property="FULL_DATE" pattern="yyyy.MM.dd.HH.mm" />
+		</tstamp>
+		<mkdir dir="${common.dir}/classes" />
+		<mkdir dir="${client.dir}/classes" />
+		<mkdir dir="${server.dir}/classes" />
+		<mkdir dir="${tools.dir}/classes" />
+		<mkdir dir="${build.classes}" />
+	</target>
+
+	<target name="build-parser-jar" description="Builds the parser jar; this must be done before compile.">
+		<ant antfile="build.xml" dir="${parser.dir}" target="jar" />
+	</target>
+
+	<!-- compile -->
+	<!-- TODO Kim: Split to multiple compile calls to ensure module separation;
+	               i.e., to make sure no client source uses server classes. -->
+	<target name="compile" depends="build-parser-jar,compile-common,compile-server,compile-client,compile-tools,compile-test" description="Compiles Java source files">
+	</target>
+
+	<target name="compile-test" depends="prepare">
+		<javac srcdir="${test.src.dir}" destdir="${build.classes}" debug="on" deprecation="on" source="1.6" target="1.6" verbose="off" optimize="off">
+			<classpath refid="test.classpath" />
+		</javac>
+	</target>
+
+	<target name="compile-common" depends="prepare">
+		<javac srcdir="${common.dir}/source" destdir="${common.dir}/classes" debug="on" deprecation="on" source="1.6" target="1.6" verbose="off" optimize="off">
+			<classpath refid="common.classpath" />
+		</javac>
+	</target>
+	<target name="compile-server" depends="prepare">
+		<javac srcdir="${server.dir}/source" destdir="${server.dir}/classes" debug="on" deprecation="on" source="1.6" target="1.6" verbose="off" optimize="off">
+			<classpath refid="server.classpath" />
+		</javac>
+	</target>
+	<target name="compile-client" depends="prepare">
+		<javac srcdir="${client.dir}/source" destdir="${client.dir}/classes" debug="on" deprecation="on" source="1.6" target="1.6" verbose="off" optimize="off">
+			<classpath refid="client.classpath" />
+		</javac>
+	</target>
+	<target name="compile-tools" depends="prepare">
+		<javac srcdir="${tools.dir}/source" destdir="${tools.dir}/classes" debug="on" deprecation="on" source="1.6" target="1.6" verbose="off" optimize="off">
+			<classpath refid="tools.classpath" />
+		</javac>
+	</target>
+
+	<!-- copy resources -->
+	<target name="copy-test-resources">
+		<mkdir dir="${build.classes}" />
+		<copy todir="${build.classes}">
+			<fileset dir="${test.src.dir}">
+				<include name="**/*.properties" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="check-wsgen">
+		<uptodate property="wsgen.notRequired" targetfile="${basedir}/src/webservices/PowerEditorAPIInterfaceService.wsdl">
+			<srcfiles dir="${server.dir}/source">
+				<include name="com/mindbox/pe/server/webservices/*.java" />
+			</srcfiles>
+		</uptodate>
+	</target>
+	<target name="wsgen" depends="compile, check-wsgen" unless="wsgen.notRequired">
+		<mkdir dir="src/webservices" />
+		<echo message="starting wsgen..." />
+		<exec dir="${basedir}" executable="${jdk.dir}/bin/wsgen">
+			<arg value="-cp" />
+			<arg pathref="wsgen.classpath" />
+			<arg value="-r" />
+			<arg path="src/webservices" />
+			<arg value="-s" />
+			<arg path="${server.dir}/source" />
+			<arg value="-d" />
+			<arg path="${server.dir}/classes" />
+			<arg value="-keep" />
+			<arg value="-wsdl" />
+			<arg value="com.mindbox.pe.server.webservices.PowerEditorAPIInterface" />
+		</exec>
+		<echo message="wsgen completed" />
+	</target>
+
+	<!--======================= generate javadoc ==================-->
+
+	<target name="javadoc" depends="compile" description="Generates javadoc API documentation">
+		<!-- delete build html files so that filtering='true' will always result in a new html file with vars substituted. -->
+		<delete>
+			<fileset dir="${build.dir}">
+				<include name="overview.html" />
+			</fileset>
+		</delete>
+		<copy todir="${build.dir}" filtering="true">
+			<fileset dir="javadoc">
+				<include name="overview.html" />
+			</fileset>
+			<filterset>
+				<filter token="build.date" value="${BUILD_STAMP}" />
+				<filtersfile file="${basedir}/build.properties" />
+			</filterset>
+		</copy>
+
+		<mkdir dir="${javadoc.dir}" />
+		<javadoc destdir="${javadoc.dir}" classpathref="javadoc.classpath" package="true" author="false" version="true" use="false" source="1.4" noindex="true" windowtitle="${Name} API Specification" overview="${build.dir}/overview.html">
+			<packageset dir="${src.dir}" defaultexcludes="yes">
+				<include name="com/mindbox/pe/**" />
+				<exclude name="com/mindbox/pe/server/parser/**" />
+			</packageset>
+			<packageset dir="test/src" defaultexcludes="yes">
+				<include name="com/mindbox/pe/**" />
+			</packageset>
+
+			<group title="Common Packages" packages="com.mindbox.pe.common*,com.mindbox.pe.communication*,com.mindbox.pe.model*" />
+			<group title="Client Applet Packages" packages="com.mindbox.pe.client*" />
+			<group title="Server Packages" packages="com.mindbox.pe.server*" />
+			<group title="Tools Packages" packages="com.mindbox.pe.tools*" />
+			<group title="Test Packages" packages="com.mindbox.pe.test*" />
+			<doctitle>
+				<![CDATA[${Name}-${version} API Specification]]>
+			</doctitle>
+			<bottom>
+				<![CDATA[<font size='1'>
+				<i>Copyright &#169; 2005-2006 ${company}. All Rights Reserved.</i>
+			</font>]]></bottom>
+	</javadoc>
+</target>
+
+<!--================ create the jar archive ====================-->
+
+<target name="crystal-jar" depends="compile" description="Build jar required for Crystal Reports">
+	<antcall target="copy-jar-manifest-if-needed">
+		<param name="manifest.key" value="crystal" />
+		<param name="manifest.section" value="com/mindbox/pe/wrapper/crystalreports/" />
+		<param name="manifest.title" value="${Name}-CrystalReports" />
+	</antcall>
+	<copy file="src/resource/crystal-log4j.properties" tofile="${build.dir}/log4j.properties" />
+	<jar jarfile="${build.dir}/powereditor-crystal.jar" duplicate="fail" manifest="${build.dir}/crystal-manifest.mf">
+		<fileset dir="${server.dir}/classes">
+			<include name="com/mindbox/pe/wrapper/crystalreports/*.class" />
+		</fileset>
+		<fileset dir="${build.dir}">
+			<include name="log4j.properties" />
+		</fileset>
+	</jar>
+</target>
+
+<target name="copy-applet-jar-manifest" depends="prepare, check-jar-manifest" unless="${manifest.check.property}">
+	<echo message="about to copy applet manifest to ${build.dir}/${manifest.key}-manifest.mf..." level="debug" />
+	<copy file="src/manifest/applet-manifest.mf" tofile="${build.dir}/${manifest.key}-manifest.mf" filtering="true" encoding="utf-8" overwrite="true">
+		<filterset refid="manifest-filters" />
+		<filterset>
+			<filter token="mf.section" value="${manifest.section}" />
+			<filter token="mf.title" value="${manifest.title}" />
+		</filterset>
+	</copy>
+</target>
+<target name="check-jar-manifest">
+	<echo message="targetfile = ${build.dir}/${manifest.key}-manifest.mf" level="debug" />
+	<uptodate property="${manifest.check.property}" targetfile="${build.dir}/${manifest.key}-manifest.mf">
+		<srcfiles dir="${basedir}">
+			<patternset refid="manifest-source-files" />
+		</srcfiles>
+	</uptodate>
+	<echo message="result = ${manifest.check.property}" level="debug" />
+</target>
+<target name="copy-jar-manifest" depends="prepare, check-jar-manifest" unless="${manifest.check.property}">
+	<echo message="about to copy manifest to ${build.dir}/${manifest.key}-manifest.mf..." level="debug" />
+	<copy file="src/manifest/generic-manifest.mf" tofile="${build.dir}/${manifest.key}-manifest.mf" filtering="true" encoding="utf-8" overwrite="true">
+		<filterset refid="manifest-filters" />
+		<filterset>
+			<filter token="mf.section" value="${manifest.section}" />
+			<filter token="mf.title" value="${manifest.title}" />
+		</filterset>
+	</copy>
+</target>
+<target name="copy-applet-jar-manifest-if-needed">
+	<antcall target="copy-applet-jar-manifest">
+		<param name="manifest.check.property" value="manifest.${manifest.key}.copyRequired" />
+	</antcall>
+</target>
+<target name="copy-jar-manifest-if-needed">
+	<antcall target="copy-jar-manifest">
+		<param name="manifest.check.property" value="manifest.${manifest.key}.copyRequired" />
+	</antcall>
+</target>
+
+<!-- create the PowerEditor Applet JAR -->
+<target name="applet-jar" depends="compile" description="Builds PowerEditor applet JAR">
+	<mkdir dir="${build.dir}" />
+	<antcall target="copy-applet-jar-manifest-if-needed">
+		<param name="manifest.key" value="applet" />
+		<param name="manifest.section" value="com/mindbox/pe/client/applet/" />
+		<param name="manifest.title" value="${Name}" />
+	</antcall>
+	<jar jarfile="${build.dir}/unsigned-${applet.jar}" duplicate="fail" manifest="${build.dir}/applet-manifest.mf">
+		<fileset dir="${resource.dir}">
+			<include name="*.properties" />
+			<exclude name="crystal*.*" />
+			<exclude name="logging.properties" />
+		</fileset>
+		<fileset dir="${common.dir}/classes">
+			<include name="**/*.class" />
+		</fileset>
+		<fileset dir="${client.dir}/classes">
+			<include name="com/mindbox/pe/client/**/*.class" />
+			<!-- no longer used as of 4.0 -->
+			<exclude name="com/mindbox/pe/client/applet/adhoc/manage/**/*.class" />
+			<exclude name="com/mindbox/pe/client/applet/adhoc/search/**/*.class" />
+		</fileset>
+		<zipgroupfileset dir="${basedir}/projects">
+			<include name="client/lib/MDateSelector*.jar" />
+			<include name="common/lib/log4j*.jar" />
+			<include name="common/lib/net.sf.oval*.jar" />
+			<include name="common/lib/powereditor-parser.jar" />
+		</zipgroupfileset>
+	</jar>
+</target>
+
+<target name="gen-certificate-key" description="Creates PE certificate key in the keystore">
+	<genkey alias="mbpecert" storepass="mbpecert" keystore="src/certificate/.keystore" keypass="mbpecert">
+		<dname>
+			<param name="CN" value="PowerEditor" />
+			<param name="OU" value="mindbox" />
+			<param name="O" value="mindbox" />
+			<param name="L" value="Greenbrae" />
+			<param name="ST" value="California" />
+			<param name="C" value="US" />
+		</dname>
+	</genkey>
+</target>
+
+<target name="import-certificate" description="Imports certificate from CA">
+	<exec dir="${basedir}" executable="${jdk.dir}/bin/keytool">
+		<arg value="-import" />
+		<arg value="-noprompt" />
+		<arg value="-alias" />
+		<arg value="mbpecert" />
+		<arg value="-file" />
+		<arg file="src/certificate/PowerEditorCertificate.txt" />
+		<arg value="-keypass" />
+		<arg value="mbpecert" />
+		<arg value="-keystore" />
+		<arg file="src/certificate/.keystore" />
+		<arg value="-storepass" />
+		<arg value="mbpecert" />
+	</exec>
+</target>
+
+<target name="export-certificate" description="Exports certificate from keystore">
+	<exec dir="${basedir}" executable="${jdk.dir}/bin/keytool">
+		<arg value="-export" />
+		<arg value="-alias" />
+		<arg value="mbpecert" />
+		<arg value="-keypass" />
+		<arg value="mbpecert" />
+		<arg value="-keystore" />
+		<arg file="src/certificate/.keystore" />
+		<arg value="-storepass" />
+		<arg value="mbpecert" />
+		<arg value="-file" />
+		<arg file="src/certificate/PowerEditorCert.cer" />
+	</exec>
+</target>
+
+<target name="check-applet-jar" depends="applet-jar">
+	<uptodate property="signApplet.notRequired" srcfile="${build.dir}/unsigned-${applet.jar}" targetFile="${build.dir}/${applet.jar}" />
+</target>
+
+<target name="sign-applet" depends="check-applet-jar" description="signs applet" unless="signApplet.notRequired">
+	<!--check-applet-jar-->
+	<copy file="${build.dir}/unsigned-${applet.jar}" tofile="${build.dir}/${applet.jar}" />
+	<signjar jar="${build.dir}/${applet.jar}" alias="mbpecert" storepass="mbpecert" keystore="src/certificate/.keystore" keypass="mbpecert" />
+</target>
+
+<target name="sign-applet-no-depends" description="Just signs the applet w/o checking for dependencies">
+	<delete file="${build.dir}/${applet.jar}" />
+	<copy file="${build.dir}/unsigned-${applet.jar}" tofile="${build.dir}/${applet.jar}" />
+	<signjar jar="${build.dir}/${applet.jar}" alias="mbpecert" storepass="mbpecert" keystore="src/certificate/.keystore" keypass="mbpecert" />
+</target>
+
+<target name="server-jar" depends="compile,wsgen" description="Builds PowerEditor Server JAR">
+	<mkdir dir="${build.dir}" />
+	<antcall target="copy-jar-manifest-if-needed">
+		<param name="manifest.key" value="server" />
+		<param name="manifest.section" value="com/mindbox/pe/server/" />
+		<param name="manifest.title" value="${Name}" />
+	</antcall>
+	<jar jarfile="${build.dir}/${server.jar}" duplicate="fail" manifest="${build.dir}/server-manifest.mf">
+		<fileset dir="${common.dir}/classes">
+			<include name="**/*.class" />
+		</fileset>
+		<fileset dir="${server.dir}/classes">
+			<include name="com/mindbox/pe/*.class" />
+			<include name="com/mindbox/pe/server/**/*.class" />
+			<exclude name="com/mindbox/pe/**/*Test.class" />
+			<exclude name="com/mindbox/pe/**/*Tests.class" />
+			<exclude name="com/mindbox/pe/**/*TestSuite.class" />
+			<exclude name="com/mindbox/pe/server/impexp/**/*.class" />
+			<exclude name="com/mindbox/pe/server/imexport/**/*.class" />
+			<exclude name="com/mindbox/pe/wrapper/**/*.class" />
+		</fileset>
+	</jar>
+</target>
+
+<target name="tools-jar" depends="compile" description="Builds PowerEditor Tools JAR">
+	<mkdir dir="${build.dir}" />
+	<antcall target="copy-jar-manifest-if-needed">
+		<param name="manifest.key" value="tools" />
+		<param name="manifest.section" value="com/mindbox/pe/tools/" />
+		<param name="manifest.title" value="${Name}-Tools" />
+	</antcall>
+	<jar jarfile="${build.dir}/${tools.jar}" duplicate="fail" manifest="${build.dir}/tools-manifest.mf">
+		<fileset dir="${common.dir}/classes">
+			<include name="com/mindbox/pe/**/*.class" />
+		</fileset>
+		<fileset dir="${client.dir}/classes">
+			<include name="com/mindbox/pe/client/common/*.class" />
+			<include name="com/mindbox/pe/client/common/table/*.class" />
+		</fileset>
+		<fileset dir="${tools.dir}/classes">
+			<include name="com/mindbox/pe/server/cache/*.class" />
+			<include name="com/mindbox/pe/server/db/loaders/*.class" />
+			<include name="com/mindbox/pe/server/RuleDefinitionUtil.class" />
+			<include name="com/mindbox/pe/server/Util.class" />
+			<include name="com/mindbox/pe/server/bizlogic/GridActionCoordinator.class" />
+			<include name="com/mindbox/pe/server/repository/adhoc/RuleDefinitionStringWriter.class" />
+			<include name="com/mindbox/pe/tools/**/*.class" />
+			<exclude name="com/mindbox/pe/tools/**/*Test.class" />
+			<exclude name="com/mindbox/pe/tools/**/*TestSuite.class" />
+		</fileset>
+		<fileset dir="${resource.dir}">
+			<include name="logging.properties" />
+		</fileset>
+		<manifest>
+			<attribute name="Main-Class" value="com.mindbox.pe.tools.PowerEditorTool" />
+			<attribute name="Class-Path" value="powereditor-parser.jar" />
+		</manifest>
+	</jar>
+</target>
+
+<target name="pwd-encrypt-tool-jar" depends="compile" description="Builds PowerEditor PasswordEncryptionTool JAR">
+	<mkdir dir="${build.dir}" />
+	<antcall target="copy-jar-manifest-if-needed">
+		<param name="manifest.key" value="encryption" />
+		<param name="manifest.section" value="com/mindbox/pe/tools/" />
+		<param name="manifest.title" value="${Name}-Password-Encryption-Tool" />
+	</antcall>
+	<jar jarfile="${build.dir}/${pwd-encrypt-tool.jar}" duplicate="fail" manifest="${build.dir}/encryption-manifest.mf">
+		<fileset dir="${server.dir}/classes">
+			<include name="com/mindbox/pe/server/config/Password.class" />
+		</fileset>
+		<fileset dir="${tools.dir}/classes">
+			<include name="com/mindbox/pe/tools/PasswordTool*.class" />
+		</fileset>
+		<manifest>
+			<attribute name="Main-Class" value="com.mindbox.pe.tools.PasswordTool" />
+			<attribute name="Class-Path" value="commons-codec.jar" />
+		</manifest>
+	</jar>
+</target>
+
+<target name="version-jar" depends="compile" description="Builds PowerEditor Version Checker JAR">
+	<mkdir dir="${build.dir}" />
+	<antcall target="copy-jar-manifest-if-needed">
+		<param name="manifest.key" value="version" />
+		<param name="manifest.section" value="com/mindbox/pe/tools/" />
+		<param name="manifest.title" value="${Name}-Version-Checker" />
+	</antcall>
+	<jar jarfile="${build.dir}/powereditor-version.jar" duplicate="fail" manifest="${build.dir}/version-manifest.mf">
+		<fileset dir="${tools.dir}/classes">
+			<include name="com/mindbox/pe/tools/version/**/*.class" />
+		</fileset>
+		<manifest>
+			<attribute name="Main-Class" value="com.mindbox.pe.tools.version.VersionChecker" />
+		</manifest>
+	</jar>
+</target>
+
+<target name="export-jar" depends="compile" description="Build PE Export JAR">
+	<mkdir dir="${build.dir}" />
+	<antcall target="copy-jar-manifest-if-needed">
+		<param name="manifest.key" value="export" />
+		<param name="manifest.section" value="com/mindbox/pe/server/imexport/" />
+		<param name="manifest.title" value="${Name}-Export" />
+	</antcall>
+	<jar jarfile="${build.dir}/${export.jar}" duplicate="fail" manifest="${build.dir}/export-manifest.mf">
+		<fileset dir="${server.dir}/classes">
+			<include name="com/mindbox/pe/server/imexport/**/*.class" />
+		</fileset>
+	</jar>
+</target>
+
+<target name="wrapper-jar" depends="compile" description="Builds wrapper JAR">
+	<mkdir dir="${build.dir}" />
+	<antcall target="copy-jar-manifest-if-needed">
+		<param name="manifest.key" value="wrapper" />
+		<param name="manifest.section" value="com/mindbox/pe/wrapper/" />
+		<param name="manifest.title" value="${Name}-Wrapper" />
+	</antcall>
+	<jar jarfile="${build.dir}/powereditor-wrapper.jar" duplicate="fail" manifest="${build.dir}/wrapper-manifest.mf">
+		<fileset dir="${server.dir}/classes">
+			<include name="com/mindbox/pe/wrapper/**/*.class" />
+			<exclude name="**/*Test.class" />
+		</fileset>
+	</jar>
+</target>
+
+<target name="all-jars" depends="sign-applet,server-jar,crystal-jar,export-jar,wrapper-jar,tools-jar,pwd-encrypt-tool-jar,version-jar" description="build all JARs">
+</target>
+
+
+<!--///////////////////////// WAR CREATION SECTION ///////////////////////-->
+
+<target name="check-index-files">
+	<uptodate property="index.files.notRequired" srcfile="${basedir}/build.properties" targetfile="${build.dir}/index.html" />
+</target>
+
+<target name="copy-index-files" depends="check-index-files" unless="index.files.notRequired">
+	<delete>
+		<fileset dir="${build.dir}">
+			<include name="${home.html}" />
+			<include name="index.html" />
+		</fileset>
+	</delete>
+	<copy todir="${build.dir}" filtering="true">
+		<fileset dir="${doc.dir}">
+			<include name="${home.html}" />
+			<include name="index.html" />
+		</fileset>
+		<filterset>
+			<filtersfile file="${basedir}/build.properties" />
+		</filterset>
+	</copy>
+</target>
+
+<target name="prep-war">
+	<copy todir="${build.dir}" filtering="true">
+		<fileset dir="${config.dir}">
+			<include name="${web.xml}" />
+		</fileset>
+		<filterset>
+			<filter token="pe.config" value="${pe.config.file}" />
+		</filterset>
+	</copy>
+</target>
+
+<!-- create the PowerEditor WAR -->
+<target name="editor-war" depends="sign-applet,server-jar,export-jar,crystal-jar,version-jar,copy-index-files,prep-war">
+	<war warfile="${build.dir}/${deploy.war}" webxml="${build.dir}/${web.xml}">
+		<fileset dir="${doc.dir}">
+			<include name="images/**/*" />
+			<include name="**/*.jsp" />
+			<include name="**/*.css" />
+			<include name="**/*.js" />
+			<include name="crystalreportviewers115/**/*" />
+			<include name="**/*.xsd" />
+
+			<exclude name="export_data.jsp" />
+			<exclude name="images/**/*.bs" />
+			<exclude name="images/**/*.psd" />
+			<exclude name="images/**/*.db" />
+			<exclude name="**/_*.jsp" />
+			<!--<exclude name="includes/**/*" />-->
+		</fileset>
+
+		<fileset dir="${resource.parent.dir}">
+			<include name="resource/**/*.properties" />
+			<include name="resource/PowerEditorData.xsd" />
+			<include name="resource/Sample-PowerEditor-Data.xml" />
+			<include name="resource/*.css" />
+			<exclude name="resource/wsdl/*" />
+			<exclude name="resource/logging.properties" />
+		</fileset>
+
+		<!-- jars for the applet screen -->
+		<fileset dir="${build.dir}">
+			<include name="${home.html}" />
+			<include name="index.html" />
+			<include name="${applet.jar}" />
+		</fileset>
+		<fileset dir="${client.lib.dir}">
+			<include name="MDateSelector.jar" />
+		</fileset>
+		<fileset dir="${common.lib.dir}">
+			<include name="log4j-1.2.8.jar" />
+			<include name="powereditor-parser.jar" />
+			<include name="net.sf.oval_1.0.jar" />
+		</fileset>
+
+		<webinf dir="${resource.dir}">
+			<include name="wsdl/*.wsdl" />
+		</webinf>
+
+		<webinf dir="${config.dir}">
+			<include name="PowerEditorConfiguration*.xml" />
+			<include name="*.xsd" />
+			<include name="*enumeration-sample.xml" />
+			<include name="webapp.properties" />
+			<include name="${xml.domain}" />
+			<include name="${xml.template}" />
+			<include name="${xml.CBR}" />
+			<include name="*.tld" />
+			<include name="websphere-web_2_3.xml" />
+			<include name="sun-jaxws.xml" />
+			<include name="user-pass-authenticate-server.xml" />
+			<!-- for WebServices Handler -->
+		</webinf>
+
+		<webinf dir="${resource.dir}">
+			<include name="*.bat" />
+			<include name="*.sh" />
+		</webinf>
+
+		<webinf dir="${db.parent.dir}">
+			<include name="database/MB-PEDB-EMPTY.mdb" />
+			<include name="database/powereditor_db_change_4*.sql" />
+			<include name="database/powereditor-db-create*.sql" />
+			<include name="database/powereditor-db-init-data*.sql" />
+			<exclude name="database/powereditor-db-create-tables-generic*.sql" />
+			<include name="ldap/*" />
+		</webinf>
+
+		<lib dir="${common.lib.dir}">
+			<include name="log4j-1.2.8.jar" />
+			<include name="powereditor-parser.jar" />
+			<include name="commons*.jar" />
+			<include name="net.sf.oval_1.0.jar" />
+		</lib>
+		<lib dir="${server.lib.dir}">
+			<include name="ojdbc14.jar" />
+			<include name="commons-dbcp-1.2.2.jar" />
+			<include name="commons-pool-1.3.jar" />
+		</lib>
+		<lib dir="${lib.dir}">
+			<include name="jstl.jar" />
+			<include name="standard.jar" />
+			<include name="mysql-connector*.jar" />
+			<include name="xercesImpl.jar" />
+			<include name="sqljdbc4.jar" />
+			<!-- Do not include old SQLServer JDBC driver -->
+			<exclude name="ms*.jar" />
+		</lib>
+		<lib dir="${server.lib.dir}/crystal-reports">
+			<include name="*.jar" />
+		</lib>
+
+		<lib dir="${build.dir}">
+			<include name="${server.jar}" />
+			<include name="${export.jar}" />
+			<include name="powereditor-crystal.jar" />
+		</lib>
+		<lib dir="${server.lib.dir}/web-services">
+			<include name="*.jar" />
+		</lib>
+
+		<classes dir="${config.dir}/crystal-reports">
+			<include name="*.xml" />
+			<include name="*.ini" />
+		</classes>
+		<classes dir="${resource.dir}">
+			<include name="*.rpt" />
+		</classes>
+		<classes dir="${config.dir}">
+			<include name="handlers.xml" />
+			<!-- for web services Handler config -->
+		</classes>
+
+	</war>
+</target>
+
+<!-- clean the war, expanded directory, and work directory -->
+<target name="clean-war" depends="editor-war" description="Cleans the WAR into the wabapps dir amd work dir">
+	<delete file="${install.webapp.dir}/${deploy.war}" failonerror="true" />
+	<delete dir="${install.webapp.dir}/${deploy.root}" failonerror="true" />
+	<delete dir="${install.work.dir}/${deploy.root}" failonerror="false" />
+</target>
+
+<!-- install the war -->
+<target name="install-war" depends="editor-war,clean-war" description="Install the WAR into the wabapps dir">
+	<copy file="${build.dir}/${deploy.war}" todir="${install.webapp.dir}" />
+</target>
+
+<!-- install the applet jar only -->
+<target name="install-applet" depends="applet-jar">
+	<copy todir="${install.webapp.dir}/${deploy.root}">
+		<fileset dir="${build.dir}">
+			<include name="${applet.jar}" />
+		</fileset>
+		<fileset dir="${resource.parent.dir}">
+			<include name="resource/**/*" />
+		</fileset>
+	</copy>
+</target>
+
+<target name="dist-internal" depends="war">
+	<zip zipfile="${build.dir}/${name}-${version}-build${build}.zip">
+		<zipfileset dir="${build.dir}">
+			<include name="powereditor.war" />
+		</zipfileset>
+	</zip>
+</target>
+
+<target name="jar-ws-client">
+	<!-- Disable WS Client generation for now (5.8.2) 
+	<ant antfile="build.xml"  inheritAll="false" dir="${basedir}/projects/wsclient" target="jar"/>
+	-->
+</target>
+
+<!-- create the distribution -->
+<target name="dist-zip" depends="all-jars,editor-war,jar-ws-client">
+	<zip zipfile="${dist.dir}/${name}-${version}.zip">
+		<zipfileset dir="${build.dir}">
+			<include name="powereditor.war" />
+		</zipfileset>
+		<zipfileset dir="${config.dir}" prefix="config">
+			<include name="PowerEditorConfiguration.xml" />
+			<include name="*.xsd" />
+			<include name="*enumeration-sample.xml" />
+		</zipfileset>
+		<zipfileset dir="${resource.parent.dir}/resource" prefix="config">
+			<include name="PowerEditorData.xsd" />
+		</zipfileset>
+		<zipfileset dir="${resource.dir}" prefix="config">
+			<include name="*.bat" />
+			<include name="*.sh" />
+		</zipfileset>
+		<zipfileset dir="${build.dir}" prefix="tools">
+			<include name="${tools.jar}" />
+			<include name="powereditor-version.jar" />
+			<include name="${pwd-encrypt-tool.jar}" />
+		</zipfileset>
+		<zipfileset dir="${common.lib.dir}" prefix="tools">
+			<include name="log4j-1.2.8.jar" />
+		</zipfileset>
+		<zipfileset dir="${common.lib.dir}" prefix="tools">
+			<include name="commons-codec.jar" />
+		</zipfileset>
+		<zipfileset dir="${resource.parent.dir}/script" prefix="tools">
+			<include name="*.bat" />
+			<include name="*.sh" />
+			<exclude name="*wsclient*.*" />
+		</zipfileset>
+		<zipfileset dir="${build.dir}" prefix="database">
+			<include name="powereditor-wrapper.jar" />
+		</zipfileset>
+		<zipfileset dir="${db.parent.dir}/database" prefix="database">
+			<include name="MB-PEDB-EMPTY.mdb" />
+			<include name="powereditor_db_change_*.sql" />
+			<include name="powereditor-db-create*.sql" />
+			<include name="powereditor-db-init-data*.sql" />
+			<exclude name="powereditor-db-create-tables-generic*.sql" />
+			<exclude name="powereditor_db_change_4*.sql" />
+		</zipfileset>
+		<zipfileset dir="${db.parent.dir}/ldap" prefix="ldap">
+			<include name="*" />
+		</zipfileset>
+		<zipfileset dir="${wsclient.dir}/lib" prefix="wsclient">
+			<include name="*.jar" />
+		</zipfileset>
+		<zipfileset dir="${wsclient.dir}/data" prefix="wsclient/data">
+			<include name="simple-import.xml" />
+		</zipfileset>
+		<zipfileset dir="${wsclient.dir}/testdir" prefix="wsclient">
+			<include name="*.jar" />
+			<include name="*.properties" />
+			<include name="*.xml" />
+		</zipfileset>
+		<zipfileset dir="${resource.parent.dir}/script" prefix="wsclient">
+			<include name="*wsclient*.*" />
+		</zipfileset>
+		<zipfileset dir="${wsclient.javasource.dir}" prefix="wsclient/source/java">
+			<include name="*.java" />
+		</zipfileset>
+		<zipfileset dir="${wsclient.cssource.dir}" prefix="wsclient/source/csharp">
+			<include name="*.cs" />
+		</zipfileset>
+	</zip>
+</target>
+
+<target name="dist-version-tool" depends="version-jar" description="Make version tool only distribution">
+	<zip zipfile="${dist.dir}/${name}-version-tool.zip">
+		<zipfileset dir="${build.dir}" prefix="${Name}/tools">
+			<include name="powereditor-version.jar" />
+		</zipfileset>
+		<zipfileset dir="${resource.parent.dir}/script" prefix="${Name}/tools">
+			<include name="*version.bat" />
+			<include name="*version.sh" />
+		</zipfileset>
+		<zipfileset dir="${dist.doc.dir}">
+			<include name="*Version_Checker*.doc" />
+		</zipfileset>
+	</zip>
+</target>
+
+<!-- stops the pete appserver -->
+<target name="pete-stop-appserver" description="Stops the project-test appserver">
+	<exec dir="${testing.install.webapp.dir}" executable="net">
+		<arg value="stop" />
+		<arg value="${install.service.name}" />
+	</exec>
+</target>
+
+<!-- starts the pete appserver -->
+<target name="pete-start-appserver" description="Starts the project-test appserver">
+	<exec dir="${testing.install.webapp.dir}" executable="net">
+		<arg value="start" />
+		<arg value="${install.service.name}" />
+	</exec>
+</target>
+
+<!-- stops the project-test appserver -->
+<target name="test-stop-appserver" description="Stops the project-test appserver">
+	<exec dir="${testing.install.webapp.dir}" executable="net">
+		<arg value="stop" />
+		<arg value="${testing.service.name}" />
+	</exec>
+</target>
+
+<!-- starts the project-test appserver -->
+<target name="test-start-appserver" description="Starts the project-test appserver">
+	<exec dir="${testing.install.webapp.dir}" executable="net">
+		<arg value="start" />
+		<arg value="${testing.service.name}" />
+	</exec>
+</target>
+
+<!-- stops the baseline appserver -->
+<target name="baseline-stop-appserver" description="Stops the project-test appserver">
+	<exec dir="${testing.install.webapp.dir}" executable="net">
+		<arg value="stop" />
+		<arg value="${testing.baseline.service.name}" />
+	</exec>
+</target>
+
+<!-- starts the baseline appserver -->
+<target name="baseline-start-appserver" description="Starts the project-test appserver">
+	<exec dir="${testing.install.webapp.dir}" executable="net">
+		<arg value="start" />
+		<arg value="${testing.baseline.service.name}" />
+	</exec>
+</target>
+
+<!-- clean the project-test-wars, expanded directory, and work directory -->
+<target name="test-clean-project-wars" description="Cleans the project test WARs into the wabapps dir amd work dir">
+	<delete file="${testing.install.webapp.dir}/powereditor.war" failonerror="true" verbose="true" />
+	<delete dir="${testing.install.webapp.dir}/powereditor" failonerror="true" verbose="true" />
+	<delete dir="${testing.install.work.dir}/powereditor" failonerror="false" verbose="true" />
+
+	<delete file="${testing.install.webapp.dir}/gforce-powereditor.war" failonerror="true" verbose="true" />
+	<delete dir="${testing.install.webapp.dir}/gforce-powereditor" failonerror="true" verbose="true" />
+	<delete dir="${testing.install.work.dir}/gforce-powereditor" failonerror="false" verbose="true" />
+
+	<delete file="${testing.install.webapp.dir}/import-powereditor.war" failonerror="true" verbose="true" />
+	<delete dir="${testing.install.webapp.dir}/import-powereditor" failonerror="true" verbose="true" />
+	<delete dir="${testing.install.work.dir}/import-powereditor" failonerror="false" verbose="true" />
+
+	<delete file="${testing.install.webapp.dir}/cbe-powereditor.war" failonerror="true" verbose="true" />
+	<delete dir="${testing.install.webapp.dir}/cbe-powereditor" failonerror="true" verbose="true" />
+	<delete dir="${testing.install.work.dir}/cbe-powereditor" failonerror="false" verbose="true" />
+
+	<delete file="${testing.install.webapp.dir}/epolicy-powereditor.war" failonerror="true" verbose="true" />
+	<delete dir="${testing.install.webapp.dir}/epolicy-powereditor" failonerror="true" verbose="true" />
+	<delete dir="${testing.install.work.dir}/epolicy-powereditor" failonerror="false" verbose="true" />
+
+	<delete file="${testing.install.webapp.dir}/ftest-powereditor.war" failonerror="true" verbose="true" />
+	<delete dir="${testing.install.webapp.dir}/ftest-powereditor" failonerror="true" verbose="true" />
+	<delete dir="${testing.install.work.dir}/ftest-powereditor" failonerror="false" verbose="true" />
+
+	<delete file="${testing.install.webapp.dir}/phh-powereditor.war" failonerror="true" verbose="true" />
+	<delete dir="${testing.install.webapp.dir}/phh-powereditor" failonerror="true" verbose="true" />
+	<delete dir="${testing.install.work.dir}/phh-powereditor" failonerror="false" verbose="true" />
+
+	<delete file="${testing.install.webapp.dir}/pse-powereditor.war" failonerror="true" verbose="true" />
+	<delete dir="${testing.install.webapp.dir}/pse-powereditor" failonerror="true" verbose="true" />
+	<delete dir="${testing.install.work.dir}/pse-powereditor" failonerror="false" verbose="true" />
+
+	<delete file="${testing.install.webapp.dir}/rates-powereditor.war" failonerror="true" verbose="true" />
+	<delete dir="${testing.install.webapp.dir}/rates-powereditor" failonerror="true" verbose="true" />
+	<delete dir="${testing.install.work.dir}/rates-powereditor" failonerror="false" verbose="true" />
+</target>
+
+<!-- Cleans the project test configuration log files -->
+<target name="test-clean-project-config" description="Cleans the project test configuration">
+	<delete failonerror="false" verbose="true">
+		<fileset dir="C:/MindBox/PowerEditor-UITest/log" includes="*.log*" />
+	</delete>
+	<delete failonerror="false" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/gForce1/AUS/PowerEditor/log" includes="*.log*" />
+	</delete>
+	<delete failonerror="false" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/Import-Test/AUS/PowerEditor/log" includes="*.log*" />
+	</delete>
+	<delete failonerror="false" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/Genworth/CBE/PowerEditor/log" includes="*.log*" />
+	</delete>
+	<delete failonerror="false" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/Cordance/EPolicy/PowerEditor/log" includes="*.log*" />
+	</delete>
+	<delete failonerror="false" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/FuncTest/AUS/PowerEditor/log" includes="*.log*" />
+	</delete>
+	<delete failonerror="false" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/PHH/AUS/PowerEditor/log" includes="*.log*" />
+	</delete>
+	<delete failonerror="false" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/PSE/ADX/PowerEditor/log" includes="*.log*" />
+	</delete>
+	<delete failonerror="false" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/Genworth/Rates/PowerEditor/log" includes="*.log*" />
+	</delete>
+</target>
+
+<!-- Restores the project test configuration -->
+<target name="test-restore-project-config" depends="test-stop-appserver, test-clean-project-config" description="Restores the project test configuration">
+	<touch>
+		<fileset dir="C:/MindBox/PowerEditor-UITest/config/backup/" includes="*.xml" />
+	</touch>
+	<copy todir="C:/MindBox/PowerEditor-UITest/config" overwrite="true" verbose="true">
+		<fileset dir="C:/MindBox/PowerEditor-UITest/config/backup/" includes="*.xml" />
+	</copy>
+	<touch>
+		<fileset dir="C:/MindBox/PowerEditor-UITest/database/backup" includes="*.mdb" />
+	</touch>
+	<copy todir="C:/MindBox/PowerEditor-UITest/database" overwrite="true" verbose="true">
+		<fileset dir="C:/MindBox/PowerEditor-UITest/database/backup" includes="*.mdb" />
+	</copy>
+
+	<touch>
+		<fileset dir="C:/MindBox/MBXProjects/Genworth/CBE/PowerEditor/config/backup" includes="*.xml" />
+	</touch>
+	<copy todir="C:/MindBox/MBXProjects/Genworth/CBE/PowerEditor/config" overwrite="true" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/Genworth/CBE/PowerEditor/config/backup" includes="*.xml" />
+	</copy>
+	<!-- 
+	<touch>
+	    <fileset dir="C:/MindBox/MBXProjects/Genworth/CBE/PowerEditor/database/backup" includes="*.mdb" />
+	</touch>
+	<copy todir="C:/MindBox/MBXProjects/Genworth/CBE/PowerEditor/database" overwrite="true" verbose="true" >
+	    <fileset dir="C:/MindBox/MBXProjects/Genworth/CBE/PowerEditor/database/backup" includes="*.mdb" />
+   </copy>
+    -->
+
+	<touch>
+		<fileset dir="C:/MindBox/MBXProjects/gForce1/AUS/PowerEditor/config/backup" includes="*.xml" />
+	</touch>
+	<copy todir="C:/MindBox/MBXProjects/gForce1/AUS/PowerEditor/config" overwrite="true" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/gForce1/AUS/PowerEditor/config/backup" includes="*.xml" />
+	</copy>
+	<touch>
+		<fileset dir="C:/MindBox/MBXProjects/gForce1/AUS/PowerEditor/database/backup" includes="*.mdb" />
+	</touch>
+	<copy todir="C:/MindBox/MBXProjects/gForce1/AUS/PowerEditor/database" overwrite="true" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/gForce1/AUS/PowerEditor/database/backup" includes="*.mdb" />
+	</copy>
+	<touch>
+		<fileset dir="C:/MindBox/MBXProjects/gForce1/AUS/PowerEditor/database/backup" includes="*.xml" />
+	</touch>
+	<copy todir="C:/MindBox/MBXProjects/gForce1/AUS/PowerEditor/database" overwrite="true" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/gForce1/AUS/PowerEditor/database/backup" includes="*.xml" />
+	</copy>
+
+	<touch>
+		<fileset dir="C:/MindBox/MBXProjects/Import-Test/AUS/PowerEditor/config/backup" includes="*.xml" />
+	</touch>
+	<copy todir="C:/MindBox/MBXProjects/Import-Test/AUS/PowerEditor/config" overwrite="true" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/Import-Test/AUS/PowerEditor/config/backup" includes="*.xml" />
+	</copy>
+	<touch>
+		<fileset dir="C:/MindBox/MBXProjects/Import-Test/AUS/PowerEditor/database/backup" includes="*.mdb" />
+	</touch>
+	<copy todir="C:/MindBox/MBXProjects/Import-Test/AUS/PowerEditor/database" overwrite="true" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/Import-Test/AUS/PowerEditor/database/backup" includes="*.mdb" />
+	</copy>
+	<touch>
+		<fileset dir="C:/MindBox/MBXProjects/Import-Test/AUS/PowerEditor/database/backup" includes="*.xml" />
+	</touch>
+	<copy todir="C:/MindBox/MBXProjects/Import-Test/AUS/PowerEditor/database" overwrite="true" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/Import-Test/AUS/PowerEditor/database/backup" includes="*.xml" />
+	</copy>
+
+	<touch>
+		<fileset dir="C:/MindBox/MBXProjects/Cordance/EPolicy/PowerEditor/config/backup" includes="*.xml" />
+	</touch>
+	<copy todir="C:/MindBox/MBXProjects/Cordance/EPolicy/PowerEditor/config" overwrite="true" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/Cordance/EPolicy/PowerEditor/config/backup" includes="*.xml" />
+	</copy>
+	<touch>
+		<fileset dir="C:/MindBox/MBXProjects/Cordance/EPolicy/PowerEditor/database/backup" includes="*.mdb" />
+	</touch>
+	<copy todir="C:/MindBox/MBXProjects/Cordance/EPolicy/PowerEditor/database" overwrite="true" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/Cordance/EPolicy/PowerEditor/database/backup" includes="*.mdb" />
+	</copy>
+
+	<touch>
+		<fileset dir="C:/MindBox/MBXProjects/FuncTest/AUS/PowerEditor/config/backup" includes="*.xml" />
+	</touch>
+	<copy todir="C:/MindBox/MBXProjects/FuncTest/AUS/PowerEditor/config" overwrite="true" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/FuncTest/AUS/PowerEditor/config/backup" includes="*.xml" />
+	</copy>
+	<touch>
+		<fileset dir="C:/MindBox/MBXProjects/FuncTest/AUS/PowerEditor/database/backup" includes="*.mdb" />
+	</touch>
+	<copy todir="C:/MindBox/MBXProjects/FuncTest/AUS/PowerEditor/database" overwrite="true" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/FuncTest/AUS/PowerEditor/database/backup" includes="*.mdb" />
+	</copy>
+
+	<touch>
+		<fileset dir="C:/MindBox/MBXProjects/PHH/AUS/PowerEditor/config/backup" includes="*.xml" />
+	</touch>
+	<copy todir="C:/MindBox/MBXProjects/PHH/AUS/PowerEditor/config" overwrite="true" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/PHH/AUS/PowerEditor/config/backup/" includes="*.xml" />
+	</copy>
+	<!-- 
+	<touch>
+       <fileset dir="C:/MindBox/MBXProjects/PHH/AUS/PowerEditor/database/backup" includes="*.mdb" />
+   </touch>
+	<copy todir="C:/MindBox/MBXProjects/PHH/AUS/PowerEditor/database" overwrite="true" verbose="true" >
+	    <fileset dir="C:/MindBox/MBXProjects/PHH/AUS/PowerEditor/database/backup" includes="*.mdb" />
+   </copy>
+    -->
+
+	<touch>
+		<fileset dir="C:/MindBox/MBXProjects/PSE/ADX/PowerEditor/config/backup" includes="*.xml" />
+	</touch>
+	<copy todir="C:/MindBox/MBXProjects/PSE/ADX/PowerEditor/config" overwrite="true" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/PSE/ADX/PowerEditor/config/backup" includes="*.xml" />
+	</copy>
+	<touch>
+		<fileset dir="C:/MindBox/MBXProjects/PSE/ADX/PowerEditor/database/backup" includes="*.mdb" />
+	</touch>
+	<copy todir="C:/MindBox/MBXProjects/PSE/ADX/PowerEditor/database" overwrite="true" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/PSE/ADX/PowerEditor/database/backup" includes="*.mdb" />
+	</copy>
+
+	<touch>
+		<fileset dir="C:/MindBox/MBXProjects/Genworth/Rates/PowerEditor/config/backup" includes="*xml" />
+	</touch>
+	<copy todir="C:/MindBox/MBXProjects/Genworth/Rates/PowerEditor/config" overwrite="true" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/Genworth/Rates/PowerEditor/config/backup" includes="*.xml" />
+	</copy>
+	<!-- 
+	<touch>
+	    <fileset dir="C:/MindBox/MBXProjects/Genworth/Rates/PowerEditor/database/backup" includes="*.mdb" />
+	</touch>
+	<copy  todir="C:/MindBox/MBXProjects/Genworth/Rates/PowerEditor/database" overwrite="true" verbose="true" >
+	    <fileset dir="C:/MindBox/MBXProjects/Genworth/Rates/PowerEditor/database/backup" includes="*mdb" />
+   </copy>
+    -->
+
+	<echo message="Non-MS-Access databases must be restored manually!" />
+
+</target>
+
+<!-- Updates the project-test-wars, copying base war to new name and updating the web.xml files for each configuration -->
+<target name="test-update-project-wars" depends="test-clean-project-wars" description="Updates the project-test-wars, copying base war to new name and updating the web.xml files for each configuration">
+	<copy file="${testing.install.war.dir}/${deploy.war}" tofile="${testing.install.webapp.dir}/powereditor.war" verbose="true" />
+	<touch file="C:/MindBox/PowerEditor-UITest/config/web.xml" />
+	<war destfile="${testing.install.webapp.dir}/powereditor.war" webxml="C:/MindBox/PowerEditor-UITest/config/web.xml" update="true" />
+
+	<copy file="${testing.install.war.dir}/${deploy.war}" tofile="${testing.install.webapp.dir}/gforce-powereditor.war" verbose="true" />
+	<touch file="C:/MindBox/MBXProjects/gForce1/AUS/PowerEditor/config/web.xml" />
+	<war destfile="${testing.install.webapp.dir}/gforce-powereditor.war" webxml="C:/MindBox/MBXProjects/gForce1/AUS/PowerEditor/config/web.xml" update="true" />
+
+	<copy file="${testing.install.war.dir}/${deploy.war}" tofile="${testing.install.webapp.dir}/import-powereditor.war" verbose="true" />
+	<touch file="C:/MindBox/MBXProjects/Import-Test/AUS/PowerEditor/config/web.xml" />
+	<war destfile="${testing.install.webapp.dir}/import-powereditor.war" webxml="C:/MindBox/MBXProjects/Import-Test/AUS/PowerEditor/config/web.xml" update="true" />
+
+	<copy file="${testing.install.war.dir}/${deploy.war}" tofile="${testing.install.webapp.dir}/cbe-powereditor.war" verbose="true" />
+	<touch file="C:/MindBox/MBXProjects/Genworth/CBE/PowerEditor/config/web.xml" />
+	<war destfile="${testing.install.webapp.dir}/cbe-powereditor.war" webxml="C:/MindBox/MBXProjects/Genworth/CBE/PowerEditor/config/web.xml" update="true" />
+
+	<copy file="${testing.install.war.dir}/${deploy.war}" tofile="${testing.install.webapp.dir}/epolicy-powereditor.war" verbose="true" />
+	<touch file="C:/MindBox/MBXProjects/Cordance/EPolicy/PowerEditor/config/web.xml" />
+	<war destfile="${testing.install.webapp.dir}/epolicy-powereditor.war" webxml="C:/MindBox/MBXProjects/Cordance/EPolicy/PowerEditor/config/web.xml" update="true" />
+
+	<copy file="${testing.install.war.dir}/${deploy.war}" tofile="${testing.install.webapp.dir}/ftest-powereditor.war" verbose="true" />
+	<touch file="C:/MindBox/MBXProjects/FuncTest/AUS/PowerEditor/config/web.xml" />
+	<war destfile="${testing.install.webapp.dir}/ftest-powereditor.war" webxml="C:/MindBox/MBXProjects/FuncTest/AUS/PowerEditor/config/web.xml" update="true" />
+
+	<copy file="${testing.install.war.dir}/${deploy.war}" tofile="${testing.install.webapp.dir}/phh-powereditor.war" verbose="true" />
+	<touch file="C:/MindBox/MBXProjects/PHH/AUS/PowerEditor/config/web.xml" />
+	<war destfile="${testing.install.webapp.dir}/phh-powereditor.war" webxml="C:/MindBox/MBXProjects/PHH/AUS/PowerEditor/config/web.xml" update="true" />
+
+	<copy file="${testing.install.war.dir}/${deploy.war}" tofile="${testing.install.webapp.dir}/pse-powereditor.war" verbose="true" />
+	<touch file="C:/MindBox/MBXProjects/PSE/ADX/PowerEditor/config/web.xml" />
+	<war destfile="${testing.install.webapp.dir}/pse-powereditor.war" webxml="C:/MindBox/MBXProjects/PSE/ADX/PowerEditor/config/web.xml" update="true" />
+
+	<copy file="${testing.install.war.dir}/${deploy.war}" tofile="${testing.install.webapp.dir}/rates-powereditor.war" verbose="true" />
+	<touch file="C:/MindBox/MBXProjects/Genworth/Rates/PowerEditor/config/web.xml" />
+	<war destfile="${testing.install.webapp.dir}/rates-powereditor.war" webxml="C:/MindBox/MBXProjects/Genworth/Rates/PowerEditor/config/web.xml" update="true" />
+</target>
+
+<!-- installs the project-test wars on the appserver -->
+<target name="test-install-project-wars" depends="test-stop-appserver, test-update-project-wars, test-start-appserver" description="Installs the project-test wars on the appserver">
+</target>
+
+<!-- totally resets the test environment -->
+<target name="test-update-and-restore-all" depends="test-stop-appserver, test-update-project-wars, test-restore-project-config" description="Installs the project-test wars on the appserver">
+</target>
+
+
+<!-- clean the project-test-wars, expanded directory, and work directory -->
+<target name="baseline-clean-project-wars" description="Cleans the project test WARs into the wabapps dir amd work dir">
+	<delete file="${testing.install.baseline.webapp.dir}/gforce-powereditor.war" failonerror="true" verbose="true" />
+	<delete dir="${testing.install.baseline.webapp.dir}/gforce-powereditor" failonerror="true" verbose="true" />
+	<delete dir="${testing.install.baseline.work.dir}/gforce-powereditor" failonerror="false" verbose="true" />
+
+	<delete file="${testing.install.baseline.webapp.dir}/import-powereditor.war" failonerror="true" verbose="true" />
+	<delete dir="${testing.install.baseline.webapp.dir}/import-powereditor" failonerror="true" verbose="true" />
+	<delete dir="${testing.install.baseline.work.dir}/import-powereditor" failonerror="false" verbose="true" />
+
+	<delete file="${testing.install.baseline.webapp.dir}/cbe-powereditor.war" failonerror="true" verbose="true" />
+	<delete dir="${testing.install.baseline.webapp.dir}/cbe-powereditor" failonerror="true" verbose="true" />
+	<delete dir="${testing.install.baseline.work.dir}/cbe-powereditor" failonerror="false" verbose="true" />
+
+	<delete file="${testing.install.baseline.webapp.dir}/epolicy-powereditor.war" failonerror="true" verbose="true" />
+	<delete dir="${testing.install.baseline.webapp.dir}/epolicy-powereditor" failonerror="true" verbose="true" />
+	<delete dir="${testing.install.baseline.work.dir}/epolicy-powereditor" failonerror="false" verbose="true" />
+
+	<delete file="${testing.install.baseline.webapp.dir}/ftest-powereditor.war" failonerror="true" verbose="true" />
+	<delete dir="${testing.install.baseline.webapp.dir}/ftest-powereditor" failonerror="true" verbose="true" />
+	<delete dir="${testing.install.baseline.work.dir}/ftest-powereditor" failonerror="false" verbose="true" />
+
+	<delete file="${testing.install.baseline.webapp.dir}/phh-powereditor.war" failonerror="true" verbose="true" />
+	<delete dir="${testing.install.baseline.webapp.dir}/phh-powereditor" failonerror="true" verbose="true" />
+	<delete dir="${testing.install.baseline.work.dir}/phh-powereditor" failonerror="false" verbose="true" />
+
+	<delete file="${testing.install.baseline.webapp.dir}/pse-powereditor.war" failonerror="true" verbose="true" />
+	<delete dir="${testing.install.baseline.webapp.dir}/pse-powereditor" failonerror="true" verbose="true" />
+	<delete dir="${testing.install.baseline.work.dir}/pse-powereditor" failonerror="false" verbose="true" />
+
+	<delete file="${testing.install.baseline.webapp.dir}/rates-powereditor.war" failonerror="true" verbose="true" />
+	<delete dir="${testing.install.baseline.webapp.dir}/rates-powereditor" failonerror="true" verbose="true" />
+	<delete dir="${testing.install.baseline.work.dir}/rates-powereditor" failonerror="false" verbose="true" />
+</target>
+
+<!-- Cleans the project test configuration log files -->
+<target name="baseline-clean-project-config" description="Cleans the project test configuration">
+	<delete failonerror="false" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/baseline/gForce1/AUS/PowerEditor/log" includes="*.log*" />
+	</delete>
+	<delete failonerror="false" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/baseline/Import-Test/AUS/PowerEditor/log" includes="*.log*" />
+	</delete>
+	<delete failonerror="false" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/baseline/Genworth/CBE/PowerEditor/log" includes="*.log*" />
+	</delete>
+	<delete failonerror="false" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/baseline/Cordance/EPolicy/PowerEditor/log" includes="*.log*" />
+	</delete>
+	<delete failonerror="false" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/baseline/FuncTest/AUS/PowerEditor/log" includes="*.log*" />
+	</delete>
+	<delete failonerror="false" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/baseline/PHH/AUS/PowerEditor/log" includes="*.log*" />
+	</delete>
+	<delete failonerror="false" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/baseline/PSE/ADX/PowerEditor/log" includes="*.log*" />
+	</delete>
+	<delete failonerror="false" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/baseline/Genworth/Rates/PowerEditor/log" includes="*.log*" />
+	</delete>
+</target>
+
+<!-- Restores the project test configuration -->
+<target name="baseline-restore-project-config" depends="baseline-stop-appserver, baseline-clean-project-config" description="Restores the project test configuration">
+	<touch>
+		<fileset dir="C:/MindBox/MBXProjects/baseline/Genworth/CBE/PowerEditor/config/backup" includes="*.xml" />
+	</touch>
+	<copy todir="C:/MindBox/MBXProjects/baseline/Genworth/CBE/PowerEditor/config" overwrite="true" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/baseline/Genworth/CBE/PowerEditor/config/backup" includes="*.xml" />
+	</copy>
+	<!-- 
+		<touch>
+		    <fileset dir="C:/MindBox/MBXProjects/baseline/Genworth/CBE/PowerEditor/database/backup" includes="*.mdb" />
+		</touch>
+		<copy todir="C:/MindBox/MBXProjects/baseline/Genworth/CBE/PowerEditor/database" overwrite="true" verbose="true" >
+		    <fileset dir="C:/MindBox/MBXProjects/baseline/Genworth/CBE/PowerEditor/database/backup" includes="*.mdb" />
+	   </copy>
+	    -->
+
+	<touch>
+		<fileset dir="C:/MindBox/MBXProjects/baseline/gForce1/AUS/PowerEditor/config/backup" includes="*.xml" />
+	</touch>
+	<copy todir="C:/MindBox/MBXProjects/baseline/gForce1/AUS/PowerEditor/config" overwrite="true" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/baseline/gForce1/AUS/PowerEditor/config/backup" includes="*.xml" />
+	</copy>
+	<touch>
+		<fileset dir="C:/MindBox/MBXProjects/baseline/gForce1/AUS/PowerEditor/database/backup" includes="*.mdb" />
+	</touch>
+	<copy todir="C:/MindBox/MBXProjects/baseline/gForce1/AUS/PowerEditor/database" overwrite="true" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/baseline/gForce1/AUS/PowerEditor/database/backup" includes="*.mdb" />
+	</copy>
+	<touch>
+		<fileset dir="C:/MindBox/MBXProjects/baseline/gForce1/AUS/PowerEditor/database/backup" includes="*.xml" />
+	</touch>
+	<copy todir="C:/MindBox/MBXProjects/baseline/gForce1/AUS/PowerEditor/database" overwrite="true" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/baseline/gForce1/AUS/PowerEditor/database/backup" includes="*.xml" />
+	</copy>
+
+	<touch>
+		<fileset dir="C:/MindBox/MBXProjects/baseline/Import-Test/AUS/PowerEditor/config/backup" includes="*.xml" />
+	</touch>
+	<copy todir="C:/MindBox/MBXProjects/baseline/Import-Test/AUS/PowerEditor/config" overwrite="true" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/baseline/Import-Test/AUS/PowerEditor/config/backup" includes="*.xml" />
+	</copy>
+	<touch>
+		<fileset dir="C:/MindBox/MBXProjects/baseline/Import-Test/AUS/PowerEditor/database/backup" includes="*.mdb" />
+	</touch>
+	<copy todir="C:/MindBox/MBXProjects/baseline/Import-Test/AUS/PowerEditor/database" overwrite="true" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/baseline/Import-Test/AUS/PowerEditor/database/backup" includes="*.mdb" />
+	</copy>
+	<touch>
+		<fileset dir="C:/MindBox/MBXProjects/baseline/Import-Test/AUS/PowerEditor/database/backup" includes="*.xml" />
+	</touch>
+	<copy todir="C:/MindBox/MBXProjects/baseline/Import-Test/AUS/PowerEditor/database" overwrite="true" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/baseline/Import-Test/AUS/PowerEditor/database/backup" includes="*.xml" />
+	</copy>
+
+	<touch>
+		<fileset dir="C:/MindBox/MBXProjects/baseline/Cordance/EPolicy/PowerEditor/config/backup" includes="*.xml" />
+	</touch>
+	<copy todir="C:/MindBox/MBXProjects/baseline/Cordance/EPolicy/PowerEditor/config" overwrite="true" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/baseline/Cordance/EPolicy/PowerEditor/config/backup" includes="*.xml" />
+	</copy>
+	<touch>
+		<fileset dir="C:/MindBox/MBXProjects/baseline/Cordance/EPolicy/PowerEditor/database/backup" includes="*.mdb" />
+	</touch>
+	<copy todir="C:/MindBox/MBXProjects/baseline/Cordance/EPolicy/PowerEditor/database" overwrite="true" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/baseline/Cordance/EPolicy/PowerEditor/database/backup" includes="*.mdb" />
+	</copy>
+
+	<touch>
+		<fileset dir="C:/MindBox/MBXProjects/baseline/FuncTest/AUS/PowerEditor/config/backup" includes="*.xml" />
+	</touch>
+	<copy todir="C:/MindBox/MBXProjects/baseline/FuncTest/AUS/PowerEditor/config" overwrite="true" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/baseline/FuncTest/AUS/PowerEditor/config/backup" includes="*.xml" />
+	</copy>
+	<touch>
+		<fileset dir="C:/MindBox/MBXProjects/baseline/FuncTest/AUS/PowerEditor/database/backup" includes="*.mdb" />
+	</touch>
+	<copy todir="C:/MindBox/MBXProjects/baseline/FuncTest/AUS/PowerEditor/database" overwrite="true" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/baseline/FuncTest/AUS/PowerEditor/database/backup" includes="*.mdb" />
+	</copy>
+
+	<touch>
+		<fileset dir="C:/MindBox/MBXProjects/baseline/PHH/AUS/PowerEditor/config/backup" includes="*.xml" />
+	</touch>
+	<copy todir="C:/MindBox/MBXProjects/baseline/PHH/AUS/PowerEditor/config" overwrite="true" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/baseline/PHH/AUS/PowerEditor/config/backup/" includes="*.xml" />
+	</copy>
+	<!-- 
+		<touch>
+	       <fileset dir="C:/MindBox/MBXProjects/baseline/PHH/AUS/PowerEditor/database/backup" includes="*.mdb" />
+	   </touch>
+		<copy todir="C:/MindBox/MBXProjects/baseline/PHH/AUS/PowerEditor/database" overwrite="true" verbose="true" >
+		    <fileset dir="C:/MindBox/MBXProjects/baseline/PHH/AUS/PowerEditor/database/backup" includes="*.mdb" />
+	   </copy>
+	    -->
+
+	<touch>
+		<fileset dir="C:/MindBox/MBXProjects/baseline/PSE/ADX/PowerEditor/config/backup" includes="*.xml" />
+	</touch>
+	<copy todir="C:/MindBox/MBXProjects/baseline/PSE/ADX/PowerEditor/config" overwrite="true" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/baseline/PSE/ADX/PowerEditor/config/backup" includes="*.xml" />
+	</copy>
+	<touch>
+		<fileset dir="C:/MindBox/MBXProjects/baseline/PSE/ADX/PowerEditor/database/backup" includes="*.mdb" />
+	</touch>
+	<copy todir="C:/MindBox/MBXProjects/baseline/PSE/ADX/PowerEditor/database" overwrite="true" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/baseline/PSE/ADX/PowerEditor/database/backup" includes="*.mdb" />
+	</copy>
+
+	<touch>
+		<fileset dir="C:/MindBox/MBXProjects/baseline/Genworth/Rates/PowerEditor/config/backup" includes="*xml" />
+	</touch>
+	<copy todir="C:/MindBox/MBXProjects/baseline/Genworth/Rates/PowerEditor/config" overwrite="true" verbose="true">
+		<fileset dir="C:/MindBox/MBXProjects/baseline/Genworth/Rates/PowerEditor/config/backup" includes="*.xml" />
+	</copy>
+	<!-- 
+		<touch>
+		    <fileset dir="C:/MindBox/MBXProjects/baseline/Genworth/Rates/PowerEditor/database/backup" includes="*.mdb" />
+		</touch>
+		<copy  todir="C:/MindBox/MBXProjects/baseline/Genworth/Rates/PowerEditor/database" overwrite="true" verbose="true" >
+		    <fileset dir="C:/MindBox/MBXProjects/baseline/Genworth/Rates/PowerEditor/database/backup" includes="*mdb" />
+	   </copy>
+	    -->
+
+	<echo message="Non-MS-Access databases must be restored manually!" />
+
+</target>
+
+<!-- Updates the project-test-wars, copying base war to new name and updating the web.xml files for each configuration -->
+<target name="baseline-update-project-wars" depends="baseline-clean-project-wars" description="Updates the project-test-wars, copying base war to new name and updating the web.xml files for each configuration">
+	<copy file="${testing.install.baseline.war.dir}/powereditor-bl.war" tofile="${testing.install.baseline.webapp.dir}/gforce-powereditor.war" verbose="true" />
+	<touch file="C:/MindBox/MBXProjects/baseline/gForce1/AUS/PowerEditor/config/web.xml" />
+	<war destfile="${testing.install.baseline.webapp.dir}/gforce-powereditor.war" webxml="C:/MindBox/MBXProjects/baseline/gForce1/AUS/PowerEditor/config/web.xml" update="true" />
+
+	<copy file="${testing.install.baseline.war.dir}/powereditor-bl.war" tofile="${testing.install.baseline.webapp.dir}/import-powereditor.war" verbose="true" />
+	<touch file="C:/MindBox/MBXProjects/baseline/Import-Test/AUS/PowerEditor/config/web.xml" />
+	<war destfile="${testing.install.baseline.webapp.dir}/import-powereditor.war" webxml="C:/MindBox/MBXProjects/baseline/Import-Test/AUS/PowerEditor/config/web.xml" update="true" />
+
+	<copy file="${testing.install.baseline.war.dir}/powereditor-bl.war" tofile="${testing.install.baseline.webapp.dir}/cbe-powereditor.war" verbose="true" />
+	<touch file="C:/MindBox/MBXProjects/baseline/Genworth/CBE/PowerEditor/config/web.xml" />
+	<war destfile="${testing.install.baseline.webapp.dir}/cbe-powereditor.war" webxml="C:/MindBox/MBXProjects/baseline/Genworth/CBE/PowerEditor/config/web.xml" update="true" />
+
+	<copy file="${testing.install.baseline.war.dir}/powereditor-bl.war" tofile="${testing.install.baseline.webapp.dir}/epolicy-powereditor.war" verbose="true" />
+	<touch file="C:/MindBox/MBXProjects/baseline/Cordance/EPolicy/PowerEditor/config/web.xml" />
+	<war destfile="${testing.install.baseline.webapp.dir}/epolicy-powereditor.war" webxml="C:/MindBox/MBXProjects/baseline/Cordance/EPolicy/PowerEditor/config/web.xml" update="true" />
+
+	<copy file="${testing.install.baseline.war.dir}/powereditor-bl.war" tofile="${testing.install.baseline.webapp.dir}/ftest-powereditor.war" verbose="true" />
+	<touch file="C:/MindBox/MBXProjects/baseline/FuncTest/AUS/PowerEditor/config/web.xml" />
+	<war destfile="${testing.install.baseline.webapp.dir}/ftest-powereditor.war" webxml="C:/MindBox/MBXProjects/baseline/FuncTest/AUS/PowerEditor/config/web.xml" update="true" />
+
+	<copy file="${testing.install.baseline.war.dir}/powereditor-bl.war" tofile="${testing.install.baseline.webapp.dir}/phh-powereditor.war" verbose="true" />
+	<touch file="C:/MindBox/MBXProjects/baseline/PHH/AUS/PowerEditor/config/web.xml" />
+	<war destfile="${testing.install.baseline.webapp.dir}/phh-powereditor.war" webxml="C:/MindBox/MBXProjects/baseline/PHH/AUS/PowerEditor/config/web.xml" update="true" />
+
+	<copy file="${testing.install.baseline.war.dir}/powereditor-bl.war" tofile="${testing.install.baseline.webapp.dir}/pse-powereditor.war" verbose="true" />
+	<touch file="C:/MindBox/MBXProjects/baseline/PSE/ADX/PowerEditor/config/web.xml" />
+	<war destfile="${testing.install.baseline.webapp.dir}/pse-powereditor.war" webxml="C:/MindBox/MBXProjects/baseline/PSE/ADX/PowerEditor/config/web.xml" update="true" />
+
+	<copy file="${testing.install.baseline.war.dir}/powereditor-bl.war" tofile="${testing.install.baseline.webapp.dir}/rates-powereditor.war" verbose="true" />
+	<touch file="C:/MindBox/MBXProjects/baseline/Genworth/Rates/PowerEditor/config/web.xml" />
+	<war destfile="${testing.install.baseline.webapp.dir}/rates-powereditor.war" webxml="C:/MindBox/MBXProjects/baseline/Genworth/Rates/PowerEditor/config/web.xml" update="true" />
+</target>
+
+<!-- Renames the baseline-test-wars -->
+<target name="baseline-rename-project-wars" depends="baseline-clean-project-wars" description="Renames the baseline-test-wars">
+	<move file="${testing.install.baseline.webapp.dir}/gforce-powereditor.war" tofile="${testing.install.baseline.webapp.dir}/gforce-powereditor.war.no-expand" verbose="true" />
+	<move file="${testing.install.baseline.webapp.dir}/import-powereditor.war" tofile="${testing.install.baseline.webapp.dir}/import-powereditor.war.no-expand" verbose="true" />
+	<move file="${testing.install.baseline.webapp.dir}/cbe-powereditor.war" tofile="${testing.install.baseline.webapp.dir}/cbe-powereditor.war.no-expand" verbose="true" />
+	<move file="${testing.install.baseline.webapp.dir}/epolicy-powereditor.war" tofile="${testing.install.baseline.webapp.dir}/epolicy-powereditor.war.no-expand" verbose="true" />
+	<move file="${testing.install.baseline.webapp.dir}/ftest-powereditor.war" tofile="${testing.install.baseline.webapp.dir}/ftest-powereditor.war.no-expand" verbose="true" />
+	<move file="${testing.install.baseline.webapp.dir}/phh-powereditor.war" tofile="${testing.install.baseline.webapp.dir}/phh-powereditor.war.no-expand" verbose="true" />
+	<move file="${testing.install.baseline.webapp.dir}/pse-powereditor.war" tofile="${testing.install.baseline.webapp.dir}/pse-powereditor.war.no-expand" verbose="true" />
+	<move file="${testing.install.baseline.webapp.dir}/rates-powereditor.war" tofile="${testing.install.baseline.webapp.dir}/rates-powereditor.war.no-expand" verbose="true" />
+</target>
+
+<!-- installs the project-test wars on the appserver -->
+<target name="baseline-install-project-wars" depends="baseline-stop-appserver, baseline-update-project-wars, baseline-rename-project-wars" description="Installs the project-test wars on the appserver">
+</target>
+
+<!-- totally resets the test environment -->
+<target name="baseline-update-and-restore-all" depends="baseline-stop-appserver, baseline-update-project-wars, baseline-rename-project-wars, baseline-restore-project-config" description="Installs the project-test wars on the appserver">
+</target>
+
+<!--======== Documentation =====================================-->
+
+<target name="dist-docs" description="Create PE documentation distributable">
+	<zip zipfile="${dist.dir}/${name}-${version}-docs.zip">
+		<zipfileset dir="${dist.doc.dir}" prefix="docs">
+			<include name="**/*.doc" />
+			<include name="**/*.pdf" />
+		</zipfileset>
+	</zip>
+</target>
+
+<!--======== parser generation ================================-->
+
+<target name="message-parser" depends="generate-message-parser,copy-message-parser" description="Generate message parser classes">
+</target>
+
+<target name="check-message-parser" depends="">
+	<uptodate property="messageParserBuild.notRequired" srcfile="${src.parser.dir}/Message.jj" targetfile="${src.parser.dir}/message/jtb.out.jj">
+	</uptodate>
+</target>
+
+<target name="generate-message-parser" depends="check-message-parser" unless="messageParserBuild.notRequired">
+	<mkdir dir="${src.parser.dir}/message" />
+	<delete>
+		<fileset dir="${src.parser.dir}/message">
+			<include name="**/*.*" />
+		</fileset>
+	</delete>
+	<!-- run JTB firsts -->
+	<echo message="Running JTB..." />
+	<exec dir="${src.parser.dir}/message" executable="${parser.path.jtb}/bin/jtb.bat">
+		<arg value="-p" />
+		<arg value="com.mindbox.pe.server.parser.jtb.message" />
+		<arg value="-jd" />
+		<arg value="-pp" />
+		<arg value="-printer" />
+		<arg file="${src.parser.dir}/Message.jj" />
+	</exec>
+
+	<!-- run JavaCC  -->
+	<echo message="Running JavaCC..." />
+	<exec dir="${src.parser.dir}/message" executable="${parser.path.javacc}/bin/javacc.bat">
+		<arg value="-STATIC:false" />
+		<arg value="-LOOKAHEAD:1" />
+		<arg value="-debug_parser" />
+		<arg file="${src.parser.dir}/message/jtb.out.jj" />
+	</exec>
+</target>
+
+<target name="copy-message-parser" depends="generate-message-parser" unless="messageParserBuild.notRequired">
+	<delete>
+		<fileset dir="${src.dir}/com/mindbox/pe/server/parser/jtb/message">
+			<include name="**/*.java" />
+		</fileset>
+	</delete>
+	<copy todir="${src.dir}/com/mindbox/pe/server/parser/jtb/message">
+		<fileset dir="${src.parser.dir}/message">
+			<include name="**/*.java" />
+		</fileset>
+	</copy>
+</target>
+
+
+
+<!-- Package the src/build stuff for backup -->
+<target name="src-archive" depends="prepare" description="archives src">
+	<zip zipfile="${src.backup.dir}/${name}-src_${BUILD_STAMP}.zip">
+		<zipfileset dir="${basedir}/projects" prefix="${name}/projects">
+			<include name="**/*.java" />
+			<include name="**/*.html" />
+			<include name="**/*.xml" />
+			<include name="**/*.properties" />
+			<include name="**/*.sql" />
+			<include name="**/*.txt" />
+			<include name="**/*.policy" />
+			<include name="**/*.doc" />
+			<include name="**/*.mdb" />
+			<include name="**/*.jj" />
+			<include name="**/*.bat" />
+			<include name="**/*.jsp" />
+			<include name="**/*.rpt" />
+			<include name="**/*.ttx" />
+			<exclude name="**/*.gif" />
+			<exclude name="**/*.jpg" />
+		</zipfileset>
+		<zipfileset dir="${basedir}/src" prefix="${name}/src">
+			<include name="**/*.java" />
+			<include name="**/*.html" />
+			<include name="**/*.xml" />
+			<include name="**/*.properties" />
+			<include name="**/*.sql" />
+			<include name="**/*.txt" />
+			<include name="**/*.policy" />
+			<include name="**/*.doc" />
+			<include name="**/*.mdb" />
+			<include name="**/*.jj" />
+			<include name="**/*.bat" />
+			<include name="**/*.jsp" />
+			<include name="**/*.rpt" />
+			<include name="**/*.ttx" />
+			<exclude name="**/*.gif" />
+			<exclude name="**/*.jpg" />
+		</zipfileset>
+		<zipfileset dir="${basedir}/test" prefix="${name}/test">
+			<exclude name="**/*.jar" />
+			<exclude name="**/*.log" />
+			<exclude name="**/*.log.*" />
+		</zipfileset>
+		<zipfileset dir="${basedir}" prefix="${name}">
+			<include name="*.xml" />
+			<include name="*.properties" />
+			<include name="*.bat" />
+		</zipfileset>
+	</zip>
+</target>
+
+<target name="archive-min" depends="prepare" description="archives min source without images">
+	<zip zipfile="${src.backup.dir}/${name}-src-min_${BUILD_STAMP}.zip">
+		<zipfileset dir="${basedir}/src" prefix="${name}/src">
+			<include name="**/*.java" />
+			<include name="**/*.html" />
+			<include name="**/*.xml" />
+			<include name="**/*.properties" />
+			<include name="**/*.sql" />
+			<include name="**/*.txt" />
+			<exclude name="**/*.mdb" />
+			<exclude name="**/*.gif" />
+			<exclude name="**/*.jpg" />
+			<exclude name="**/*.class" />
+			<exclude name="**/*.jar" />
+			<exclude name="**/*.doc" />
+			<include name="**/*.jj" />
+			<include name="**/*.bat" />
+		</zipfileset>
+		<zipfileset dir="${basedir}" prefix="${name}">
+			<include name="*.xml" />
+			<include name="*.properties" />
+			<include name="*.bat" />
+		</zipfileset>
+	</zip>
+</target>
+
+<target name="dist-build-files" depends="prepare" description="build distributable source tree">
+	<zip zipfile="${name}-build-source_${BUILD_STAMP}.zip">
+		<zipfileset dir="${basedir}/src" prefix="${name}/src">
+			<include name="**/*.java" />
+			<include name="**/*.html" />
+			<include name="**/*.xml" />
+			<include name="**/*.properties" />
+			<include name="**/*.sql" />
+			<include name="**/*.txt" />
+			<include name="**/*.policy" />
+			<include name="**/*.doc" />
+			<include name="**/*.mdb" />
+			<include name="**/*.gif" />
+			<exclude name="javacc/**/*" />
+		</zipfileset>
+		<zipfileset dir="${basedir}/lib" prefix="${name}/lib">
+			<include name="*.jar" />
+		</zipfileset>
+		<zipfileset dir="${basedir}" prefix="${name}">
+			<include name="build.cmd" />
+			<include name="build.xml" />
+			<include name="generic-build.*" />
+		</zipfileset>
+	</zip>
+</target>
+
+<!-- clean up -->
+<target name="clean-build" description="Delete all compile class files">
+	<delete>
+		<fileset dir="${build.dir}">
+			<include name="*.html" />
+			<include name="*jar" />
+			<include name="*.mf" />
+			<include name="*.properties" />
+			<include name="*.war" />
+			<include name="*.xml" />
+		</fileset>
+	</delete>
+</target>
+
+<target name="clean-classes" description="Delete all compile class files">
+	<delete dir="${common.dir}/classes" />
+	<delete dir="${client.dir}/classes" />
+	<delete dir="${server.dir}/classes" />
+	<delete dir="${tools.dir}/classes" />
+	<delete dir="${build.classes}" />
+</target>
+
+<!-- Total cleanup -->
+<target name="spotless">
+	<delete dir="${build.dir}" />
+	<delete dir="${dist.dir}" />
+	<!-- delete the archives that are built -->
+	<delete file="${lib.dir}/${name}.jar" />
+	<delete file="${lib.dir}/PowerEditor.jar" />
+	<delete file="${lib.dir}/powereditor.war" />
+</target>
+
+<target name="clean-server-log" description="Deletes Resin log files">
+	<delete>
+		<fileset dir="${install.webapp.dir}/../log">
+			<include name="*.*" />
+		</fileset>
+	</delete>
+</target>
+
+<target name="print-info" description="Displays build properties">
+	<echo message="Application name    = ${Name}" />
+	<echo message="Application version = ${version}" />
+	<echo message="Java source dir     = ${src.dir}" />
+</target>
+
+<target name="copy-jars" depends="all-jars" description="Copies PE jar files to the specified directory">
+	<input message="Enter the directory to copy jars (e.g., c:/resin/webapps/powereditor): " addproperty="dir.jar.copy.dir" />
+	<condition property="do.abort">
+		<equals arg1="" arg2="${dir.jar.copy.dir}" />
+	</condition>
+	<fail if="do.abort" message="Target directory not specified." />
+	<available property="dir.jar.copy.set" file="${dir.jar.copy.dir}" type="dir" />
+	<fail unless="dir.jar.copy.set" message="Target directory does not exist: ${dir.jar.copy.dir}" />
+
+	<copy todir="${dir.jar.copy.dir}" verbose="true">
+		<fileset dir="${build.dir}">
+			<include name="${applet.jar}" />
+		</fileset>
+	</copy>
+	<copy todir="${dir.jar.copy.dir}/WEB-INF/lib" verbose="true">
+		<fileset dir="${build.dir}">
+			<include name="${server.jar}" />
+			<include name="${export.jar}" />
+		</fileset>
+	</copy>
+</target>
+
+<target name="prep-pete-war">
+	<copy file="${config.dir}/${web.xml}" tofile="${build.dir}/pete-web.xml" filtering="true">
+		<filterset>
+			<filter token="pe.config" value="c:/mindbox/MBXProjects/PETE/REF/powereditor/config/PowerEditorConfiguration.xml" />
+		</filterset>
+	</copy>
+</target>
+
+<target name="build-pete-pe-war" depends="war,prep-pete-war" description="Builds PETE War file">
+	<property name="war.pete" value="${build.dir}/powereditor-pete.war" />
+	<copy file="${build.dir}/${deploy.war}" tofile="${war.pete}" />
+	<war destfile="${war.pete}" update="true" webxml="${build.dir}/pete-web.xml">
+	</war>
+</target>
+
+<!-- 
+============================================================================
+Automated Builds 
+============================================================================ -->
+
+<!-- Tests if prep-checkout needs to be run -->
+<target name="check-prep-checkout">
+	<available file="${basedir}/local-build.properties" property="checkoutPrep.notRequired" />
+</target>
+
+<target name="prep-checkout" depends="check-prep-checkout" unless="checkoutPrep.notRequired">
+	<loadproperties srcFile="${basedir}/local-build-template.properties" />
+	<echo message="Properties loaded from template (Starteam details=${starteam.server}:${starteam.port} ~ ${starteam.excludes})" />
+</target>
+
+<target name="checkout" depends="prep-checkout">
+	<!-- stcheckout uses optional.jar and starteam-sdk.jar.
+	     Both must be in your ant lib.
+	     optional.jar is part of the Ant distribution.
+	     starteam-sdk.jar is part of the StarTeam distribution.
+	-->
+	<stcheckout username="${starteam.user}" password="${starteam.password}" rootstarteamfolder="" rootlocalfolder="${basedir}" excludes="${starteam.excludes}" forced="true" recursive="true" projectname="PowerEditor" viewname="PowerEditor" servername="${starteam.server}" serverport="${starteam.port}" />
+</target>
+
+<target name="cruisecontrol" depends="checkout,compile,all-tests" description="Cruise control master build" />
+
+<!-- Tests -->
+<!-- 
+		To run any of these test targets from within Eclipse, add the junit.jar to 
+		Window/Preferences/Ant/Runtime/Global Entries.  The junit.jar may be found in
+		the elipse/plugins junit directory (among other places).
+		
+		To run any of these test targets from the command line, ensure that both ant-junit.jar 
+		and junit.jar are in ${ANT_HOME}/lib.
+	-->
+
+<!-- Runs all test, both unit test and functional tests. -->
+<target name="all-tests" depends="unit-test,functional-test" description="Runs all unit, functional and functional tests." />
+
+
+<target name="unit-test" depends="compile,copy-test-resources" description="Runs all unit tests.">
+	<junit printsummary="true" haltonerror="true" haltonfailure="false">
+		<formatter type="xml" />
+		<classpath>
+			<pathelement location="${build.classes}" />
+			<pathelement location="${resource.dir}" />
+		</classpath>
+		<classpath refid="test.classpath" />
+		<test name="com.mindbox.pe.AllPowerEditorTestSuite" />
+	</junit>
+</target>
+
+<target name="functional-test" depends="build-pete-pe-war" description="Runs all functional tests">
+	<junit printsummary="true" haltonerror="true" haltonfailure="false" showoutput="false">
+		<formatter type="xml" />
+		<classpath>
+			<pathelement location="${build.classes}" />
+			<pathelement location="${resource.dir}" />
+		</classpath>
+		<classpath refid="test.classpath" />
+		<test name="com.mindbox.ftest.pe.AllPowerEditorFunctionalTestSuite" />
+	</junit>
+</target>
+
+</project>

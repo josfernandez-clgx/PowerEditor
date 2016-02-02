@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- =================================================================
+	XML Schema Definition of PowerEditor Audit Report.
+	
+	(c) Copyright 2007 MDA MindBox, Inc. All rights reserved.
+	================================================================= -->
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+	<xsd:element name="audit-report">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="audit-event" minOccurs="0" maxOccurs="unbounded">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element ref="change-details" minOccurs="0" />
+						</xsd:sequence>
+						<xsd:attribute name="type" type="eventType" use="required" />
+						<xsd:attribute name="date" type="xsd:dateTime" use="required" />
+						<xsd:attribute name="username" type="xsd:string" use="required" />
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element name="error-message" minOccurs="0" maxOccurs="unbounded" />
+				<xsd:element name="summary">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="report-date" type="xsd:dateTime" />
+							<xsd:element name="audit-event-count" type="xsd:integer" />
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="change-details">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="changed-element">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="template-name" type="xsd:string" minOccurs="0" />
+							<xsd:element name="guideline-type" type="xsd:string" minOccurs="0" />
+							<xsd:element name="activation-date" type="xsd:dateTime" minOccurs="0" />
+							<xsd:element name="expiration-date" type="xsd:dateTime" minOccurs="0" />
+							<xsd:element ref="context" minOccurs="0" />
+						</xsd:sequence>
+						<xsd:attribute name="type" type="kbElement" use="required" />
+						<xsd:attribute name="name" type="xsd:string" use="required" />
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element name="change-detail" minOccurs="0" maxOccurs="unbounded">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="change-type" type="xsd:string" />
+							<xsd:element name="change-description" type="xsd:string" />
+							<xsd:element name="property-name" type="xsd:string" minOccurs="0" /> <!-- For entity property changes -->
+							<xsd:element name="previous-value" type="xsd:string" minOccurs="0" /> <!-- For property/cell value changes -->
+							<xsd:element name="new-value" type="xsd:string" minOccurs="0" /> <!-- For property/cell value changes -->
+							<xsd:element name="row-number" type="xsd:string" minOccurs="0" /> <!-- For cell value changes -->
+							<xsd:element name="column-name" type="xsd:string" minOccurs="0" /> <!-- For cell value changes -->
+							<!-- 
+								TODO: DYNAMICALLY GENERATE ELEMENTS FOR EACH ENTITY/CATEGORY TYPE 
+							-->
+							<xsd:element name="client-id" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/> <!-- For context changes -->
+							<xsd:element name="client-id-category" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/> <!-- For context changes -->
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="context">
+		<!-- 
+			TODO: DYNAMICALLY GENERATE ELEMENTS FOR EACH ENTITY/CATEGORY TYPE 
+		-->
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="client-id" type="xsd:string" minOccurs="0" maxOccurs="unbounded" />
+				<xsd:element name="client-id-category" type="xsd:string" minOccurs="0" maxOccurs="unbounded" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+
+	<xsd:simpleType name="eventType">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="Logon" />
+			<xsd:enumeration value="Logoff" />
+			<xsd:enumeration value="Server Startup" />
+			<xsd:enumeration value="Server Shutdown" />
+			<xsd:enumeration value="KB Modification" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="kbElement">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="guideline" />
+			<xsd:enumeration value="template" />
+			<xsd:enumeration value="parameter" />
+			<!-- 
+				TODO: DYNAMICALLY GENERATE ELEMENTS FOR EACH ENTITY/CATEGORY TYPE 
+			-->
+			<xsd:enumeration value="client-id" />
+			<xsd:enumeration value="client-id-category" />
+		</xsd:restriction>
+	</xsd:simpleType>
+</xsd:schema>

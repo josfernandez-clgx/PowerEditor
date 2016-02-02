@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry path="source" kind="src"/>
+	<classpathentry path="org.eclipse.jdt.launching.JRE_CONTAINER" kind="con"/>
+	<classpathentry path="/PowerEditor - Common/lib/commons-beanutils.jar" kind="lib"/>
+	<classpathentry path="/PowerEditor - Common/lib/commons-codec.jar" kind="lib"/>
+	<classpathentry path="/PowerEditor - Common/lib/commons-collections.jar" kind="lib"/>
+	<classpathentry path="/PowerEditor - Common/lib/commons-digester.jar" kind="lib"/>
+	<classpathentry path="/PowerEditor - Common/lib/commons-lang-2.1.jar" kind="lib"/>
+	<classpathentry path="/PowerEditor - Common/lib/commons-logging.jar" kind="lib"/>
+	<classpathentry path="/PowerEditor - Common/lib/commons-validator.jar" kind="lib"/>
+	<classpathentry path="/PowerEditor - Common/lib/log4j-1.2.8.jar" kind="lib"/>
+	<classpathentry path="/PowerEditor - Common/lib/powereditor-parser.jar" kind="lib"/>
+	<classpathentry path="/PowerEditor - Client" combineaccessrules="false" kind="src"/>
+	<classpathentry path="/PowerEditor - Common" combineaccessrules="false" kind="src"/>
+	<classpathentry path="/PowerEditor - Server" combineaccessrules="false" kind="src"/>
+	<classpathentry path="classes" kind="output"/>
+</classpath>

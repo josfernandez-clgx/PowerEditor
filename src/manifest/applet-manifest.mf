@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Application-Name: MindBox PowerEditor
+Built-By: PowerEditor Build
+Codebase: *
+Permissions: all-permissions
+
+Name: @mf.section@
+Specification-Title: @mf.title@
+Specification-Version: @version@
+Specification-Vendor: @company@
+Implementation-Title: @mf.title@
+Implementation-Version: @version@ build:@build@ @TODAY@
+Implementation-Vendor: @company@

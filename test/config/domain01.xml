@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<DomainModel>
+
+	<DomainClass ClassKey="15" DeployLabel="gk01:group" AllowRuleUsage="0" DisplayLabel="group01" HasMultiplicity="1" Name="Group" >
+		<DomainClassLink ParentClassKey="15" ChildClassKey="16" HasMultiplicity="1" ParentClassName="Group" ChildClassName="Calculation"/>
+		<DomainClassLink ParentClassKey="15" ChildClassKey="17" HasMultiplicity="1" ParentClassName="Group" ChildClassName="Borrower"/>
+		<DomainClassLink ParentClassKey="15" ChildClassKey="18" HasMultiplicity="1" ParentClassName="Group" ChildClassName="GeoCoding"/>
+		<DomainClassLink ParentClassKey="15" ChildClassKey="19" HasMultiplicity="1" ParentClassName="Group" ChildClassName="RateLock"/>
+		<DomainClassLink ParentClassKey="15" ChildClassKey="20" HasMultiplicity="1" ParentClassName="Group" ChildClassName="LoanApplication"/>
+		<DomainClassLink ParentClassKey="15" ChildClassKey="21" HasMultiplicity="1" ParentClassName="Group" ChildClassName="Transaction"/>
+		<DomainClassLink ParentClassKey="15" ChildClassKey="22" HasMultiplicity="1" ParentClassName="Group" ChildClassName="Property"/>
+		<DomainClassLink ParentClassKey="15" ChildClassKey="23" HasMultiplicity="1" ParentClassName="Group" ChildClassName="Product"/>
+		<DomainClassLink ParentClassKey="15" ChildClassKey="24" HasMultiplicity="1" ParentClassName="Group" ChildClassName="Sales"/>
+		<DomainTranslation
+			AttributeType="TranslationLink"
+			LinkPath="InputContainer.Borrower.Name"
+			DisplayLabel="Borrower FullName"
+			Name="BorrowerName"
+			ContextlessLabel="Borrower's Full Name">
+			<DomainView ViewType="TemplateEditor"/>
+		</DomainTranslation>
+		<DomainTranslation
+			AttributeType="TranslationLink"
+			LinkPath="Group.Borrower.Name"
+			DisplayLabel="Borrower.Name"
+			Name="NewTranslation"
+			ContextlessLabel="Transaltion's Name">
+			<DomainView ViewType="PolicyEditor"/>
+		</DomainTranslation>
+		<DomainAttribute AttributeKey="1" DeployType="Symbol" ClassKey="15"  DeployLabel="gk01:ratio-end" AllowRuleUsage="1" DisplayLabel="Ratio Threshold" Name="RatioEnd"/>
+		<DomainAttribute AttributeKey="2" DeployType="String" ClassKey="15"  DeployLabel="gk01:new-attribute" AllowRuleUsage="1" DisplayLabel="New attribute" Name="NewAttribute"/>
+	</DomainClass>
+</DomainModel>

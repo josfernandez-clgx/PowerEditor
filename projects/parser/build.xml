@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="PowerEditorParser" default="jar" basedir=".">
+
+	<property file="${basedir}/../../build.properties" />
+
+	<property name="pe.common.lib.dir" value="${basedir}/../common/lib"/>
+	<property name="jar.file" value="${basedir}/powereditor-parser.jar"/>
+	
+	<target name="prepare">
+		<tstamp>
+			<format property="BUILD_STAMP" pattern="yyyy-MM-dd" />
+			<format property="FULL_DATE" pattern="yyyy.MM.dd.HH.mm" />
+		</tstamp>
+		<mkdir dir="classes" />
+	</target>
+
+	<!-- compile -->
+	<target name="compile" depends="prepare" description="Compiles Java source files">
+		<javac srcdir="source"
+		       destdir="classes"
+		       debug="on"
+		       deprecation="on"
+		       source="1.6"
+		       target="1.6"
+		       verbose="off"
+		       optimize="off">
+		</javac>
+	</target>
+
+	<!-- jar -->
+	<target name="jar" depends="compile" description="Build and Copy PowerEditor Parser jar file">
+		<jar jarfile="${jar.file}" duplicate="fail">
+			<fileset dir="classes">
+				<include name="com/mindbox/**/*.class" />
+			</fileset>
+			<manifest>
+				<section name="com/mindbox/pe/server/parser/">
+					<attribute name="Specification-Title" value="${Name}-Parser" />
+					<attribute name="Specification-Version" value="${version}" />
+					<attribute name="Specification-Vendor" value="${company}" />
+					<attribute name="Implementation-Title" value="${Name}-Parser" />
+					<attribute name="Implementation-Version" value="${version} build:${build} ${TODAY}" />
+					<attribute name="Implementation-Vendor" value="${company}" />
+				</section>
+			</manifest>
+		</jar>
+		<copy file="${jar.file}" todir="${pe.common.lib.dir}"/>
+	</target>
+	
+</project>

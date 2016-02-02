@@ -1,0 +1,66 @@
+<!DOCTYPE web-app PUBLIC
+	"-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+	"http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+    <display-name>MindBox PowerEditor</display-name>
+    <description>PowerEditor web.xml for PETE.</description>
+
+    <!-- Settings for Crystal Reports support -->
+	<!-- Context Param --> 
+	<context-param> 
+	<param-name>crystal_image_uri</param-name> 
+	<param-value>crystalreportviewers115</param-value> 
+	</context-param> 
+	<!-- Context Param End -->
+
+	<listener>
+		<listener-class>com.sun.xml.ws.transport.http.servlet.WSServletContextListener</listener-class>
+	</listener>
+	<!-- Config for the Servlet that handles request from Applet Client -->
+    <servlet>
+		<servlet-name>PowerEditorServlet</servlet-name>
+		<description>PowerEditor Servlet</description>
+		<servlet-class>com.mindbox.pe.server.servlet.PowerEditorServlet</servlet-class>
+		<init-param>
+			<param-name>ConfigurationFile</param-name>
+			<param-value>c:/mindbox/MBXProjects/PETE/REF/powereditor/config/PowerEditorConfiguration.xml</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+    </servlet>
+	<servlet>
+		<servlet-name>WebServiceServlet</servlet-name>
+		<servlet-class>com.sun.xml.ws.transport.http.servlet.WSServlet</servlet-class>
+		<load-on-startup>2</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>WebServiceServlet</servlet-name>
+		<url-pattern>/PowerEditorWebService</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>PowerEditorServlet</servlet-name>
+		<url-pattern>/PowerEditorServlet</url-pattern>
+	</servlet-mapping>
+	
+    <session-config>
+      <session-timeout>120</session-timeout>  
+    </session-config>
+
+    <welcome-file-list>
+    	<welcome-file>index.html</welcome-file>
+    	<welcome-file>index.jsp</welcome-file>
+    </welcome-file-list>
+    
+	<taglib>
+	    <taglib-uri>/pe</taglib-uri>
+	    <taglib-location>/WEB-INF/powereditor.tld</taglib-location>
+	</taglib>
+	
+	<!-- ===============================================================
+	NOTE FOR WebSphere:
+	The following system-property tags should be removed for websphere.
+	=============================================================== -->
+	<system-property javax.xml.parsers.DocumentBuilderFactory="org.apache.xerces.jaxp.DocumentBuilderFactoryImpl"/>
+    <system-property javax.xml.parsers.SAXParserFactory="org.apache.xerces.jaxp.SAXParserFactoryImpl"/>
+</web-app>

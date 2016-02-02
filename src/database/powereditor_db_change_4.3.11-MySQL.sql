@@ -1,0 +1,2 @@
+
+ALTER TABLE MB_TEMPLATE_DEPLOY_RULE CHANGE rule_def rule_def text NULL;

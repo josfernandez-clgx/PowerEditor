@@ -1,0 +1,11 @@
+<!-- 
+	Context configuration file for the Tomcat Administration Web App 
+	
+	The antiJARLocking and anitResourceLocking attributes allow
+	the web app to be reloaded by Tomcat successfully when running
+	on Windows.
+-->
+
+<Context docBase="${catalina.home}/webapps/powereditor" path="/powereditor"
+	antiJARLocking="true" antiResourceLocking="true" >
+</Context>

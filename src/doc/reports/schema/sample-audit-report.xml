@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<audit-report xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="sample-audit-report.xsd">
+	<audit-event date="2006-01-01T09:00:00" type="Server Startup" username="SYSTEM" />
+	<audit-event date="2006-01-01T12:00:00" type="Logon" username="Demo" />
+	<audit-event date="2006-01-01T12:10:00" type="KB Modification" username="Demo">
+		<change-details>
+			<changed-element name="Brand New Client ID" type="client-id"></changed-element>
+			<change-detail>
+				<change-type>Add Entity</change-type>
+				<change-description>Added 'Brand New Client ID'</change-description>
+				<client-id>1234567</client-id>
+			</change-detail>
+		</change-details>
+	</audit-event>
+	<!-- 
+		This corresponds to Use Case 3.1 in Dan's document. 
+	-->
+	<audit-event date="2007-01-01T12:10:00" type="KB Modification" username="Demo">
+		<change-details>
+			<changed-element name="" type="guideline">
+				<template-name>LTV Credit Score Limit</template-name>
+				<guideline-type>Credit-Eval</guideline-type>
+				<activation-date>2007-01-01T00:00:00</activation-date>
+				<context>
+					<client-id-category>15 Yr Fixed</client-id-category>
+				</context>
+			</changed-element>
+			<change-detail>
+				<change-type>Add Context Element</change-type>
+				<change-description>
+					Added '30 Yr Fixed' context element to guideline template 'LTV Credit Score Limit (Type:Credit-Eval)
+				</change-description>
+				<client-id-category>30 Yr Fixed</client-id-category>
+			</change-detail>
+		</change-details>
+	</audit-event>
+	<!-- 
+		This corresponds to Use Case 3.7 in Dan's document. 
+	-->
+	<audit-event date="2007-01-01T12:20:00" type="KB Modification" username="Demo">
+		<change-details>
+			<changed-element name="" type="guideline">
+				<template-name>LTV Credit Score Limit</template-name>
+				<guideline-type>Credit-Eval</guideline-type>
+				<activation-date>2007-01-01T00:00:00</activation-date>
+				<context>
+					<client-id-category>15 Yr Fixed</client-id-category>
+					<client-id-category>30 Yr Fixed</client-id-category>
+				</context>
+			</changed-element>
+			<change-detail>
+				<change-type>Modify Grid Cell</change-type>
+				<change-description>
+					Changed row 5, column LTV of activation 'LTV Credit Score Limit (Type: Credit-Eval) - date synonym 1
+					– date syn 2' from 95.1 to 96.0
+				</change-description>
+				<previous-value>95.1</previous-value>
+				<new-value>96.0</new-value>
+				<row-number>5</row-number>
+				<column-name>LTV</column-name>
+			</change-detail>
+			<change-detail>
+				<change-type>Modify Grid Cell</change-type>
+				<change-description>
+					Changed row 6, column LTV of activation 'LTV Credit Score Limit (Type: Credit-Eval) - date synonym 1
+					– date syn 2' from 86.0 to 85.0
+				</change-description>
+				<previous-value>86.0</previous-value>
+				<new-value>85.0</new-value>
+				<row-number>6</row-number>
+				<column-name>LTV</column-name>
+			</change-detail>
+		</change-details>
+	</audit-event>
+	<audit-event date="2006-01-01T12:00:00" type="Logoff" username="Demo" />
+	<summary>
+		<report-date>2001-12-31T12:00:00</report-date>
+		<audit-event-count>6</audit-event-count>
+	</summary>
+</audit-report>

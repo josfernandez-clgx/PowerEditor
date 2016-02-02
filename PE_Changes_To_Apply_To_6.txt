@@ -1,0 +1,10 @@
+-----------------------------------------------------------
+ LIST OF PE CHANGES THAT NEED TO BE APPLIED TO VERSION 6.0
+-----------------------------------------------------------
+
+1. Checked for expired sessions for every applet request
+
+2. Display user's name not id in the Window title (make it configurable)
+
+3. Support useHttpOnly cookie setting in Tomcat's context.xml
+

@@ -1,0 +1,250 @@
+<?xml version="1.0"?>
+<AdHocRules>
+<!-- Last update: 2004-02-21 12:13:57 -->
+  <Rule id="309" name="Check-Rule-Sample">
+    <Description>something to do</Description>
+    <LHS>
+      <AND>
+        <OR>
+          <Condition>
+            <Reference>
+              <Class>Transaction</Class>
+              <Attribute>DocumentationType</Attribute>
+            </Reference>
+            <Operator>!=</Operator>
+            <Value>SIF</Value>
+            <Comment></Comment>
+          </Condition>
+          <Condition>
+            <Reference>
+              <Class>RateLock</Class>
+              <Attribute>StartDate</Attribute>
+            </Reference>
+            <Operator>BETWEEN</Operator>
+            <Value>[01/01/2004-05/31/2004]</Value>
+            <Comment></Comment>
+          </Condition>
+          <Condition>
+            <Reference>
+              <Class>Property</Class>
+              <Attribute>State</Attribute>
+            </Reference>
+            <Operator>IN</Operator>
+            <Value>GA,CO,TN</Value>
+            <Comment></Comment>
+          </Condition>
+          <Comment></Comment>
+        </OR>
+        <Condition>
+          <Reference>
+            <Class>LoanApplication</Class>
+            <Attribute>SystemRequestor</Attribute>
+          </Reference>
+          <Operator>=</Operator>
+          <Value>LoanAdvisor</Value>
+          <Comment></Comment>
+        </Condition>
+        <Comment></Comment>
+      </AND>
+    </LHS>
+    <Action >
+      <Type>101</Type>
+      <Comment></Comment>
+      <ParameterList>
+        <Parameter index="1" value="some comment"/>
+        <Parameter index="2" value="VALUE-ONE"/>
+      </ParameterList>
+    </Action>
+    <Message channel="default">Loan does not permit properties in the state |Property.State|. Yes, it works.</Message>
+  </Rule>
+
+  <Rule id="360" name="DecreaseOnPUD">
+    <Description>decrease rate on PUDs</Description>
+    <LHS>
+      <AND>
+        <Condition>
+          <Reference>
+            <Class>Property</Class>
+            <Attribute>PropertyType</Attribute>
+          </Reference>
+          <Operator>=</Operator>
+          <Value>PUD</Value>
+          <Comment></Comment>
+        </Condition>
+        <Comment></Comment>
+      </AND>
+    </LHS>
+    <Action >
+      <Type>200</Type>
+      <Comment></Comment>
+      <ParameterList>
+        <Parameter index="1" value="-0.125"/>
+      </ParameterList>
+    </Action>
+    <Message channel="default">rate is decreased by "%parameter 1%" if propety type is PUD</Message>
+  </Rule>
+
+  <Rule id="358" name="DecreaseOnSingleFamily">
+    <Description>decrease rate on single family homes</Description>
+    <LHS>
+      <AND>
+        <Condition>
+          <Reference>
+            <Class>Property</Class>
+            <Attribute>PropertyType</Attribute>
+          </Reference>
+          <Operator>IN</Operator>
+          <Value>Single Family Detached,Single Family Attached</Value>
+          <Comment></Comment>
+        </Condition>
+        <Comment></Comment>
+      </AND>
+    </LHS>
+    <Action >
+      <Type>200</Type>
+      <Comment></Comment>
+      <ParameterList>
+        <Parameter index="1" value="-0.125"/>
+      </ParameterList>
+    </Action>
+    <Message channel="default"></Message>
+  </Rule>
+
+  <Rule id="346" name="TwoRule">
+    <Description></Description>
+    <LHS>
+      <AND>
+        <OR>
+          <Condition>
+            <Reference>
+              <Class>RateLock</Class>
+              <Attribute>StartDate</Attribute>
+            </Reference>
+            <Operator>BETWEEN</Operator>
+            <Value>[01/01/2004-05/31/2004]</Value>
+            <Comment></Comment>
+          </Condition>
+          <AND>
+            <Condition>
+              <Reference>
+                <Class>Calculation</Class>
+                <Attribute>HCLTV</Attribute>
+              </Reference>
+              <Operator>BETWEEN</Operator>
+              <Value>[25.5-95.125]</Value>
+              <Comment></Comment>
+            </Condition>
+            <NOT>
+              <OR>
+                <Condition>
+                  <Reference>
+                    <Class>Transaction</Class>
+                    <Attribute>Exception</Attribute>
+                  </Reference>
+                  <Operator>=</Operator>
+                  <Value>TRUE</Value>
+                  <Comment></Comment>
+                </Condition>
+                <AND>
+                  <Condition>
+                    <Reference>
+                      <Class>Borrower</Class>
+                      <Attribute>Income</Attribute>
+                    </Reference>
+                    <Operator>&gt;=</Operator>
+                    <Value>250000</Value>
+                    <Comment></Comment>
+                  </Condition>
+                  <Condition>
+                    <Reference>
+                      <Class>LoanApplication</Class>
+                      <Attribute>SystemRequestor</Attribute>
+                    </Reference>
+                    <Operator>=</Operator>
+                    <Value>LoanAdvisor</Value>
+                    <Comment></Comment>
+                  </Condition>
+                  <Comment></Comment>
+                </AND>
+                <Comment></Comment>
+              </OR>
+              <Comment></Comment>
+            </NOT>
+            <Comment></Comment>
+          </AND>
+          <Condition>
+            <Reference>
+              <Class>Sales</Class>
+              <Attribute>Region</Attribute>
+            </Reference>
+            <Operator>=</Operator>
+            <Value>3</Value>
+            <Comment></Comment>
+          </Condition>
+          <Comment></Comment>
+        </OR>
+        <Comment></Comment>
+      </AND>
+    </LHS>
+    <Action >
+      <Type>100</Type>
+      <Comment></Comment>
+      <ParameterList>
+      </ParameterList>
+    </Action>
+    <Message channel="default"></Message>
+  </Rule>
+
+  <Rule id="357" name="IncreaseOnPropertyType">
+    <Description>Increase rate if property type is condo or townhome</Description>
+    <LHS>
+      <AND>
+        <Condition>
+          <Reference>
+            <Class>Property</Class>
+            <Attribute>PropertyType</Attribute>
+          </Reference>
+          <Operator>IN</Operator>
+          <Value>Townhouse,Low Rise Condo,High Rise Condo</Value>
+          <Comment></Comment>
+        </Condition>
+        <Comment></Comment>
+      </AND>
+    </LHS>
+    <Action >
+      <Type>200</Type>
+      <Comment></Comment>
+      <ParameterList>
+        <Parameter index="1" value="0.75"/>
+      </ParameterList>
+    </Action>
+    <Message channel="default"></Message>
+  </Rule>
+
+  <Rule id="367" name="Increase on Credit Score">
+    <Description>Increase rate if credit score is less than 650</Description>
+    <LHS>
+      <AND>
+        <Condition>
+          <Reference>
+            <Class>Borrower</Class>
+            <Attribute>CreditScore</Attribute>
+          </Reference>
+          <Operator>&gt;=</Operator>
+          <Value>650</Value>
+          <Comment></Comment>
+        </Condition>
+        <Comment></Comment>
+      </AND>
+    </LHS>
+    <Action >
+      <Type>200</Type>
+      <Comment></Comment>
+      <ParameterList>
+        <Parameter index="1" value="0.25"/>
+      </ParameterList>
+    </Action>
+    <Message channel="default">Increase rate if credit score is less than 650</Message>
+  </Rule>
+
+</AdHocRules>

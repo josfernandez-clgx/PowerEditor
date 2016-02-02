@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<project name="PowerEditor WebServices Client" default="jar" basedir=".">
+
+	<!-- Load build properties -->
+	<!-- This is a standalone example, so properties are being contained locally. -->
+	<property file="${basedir}/wsclient-build.properties" />
+	<property file="${basedir}/../../build.properties" />
+	<property file="${basedir}/../../local-build.properties" />
+
+	<property name="server.source.dir" value="${basedir}/../server/source"/>
+	<property name="lib.dir" value="${basedir}/lib"/>
+	<property name="jardestination.dir" value="${basedir}/testdir" />
+	<property name="jar.file" value="${jardestination.dir}/PowerEditor-PEWSClient.jar"/>
+
+	<path id="client.classpath">
+		<pathelement path="${basedir}/classes" />
+		<pathelement location="${lib.dir}/xws-security.jar" />
+	</path>
+
+	<target name="clean">
+		<delete dir="${basedir}/source/com/mindbox/test/pe/webservices/wsimportgen" />
+		<delete dir="${basedir}/classes/com/mindbox"/>
+	</target>
+
+	<target name="init">
+		<tstamp>
+			<format property="BUILD_STAMP" pattern="yyyy-MM-dd" />
+		</tstamp>
+	</target>
+
+	<target name="check-wsimport-client-necessary">
+		<uptodate property="wsimport.client.notRequired" targetfile="${basedir}/source/com/mindbox/test/pe/webservices/wsimportgen/package-info.java">
+			<srcfiles dir="${server.source.dir}">
+				<include name="com/mindbox/pe/server/webservices/*.java" />
+			</srcfiles>
+		</uptodate>
+	</target>
+
+	<target name="wsimport-client" depends="check-wsimport-client-necessary" unless="wsimport.client.notRequired">
+		<input message="Building WSClient requires that PowerEditor is up and running at localhost:8080. Do you wish to continue (y/n)?"
+		       validargs="y,n"
+		       addproperty="do.continue">
+		</input>
+		<condition property="do.abort">
+			<equals arg1="n" arg2="${do.continue}"/>
+		</condition>
+		<fail if="do.abort">Build aborted by user.</fail>
+		<delete dir="${basedir}/source/com/mindbox/test/pe/webservices/wsimportgen" />
+		<exec dir="${basedir}" executable="${jdk.dir}/bin/wsimport">
+			<arg value="-p" />
+			<arg value="com.mindbox.test.pe.webservices.wsimportgen" />
+			<arg value="-s" />
+			<arg path="${basedir}/source" />
+			<arg value="-d" />
+			<arg path="${basedir}/classes" />
+			<arg value="-keep" />
+			<arg value="-verbose" />
+			<arg value="${wsdl.location}" />
+		</exec>
+	</target>
+
+	<target name="generate-ws-client" depends="wsimport-client" description="Generate WS Client Code">
+		<javac srcdir="${basedir}/source"
+		       destdir="${basedir}/classes"
+		       debug="on"
+		       deprecation="on"
+		       source="1.6"
+		       target="1.6"
+		       verbose="off"
+		       optimize="off">
+			<classpath refid="client.classpath" />
+		</javac>
+	</target>
+
+	<!-- jar -->
+	<target name="jar" depends="init,generate-ws-client" description="Build and Copy PowerEditor Web Services Test Client jar file">
+		<jar jarfile="${jar.file}" duplicate="fail">
+			<fileset dir="${basedir}/classes">
+				<include name="com/mindbox/test/pe/webservices/**/*.class" />
+			</fileset>
+			<manifest>
+				<attribute name="Main-Class" value="com.mindbox.test.pe.webservices.client.PEWSClient"/>
+				<attribute name="Class-Path" value="saaj-impl.jar xws-security.jar"/>
+				<section name="com/mindbox/test/pe/webservices/">
+					<attribute name="Specification-Title" value="PowerEditor-PEWSClient" />
+					<attribute name="Specification-Version" value="${version}" />
+					<attribute name="Specification-Vendor" value="${company}" />
+					<attribute name="Implementation-Title" value="PowerEditor-PEWSClient" />
+					<attribute name="Implementation-Version" value="${version} build:${build} ${BUILD_STAMP}" />
+					<attribute name="Implementation-Vendor" value="${company}" />
+				</section>
+			</manifest>
+		</jar>
+	</target>
+
+</project>
