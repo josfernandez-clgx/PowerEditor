@@ -1,0 +1,976 @@
+<?xml version="1.0"?>
+<DomainModel>
+	<DomainClass ClassKey="11111" DeployLabel="ldo:deal" AllowRuleUsage="1" DisplayLabel="deal" HasMultiplicity="0" Name="deal" >
+		<DomainAttribute AttributeKey="1" DeployType="String" ClassKey="1"  DeployLabel="ldo:product" DisplayLabel="Product" AllowRuleUsage="1" ContextlessLabel="" Name="product">
+          <EnumValue DeployID="1" DeployValue="occupancy1" DisplayLabel="Occupancy 1" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="occupancy2" DisplayLabel="Occupancy 2" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="2" DeployType="String" ClassKey="1"  DeployLabel="ldo:investor" DisplayLabel="Investor" AllowRuleUsage="1" ContextlessLabel="" Name="investor"/>
+		<DomainAttribute AttributeKey="3" DeployType="String" ClassKey="1"  DeployLabel="ldo:channel" DisplayLabel="Channel" AllowRuleUsage="1" ContextlessLabel="" Name="channel"/>
+		<DomainAttribute AttributeKey="4" DeployType="Integer" ClassKey="1"  DeployLabel="ldo:program" DisplayLabel="Program" AllowRuleUsage="1" ContextlessLabel="" Name="programID"/>
+	</DomainClass>
+	<DomainClass ClassKey="299" DeployLabel="ldo:root" AllowRuleUsage="1" DisplayLabel="Root" HasMultiplicity="0" Name="Root" >
+		<DomainClassLink ParentClassKey="2" ChildClassKey="3" HasMultiplicity="1" ParentClassName="Root" ChildClassName="TestClass" DeployValue="ldo:test-class-link"/>
+	</DomainClass>
+	<DomainClass ClassKey="200" DeployLabel="PE:PARAMETER" AllowRuleUsage="1" DisplayLabel="Parameter Class" HasMultiplicity="1" Name="Parameter">
+		<DomainAttribute AttributeKey="1" DeployType="Symbol" ClassKey="200"  DeployLabel="PE:occupancy-attr" DisplayLabel="Occupancy" AllowRuleUsage="1" ContextlessLabel="" Name="Occupancy">
+          <EnumValue DeployID="1" DeployValue="occupancy1" DisplayLabel="Occupancy 1" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="occupancy2" DisplayLabel="Occupancy 2" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="2" DeployType="Symbol" ClassKey="200"  DeployLabel="PE:symbol-attr" DisplayLabel="DocumentationType" AllowRuleUsage="1" ContextlessLabel="" Name="DocumentationType">
+          <EnumValue DeployID="1" DeployValue="PREQUALIFY" DisplayLabel="PREQUALIFY" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="PRICE" DisplayLabel="PRICE" Inactive="No"/>
+          <EnumValue DeployID="3" DeployValue="UNDERWRITE" DisplayLabel="UNDERWRITE" Inactive="No"/>
+          <EnumValue DeployID="4" DeployValue="CR-Analysis" DisplayLabel="CR-Analysis" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="3" DeployType="Integer" ClassKey="200"  DeployLabel="PE:integer-attr" DisplayLabel="Integer Attribute" AllowRuleUsage="1" ContextlessLabel="" Name="IntegerAttribute"/>
+		<DomainAttribute AttributeKey="4" DeployType="Percent" ClassKey="200"  DeployLabel="PE:loan-limit" DisplayLabel="LoanLimit" AllowRuleUsage="1" ContextlessLabel="" Name="LoanLimit"/>
+		<DomainAttribute AttributeKey="5" DeployType="Date" ClassKey="200"  DeployLabel="PE:date-attr" DisplayLabel="Date Attribute" AllowRuleUsage="1" ContextlessLabel="" Name="DateAttribute"/>
+		<DomainAttribute AttributeKey="6" DeployType="Currency" ClassKey="200"  DeployLabel="PE:OveragePercent" DisplayLabel="OveragePercent" AllowRuleUsage="1" ContextlessLabel="" Name="OveragePercent"/>
+		<DomainAttribute AttributeKey="7" DeployType="String" ClassKey="1"  DeployLabel="param:product" DisplayLabel="Product" AllowRuleUsage="1" ContextlessLabel="" Name="product"/>
+		<DomainAttribute AttributeKey="8" DeployType="String" ClassKey="1"  DeployLabel="param:investor" DisplayLabel="Investor" AllowRuleUsage="1" ContextlessLabel="" Name="investor"/>
+		<DomainAttribute AttributeKey="9" DeployType="String" ClassKey="1"  DeployLabel="param:channel" DisplayLabel="Channel" AllowRuleUsage="1" ContextlessLabel="" Name="channel"/>
+		<DomainAttribute AttributeKey="10" DeployType="String" ClassKey="1"  DeployLabel="param:program" DisplayLabel="Program" AllowRuleUsage="1" ContextlessLabel="" Name="program"/>
+		<DomainAttribute AttributeKey="11" DeployType="String" ClassKey="1"  DeployLabel="param:activation-date" DisplayLabel="Activation Date" AllowRuleUsage="1" ContextlessLabel="" Name="activationDate"/>
+		<DomainAttribute AttributeKey="12" DeployType="String" ClassKey="1"  DeployLabel="param:expiration-date" DisplayLabel="Expiration Date" AllowRuleUsage="1" ContextlessLabel="" Name="expirationDate"/>
+	</DomainClass>
+	<DomainClass ClassKey="201" DeployLabel="PE:miparameter" AllowRuleUsage="1" DisplayLabel="MI Parameter" HasMultiplicity="1" Name="MIParameters" >
+		<DomainAttribute AttributeKey="1" DeployType="String" ClassKey="201"  DeployLabel="PE:mi-company" DisplayLabel="MI Company" AllowRuleUsage="1" ContextlessLabel="" Name="MICompany">
+          <EnumValue DeployID="1" DeployValue="MB-MI" DisplayLabel="MindBox" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="CUSTOM COMPANY" DisplayLabel="Custom MI Company" Inactive="No"/>
+          <EnumValue DeployID="3" DeployValue="GREAT COMPANY" DisplayLabel="Great Company" Inactive="No"/>
+          <EnumValue DeployID="4" DeployValue="VALUE COMPANY" DisplayLabel="Value MI Company" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="2" DeployType="Percent" ClassKey="201"  DeployLabel="PE:min-premium" DisplayLabel="MinPremium" AllowRuleUsage="1" ContextlessLabel="" Name="MinPremium"/>
+		<DomainAttribute AttributeKey="3" DeployType="Percent" ClassKey="201"  DeployLabel="PE:min-renewal" DisplayLabel="MinRenewal" AllowRuleUsage="1" ContextlessLabel="" Name="MinRenewal"/>
+		<DomainAttribute AttributeKey="4" DeployType="Percent" ClassKey="201"  DeployLabel="PE:max-renewal" DisplayLabel="MaxRenewal" AllowRuleUsage="1" ContextlessLabel="" Name="MaxRenewal"/>
+		<DomainAttribute AttributeKey="5" DeployType="String" ClassKey="1"  DeployLabel="mi:product" DisplayLabel="Product" AllowRuleUsage="1" ContextlessLabel="" Name="product"/>
+		<DomainAttribute AttributeKey="6" DeployType="String" ClassKey="1"  DeployLabel="mi:investor" DisplayLabel="Investor" AllowRuleUsage="1" ContextlessLabel="" Name="investor"/>
+		<DomainAttribute AttributeKey="7" DeployType="String" ClassKey="1"  DeployLabel="mi:channel" DisplayLabel="Channel" AllowRuleUsage="1" ContextlessLabel="" Name="channel"/>
+		<DomainAttribute AttributeKey="8" DeployType="String" ClassKey="1"  DeployLabel="mi:program" DisplayLabel="Program" AllowRuleUsage="1" ContextlessLabel="" Name="program"/>
+		<DomainAttribute AttributeKey="11" DeployType="String" ClassKey="1"  DeployLabel="param:activation-date" DisplayLabel="Activation Date" AllowRuleUsage="1" ContextlessLabel="" Name="activationDate"/>
+		<DomainAttribute AttributeKey="12" DeployType="String" ClassKey="1"  DeployLabel="param:expiration-date" DisplayLabel="Expiration Date" AllowRuleUsage="1" ContextlessLabel="" Name="expirationDate"/>
+	</DomainClass>
+	<DomainClass ClassKey="220" DeployLabel="PE:TEST" AllowRuleUsage="1" DisplayLabel="Test Class" HasMultiplicity="1" Name="TestClass" >
+		<DomainAttribute AttributeKey="1" DeployType="String" ClassKey="3"  DeployLabel="PE:string-attr" DisplayLabel="String Attribute" AllowRuleUsage="1" ContextlessLabel="" Name="StringAttribute"/>
+		<DomainAttribute AttributeKey="2" DeployType="Symbol" ClassKey="3"  DeployLabel="PE:symbol-attr" DisplayLabel="Symbol Attribute" AllowRuleUsage="1" ContextlessLabel="" Name="SymbolAttribute"/>
+		<DomainAttribute AttributeKey="3" DeployType="Integer" ClassKey="3"  DeployLabel="PE:integer-attr" DisplayLabel="Integer Attribute" AllowRuleUsage="1" ContextlessLabel="" Name="IntegerAttribute"/>
+		<DomainAttribute AttributeKey="4" DeployType="Percent" ClassKey="3"  DeployLabel="PE:percent-attr" DisplayLabel="Percent Attribute" AllowRuleUsage="1" ContextlessLabel="" Name="PercentAttribute"/>
+		<DomainAttribute AttributeKey="5" DeployType="Date" ClassKey="3"  DeployLabel="PE:date-attr" DisplayLabel="Date Attribute" AllowRuleUsage="1" ContextlessLabel="" Name="DateAttribute"/>
+		<DomainAttribute AttributeKey="6" DeployType="Currency" ClassKey="3"  DeployLabel="PE:currency-attr" DisplayLabel="Curreny Attribute" AllowRuleUsage="1" ContextlessLabel="" Name="CurrencyAttribute"/>
+		<DomainAttribute AttributeKey="7" DeployType="Symbol" ClassKey="3"  DeployLabel="PE:symbol_enum_attr" DisplayLabel="Enum Attribute (Symbol)" AllowRuleUsage="1" ContextlessLabel="" Name="EnumAttribute">
+          <EnumValue DeployID="1" DeployValue="VeryLongDeployValue" DisplayLabel="-NOT APPLICABLE-" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="A_123450" DisplayLabel="Alpha Numeric" Inactive="No"/>
+          <EnumValue DeployID="3" DeployValue="LastValue" DisplayLabel="Last Item" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="8" DeployType="Boolean" ClassKey="3"  DeployLabel="PE:bool-attr" DisplayLabel="Boolean Attribute" AllowRuleUsage="1" ContextlessLabel="BooleanAttribute" Name="BooleanAttribute"/>
+		<DomainAttribute AttributeKey="9" DeployType="Integer" ClassKey="3"  DeployLabel="PE:int_enum_attr" DisplayLabel="Enum Attribute (Integer)" AllowRuleUsage="1" ContextlessLabel="" Name="EnumIntAttribute">
+          <EnumValue DeployID="1" DeployValue="100" DisplayLabel="Small" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="1000" DisplayLabel="Average" Inactive="No"/>
+          <EnumValue DeployID="3" DeployValue="100000" DisplayLabel="Very Big" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="10" DeployType="String" ClassKey="3"  DeployLabel="PE:str_enum_attr" DisplayLabel="Enum Attribute (String)" AllowRuleUsage="1" ContextlessLabel="" Name="EnumStringAttribute">
+          <EnumValue DeployID="1" DeployValue="First Prize" DisplayLabel="First Display" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="Second Guess" DisplayLabel="Second Display" Inactive="No"/>
+          <EnumValue DeployID="3" DeployValue="Last Concert" DisplayLabel="Last Display" Inactive="No"/>
+          <EnumValue DeployID="4" DeployValue="Both Same" DisplayLabel="Both Same" Inactive="Yes"/>
+          <EnumValue DeployID="5" DeployValue="MixedValue" DisplayLabel="Mixed-Value (SIFA, NRFA, NINA)" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="11" DeployType="Integer" ClassKey="3"  DeployLabel="PE:sample-integer-attr" DisplayLabel="Sample (INT) Attribute" AllowRuleUsage="1" ContextlessLabel="" Name="SampleAttribute"/>
+		<DomainAttribute AttributeKey="9" DeployType="Integer" ClassKey="3"  DeployLabel="PE:int_enum_attr2" DisplayLabel="Enum Attribute (Integer)" AllowRuleUsage="1" ContextlessLabel="" Name="EnumIntAttribute2">
+          <EnumValue DeployID="1" DeployValue="9" DisplayLabel="9" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="5" DisplayLabel="5" Inactive="No"/>
+          <EnumValue DeployID="3" DeployValue="3" DisplayLabel="3" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="22" DeployType="Integer" ClassKey="22" DeployLabel="ldo:number-of-units" AllowRuleUsage="1" DisplayLabel="Number of Units" Name="NumbeOfUnits">
+			<EnumValue DeployID="1" DeployValue="3" DisplayLabel="3" Inactive="No"/>
+			<EnumValue DeployID="2" DeployValue="2" DisplayLabel="2" Inactive="No"/>
+			<EnumValue DeployID="3" DeployValue="4" DisplayLabel="4" Inactive="No"/>
+			<EnumValue DeployID="4" DeployValue="1" DisplayLabel="1" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="23" DeployType="Integer" ClassKey="23" DeployLabel="ldo:prepayment-penalty" AllowRuleUsage="1" DisplayLabel="Prepayment Penalty Years" Name="PrepaymentPenaltyYears">
+			<EnumValue DeployID="1" DeployValue="3" DisplayLabel="3" Inactive="No"/>
+			<EnumValue DeployID="2" DeployValue="5" DisplayLabel="5" Inactive="No"/>
+			<EnumValue DeployID="3" DeployValue="2" DisplayLabel="2" Inactive="No"/>
+			<EnumValue DeployID="4" DeployValue="0" DisplayLabel="0" Inactive="No"/>
+			<EnumValue DeployID="5" DeployValue="4" DisplayLabel="4" Inactive="No"/>
+			<EnumValue DeployID="6" DeployValue="1" DisplayLabel="1" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="24" DeployType="Boolean" ClassKey="23" DeployLabel="ldo:stand-alone" AllowRuleUsage="1" DisplayLabel="Stand Alone" Name="StandAlone">
+			<EnumValue DeployValue="T" DisplayLabel="Yes" DeployID="1"/>
+			<EnumValue DeployValue="NIL" DisplayLabel="No" DeployID="2"/>
+		</DomainAttribute>
+	</DomainClass>
+	<DomainClass ClassKey="1" DeployLabel="mms:mb_request" AllowRuleUsage="1" DisplayLabel="Mb Request" HasMultiplicity="1" Name="MMS_MB_REQUEST" >
+		<DomainAttribute AttributeKey="1" DeployType="String" ClassKey="1"  DeployLabel="mms:mbversionid" DisplayLabel="MB Version ID" AllowRuleUsage="1" ContextlessLabel="" Name="MBVersionID"/>
+		<DomainAttribute AttributeKey="2" DeployType="Symbol" ClassKey="1"  DeployLabel="mms:requesttype" DisplayLabel="Request Type" AllowRuleUsage="1" ContextlessLabel="" Name="RequestType">
+          <EnumValue DeployID="1" DeployValue="PREQUALIFY" DisplayLabel="PREQUALIFY" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="PRICE" DisplayLabel="PRICE" Inactive="No"/>
+          <EnumValue DeployID="3" DeployValue="UNDERWRITE" DisplayLabel="UNDERWRITE" Inactive="No"/>
+          <EnumValue DeployID="4" DeployValue="CR-Analysis" DisplayLabel="CR-Analysis" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="3" DeployType="String" ClassKey="1"  DeployLabel="mms:requestsource" DisplayLabel="Request Source" AllowRuleUsage="1" ContextlessLabel="" Name="RequestSource"/>
+		<DomainAttribute AttributeKey="4" DeployType="String" ClassKey="1"  DeployLabel="mms:requestidentifier" DisplayLabel="Request Identifier" AllowRuleUsage="1" ContextlessLabel="" Name="RequestIdentifier"/>
+		<DomainAttribute AttributeKey="5" DeployType="Date" ClassKey="1"  DeployLabel="mms:requestdate" DisplayLabel="Request Date" AllowRuleUsage="1" ContextlessLabel="" Name="RequestDate"/>
+		<DomainAttribute AttributeKey="6" DeployType="Date" ClassKey="1"  DeployLabel="mms:effectivedate" DisplayLabel="Effective Date" AllowRuleUsage="1" ContextlessLabel="" Name="EffectiveDate"/>
+		<DomainAttribute AttributeKey="7" DeployType="Date" ClassKey="1"  DeployLabel="mms:pricingeffectivedate" DisplayLabel="Pricing Effective Date" AllowRuleUsage="1" ContextlessLabel="" Name="PricingEffectiveDate"/>
+		<DomainAttribute AttributeKey="8" DeployType="String" ClassKey="1"  DeployLabel="mms:channelidentifier" DisplayLabel="Channel Identifier" AllowRuleUsage="1" ContextlessLabel="" Name="ChannelIdentifier"/>
+		<DomainClassLink ParentClassKey="1" ChildClassKey="2" HasMultiplicity="1" ParentClassName="MMS_MB_REQUEST" ChildClassName="MMS_LOAN_SUPPLEMENT"/>
+		<DomainClassLink ParentClassKey="1" ChildClassKey="8" HasMultiplicity="1" ParentClassName="MMS_MB_REQUEST" ChildClassName="MMS_BESTFIT"/>
+	</DomainClass>
+	<DomainClass ClassKey="2" DeployLabel="mms:loan_supplement" AllowRuleUsage="1" DisplayLabel="Loan Supplement" HasMultiplicity="1" Name="MMS_LOAN_SUPPLEMENT" >
+		<DomainAttribute AttributeKey="1" DeployType="Currency" ClassKey="2"  DeployLabel="mms:requestedcashoutamount" DisplayLabel="Requested Cash Out Amount" AllowRuleUsage="1" ContextlessLabel="" Name="RequestedCashOutAmount"/>
+		<DomainAttribute AttributeKey="2" DeployType="Symbol" ClassKey="2"  DeployLabel="mms:lienposition" DisplayLabel="Lien Position" AllowRuleUsage="1" ContextlessLabel="" Name="LienPosition">
+          <EnumValue DeployID="1" DeployValue="First" DisplayLabel="First" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="Second" DisplayLabel="Second" Inactive="No"/>
+		</DomainAttribute>
+		<DomainClassLink ParentClassKey="2" ChildClassKey="3" HasMultiplicity="1" ParentClassName="MMS_LOAN_SUPPLEMENT" ChildClassName="MMS_REQUESTED_PRODUCT"/>
+		<DomainClassLink ParentClassKey="2" ChildClassKey="4" HasMultiplicity="1" ParentClassName="MMS_LOAN_SUPPLEMENT" ChildClassName="MMS_REQUESTED_PROGRAM"/>
+		<DomainClassLink ParentClassKey="2" ChildClassKey="5" HasMultiplicity="1" ParentClassName="MMS_LOAN_SUPPLEMENT" ChildClassName="MMS_REQUESTED_INVESTOR"/>
+		<DomainClassLink ParentClassKey="2" ChildClassKey="6" HasMultiplicity="1" ParentClassName="MMS_LOAN_SUPPLEMENT" ChildClassName="MMS_PRICING"/>
+		<DomainClassLink ParentClassKey="2" ChildClassKey="26" HasMultiplicity="1" ParentClassName="MMS_LOAN_SUPPLEMENT" ChildClassName="MMS_LOAN_INFORMATION"/>
+		<DomainClassLink ParentClassKey="2" ChildClassKey="27" HasMultiplicity="1" ParentClassName="MMS_LOAN_SUPPLEMENT" ChildClassName="MMS_PROPERTY_INFORMATION"/>
+		<DomainClassLink ParentClassKey="2" ChildClassKey="28" HasMultiplicity="1" ParentClassName="MMS_LOAN_SUPPLEMENT" ChildClassName="MMS_CREDIT_INFORMATION"/>
+	</DomainClass>
+	<DomainClass ClassKey="3" DeployLabel="mms:requested_product" AllowRuleUsage="1" DisplayLabel="Requested Product" HasMultiplicity="1" Name="MMS_REQUESTED_PRODUCT" >
+		<DomainAttribute AttributeKey="1" DeployType="Symbol" ClassKey="3"  DeployLabel="mms:productname" DisplayLabel="Product Name" AllowRuleUsage="1" ContextlessLabel="" Name="ProductName">
+          <EnumValue DeployID="1" DeployValue="ProductA" DisplayLabel="ProductA" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="ProductB" DisplayLabel="ProductB" Inactive="No"/>
+          <EnumValue DeployID="3" DeployValue="ProductC" DisplayLabel="ProductC" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="2" DeployType="String" ClassKey="3"  DeployLabel="mms:productidentifier" DisplayLabel="Product Identifier" AllowRuleUsage="1" ContextlessLabel="" Name="ProductIdentifier"/>
+		<DomainAttribute AttributeKey="3" DeployType="String" ClassKey="3"  DeployLabel="mms:productcode" DisplayLabel="Product Code" AllowRuleUsage="1" ContextlessLabel="" Name="ProductCode"/>
+	</DomainClass>
+	<DomainClass ClassKey="4" DeployLabel="mms:requested_program" AllowRuleUsage="1" DisplayLabel="Requested Program" HasMultiplicity="1" Name="MMS_REQUESTED_PROGRAM" >
+		<DomainAttribute AttributeKey="1" DeployType="Symbol" ClassKey="4"  DeployLabel="mms:programname" DisplayLabel="Program Name" AllowRuleUsage="1" ContextlessLabel="" Name="ProgramName">
+          <EnumValue DeployID="1" DeployValue="ProgramA" DisplayLabel="ProgramA" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="ProgramB" DisplayLabel="ProgramB" Inactive="No"/>
+          <EnumValue DeployID="3" DeployValue="ProgramC" DisplayLabel="ProgramC" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="2" DeployType="String" ClassKey="4"  DeployLabel="mms:programidentifier" DisplayLabel="Program Identifier" AllowRuleUsage="1" ContextlessLabel="" Name="ProgramIdentifier"/>
+		<DomainAttribute AttributeKey="3" DeployType="String" ClassKey="4"  DeployLabel="mms:programcode" DisplayLabel="Program Code" AllowRuleUsage="1" ContextlessLabel="" Name="ProgramCode"/>
+	</DomainClass>
+	<DomainClass ClassKey="5" DeployLabel="mms:requested_investor" AllowRuleUsage="1" DisplayLabel="Requested Investor" HasMultiplicity="1" Name="MMS_REQUESTED_INVESTOR" >
+		<DomainAttribute AttributeKey="1" DeployType="Symbol" ClassKey="5"  DeployLabel="mms:investorname" DisplayLabel="Investor Name" AllowRuleUsage="1" ContextlessLabel="" Name="InvestorName">
+          <EnumValue DeployID="1" DeployValue="InvestorA" DisplayLabel="InvestorA" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="InvestorB" DisplayLabel="InvestorB" Inactive="No"/>
+          <EnumValue DeployID="3" DeployValue="InvestorC" DisplayLabel="InvestorC" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="2" DeployType="String" ClassKey="5"  DeployLabel="mms:investoridentifier" DisplayLabel="Investor Identifier" AllowRuleUsage="1" ContextlessLabel="" Name="InvestorIdentifier"/>
+		<DomainAttribute AttributeKey="3" DeployType="String" ClassKey="5"  DeployLabel="mms:investorcode" DisplayLabel="Investor Code" AllowRuleUsage="1" ContextlessLabel="" Name="InvestorCode"/>
+	</DomainClass>
+	<DomainClass ClassKey="6" DeployLabel="mms:pricing" AllowRuleUsage="1" DisplayLabel="Pricing" HasMultiplicity="1" Name="MMS_PRICING" >
+		<DomainAttribute AttributeKey="1" DeployType="Symbol" ClassKey="6"  DeployLabel="mms:pricingtype" DisplayLabel="Pricing Type" AllowRuleUsage="1" ContextlessLabel="" Name="PricingType">
+          <EnumValue DeployID="1" DeployValue="GENERATEMULTIPLEPRICEPOINTS" DisplayLabel="Generate Multiple Price Points" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="SPECIFICRATEREQUESTED" DisplayLabel="Specific Rate Requested" Inactive="No"/>
+          <EnumValue DeployID="3" DeployValue="SPECIFICPRICEREQUESTED" DisplayLabel="Specific Price Requested" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="2" DeployType="Percent" ClassKey="6"  DeployLabel="mms:requestedpricepercent" DisplayLabel="Requested Price Percent" AllowRuleUsage="1" ContextlessLabel="" Name="RequestedPricePercent"/>
+		<DomainAttribute AttributeKey="3" DeployType="Symbol" ClassKey="6"  DeployLabel="mms:delivery" DisplayLabel="Delivery" AllowRuleUsage="1" ContextlessLabel="" Name="Delivery">
+          <EnumValue DeployID="1" DeployValue="Mandatory" DisplayLabel="Mandatory" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="BestEffort" DisplayLabel="BestEffort" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="4" DeployType="Symbol" ClassKey="6"  DeployLabel="mms:lockperiod" DisplayLabel="Lock Period" AllowRuleUsage="1" ContextlessLabel="" Name="LockPeriod">
+          <EnumValue DeployID="1" DeployValue="10Days" DisplayLabel="10Days" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="15Days" DisplayLabel="15Days" Inactive="No"/>
+          <EnumValue DeployID="3" DeployValue="30Days" DisplayLabel="30Days" Inactive="No"/>
+          <EnumValue DeployID="4" DeployValue="45Days" DisplayLabel="45Days" Inactive="No"/>
+          <EnumValue DeployID="5" DeployValue="60Days" DisplayLabel="60Days" Inactive="No"/>
+          <EnumValue DeployID="6" DeployValue="75Days" DisplayLabel="75Days" Inactive="No"/>
+          <EnumValue DeployID="7" DeployValue="90Days" DisplayLabel="90Days" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="5" DeployType="Date" ClassKey="6"  DeployLabel="mms:lockdate" DisplayLabel="Lock Date" AllowRuleUsage="1" ContextlessLabel="" Name="LockDate"/>
+		<DomainAttribute AttributeKey="6" DeployType="Symbol" ClassKey="6"  DeployLabel="mms:prepaymentpenaltytype" DisplayLabel="Pre Payment Penalty Type" AllowRuleUsage="1" ContextlessLabel="" Name="PrePaymentPenaltyType">
+          <EnumValue DeployID="1" DeployValue="NoPPP" DisplayLabel="NoPPP" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="2yrPPP" DisplayLabel="2yrPPP" Inactive="No"/>
+          <EnumValue DeployID="3" DeployValue="3yrPPP" DisplayLabel="3yrPPP" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="7" DeployType="Percent" ClassKey="6"  DeployLabel="mms:requestedpoints" DisplayLabel="Requested Points" AllowRuleUsage="1" ContextlessLabel="" Name="RequestedPoints"/>
+		<DomainAttribute AttributeKey="8" DeployType="Percent" ClassKey="6"  DeployLabel="mms:requestedratepercent" DisplayLabel="Requested Rate Percent" AllowRuleUsage="1" ContextlessLabel="" Name="RequestedRatePercent"/>
+		<DomainAttribute AttributeKey="9" DeployType="Integer" ClassKey="6"  DeployLabel="mms:ratebuydownpoints" DisplayLabel="Rate Buy-Down Points" AllowRuleUsage="1" ContextlessLabel="" Name="RateBuyDownPoints"/>
+		<DomainClassLink ParentClassKey="6" ChildClassKey="7" HasMultiplicity="1" ParentClassName="MMS_PRICING" ChildClassName="MMS_LOCK_EXTENSION"/>
+	</DomainClass>
+	<DomainClass ClassKey="7" DeployLabel="mms:lock_extension" AllowRuleUsage="1" DisplayLabel="Lock Extension" HasMultiplicity="1" Name="MMS_LOCK_EXTENSION" >
+		<DomainAttribute AttributeKey="1" DeployType="Integer" ClassKey="7"  DeployLabel="mms:extensiondays" DisplayLabel="Extension Days" AllowRuleUsage="1" ContextlessLabel="" Name="ExtensionDays"/>
+	</DomainClass>
+	<DomainClass ClassKey="8" DeployLabel="mms:bestfit" AllowRuleUsage="1" DisplayLabel="Bestfit" HasMultiplicity="1" Name="MMS_BESTFIT" >
+		<DomainAttribute AttributeKey="1" DeployType="Symbol" ClassKey="8"  DeployLabel="mms:objective" DisplayLabel="Objective" AllowRuleUsage="1" ContextlessLabel="" Name="Objective">
+          <EnumValue DeployID="1" DeployValue="MinimizeMonthlyPayment" DisplayLabel="MinimizeMonthlyPayment" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="MinimizeDownPayment" DisplayLabel="MinimizeDownPayment" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="2" DeployType="Symbol" ClassKey="8"  DeployLabel="mms:holdtime" DisplayLabel="Hold Time" AllowRuleUsage="1" ContextlessLabel="" Name="HoldTime">
+          <EnumValue DeployID="1" DeployValue="3yrsOrLess" DisplayLabel="3yrsOrLess" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="4To5yrs" DisplayLabel="4To5yrs" Inactive="No"/>
+          <EnumValue DeployID="3" DeployValue="6To7yrs" DisplayLabel="6To7yrs" Inactive="No"/>
+          <EnumValue DeployID="4" DeployValue="7yrsOrMore" DisplayLabel="7yrsOrMore" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="3" DeployType="Symbol" ClassKey="8"  DeployLabel="mms:paymentchangetolerance" DisplayLabel="Payment Change Tolerance" AllowRuleUsage="1" ContextlessLabel="" Name="PaymentChangeTolerance">
+          <EnumValue DeployID="1" DeployValue="Conservative" DisplayLabel="Conservative" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="Moderate" DisplayLabel="Moderate" Inactive="No"/>
+          <EnumValue DeployID="3" DeployValue="Aggresive" DisplayLabel="Aggresive" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="4" DeployType="Symbol" ClassKey="8"  DeployLabel="mms:investmentrisktolerance" DisplayLabel="Investment Risk Tolerance" AllowRuleUsage="1" ContextlessLabel="" Name="InvestmentRiskTolerance">
+          <EnumValue DeployID="1" DeployValue="Conservative" DisplayLabel="Conservative" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="Moderate" DisplayLabel="Moderate" Inactive="No"/>
+          <EnumValue DeployID="3" DeployValue="Aggresive" DisplayLabel="Aggresive" Inactive="No"/>
+		</DomainAttribute>
+	</DomainClass>
+	<DomainClass ClassKey="9" DeployLabel="MMS:DEAL" AllowRuleUsage="1" DisplayLabel="mms:Deal" HasMultiplicity="1" Name="MMS_DEAL" >
+		<DomainAttribute AttributeKey="1" DeployType="Integer" ClassKey="9"  DeployLabel="mms:rank" DisplayLabel="Rank" AllowRuleUsage="1" ContextlessLabel="" Name="Rank"/>
+		<DomainAttribute AttributeKey="2" DeployType="Symbol" ClassKey="9"  DeployLabel="mms:descriptor" DisplayLabel="Descriptor" AllowRuleUsage="1" ContextlessLabel="" Name="Descriptor">
+          <EnumValue DeployID="1" DeployValue="Preferred" DisplayLabel="Preferred" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="Upsell" DisplayLabel="Upsell" Inactive="No"/>
+          <EnumValue DeployID="3" DeployValue="Repair" DisplayLabel="Repair" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="3" DeployType="Symbol" ClassKey="9"  DeployLabel="mms:eligibiltyindicator" DisplayLabel="Eligibilty Indicator" AllowRuleUsage="1" ContextlessLabel="" Name="EligibiltyIndicator">
+          <EnumValue DeployID="1" DeployValue="Y" DisplayLabel="Y" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="N" DisplayLabel="N" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="4" DeployType="Symbol" ClassKey="9"  DeployLabel="mms:counterofferindicator" DisplayLabel="Counter Offer Indicator" AllowRuleUsage="1" ContextlessLabel="" Name="CounterOfferIndicator">
+          <EnumValue DeployID="1" DeployValue="Y" DisplayLabel="Y" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="N" DisplayLabel="N" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="5" DeployType="Currency" ClassKey="9"  DeployLabel="mms:totalloanamount" DisplayLabel="Total Loan Amount" AllowRuleUsage="1" ContextlessLabel="" Name="TotalLoanAmount"/>
+		<DomainAttribute AttributeKey="6" DeployType="Currency" ClassKey="9"  DeployLabel="mms:totalcashoutamount" DisplayLabel="Total Cashout Amount" AllowRuleUsage="1" ContextlessLabel="" Name="TotalCashoutAmount"/>
+		<DomainAttribute AttributeKey="7" DeployType="Currency" ClassKey="9"  DeployLabel="mms:totaldebtpayoffamount" DisplayLabel="Total Debt Pay Off Amount" AllowRuleUsage="1" ContextlessLabel="" Name="TotalDebtPayOffAmount"/>
+		<DomainAttribute AttributeKey="8" DeployType="Currency" ClassKey="9"  DeployLabel="mms:totalclosingcostsamount" DisplayLabel="Total Closing Costs Amount" AllowRuleUsage="1" ContextlessLabel="" Name="TotalClosingCostsAmount"/>
+		<DomainAttribute AttributeKey="9" DeployType="Currency" ClassKey="9"  DeployLabel="mms:totalfeesamount" DisplayLabel="Total Fees Amount" AllowRuleUsage="1" ContextlessLabel="" Name="TotalFeesAmount"/>
+		<DomainAttribute AttributeKey="10" DeployType="Currency" ClassKey="9"  DeployLabel="mms:totalpointsamount" DisplayLabel="Total Points Amount" AllowRuleUsage="1" ContextlessLabel="" Name="TotalPointsAmount"/>
+		<DomainAttribute AttributeKey="11" DeployType="Percent" ClassKey="9"  DeployLabel="mms:ltvpercent" DisplayLabel="LTV Percent" AllowRuleUsage="1" ContextlessLabel="" Name="LTVPercent"/>
+		<DomainAttribute AttributeKey="12" DeployType="Percent" ClassKey="9"  DeployLabel="mms:cltvpercent" DisplayLabel="CLTV Percent" AllowRuleUsage="1" ContextlessLabel="" Name="CLTVPercent"/>
+		<DomainAttribute AttributeKey="13" DeployType="Percent" ClassKey="9"  DeployLabel="mms:htipercent" DisplayLabel="HTI Percent" AllowRuleUsage="1" ContextlessLabel="" Name="HTIPercent"/>
+		<DomainAttribute AttributeKey="14" DeployType="Percent" ClassKey="9"  DeployLabel="mms:dtipercent" DisplayLabel="DTI Percent" AllowRuleUsage="1" ContextlessLabel="" Name="DTIPercent"/>
+		<DomainAttribute AttributeKey="15" DeployType="Currency" ClassKey="9"  DeployLabel="mms:totalincomeamount" DisplayLabel="Total Income Amount" AllowRuleUsage="1" ContextlessLabel="" Name="TotalIncomeAmount"/>
+		<DomainAttribute AttributeKey="16" DeployType="Currency" ClassKey="9"  DeployLabel="mms:totalpiamount" DisplayLabel="Total PI Amount" AllowRuleUsage="1" ContextlessLabel="" Name="TotalPIAmount"/>
+		<DomainAttribute AttributeKey="17" DeployType="Currency" ClassKey="9"  DeployLabel="mms:totalpitiamount" DisplayLabel="Total PITI Amount" AllowRuleUsage="1" ContextlessLabel="" Name="TotalPITIAmount"/>
+		<DomainAttribute AttributeKey="18" DeployType="Currency" ClassKey="9"  DeployLabel="mms:totalmonthlypaymentamount" DisplayLabel="Total Monthly Payment Amount" AllowRuleUsage="1" ContextlessLabel="" Name="TotalMonthlyPaymentAmount"/>
+		<DomainAttribute AttributeKey="19" DeployType="Currency" ClassKey="9"  DeployLabel="mms:monthlysavingsamount" DisplayLabel="Monthly Savings Amount" AllowRuleUsage="1" ContextlessLabel="" Name="MonthlySavingsAmount"/>
+		<DomainAttribute AttributeKey="20" DeployType="Currency" ClassKey="9"  DeployLabel="mms:residualincomeamount" DisplayLabel="Residual Income Amount" AllowRuleUsage="1" ContextlessLabel="" Name="ResidualIncomeAmount"/>
+		<DomainAttribute AttributeKey="21" DeployType="Currency" ClassKey="9"  DeployLabel="mms:TotalDownPaymentAmount" DisplayLabel="Total Down Payment Amount" AllowRuleUsage="1" ContextlessLabel="" Name="TotalDownPaymentAmount"/>
+		<DomainAttribute AttributeKey="22" DeployType="Currency" ClassKey="9"  DeployLabel="mms:SPMortgagePayOffAmount" DisplayLabel="Subject Property Mortgage Payoff Amount" AllowRuleUsage="1" ContextlessLabel="" Name="SPMortgagePayOffAmount"/>
+		<DomainAttribute AttributeKey="23" DeployType="Currency" ClassKey="9"  DeployLabel="mms:SPPrimaryBalanceAmount" DisplayLabel="Subject Property Primary Mortgage Amount" AllowRuleUsage="1" ContextlessLabel="" Name="SPPrimaryBalanceAmount"/>
+		<DomainAttribute AttributeKey="24" DeployType="Currency" ClassKey="9"  DeployLabel="mms:SPSubordinateBalanceAmount" DisplayLabel="Subject Property Subordinate Mortgage Amount" AllowRuleUsage="1" ContextlessLabel="" Name="SPSubordinateBalanceAmount"/>
+		<DomainAttribute AttributeKey="25" DeployType="Currency" ClassKey="9"  DeployLabel="mms:OtherPrimaryAmount" DisplayLabel="Other Primary Amount" AllowRuleUsage="1" ContextlessLabel="" Name="OtherPrimaryAmount"/>
+		<DomainAttribute AttributeKey="26" DeployType="Currency" ClassKey="9"  DeployLabel="mms:OtherSubordinateAmount" DisplayLabel="Other Subordinate Amount" AllowRuleUsage="1" ContextlessLabel="" Name="OtherSubordinateAmount"/>
+		<DomainAttribute AttributeKey="27" DeployType="Percent" ClassKey="9"  DeployLabel="mms:HCLTVPercent" DisplayLabel="HCLTV Percent" AllowRuleUsage="1" ContextlessLabel="" Name="HCLTVPercent"/>
+		<DomainAttribute AttributeKey="28" DeployType="Currency" ClassKey="9"  DeployLabel="mms:TotalQualPIAmount" DisplayLabel="Total Qual PI Amount" AllowRuleUsage="1" ContextlessLabel="" Name="TotalQualPIAmount"/>
+		<DomainAttribute AttributeKey="29" DeployType="Currency" ClassKey="9"  DeployLabel="mms:TotalQualPITIAmount" DisplayLabel="Total Qual PITI Amount" AllowRuleUsage="1" ContextlessLabel="" Name="TotalQualPITIAmount"/>
+		<DomainAttribute AttributeKey="30" DeployType="Percent" ClassKey="9"  DeployLabel="mms:PaymentShockPercent" DisplayLabel="Payment Shock Percent" AllowRuleUsage="1" ContextlessLabel="" Name="PaymentShockPercent"/>
+		<DomainAttribute AttributeKey="31" DeployType="Integer" ClassKey="9"  DeployLabel="mms:ReservesMonths" DisplayLabel="Reserves Months" AllowRuleUsage="1" ContextlessLabel="" Name="ReservesMonths"/>
+		<DomainAttribute AttributeKey="32" DeployType="Symbol" ClassKey="9"  DeployLabel="mms:ClosingCostsFinancedIndicator" DisplayLabel="Closing Costs Financed Indicator" AllowRuleUsage="1" ContextlessLabel="" Name="ClosingCostsFinancedIndicator"/>
+		<DomainAttribute AttributeKey="33" DeployType="Integer" ClassKey="9"  DeployLabel="mms:DealID" DisplayLabel="Deal ID" AllowRuleUsage="1" ContextlessLabel="" Name="DealID"/>
+		<DomainAttribute AttributeKey="34" DeployType="Integer" ClassKey="9"  DeployLabel="MMS:TotalProblemCount" DisplayLabel="Total Problem Count" AllowRuleUsage="1" ContextlessLabel="" Name="TotalProblemCount"/>
+		<DomainClassLink ParentClassKey="9" ChildClassKey="10" HasMultiplicity="1" ParentClassName="MMS_DEAL" ChildClassName="MMS_LIEN"/>
+		<DomainClassLink ParentClassKey="9" ChildClassKey="15" HasMultiplicity="1" ParentClassName="MMS_DEAL" ChildClassName="MMS_LIABILITY"/>
+		<DomainClassLink ParentClassKey="9" ChildClassKey="16" HasMultiplicity="1" ParentClassName="MMS_DEAL" ChildClassName="MMS_STIPULATION"/>
+		<DomainClassLink ParentClassKey="9" ChildClassKey="14" HasMultiplicity="1" ParentClassName="MMS_DEAL" ChildClassName="MMS__MESSAGE"/>
+	</DomainClass>
+	<DomainClass ClassKey="10" DeployLabel="MMS:LIEN" AllowRuleUsage="1" DisplayLabel="mms:lien" HasMultiplicity="1" Name="MMS_LIEN" >
+		<DomainAttribute AttributeKey="1" DeployType="Symbol" ClassKey="10"  DeployLabel="mms:productname" DisplayLabel="Product Name" AllowRuleUsage="1" ContextlessLabel="" Name="ProductName">
+          <EnumValue DeployID="1" DeployValue="ProductA" DisplayLabel="ProductA" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="ProductB" DisplayLabel="ProductB" Inactive="No"/>
+          <EnumValue DeployID="3" DeployValue="ProductC" DisplayLabel="ProductC" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="2" DeployType="String" ClassKey="10"  DeployLabel="mms:productidentifier" DisplayLabel="Product Identifier" AllowRuleUsage="1" ContextlessLabel="" Name="ProductIdentifier"/>
+		<DomainAttribute AttributeKey="3" DeployType="String" ClassKey="10"  DeployLabel="mms:productcode" DisplayLabel="Product Code" AllowRuleUsage="1" ContextlessLabel="" Name="ProductCode"/>
+		<DomainAttribute AttributeKey="4" DeployType="Symbol" ClassKey="10"  DeployLabel="mms:lienposition" DisplayLabel="Lien Position" AllowRuleUsage="1" ContextlessLabel="" Name="LienPosition">
+          <EnumValue DeployID="1" DeployValue="First" DisplayLabel="First" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="Second" DisplayLabel="Second" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="5" DeployType="String" ClassKey="10"  DeployLabel="CGE:Credit-Grade" DisplayLabel="Credit Grade" AllowRuleUsage="1" ContextlessLabel="" Name="CreditGrade"/>
+		<DomainAttribute AttributeKey="6" DeployType="Currency" ClassKey="10"  DeployLabel="mms:loanamount" DisplayLabel="Loan Amount" AllowRuleUsage="1" ContextlessLabel="" Name="LoanAmount"/>
+		<DomainAttribute AttributeKey="7" DeployType="Currency" ClassKey="10"  DeployLabel="mms:cashoutamount" DisplayLabel="Cash Out Amount" AllowRuleUsage="1" ContextlessLabel="" Name="CashOutAmount"/>
+		<DomainAttribute AttributeKey="8" DeployType="Integer" ClassKey="10"  DeployLabel="mms:amortizationtermmonths" DisplayLabel="Amortization Term Months" AllowRuleUsage="1" ContextlessLabel="" Name="AmortizationTermMonths"/>
+		<DomainAttribute AttributeKey="9" DeployType="Integer" ClassKey="10"  DeployLabel="mms:amortizationdueinmonths" DisplayLabel="Amortization Due In Months" AllowRuleUsage="1" ContextlessLabel="" Name="AmortizationDueInMonths"/>
+		<DomainAttribute AttributeKey="10" DeployType="Symbol" ClassKey="10"  DeployLabel="mms:amortizationtype" DisplayLabel="Amortization Type" AllowRuleUsage="1" ContextlessLabel="" Name="AmortizationType">
+          <EnumValue DeployID="1" DeployValue="AdjustableRate" DisplayLabel="AdjustableRate" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="Fixed" DisplayLabel="Fixed" Inactive="No"/>
+          <EnumValue DeployID="3" DeployValue="GraduatedPaymentMortgage" DisplayLabel="GraduatedPaymentMortgage" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="11" DeployType="Percent" ClassKey="10"  DeployLabel="mms:points" DisplayLabel="Points" AllowRuleUsage="1" ContextlessLabel="" Name="Points"/>
+		<DomainAttribute AttributeKey="12" DeployType="Symbol" ClassKey="10"  DeployLabel="mms:prepaymentpenaltytype" DisplayLabel="Pre Payment Penalty Type" AllowRuleUsage="1" ContextlessLabel="" Name="PrePaymentPenaltyType">
+          <EnumValue DeployID="1" DeployValue="NoPPP" DisplayLabel="NoPPP" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="2yrPPP" DisplayLabel="2yrPPP" Inactive="No"/>
+          <EnumValue DeployID="3" DeployValue="3yrPPP" DisplayLabel="3yrPPP" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="13" DeployType="Currency" ClassKey="10"  DeployLabel="mms:monthlypiamount" DisplayLabel="Monthly PI Amount" AllowRuleUsage="1" ContextlessLabel="" Name="MonthlyPIAmount"/>
+		<DomainAttribute AttributeKey="14" DeployType="Percent" ClassKey="10"  DeployLabel="mms:apr" DisplayLabel="Apr" AllowRuleUsage="1" ContextlessLabel="" Name="APR"/>
+		<DomainAttribute AttributeKey="15" DeployType="Currency" ClassKey="10"  DeployLabel="mms:HELOCAmount" DisplayLabel="HELOC Amount" AllowRuleUsage="1" ContextlessLabel="" Name="HELOCAmount"/>
+		<DomainAttribute AttributeKey="16" DeployType="Currency" ClassKey="10"  DeployLabel="mms:HELOCAvailableAmount" DisplayLabel="HELOC Available Amount" AllowRuleUsage="1" ContextlessLabel="" Name="HELOCAvailableAmount"/>
+		<DomainAttribute AttributeKey="17" DeployType="Currency" ClassKey="10"  DeployLabel="mms:MonthlyQualPIAmount" DisplayLabel="Monthly Qual PI Amount" AllowRuleUsage="1" ContextlessLabel="" Name="MonthlyQualPIAmount"/>
+		<DomainAttribute AttributeKey="18" DeployType="Integer" ClassKey="10"  DeployLabel="mms:DealID" DisplayLabel="Deal ID" AllowRuleUsage="1" ContextlessLabel="" Name="DealID"/>
+		<DomainAttribute AttributeKey="19" DeployType="Integer" ClassKey="10"  DeployLabel="mms:LienID" DisplayLabel="Lien ID" AllowRuleUsage="1" ContextlessLabel="" Name="LienID"/>
+		<DomainAttribute AttributeKey="20" DeployType="Integer" ClassKey="10"  DeployLabel="MMS:ProblemCount" DisplayLabel="Problem Count" AllowRuleUsage="1" ContextlessLabel="" Name="ProblemCount"/>
+		<DomainAttribute AttributeKey="21" DeployType="String" ClassKey="10"  DeployLabel="MMS:Problems" DisplayLabel="Problems" AllowRuleUsage="1" ContextlessLabel="" Name="Problems"/>
+		<DomainAttribute AttributeKey="22" DeployType="Symbol" ClassKey="10"  DeployLabel="mms:eligibiltyindicator" DisplayLabel="Eligibilty Indicator" AllowRuleUsage="1" ContextlessLabel="" Name="EligibiltyIndicator">
+          <EnumValue DeployID="1" DeployValue="Y" DisplayLabel="Y" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="N" DisplayLabel="N" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="23" DeployType="String" ClassKey="10"  DeployLabel="MMS:QualificationFeatures" DisplayLabel="Qualification Features" AllowRuleUsage="1" ContextlessLabel="" Name="QualificationFeatures">
+          <EnumValue DeployID="1" DeployValue="LTV" DisplayLabel="LTV" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="LoanAmount" DisplayLabel="Loan Amount" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="24" DeployType="Symbol" ClassKey="10"  DeployLabel="MMS:channel-id" DisplayLabel="Channel Context" AllowRuleUsage="1" ContextlessLabel="" Name="ChannelContext"/>
+		<DomainAttribute AttributeKey="25" DeployType="Symbol" ClassKey="10"  DeployLabel="MMS:investor-id" DisplayLabel="Investor Context" AllowRuleUsage="1" ContextlessLabel="" Name="InvestorContext"/>
+		<DomainAttribute AttributeKey="26" DeployType="Symbol" ClassKey="10"  DeployLabel="MMS:product-id" DisplayLabel="Product Context" AllowRuleUsage="1" ContextlessLabel="" Name="ProductContext"/>
+		<DomainAttribute AttributeKey="27" DeployType="Symbol" ClassKey="10"  DeployLabel="MMS:program-id" DisplayLabel="Program Context" AllowRuleUsage="1" ContextlessLabel="" Name="ProgramContext"/>
+		<DomainClassLink ParentClassKey="10" ChildClassKey="11" HasMultiplicity="1" ParentClassName="MMS_LIEN" ChildClassName="MMS_LIEN_PROGRAM"/>
+		<DomainClassLink ParentClassKey="10" ChildClassKey="12" HasMultiplicity="1" ParentClassName="MMS_LIEN" ChildClassName="MMS_PRICE_POINT"/>
+		<DomainClassLink ParentClassKey="10" ChildClassKey="14" HasMultiplicity="1" ParentClassName="MMS_LIEN" ChildClassName="MMS__MESSAGE"/>
+		<DomainClassLink ParentClassKey="10" ChildClassKey="22" HasMultiplicity="1" ParentClassName="MMS_LIEN" ChildClassName="MMS_LTVLoanAmountConstraints"/>
+		<DomainClassLink ParentClassKey="10" ChildClassKey="23" HasMultiplicity="1" ParentClassName="MMS_LIEN" ChildClassName="MMS_DTIConstraints"/>
+		<DomainClassLink ParentClassKey="10" ChildClassKey="24" HasMultiplicity="1" ParentClassName="MMS_LIEN" ChildClassName="MMS_MinLoanAmountConstraints"/>
+	</DomainClass>
+	<DomainClass ClassKey="11" DeployLabel="mms:lien_program" AllowRuleUsage="1" DisplayLabel="Lien Program" HasMultiplicity="1" Name="MMS_LIEN_PROGRAM" >
+		<DomainAttribute AttributeKey="1" DeployType="Symbol" ClassKey="11"  DeployLabel="mms:programname" DisplayLabel="Program Name" AllowRuleUsage="1" ContextlessLabel="" Name="ProgramName">
+          <EnumValue DeployID="1" DeployValue="ProgramA" DisplayLabel="ProgramA" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="ProgramB" DisplayLabel="ProgramB" Inactive="No"/>
+          <EnumValue DeployID="3" DeployValue="ProgramC" DisplayLabel="ProgramC" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="2" DeployType="String" ClassKey="11"  DeployLabel="mms:programidentifier" DisplayLabel="Program Identifier" AllowRuleUsage="1" ContextlessLabel="" Name="ProgramIdentifier"/>
+		<DomainAttribute AttributeKey="3" DeployType="String" ClassKey="11"  DeployLabel="mms:programcode" DisplayLabel="Program Code" AllowRuleUsage="1" ContextlessLabel="" Name="ProgramCode"/>
+		<DomainAttribute AttributeKey="4" DeployType="Integer" ClassKey="11"  DeployLabel="mms:DealID" DisplayLabel="Deal ID" AllowRuleUsage="1" ContextlessLabel="" Name="DealID"/>
+		<DomainAttribute AttributeKey="5" DeployType="Integer" ClassKey="11"  DeployLabel="mms:LienID" DisplayLabel="Lien ID" AllowRuleUsage="1" ContextlessLabel="" Name="LienID"/>
+	</DomainClass>
+	<DomainClass ClassKey="12" DeployLabel="mms:price_point" AllowRuleUsage="1" DisplayLabel="Price Point" HasMultiplicity="1" Name="MMS_PRICE_POINT" >
+		<DomainAttribute AttributeKey="1" DeployType="Percent" ClassKey="12"  DeployLabel="mms:basepricepercent" DisplayLabel="Base Price Percent" AllowRuleUsage="1" ContextlessLabel="" Name="BasePricePercent"/>
+		<DomainAttribute AttributeKey="2" DeployType="Percent" ClassKey="12"  DeployLabel="mms:baseratepercent" DisplayLabel="Base Rate Percent" AllowRuleUsage="1" ContextlessLabel="" Name="BaseRatePercent"/>
+		<DomainAttribute AttributeKey="3" DeployType="Percent" ClassKey="12"  DeployLabel="mms:basemarginpercent" DisplayLabel="Base Margin Percent" AllowRuleUsage="1" ContextlessLabel="" Name="BaseMarginPercent"/>
+		<DomainAttribute AttributeKey="4" DeployType="Percent" ClassKey="12"  DeployLabel="mms:priceadjustments" DisplayLabel="Price Adjustments" AllowRuleUsage="1" ContextlessLabel="" Name="PriceAdjustments"/>
+		<DomainAttribute AttributeKey="5" DeployType="Percent" ClassKey="12"  DeployLabel="mms:rateadjustments" DisplayLabel="Rate Adjustments" AllowRuleUsage="1" ContextlessLabel="" Name="RateAdjustments"/>
+		<DomainAttribute AttributeKey="6" DeployType="Percent" ClassKey="12"  DeployLabel="mms:marginadjustments" DisplayLabel="Margin Adjustments" AllowRuleUsage="1" ContextlessLabel="" Name="MarginAdjustments"/>
+		<DomainAttribute AttributeKey="7" DeployType="Percent" ClassKey="12"  DeployLabel="mms:finalpricepercent" DisplayLabel="Final Price Percent" AllowRuleUsage="1" ContextlessLabel="" Name="FinalPricePercent"/>
+		<DomainAttribute AttributeKey="8" DeployType="Percent" ClassKey="12"  DeployLabel="mms:finalratepercent" DisplayLabel="Final Rate Percent" AllowRuleUsage="1" ContextlessLabel="" Name="FinalRatePercent"/>
+		<DomainAttribute AttributeKey="9" DeployType="Percent" ClassKey="12"  DeployLabel="mms:finalmarginpercent" DisplayLabel="Final Margin Percent" AllowRuleUsage="1" ContextlessLabel="" Name="FinalMarginPercent"/>
+		<DomainAttribute AttributeKey="10" DeployType="Symbol" ClassKey="12"  DeployLabel="mms:investorname" DisplayLabel="Investor Name" AllowRuleUsage="1" ContextlessLabel="" Name="InvestorName">
+          <EnumValue DeployID="1" DeployValue="InvestorA" DisplayLabel="InvestorA" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="InvestorB" DisplayLabel="InvestorB" Inactive="No"/>
+          <EnumValue DeployID="3" DeployValue="InvestorC" DisplayLabel="InvestorC" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="11" DeployType="String" ClassKey="12"  DeployLabel="mms:investoridentifier" DisplayLabel="Investor Identifier" AllowRuleUsage="1" ContextlessLabel="" Name="InvestorIdentifier"/>
+		<DomainAttribute AttributeKey="12" DeployType="String" ClassKey="12"  DeployLabel="mms:investorcode" DisplayLabel="Investor Code" AllowRuleUsage="1" ContextlessLabel="" Name="InvestorCode"/>
+		<DomainAttribute AttributeKey="13" DeployType="Percent" ClassKey="12"  DeployLabel="mms:BaseQualRatePercent" DisplayLabel="Base Qual Rate Percent " AllowRuleUsage="1" ContextlessLabel="" Name="BaseQualRatePercent"/>
+		<DomainAttribute AttributeKey="14" DeployType="Percent" ClassKey="12"  DeployLabel="mms:FinalQualRatePercent" DisplayLabel="Final Qual Rate Percent" AllowRuleUsage="1" ContextlessLabel="" Name="FinalQualRatePercent"/>
+		<DomainAttribute AttributeKey="15" DeployType="Integer" ClassKey="12"  DeployLabel="mms:DealID" DisplayLabel="Deal ID" AllowRuleUsage="1" ContextlessLabel="" Name="DealID"/>
+		<DomainAttribute AttributeKey="16" DeployType="Integer" ClassKey="12"  DeployLabel="mms:LienID" DisplayLabel="Lien ID" AllowRuleUsage="1" ContextlessLabel="" Name="LienID"/>
+		<DomainClassLink ParentClassKey="12" ChildClassKey="13" HasMultiplicity="1" ParentClassName="MMS_PRICE_POINT" ChildClassName="MMS_ADJUSTMENT"/>
+		<DomainClassLink ParentClassKey="12" ChildClassKey="14" HasMultiplicity="1" ParentClassName="MMS_PRICE_POINT" ChildClassName="MMS__MESSAGE"/>
+	</DomainClass>
+	<DomainClass ClassKey="13" DeployLabel="mms:adjustment" AllowRuleUsage="1" DisplayLabel="Adjustment" HasMultiplicity="1" Name="MMS_ADJUSTMENT" >
+		<DomainAttribute AttributeKey="1" DeployType="Symbol" ClassKey="13"  DeployLabel="mms:adjustmenttype" DisplayLabel="Adjustment Type" AllowRuleUsage="1" ContextlessLabel="" Name="AdjustmentType">
+          <EnumValue DeployID="1" DeployValue="Rate" DisplayLabel="Rate" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="Price" DisplayLabel="Price" Inactive="No"/>
+          <EnumValue DeployID="3" DeployValue="Margin" DisplayLabel="Margin" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="2" DeployType="Currency" ClassKey="13"  DeployLabel="mms:adjustmentamount" DisplayLabel="Adjustment Amount" AllowRuleUsage="1" ContextlessLabel="" Name="AdjustmentAmount"/>
+		<DomainAttribute AttributeKey="3" DeployType="String" ClassKey="13"  DeployLabel="msg:_text" DisplayLabel="Text" AllowRuleUsage="1" ContextlessLabel="" Name="_Text"/>
+		<DomainAttribute AttributeKey="4" DeployType="String" ClassKey="13"  DeployLabel="msg:_category" DisplayLabel="Category" AllowRuleUsage="1" ContextlessLabel="" Name="_Category"/>
+		<DomainAttribute AttributeKey="5" DeployType="String" ClassKey="13"  DeployLabel="msg:_code" DisplayLabel="Code" AllowRuleUsage="1" ContextlessLabel="" Name="_Code"/>
+	</DomainClass>
+	<DomainClass ClassKey="14" DeployLabel="mms:_message" AllowRuleUsage="1" DisplayLabel="Message" HasMultiplicity="1" Name="MMS__MESSAGE" >
+		<DomainAttribute AttributeKey="1" DeployType="String" ClassKey="14"  DeployLabel="msg:_text" DisplayLabel="Text" AllowRuleUsage="1" ContextlessLabel="" Name="_Text"/>
+		<DomainAttribute AttributeKey="2" DeployType="String" ClassKey="14"  DeployLabel="msg:_category" DisplayLabel="Category" AllowRuleUsage="1" ContextlessLabel="" Name="_Category"/>
+		<DomainAttribute AttributeKey="3" DeployType="String" ClassKey="14"  DeployLabel="msg:_code" DisplayLabel="Code" AllowRuleUsage="1" ContextlessLabel="" Name="_Code"/>
+		<DomainAttribute AttributeKey="4" DeployType="String" ClassKey="14"  DeployLabel="msg:_rulehandle" DisplayLabel="Rule Handle" AllowRuleUsage="1" ContextlessLabel="" Name="_RuleHandle"/>
+	</DomainClass>
+	<DomainClass ClassKey="15" DeployLabel="mms:liability" AllowRuleUsage="1" DisplayLabel="Liability" HasMultiplicity="1" Name="MMS_LIABILITY" >
+		<DomainAttribute AttributeKey="1" DeployType="String" ClassKey="15"  DeployLabel="mms:_accountidentifier" DisplayLabel="Account Identifier" AllowRuleUsage="1" ContextlessLabel="" Name="_AccountIdentifier"/>
+		<DomainAttribute AttributeKey="2" DeployType="String" ClassKey="15"  DeployLabel="mms:_holdername" DisplayLabel="Holder Name" AllowRuleUsage="1" ContextlessLabel="" Name="_HolderName"/>
+		<DomainAttribute AttributeKey="3" DeployType="Symbol" ClassKey="15"  DeployLabel="mms:reducedaccounttype" DisplayLabel="Reduced Account Type" AllowRuleUsage="1" ContextlessLabel="" Name="ReducedAccountType">
+          <EnumValue DeployID="1" DeployValue="CreditLine" DisplayLabel="CreditLine" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="Installment" DisplayLabel="Installment" Inactive="No"/>
+          <EnumValue DeployID="3" DeployValue="Mortgage" DisplayLabel="Mortgage" Inactive="No"/>
+          <EnumValue DeployID="4" DeployValue="Open" DisplayLabel="Open" Inactive="No"/>
+          <EnumValue DeployID="5" DeployValue="Revolving" DisplayLabel="Revolving" Inactive="No"/>
+          <EnumValue DeployID="6" DeployValue="Unknown" DisplayLabel="Unknown" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="4" DeployType="Currency" ClassKey="15"  DeployLabel="mms:balanceamount" DisplayLabel="Balance Amount" AllowRuleUsage="1" ContextlessLabel="" Name="BalanceAmount"/>
+		<DomainAttribute AttributeKey="5" DeployType="Currency" ClassKey="15"  DeployLabel="mms:monthlypaymentamount" DisplayLabel="Monthly Payment Amount" AllowRuleUsage="1" ContextlessLabel="" Name="MonthlyPaymentAmount"/>
+		<DomainAttribute AttributeKey="6" DeployType="Symbol" ClassKey="15"  DeployLabel="mms:disposition" DisplayLabel="Disposition" AllowRuleUsage="1" ContextlessLabel="" Name="Disposition">
+          <EnumValue DeployID="1" DeployValue="PartialPayOff" DisplayLabel="PartialPayOff" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="PaidOff" DisplayLabel="PaidOff" Inactive="No"/>
+          <EnumValue DeployID="3" DeployValue="NotPaidOff" DisplayLabel="NotPaidOff" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="7" DeployType="Currency" ClassKey="15"  DeployLabel="mms:payoffamount" DisplayLabel="Payoff Amount" AllowRuleUsage="1" ContextlessLabel="" Name="PayoffAmount"/>
+		<DomainClassLink ParentClassKey="15" ChildClassKey="14" HasMultiplicity="1" ParentClassName="MMS_LIABILITY" ChildClassName="MMS__MESSAGE"/>
+	</DomainClass>
+	<DomainClass ClassKey="16" DeployLabel="mms:stipulation" AllowRuleUsage="1" DisplayLabel="Stipulation" HasMultiplicity="1" Name="MMS_STIPULATION" >
+		<DomainAttribute AttributeKey="1" DeployType="String" ClassKey="16"  DeployLabel="msg:_text" DisplayLabel="Text" AllowRuleUsage="1" ContextlessLabel="" Name="_Text"/>
+		<DomainAttribute AttributeKey="2" DeployType="String" ClassKey="16"  DeployLabel="msg:_category" DisplayLabel="Category" AllowRuleUsage="1" ContextlessLabel="" Name="_Category"/>
+		<DomainAttribute AttributeKey="3" DeployType="String" ClassKey="16"  DeployLabel="msg:_code" DisplayLabel="Code" AllowRuleUsage="1" ContextlessLabel="" Name="_Code"/>
+	</DomainClass>
+	<DomainClass ClassKey="17" DeployLabel="MMS:BORROWER" AllowRuleUsage="1" DisplayLabel="Borrower" HasMultiplicity="1" Name="MMS_BORROWER" >
+		<DomainAttribute AttributeKey="1" DeployType="String" ClassKey="17"  DeployLabel="MMS:_LASTNAME" DisplayLabel="Last Name" AllowRuleUsage="1" ContextlessLabel="" Name="LastName"/>
+		<DomainAttribute AttributeKey="2" DeployType="Currency" ClassKey="17"  DeployLabel="MMS:MONTHLYINCOME" DisplayLabel="MonthlyIncome" AllowRuleUsage="1" ContextlessLabel="" Name="MonthlyIncome"/>
+		<DomainAttribute AttributeKey="3" DeployType="Currency" ClassKey="17"  DeployLabel="MMS:MONTHLYEXPENSES" DisplayLabel="MonthlyExpenses" AllowRuleUsage="1" ContextlessLabel="" Name="MonthlyExpenses"/>
+		<DomainAttribute AttributeKey="4" DeployType="Symbol" ClassKey="17"  DeployLabel="mms:CitizenshipResidencyType" DisplayLabel="Citizenship Residency Type" AllowRuleUsage="1" ContextlessLabel="" Name="CitizenshipResidencyType">
+          <EnumValue DeployID="1" DeployValue="USCitizen" DisplayLabel="USCitizen" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="PermanentResidentAlien" DisplayLabel="PermanentResidentAlien" Inactive="No"/>
+          <EnumValue DeployID="3" DeployValue="NonPermanentResidentAlien" DisplayLabel="NonPermanentResidentAlien" Inactive="No"/>
+          <EnumValue DeployID="4" DeployValue="NonResidentAlien" DisplayLabel="NonResidentAlien" Inactive="No"/>
+          <EnumValue DeployID="5" DeployValue="Unknown" DisplayLabel="Unknown" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="5" DeployType="String" ClassKey="17"  DeployLabel="mms:_FirstName" DisplayLabel="First Name" AllowRuleUsage="1" ContextlessLabel="" Name="FirstName"/>
+		<DomainAttribute AttributeKey="6" DeployType="String" ClassKey="17"  DeployLabel="mms:_MiddleName" DisplayLabel="Middle Name" AllowRuleUsage="1" ContextlessLabel="" Name="MiddleName"/>
+		<DomainAttribute AttributeKey="7" DeployType="String" ClassKey="17"  DeployLabel="mms:BorrowerID" DisplayLabel="Borrower ID" AllowRuleUsage="1" ContextlessLabel="" Name="BorrowerID"/>
+	</DomainClass>
+	<DomainClass ClassKey="18" DeployLabel="mms:aus-aggregation-config" AllowRuleUsage="1" DisplayLabel="MMS AUS Aggregation Config" HasMultiplicity="0" Name="MMS_AUSAggrConfig" >
+		<DomainAttribute AttributeKey="1" DeployType="Symbol" ClassKey="18"  DeployLabel="mms:aggregation-identifier" DisplayLabel="Aggregation Identifier" AllowRuleUsage="1" ContextlessLabel="" Name="AggregationID">
+          <EnumValue DeployID="1" DeployValue="BORROWER_AGGREGATES" DisplayLabel="BORROWER AGGREGATES" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="LOAN_AGGREGATES" DisplayLabel="LOAN AGGREGATES" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="2" DeployType="Symbol" ClassKey="18"  DeployLabel="mms:aggregation-scope" DisplayLabel="Aggregation Scope" AllowRuleUsage="1" ContextlessLabel="" Name="AggregationScope">
+          <EnumValue DeployID="1" DeployValue="BORROWER" DisplayLabel="BORROWER" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="ALL" DisplayLabel="ALL" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="3" DeployType="Boolean" ClassKey="18"  DeployLabel="mms:PrimaryAggIndicator" DisplayLabel="Is Primary Aggregation?" AllowRuleUsage="1" ContextlessLabel="" Name="PrimaryAggIndicator">
+          <EnumValue DeployID="1" DeployValue="Y" DisplayLabel="Y" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="N" DisplayLabel="N" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="4" DeployType="Date" ClassKey="18"  DeployLabel="mms:activation-date" DisplayLabel="Activation Date" AllowRuleUsage="1" ContextlessLabel="" Name="ActivationDate"/>
+		<DomainAttribute AttributeKey="5" DeployType="Date" ClassKey="18"  DeployLabel="mms:expiration-date" DisplayLabel="Expiration Date" AllowRuleUsage="1" ContextlessLabel="" Name="ExpirationDate"/>
+		<DomainAttribute AttributeKey="6" DeployType="Symbol" ClassKey="18"  DeployLabel="mms:product-id" DisplayLabel="Product Context" AllowRuleUsage="1" ContextlessLabel="" Name="ProductContext"/>
+		<DomainAttribute AttributeKey="7" DeployType="Symbol" ClassKey="18"  DeployLabel="mms:investor-id" DisplayLabel="Investor Context" AllowRuleUsage="1" ContextlessLabel="" Name="InvestorContext"/>
+		<DomainAttribute AttributeKey="8" DeployType="Symbol" ClassKey="18"  DeployLabel="mms:channel-id" DisplayLabel="Channel Context" AllowRuleUsage="1" ContextlessLabel="" Name="ChannelContext"/>
+	</DomainClass>
+	<DomainClass ClassKey="19" DeployLabel="mms:aus-aggregation" AllowRuleUsage="1" DisplayLabel="MMS AUS Aggregation" HasMultiplicity="0" Name="MMS_AUSAggr" >
+		<DomainAttribute AttributeKey="1" DeployType="Symbol" ClassKey="19"  DeployLabel="mms:aggregation-name" DisplayLabel="Aggregation Name" AllowRuleUsage="1" ContextlessLabel="" Name="AggregationName"/>
+		<DomainAttribute AttributeKey="2" DeployType="Symbol" ClassKey="19"  DeployLabel="mms:product-id" DisplayLabel="Product Context" AllowRuleUsage="1" ContextlessLabel="" Name="ProductContext"/>
+		<DomainAttribute AttributeKey="3" DeployType="Symbol" ClassKey="19"  DeployLabel="mms:investor-id" DisplayLabel="Investor Context" AllowRuleUsage="1" ContextlessLabel="" Name="InvestorContext"/>
+		<DomainAttribute AttributeKey="4" DeployType="Symbol" ClassKey="19"  DeployLabel="mms:channel-id" DisplayLabel="Channel Context" AllowRuleUsage="1" ContextlessLabel="" Name="ChannelContext"/>
+		<DomainAttribute AttributeKey="5" DeployType="Symbol" ClassKey="19"  DeployLabel="mms:BorrowerId" DisplayLabel="Borrower Id" AllowRuleUsage="1" ContextlessLabel="" Name="BorrowerID"/>
+		<DomainAttribute AttributeKey="6" DeployType="Currency" ClassKey="19"  DeployLabel="mms:TotalMonthlyIncomeAmount" DisplayLabel="Total Monthly Income" AllowRuleUsage="1" ContextlessLabel="" Name="TotalMonthlyIncomeAmount"/>
+		<DomainAttribute AttributeKey="7" DeployType="Currency" ClassKey="19"  DeployLabel="mms:TotalQualifyingIncomeAmount" DisplayLabel="Total Qualifying Income" AllowRuleUsage="1" ContextlessLabel="" Name="TotalQualifyingIncomeAmount"/>
+		<DomainAttribute AttributeKey="8" DeployType="Symbol" ClassKey="19"  DeployLabel="mms:HighestQualifyingIncomeIndicator" DisplayLabel="Highest Qualifying Income Indicator" AllowRuleUsage="1" ContextlessLabel="" Name="HighestQualifyingIncomeIndicator">
+          <EnumValue DeployID="1" DeployValue="Y" DisplayLabel="Y" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="N" DisplayLabel="N" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="9" DeployType="Currency" ClassKey="19"  DeployLabel="mms:TotalGiftAssetsAmount" DisplayLabel="Total Gift Assets" AllowRuleUsage="1" ContextlessLabel="" Name="TotalGiftAssetsAmount"/>
+		<DomainAttribute AttributeKey="10" DeployType="Currency" ClassKey="19"  DeployLabel="mms:TotalLiquidAssetsAmount" DisplayLabel="Total Liquid Assets" AllowRuleUsage="1" ContextlessLabel="" Name="TotalLiquidAssetsAmount"/>
+		<DomainAttribute AttributeKey="11" DeployType="Currency" ClassKey="19"  DeployLabel="mms:TotalNonLiquidAssetsAmount" DisplayLabel="Total Non Liquid Assets" AllowRuleUsage="1" ContextlessLabel="" Name="TotalNonLiquidAssetsAmount"/>
+		<DomainAttribute AttributeKey="12" DeployType="Currency" ClassKey="19"  DeployLabel="mms:TotalNonGiftLiquidAssetsAmount" DisplayLabel="Total Non Gift Liquid Assets" AllowRuleUsage="1" ContextlessLabel="" Name="TotalNonGiftLiquidAssetsAmount"/>
+		<DomainAttribute AttributeKey="13" DeployType="Boolean" ClassKey="19"  DeployLabel="mms:PrimaryAggIndicator" DisplayLabel="Is Primary Aggregation?" AllowRuleUsage="1" ContextlessLabel="" Name="PrimaryAggIndicator">
+          <EnumValue DeployID="1" DeployValue="Y" DisplayLabel="Y" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="N" DisplayLabel="N" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="14" DeployType="Symbol" ClassKey="19"  DeployLabel="mms:aggregation-scope" DisplayLabel="Aggregation Scope" AllowRuleUsage="1" ContextlessLabel="" Name="AggregationScope">
+          <EnumValue DeployID="1" DeployValue="BORROWER" DisplayLabel="BORROWER" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="ALL" DisplayLabel="ALL" Inactive="No"/>
+		</DomainAttribute>
+		<DomainClassLink ParentClassKey="19" ChildClassKey="17" HasMultiplicity="1" ParentClassName="MMS_AUSAggr" ChildClassName="MMS_BORROWER"/>
+	</DomainClass>
+	<DomainClass ClassKey="20" DeployLabel="mms:aus-synopsis" AllowRuleUsage="1" DisplayLabel="MMS AUS Synopsis" HasMultiplicity="0" Name="MMS_AUSSynopsis" >
+		<DomainAttribute AttributeKey="1" DeployType="Symbol" ClassKey="20"  DeployLabel="mms:LoanPurpose" DisplayLabel="Loan Purpose" AllowRuleUsage="1" ContextlessLabel="" Name="LoanPurpose">
+          <EnumValue DeployID="1" DeployValue="Purchase" DisplayLabel="Purchase" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="RefinanceRateTerm" DisplayLabel="Refinance Rate/Term" Inactive="No"/>
+          <EnumValue DeployID="3" DeployValue="RefinanceCashOut" DisplayLabel="Refinance Cash Out" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="2" DeployType="Currency" ClassKey="20"  DeployLabel="mms:PropertyValueAmount" DisplayLabel="Property value" AllowRuleUsage="1" ContextlessLabel="" Name="PropertyValueAmount"/>
+		<DomainAttribute AttributeKey="3" DeployType="Currency" ClassKey="20"  DeployLabel="mms:PropertyExpenseAmount" DisplayLabel="Property Expenses value" AllowRuleUsage="1" ContextlessLabel="" Name="PropertyExpenseAmount"/>
+		<DomainAttribute AttributeKey="4" DeployType="Currency" ClassKey="20"  DeployLabel="mms:REOExpenseAmount" DisplayLabel="REO Expenses value" AllowRuleUsage="1" ContextlessLabel="" Name="REOExpenseAmount"/>
+		<DomainAttribute AttributeKey="5" DeployType="Currency" ClassKey="20"  DeployLabel="mms:TotalDownPaymentAmount" DisplayLabel="Total Down Payment" AllowRuleUsage="1" ContextlessLabel="" Name="TotalDownPaymentAmount"/>
+		<DomainAttribute AttributeKey="6" DeployType="Currency" ClassKey="20"  DeployLabel="mms:InterestedPartiesContributionAmount" DisplayLabel="Interested Parties Contribution Amount" AllowRuleUsage="1" ContextlessLabel="" Name="InterestedPartiesContributionAmount"/>
+		<DomainAttribute AttributeKey="7" DeployType="Percent" ClassKey="20"  DeployLabel="mms:InterestedPartiesContributionPercent" DisplayLabel="Interested Parties Contribution Percent" AllowRuleUsage="1" ContextlessLabel="" Name="InterestedPartiesContributionPercent"/>
+	</DomainClass>
+	<DomainClass ClassKey="21" DeployLabel="MMS:LOAN-AMOUNT-CALCULATION-GUIDE" AllowRuleUsage="1" DisplayLabel="MMS AUS Loan Amount Config" HasMultiplicity="0" Name="MMS_AUSLoanAmountConfig" >
+		<DomainAttribute AttributeKey="1" DeployType="Symbol" ClassKey="21"  DeployLabel="MMS:Round-Indicator" DisplayLabel="Round Indicator" AllowRuleUsage="1" ContextlessLabel="" Name="RoundIndicator">
+          <EnumValue DeployID="1" DeployValue="T" DisplayLabel="Y" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="Nil" DisplayLabel="N" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="2" DeployType="Integer" ClassKey="21"  DeployLabel="MMS:Round-to" DisplayLabel="Round To" AllowRuleUsage="1" ContextlessLabel="" Name="RoundTo"/>
+		<DomainAttribute AttributeKey="3" DeployType="Date" ClassKey="21"  DeployLabel="mms:activation-date" DisplayLabel="Activation Date" AllowRuleUsage="1" ContextlessLabel="" Name="ActivationDate"/>
+		<DomainAttribute AttributeKey="4" DeployType="Date" ClassKey="21"  DeployLabel="mms:expiration-date" DisplayLabel="Expiration Date" AllowRuleUsage="1" ContextlessLabel="" Name="ExpirationDate"/>
+		<DomainAttribute AttributeKey="5" DeployType="Symbol" ClassKey="21"  DeployLabel="mms:product-id" DisplayLabel="Product Context" AllowRuleUsage="1" ContextlessLabel="" Name="ProductContext"/>
+		<DomainAttribute AttributeKey="6" DeployType="Symbol" ClassKey="21"  DeployLabel="mms:investor-id" DisplayLabel="Investor Context" AllowRuleUsage="1" ContextlessLabel="" Name="InvestorContext"/>
+		<DomainAttribute AttributeKey="7" DeployType="Symbol" ClassKey="21"  DeployLabel="mms:channel-id" DisplayLabel="Channel Context" AllowRuleUsage="1" ContextlessLabel="" Name="ChannelContext"/>
+	</DomainClass>
+	<DomainClass ClassKey="22" DeployLabel="mms:LTV-Loan-Amount-Constraints" AllowRuleUsage="1" DisplayLabel="MMS LTV Loan Amount Constraints" HasMultiplicity="0" Name="MMS_LTVLoanAmountConstraints" >
+		<DomainAttribute AttributeKey="1" DeployType="Integer" ClassKey="22"  DeployLabel="mms:MaxLTV" DisplayLabel="Max LTV" AllowRuleUsage="1" ContextlessLabel="" Name="MaxLTV"/>
+		<DomainAttribute AttributeKey="2" DeployType="Integer" ClassKey="22"  DeployLabel="mms:MaxLoanAmount" DisplayLabel="Max Loan Amount" AllowRuleUsage="1" ContextlessLabel="" Name="MaxLoanAmount"/>
+		<DomainAttribute AttributeKey="3" DeployType="Integer" ClassKey="22"  DeployLabel="mms:DealID" DisplayLabel="Deal ID" AllowRuleUsage="1" ContextlessLabel="" Name="DealID"/>
+		<DomainAttribute AttributeKey="4" DeployType="Integer" ClassKey="22"  DeployLabel="mms:LienID" DisplayLabel="Lien ID" AllowRuleUsage="1" ContextlessLabel="" Name="LienID"/>
+		<DomainAttribute AttributeKey="5" DeployType="Percent" ClassKey="22"  DeployLabel="mms:MaxLTVDeltaPercent" DisplayLabel="Max LTV Delta Percent" AllowRuleUsage="1" ContextlessLabel="" Name="MaxLTVDeltaPercent"/>
+		<DomainAttribute AttributeKey="6" DeployType="Currency" ClassKey="22"  DeployLabel="mms:MaxLoanDeltaAmount" DisplayLabel="Max Loan Delta Amount" AllowRuleUsage="1" ContextlessLabel="" Name="MaxLoanDeltaAmount"/>
+		<DomainAttribute AttributeKey="7" DeployType="Percent" ClassKey="22"  DeployLabel="mms:MaxLoanDeltaPercent" DisplayLabel="Max Loan Delta Percent" AllowRuleUsage="1" ContextlessLabel="" Name="MaxLoanDeltaPercent"/>
+	</DomainClass>
+	<DomainClass ClassKey="23" DeployLabel="mms:DTI-Constraints" AllowRuleUsage="1" DisplayLabel="MMS DTI Constraints" HasMultiplicity="0" Name="MMS_DTIConstraints" >
+		<DomainAttribute AttributeKey="1" DeployType="Integer" ClassKey="23"  DeployLabel="mms:LTVThreshold" DisplayLabel="LTV Threshold" AllowRuleUsage="1" ContextlessLabel="" Name="LTVThreshold"/>
+		<DomainAttribute AttributeKey="2" DeployType="Integer" ClassKey="23"  DeployLabel="mms:MaxDTI" DisplayLabel="Max DTI" AllowRuleUsage="1" ContextlessLabel="" Name="MaxDTI"/>
+		<DomainAttribute AttributeKey="3" DeployType="Integer" ClassKey="23"  DeployLabel="mms:DealID" DisplayLabel="Deal ID" AllowRuleUsage="1" ContextlessLabel="" Name="DealID"/>
+		<DomainAttribute AttributeKey="4" DeployType="Integer" ClassKey="23"  DeployLabel="mms:LienID" DisplayLabel="Lien ID" AllowRuleUsage="1" ContextlessLabel="" Name="LienID"/>
+		<DomainAttribute AttributeKey="5" DeployType="Percent" ClassKey="23"  DeployLabel="mms:LTVThresholdDeltaPercent" DisplayLabel="LTV Threshold Delta Percent" AllowRuleUsage="1" ContextlessLabel="" Name="LTVThresholdDeltaPercent"/>
+		<DomainAttribute AttributeKey="6" DeployType="Percent" ClassKey="23"  DeployLabel="mms:MaxDTIDeltaPercent" DisplayLabel="Max DTI Delta Percent" AllowRuleUsage="1" ContextlessLabel="" Name="MaxDTIDeltaPercent"/>
+	</DomainClass>
+	<DomainClass ClassKey="24" DeployLabel="mms:Min-Loan-Amount-Constraints" AllowRuleUsage="1" DisplayLabel="MMS Min Loan Amount Constraints" HasMultiplicity="0" Name="MMS_MinLoanAmountConstraints" >
+		<DomainAttribute AttributeKey="1" DeployType="Integer" ClassKey="24"  DeployLabel="mms:MinLoanAmount" DisplayLabel="Min Loan Amount" AllowRuleUsage="1" ContextlessLabel="" Name="MinLoanAmount"/>
+		<DomainAttribute AttributeKey="2" DeployType="Integer" ClassKey="24"  DeployLabel="mms:DealID" DisplayLabel="Deal ID" AllowRuleUsage="1" ContextlessLabel="" Name="DealID"/>
+		<DomainAttribute AttributeKey="3" DeployType="Integer" ClassKey="24"  DeployLabel="mms:LienID" DisplayLabel="Lien ID" AllowRuleUsage="1" ContextlessLabel="" Name="LienID"/>
+		<DomainAttribute AttributeKey="4" DeployType="Currency" ClassKey="24"  DeployLabel="mms:MinLoanDeltaAmount" DisplayLabel="Min Loan Delta Amount" AllowRuleUsage="1" ContextlessLabel="" Name="MinLoanDeltaAmount"/>
+		<DomainAttribute AttributeKey="5" DeployType="Percent" ClassKey="24"  DeployLabel="mms:MinLoanDeltaPercen" DisplayLabel="Min Loan Delta Percent" AllowRuleUsage="1" ContextlessLabel="" Name="MinLoanDeltaPercent"/>
+	</DomainClass>
+	<DomainClass ClassKey="25" DeployLabel="mms:transformation-config" AllowRuleUsage="1" DisplayLabel="Transformation Config" HasMultiplicity="0" Name="MMS_TransformationConfig" >
+		<DomainAttribute AttributeKey="1" DeployType="Date" ClassKey="25"  DeployLabel="mms:Activation-Date" DisplayLabel="" AllowRuleUsage="1" ContextlessLabel="" Name="ActivationDate"/>
+		<DomainAttribute AttributeKey="2" DeployType="Date" ClassKey="25"  DeployLabel="mms:Expiration-Date" DisplayLabel="" AllowRuleUsage="1" ContextlessLabel="" Name="ExpirationDate"/>
+		<DomainAttribute AttributeKey="3" DeployType="Integer" ClassKey="25"  DeployLabel="mms:Channel-id" DisplayLabel="Channel Context" AllowRuleUsage="1" ContextlessLabel="" Name="ChannelContext"/>
+		<DomainAttribute AttributeKey="4" DeployType="Integer" ClassKey="25"  DeployLabel="mms:Investor-id" DisplayLabel="Investor Context" AllowRuleUsage="1" ContextlessLabel="" Name="InvestorContext"/>
+		<DomainAttribute AttributeKey="5" DeployType="Integer" ClassKey="25"  DeployLabel="mms:Product-id" DisplayLabel="Product Context" AllowRuleUsage="1" ContextlessLabel="" Name="ProductContext"/>
+		<DomainAttribute AttributeKey="6" DeployType="String" ClassKey="25"  DeployLabel="mms:repairableproblems" DisplayLabel="Repairable Problems" AllowRuleUsage="1" ContextlessLabel="" Name="RepairableProblems"/>
+	</DomainClass>
+	<DomainClass ClassKey="26" DeployLabel="MMS:LOAN_INFORMATION" AllowRuleUsage="1" DisplayLabel="Loan Information" HasMultiplicity="0" Name="MMS_LOAN_INFORMATION" >
+		<DomainAttribute AttributeKey="1" DeployType="Symbol" ClassKey="26"  DeployLabel="MMS:LOANPURPOSE" DisplayLabel="Loan Purpose" AllowRuleUsage="1" ContextlessLabel="" Name="LoanPurpose">
+          <EnumValue DeployID="1" DeployValue="Purchase" DisplayLabel="Purchase" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="Refinance" DisplayLabel="Refinance" Inactive="No"/>
+          <EnumValue DeployID="3" DeployValue="Second" DisplayLabel="Second" Inactive="No"/>
+          <EnumValue DeployID="4" DeployValue="HELOC" DisplayLabel="HELOC" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="2" DeployType="Symbol" ClassKey="26"  DeployLabel="MMS:LOANDOCUMENTATIONTYPE" DisplayLabel="Loan Documentation Type" AllowRuleUsage="1" ContextlessLabel="" Name="LoanDocumentationType">
+          <EnumValue DeployID="1" DeployValue="Alternative" DisplayLabel="Alternative" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="FullDocumentation" DisplayLabel="FullDocumentation" Inactive="No"/>
+          <EnumValue DeployID="3" DeployValue="NoDepositVerification" DisplayLabel="NoDepositVerification" Inactive="No"/>
+          <EnumValue DeployID="4" DeployValue="NoDepositVerificationEmploymentVerificationOrIncomeVerification" DisplayLabel="NoDepositVerificationEmploymentVerificationOrIncomeVerification" Inactive="No"/>
+          <EnumValue DeployID="5" DeployValue="NoDocumentation" DisplayLabel="NoDocumentation" Inactive="No"/>
+          <EnumValue DeployID="6" DeployValue="NoEmploymentVerificationOrIncomeVerification" DisplayLabel="NoEmploymentVerificationOrIncomeVerification" Inactive="No"/>
+          <EnumValue DeployID="7" DeployValue="Reduced" DisplayLabel="Reduced" Inactive="No"/>
+          <EnumValue DeployID="8" DeployValue="StreamlineRefinance" DisplayLabel="StreamlineRefinance" Inactive="No"/>
+          <EnumValue DeployID="9" DeployValue="NoRatio" DisplayLabel="NoRatio" Inactive="No"/>
+          <EnumValue DeployID="10" DeployValue="NoIncomeNoEmploymentNoAssetsOn1003" DisplayLabel="NoIncomeNoEmploymentNoAssetsOn1003" Inactive="No"/>
+          <EnumValue DeployID="11" DeployValue="NoIncomeOn1003" DisplayLabel="NoIncomeOn1003" Inactive="No"/>
+          <EnumValue DeployID="12" DeployValue="NoVerificationOfStatedIncomeEmploymentOrAssets" DisplayLabel="NoVerificationOfStatedIncomeEmploymentOrAssets" Inactive="No"/>
+          <EnumValue DeployID="13" DeployValue="NoVerificationOfStatedIncomeOrAssests" DisplayLabel="NoVerificationOfStatedIncomeOrAssests" Inactive="No"/>
+          <EnumValue DeployID="14" DeployValue="NoVerificationOfStatedAssets" DisplayLabel="NoVerificationOfStatedAssets" Inactive="No"/>
+          <EnumValue DeployID="15" DeployValue="NoVerificationOfStatedIncomeOrEmployment" DisplayLabel="NoVerificationOfStatedIncomeOrEmployment" Inactive="No"/>
+          <EnumValue DeployID="16" DeployValue="NoVerificationOfStatedIncome" DisplayLabel="NoVerificationOfStatedIncome" Inactive="No"/>
+          <EnumValue DeployID="17" DeployValue="VerbalVerificationOfEmployment" DisplayLabel="VerbalVerificationOfEmployment" Inactive="No"/>
+          <EnumValue DeployID="18" DeployValue="OnePaystub" DisplayLabel="OnePaystub" Inactive="No"/>
+          <EnumValue DeployID="19" DeployValue="OnePaystubAndVerbalVerificationOfEmployment" DisplayLabel="OnePaystubAndVerbalVerificationOfEmployment" Inactive="No"/>
+          <EnumValue DeployID="20" DeployValue="OnePaystubAndOneW2AndVerbalVerificationOfEmploymentOrOneYear1040" DisplayLabel="OnePaystubAndOneW2AndVerbalVerificationOfEmploymentOrOneYear1040" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="3" DeployType="Symbol" ClassKey="26"  DeployLabel="mms:loanamortizationtype" DisplayLabel="Loan Amortization Type" AllowRuleUsage="1" ContextlessLabel="" Name="LoanAmortizationType">
+          <EnumValue DeployID="1" DeployValue="All" DisplayLabel="All" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="Fixed" DisplayLabel="Fixed" Inactive="No"/>
+          <EnumValue DeployID="3" DeployValue="AdjustableRate" DisplayLabel="AdjustableRate" Inactive="No"/>
+          <EnumValue DeployID="4" DeployValue="Balloon" DisplayLabel="Balloon" Inactive="No"/>
+          <EnumValue DeployID="5" DeployValue="InterestOnly" DisplayLabel="InterestOnly" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="4" DeployType="String" ClassKey="26"  DeployLabel="MMS:BorrowerFirstTimeHomeBuyerIndicator" DisplayLabel="First Time Home Buyer" AllowRuleUsage="1" ContextlessLabel="" Name="FirstTimeHomeBuyer">
+          <EnumValue DeployID="1" DeployValue="Y" DisplayLabel="Yes" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="N" DisplayLabel="No" Inactive="No"/>
+		</DomainAttribute>
+	</DomainClass>
+	<DomainClass ClassKey="27" DeployLabel="MMS:PROPERTY_INFORMATION" AllowRuleUsage="1" DisplayLabel="Property Information" HasMultiplicity="0" Name="MMS_PROPERTY_INFORMATION" >
+		<DomainAttribute AttributeKey="1" DeployType="Integer" ClassKey="27"  DeployLabel="MMS:NUMBEROFUNITS" DisplayLabel="Number of Units" AllowRuleUsage="1" ContextlessLabel="" Name="NumberOfUnits"/>
+		<DomainAttribute AttributeKey="2" DeployType="Symbol" ClassKey="27"  DeployLabel="MMS:PROPERTYUSAGETYPE" DisplayLabel="Property Usage Type" AllowRuleUsage="1" ContextlessLabel="" Name="PropertyUsageType">
+          <EnumValue DeployID="1" DeployValue="Investor" DisplayLabel="Investor" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="PrimaryResidence" DisplayLabel="PrimaryResidence" Inactive="No"/>
+          <EnumValue DeployID="3" DeployValue="SecondHome" DisplayLabel="SecondHome" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="3" DeployType="Symbol" ClassKey="27"  DeployLabel="MMS:GSEPropertyType" DisplayLabel="GSE Property Type" AllowRuleUsage="1" ContextlessLabel="" Name="GSEPropertyType">
+          <EnumValue DeployID="1" DeployValue="Attached" DisplayLabel="Attached" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="Condominium" DisplayLabel="Condominium" Inactive="No"/>
+          <EnumValue DeployID="3" DeployValue="Cooperative" DisplayLabel="Cooperative" Inactive="No"/>
+          <EnumValue DeployID="4" DeployValue="Detached" DisplayLabel="Detached" Inactive="No"/>
+          <EnumValue DeployID="5" DeployValue="HighRiseCondominium" DisplayLabel="HighRiseCondominium" Inactive="No"/>
+          <EnumValue DeployID="6" DeployValue="ManufacturedHousing" DisplayLabel="ManufacturedHousing" Inactive="No"/>
+          <EnumValue DeployID="7" DeployValue="Modular" DisplayLabel="Modular" Inactive="No"/>
+          <EnumValue DeployID="8" DeployValue="PUD" DisplayLabel="PUD" Inactive="No"/>
+          <EnumValue DeployID="9" DeployValue="ManufacturedHousingSingleWide" DisplayLabel="ManufacturedHousingSingleWide" Inactive="No"/>
+          <EnumValue DeployID="10" DeployValue="ManufacturedHousingDoubleWide" DisplayLabel="ManufacturedHousingDoubleWide" Inactive="No"/>
+          <EnumValue DeployID="11" DeployValue="DetachedCondominium" DisplayLabel="DetachedCondominium" Inactive="No"/>
+          <EnumValue DeployID="12" DeployValue="ManufacturedHomeCondominium" DisplayLabel="ManufacturedHomeCondominium" Inactive="No"/>
+          <EnumValue DeployID="13" DeployValue="ManufacturedHousingMultiWide" DisplayLabel="ManufacturedHousingMultiWide" Inactive="No"/>
+          <EnumValue DeployID="14" DeployValue="ManufacturedHomeCondominiumOrPUDOrCooperative" DisplayLabel="ManufacturedHomeCondominiumOrPUDOrCooperative" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="4" DeployType="Symbol" ClassKey="27"  DeployLabel="MMS:PropertyState" DisplayLabel="Property State" AllowRuleUsage="1" ContextlessLabel="" Name="PropertyState"/>
+		<DomainAttribute AttributeKey="5" DeployType="Currency" ClassKey="27"  DeployLabel="mms:PropertyEstimatedValueAmount" DisplayLabel="Property Estimated Value Amount" AllowRuleUsage="1" ContextlessLabel="" Name="PropertyEstimatedValueAmount"/>
+	</DomainClass>
+	<DomainClass ClassKey="28" DeployLabel="MMS:CREDIT_INFORMATION" AllowRuleUsage="1" DisplayLabel="Credit Information" HasMultiplicity="0" Name="MMS_CREDIT_INFORMATION" >
+		<DomainAttribute AttributeKey="1" DeployType="Integer" ClassKey="28"  DeployLabel="MMS:CreditScore" DisplayLabel="Credit Score" AllowRuleUsage="1" ContextlessLabel="" Name="CreditScore"/>
+		<DomainAttribute AttributeKey="2" DeployType="Integer" ClassKey="28"  DeployLabel="MMS:_30DayLates" DisplayLabel="30 Day Lates" AllowRuleUsage="1" ContextlessLabel="" Name="_30DayLates"/>
+		<DomainAttribute AttributeKey="3" DeployType="Integer" ClassKey="28"  DeployLabel="MMS:_60DayLates" DisplayLabel="60 Day Lates" AllowRuleUsage="1" ContextlessLabel="" Name="_60DayLates"/>
+		<DomainAttribute AttributeKey="4" DeployType="Integer" ClassKey="28"  DeployLabel="MMS:_90DayLates" DisplayLabel="90 Day Lates" AllowRuleUsage="1" ContextlessLabel="" Name="_90DayLates"/>
+		<DomainAttribute AttributeKey="5" DeployType="Integer" ClassKey="28"  DeployLabel="MMS:_120DayLates" DisplayLabel="120 Day Lates" AllowRuleUsage="1" ContextlessLabel="" Name="_120DayLates"/>
+		<DomainAttribute AttributeKey="6" DeployType="Percent" ClassKey="28"  DeployLabel="MMS:BankruptcyMonthsSinceDisposition" DisplayLabel="Bankruptcy Months Since Disposition" AllowRuleUsage="1" ContextlessLabel="" Name="BankruptcyMonthsSinceDisposition"/>
+		<DomainAttribute AttributeKey="7" DeployType="Percent" ClassKey="28"  DeployLabel="MMS:ForeclosureMonthsSinceDisposition" DisplayLabel="Foreclosure Months Since Disposition" AllowRuleUsage="1" ContextlessLabel="" Name="ForeclosureMonthsSinceDisposition"/>
+	</DomainClass>
+
+<!-- FROM Venkat -->
+	<DomainClass ClassKey="17" DeployLabel="ldo:public-Record" AllowRuleUsage="1" DisplayLabel="publicRecord" HasMultiplicity="1" Name="publicRecord">
+		<DomainAttribute AttributeKey="1" DeployType="Symbol" ClassKey="17" DeployLabel="ldo:data-Repository-Source-Type" DisplayLabel="dataRepositorySourceType" AllowRuleUsage="1" ContextlessLabel="" Name="dataRepositorySourceType">
+          <EnumValue DeployID="1" DeployValue="10" DisplayLabel="Credit Agency" Inactive="No" />
+          <EnumValue DeployID="2" DeployValue="1" DisplayLabel="Equifax" Inactive="No" />
+          <EnumValue DeployID="3" DeployValue="2" DisplayLabel="Experian" Inactive="No" />
+          <EnumValue DeployID="4" DeployValue="3" DisplayLabel="Merged Data EFX,EXP" Inactive="No" />
+          <EnumValue DeployID="5" DeployValue="7" DisplayLabel="Merged Data EFX,TU" Inactive="No" />
+          <EnumValue DeployID="6" DeployValue="8" DisplayLabel="Merged Data EXP,TU" Inactive="No" />
+          <EnumValue DeployID="7" DeployValue="4" DisplayLabel="Other" Inactive="No" />
+          <EnumValue DeployID="8" DeployValue="5" DisplayLabel="Prentice Hall" Inactive="No" />
+          <EnumValue DeployID="9" DeployValue="6" DisplayLabel="TransUnion" Inactive="No" />
+          <EnumValue DeployID="10" DeployValue="9" DisplayLabel="TriMerge" Inactive="No" />
+          <EnumValue DeployID="11" DeployValue="11" DisplayLabel="Unknown" Inactive="No" />
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="2" DeployType="Symbol" ClassKey="17" DeployLabel="ldo:public-Record-Type" DisplayLabel="publicRecordType" AllowRuleUsage="1" ContextlessLabel="" Name="publicRecordType">
+          <EnumValue DeployID="1" DeployValue="1" DisplayLabel="Annulment" Inactive="No" />
+          <EnumValue DeployID="2" DeployValue="2" DisplayLabel="Attachment" Inactive="No" />
+          <EnumValue DeployID="3" DeployValue="37" DisplayLabel="Attachment" Inactive="No" />
+          <EnumValue DeployID="4" DeployValue="9" DisplayLabel="Bankruptcy 7" Inactive="No" />
+          <EnumValue DeployID="5" DeployValue="3" DisplayLabel="Bankruptcy Chapter 11" Inactive="No" />
+          <EnumValue DeployID="6" DeployValue="4" DisplayLabel="Bankruptcy Chapter 12" Inactive="No" />
+          <EnumValue DeployID="7" DeployValue="5" DisplayLabel="Bankruptcy Chapter 13" Inactive="No" />
+          <EnumValue DeployID="8" DeployValue="6" DisplayLabel="Bankruptcy Chapter 7" Inactive="No" />
+          <EnumValue DeployID="9" DeployValue="7" DisplayLabel="Bankruptcy Chapter 7 Invol" Inactive="No" />
+          <EnumValue DeployID="10" DeployValue="8" DisplayLabel="Bankruptcy Chapter 7 Volun" Inactive="No" />
+          <EnumValue DeployID="11" DeployValue="45" DisplayLabel="Chattel Mortgage" Inactive="No" />
+          <EnumValue DeployID="12" DeployValue="32" DisplayLabel="City/County Tax Lien" Inactive="No" />
+          <EnumValue DeployID="13" DeployValue="10" DisplayLabel="Collection" Inactive="No" />
+          <EnumValue DeployID="14" DeployValue="43" DisplayLabel="Criminal Arrest" Inactive="No" />
+          <EnumValue DeployID="15" DeployValue="44" DisplayLabel="Criminal Judgement" Inactive="No" />
+          <EnumValue DeployID="16" DeployValue="11" DisplayLabel="Custody Agreement" Inactive="No" />
+          <EnumValue DeployID="17" DeployValue="56" DisplayLabel="Deficit Judgement" Inactive="No" />
+          <EnumValue DeployID="18" DeployValue="55" DisplayLabel="Detinue" Inactive="No" />
+          <EnumValue DeployID="19" DeployValue="40" DisplayLabel="District Judgment" Inactive="No" />
+          <EnumValue DeployID="20" DeployValue="12" DisplayLabel="Divorce Decree" Inactive="No" />
+          <EnumValue DeployID="21" DeployValue="47" DisplayLabel="Execute Writ" Inactive="No" />
+          <EnumValue DeployID="22" DeployValue="13" DisplayLabel="Ficticious Name" Inactive="No" />
+          <EnumValue DeployID="23" DeployValue="14" DisplayLabel="Financial Counseling" Inactive="No" />
+          <EnumValue DeployID="24" DeployValue="15" DisplayLabel="Financing Statement" Inactive="No" />
+          <EnumValue DeployID="25" DeployValue="16" DisplayLabel="Forcible Detainer" Inactive="No" />
+          <EnumValue DeployID="26" DeployValue="17" DisplayLabel="Foreclosure" Inactive="No" />
+          <EnumValue DeployID="27" DeployValue="18" DisplayLabel="Garnishment" Inactive="No" />
+          <EnumValue DeployID="28" DeployValue="19" DisplayLabel="Judgment" Inactive="No" />
+          <EnumValue DeployID="29" DeployValue="38" DisplayLabel="Judgment By Confession" Inactive="No" />
+          <EnumValue DeployID="30" DeployValue="39" DisplayLabel="Judgment By Default" Inactive="No" />
+          <EnumValue DeployID="31" DeployValue="50" DisplayLabel="Landlord/Tenant" Inactive="No" />
+          <EnumValue DeployID="32" DeployValue="20" DisplayLabel="Law Suit" Inactive="No" />
+          <EnumValue DeployID="33" DeployValue="46" DisplayLabel="Legal Name Change" Inactive="No" />
+          <EnumValue DeployID="34" DeployValue="41" DisplayLabel="Legal Separation" Inactive="No" />
+          <EnumValue DeployID="35" DeployValue="21" DisplayLabel="Lien" Inactive="No" />
+          <EnumValue DeployID="36" DeployValue="49" DisplayLabel="Lis Pendens" Inactive="No" />
+          <EnumValue DeployID="37" DeployValue="51" DisplayLabel="Miscellaneous" Inactive="No" />
+          <EnumValue DeployID="38" DeployValue="57" DisplayLabel="NM Mortgage" Inactive="No" />
+          <EnumValue DeployID="39" DeployValue="22" DisplayLabel="Non Responsibility" Inactive="No" />
+          <EnumValue DeployID="40" DeployValue="23" DisplayLabel="Notice Of Default" Inactive="No" />
+          <EnumValue DeployID="41" DeployValue="24" DisplayLabel="Other" Inactive="No" />
+          <EnumValue DeployID="42" DeployValue="25" DisplayLabel="Public Sale" Inactive="No" />
+          <EnumValue DeployID="43" DeployValue="26" DisplayLabel="Real Estate Recording" Inactive="No" />
+          <EnumValue DeployID="44" DeployValue="58" DisplayLabel="Real Estate Recording" Inactive="No" />
+          <EnumValue DeployID="45" DeployValue="48" DisplayLabel="Replevin" Inactive="No" />
+          <EnumValue DeployID="46" DeployValue="27" DisplayLabel="Repossession" Inactive="No" />
+          <EnumValue DeployID="47" DeployValue="52" DisplayLabel="Sheriff Sale" Inactive="No" />
+          <EnumValue DeployID="48" DeployValue="28" DisplayLabel="Support Debt" Inactive="No" />
+          <EnumValue DeployID="49" DeployValue="29" DisplayLabel="Tax Lien - City" Inactive="No" />
+          <EnumValue DeployID="50" DeployValue="30" DisplayLabel="Tax Lien - County" Inactive="No" />
+          <EnumValue DeployID="51" DeployValue="31" DisplayLabel="Tax Lien - Federal" Inactive="No" />
+          <EnumValue DeployID="52" DeployValue="59" DisplayLabel="Tax Lien - Other" Inactive="No" />
+          <EnumValue DeployID="53" DeployValue="33" DisplayLabel="Tax Lien - State" Inactive="No" />
+          <EnumValue DeployID="54" DeployValue="53" DisplayLabel="Trust Deed" Inactive="No" />
+          <EnumValue DeployID="55" DeployValue="34" DisplayLabel="Trusteeship" Inactive="No" />
+          <EnumValue DeployID="56" DeployValue="35" DisplayLabel="Unknown" Inactive="No" />
+          <EnumValue DeployID="57" DeployValue="36" DisplayLabel="Unlawful Detainer" Inactive="No" />
+          <EnumValue DeployID="58" DeployValue="42" DisplayLabel="Wage Assignment" Inactive="No" />
+          <EnumValue DeployID="59" DeployValue="54" DisplayLabel="Warranty Deed" Inactive="No" />
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="3" DeployType="Symbol" ClassKey="17" DeployLabel="ldo:public-Record-Disposition-Type" DisplayLabel="publicRecordDispositionType" AllowRuleUsage="1" ContextlessLabel="" Name="publicRecordDispositionType">
+          <EnumValue DeployID="1" DeployValue="28" DisplayLabel="Acquitted" Inactive="No" />
+          <EnumValue DeployID="2" DeployValue="1" DisplayLabel="Adjudicated" Inactive="No" />
+          <EnumValue DeployID="3" DeployValue="2" DisplayLabel="Appealed" Inactive="No" />
+          <EnumValue DeployID="4" DeployValue="3" DisplayLabel="Cancelled" Inactive="No" />
+          <EnumValue DeployID="5" DeployValue="4" DisplayLabel="Completed" Inactive="No" />
+          <EnumValue DeployID="6" DeployValue="5" DisplayLabel="Converted" Inactive="No" />
+          <EnumValue DeployID="7" DeployValue="6" DisplayLabel="Discharged" Inactive="No" />
+          <EnumValue DeployID="8" DeployValue="30" DisplayLabel="Discharged In Bankruptcy" Inactive="No" />
+          <EnumValue DeployID="9" DeployValue="7" DisplayLabel="Dismissed" Inactive="No" />
+          <EnumValue DeployID="10" DeployValue="29" DisplayLabel="Disputed" Inactive="No" />
+          <EnumValue DeployID="11" DeployValue="8" DisplayLabel="Distributed" Inactive="No" />
+          <EnumValue DeployID="12" DeployValue="9" DisplayLabel="Filed" Inactive="No" />
+          <EnumValue DeployID="13" DeployValue="10" DisplayLabel="Granted" Inactive="No" />
+          <EnumValue DeployID="14" DeployValue="11" DisplayLabel="Involuntarily Discharged" Inactive="No" />
+          <EnumValue DeployID="15" DeployValue="31" DisplayLabel="Judgment For Defendant" Inactive="No" />
+          <EnumValue DeployID="16" DeployValue="32" DisplayLabel="Miscellaneous" Inactive="No" />
+          <EnumValue DeployID="17" DeployValue="12" DisplayLabel="Nonadjudicated" Inactive="No" />
+          <EnumValue DeployID="18" DeployValue="13" DisplayLabel="Other" Inactive="No" />
+          <EnumValue DeployID="19" DeployValue="14" DisplayLabel="Paid" Inactive="No" />
+          <EnumValue DeployID="20" DeployValue="15" DisplayLabel="Paid Not Satisfied" Inactive="No" />
+          <EnumValue DeployID="21" DeployValue="16" DisplayLabel="Pending" Inactive="No" />
+          <EnumValue DeployID="22" DeployValue="17" DisplayLabel="Real Estate Sold" Inactive="No" />
+          <EnumValue DeployID="23" DeployValue="18" DisplayLabel="Released" Inactive="No" />
+          <EnumValue DeployID="24" DeployValue="19" DisplayLabel="Rescinded" Inactive="No" />
+          <EnumValue DeployID="25" DeployValue="20" DisplayLabel="Satisfied" Inactive="No" />
+          <EnumValue DeployID="26" DeployValue="21" DisplayLabel="Settled" Inactive="No" />
+          <EnumValue DeployID="27" DeployValue="22" DisplayLabel="Unknown" Inactive="No" />
+          <EnumValue DeployID="28" DeployValue="23" DisplayLabel="Unreleased" Inactive="No" />
+          <EnumValue DeployID="29" DeployValue="24" DisplayLabel="Unsatisfied" Inactive="No" />
+          <EnumValue DeployID="30" DeployValue="25" DisplayLabel="Vacated" Inactive="No" />
+          <EnumValue DeployID="31" DeployValue="26" DisplayLabel="Voluntarily Discharged" Inactive="No" />
+          <EnumValue DeployID="32" DeployValue="27" DisplayLabel="Withdrawn" Inactive="No" />
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="4" DeployType="Symbol" ClassKey="17" DeployLabel="ldo:payment-Frequency-Type" DisplayLabel="paymentFrequencyType" AllowRuleUsage="1" ContextlessLabel="" Name="paymentFrequencyType">
+          <EnumValue DeployID="1" DeployValue="1" DisplayLabel="Biweekly" Inactive="No" />
+          <EnumValue DeployID="2" DeployValue="2" DisplayLabel="Lump Sum" Inactive="No" />
+          <EnumValue DeployID="3" DeployValue="3" DisplayLabel="Monthly" Inactive="No" />
+          <EnumValue DeployID="4" DeployValue="4" DisplayLabel="Other" Inactive="No" />
+          <EnumValue DeployID="5" DeployValue="5" DisplayLabel="Unknown" Inactive="No" />
+          <EnumValue DeployID="6" DeployValue="6" DisplayLabel="Weekly" Inactive="No" />
+          <EnumValue DeployID="7" DeployValue="7" DisplayLabel="Yearly" Inactive="No" />
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="5" DeployType="Boolean" ClassKey="17" DeployLabel="ldo:consumer-Dispute-Indicator" DisplayLabel="consumerDisputeIndicator" AllowRuleUsage="1" ContextlessLabel="" Name="consumerDisputeIndicator" />
+		<DomainAttribute AttributeKey="6" DeployType="Boolean" ClassKey="17" DeployLabel="ldo:derogatory-Data-Indicator" DisplayLabel="derogatoryDataIndicator" AllowRuleUsage="1" ContextlessLabel="" Name="derogatoryDataIndicator" />
+		<DomainAttribute AttributeKey="7" DeployType="Boolean" ClassKey="17" DeployLabel="ldo:manual-Update-Indicator" DisplayLabel="manualUpdateIndicator" AllowRuleUsage="1" ContextlessLabel="" Name="manualUpdateIndicator" />
+		<DomainAttribute AttributeKey="8" DeployType="Percent" ClassKey="17" DeployLabel="ldo:bankruptcy-Assets-Amount" DisplayLabel="bankruptcyAssetsAmount" AllowRuleUsage="1" ContextlessLabel="" Name="bankruptcyAssetsAmount" />
+		<DomainAttribute AttributeKey="9" DeployType="Percent" ClassKey="17" DeployLabel="ldo:bankruptcy-Liabilities-Amount" DisplayLabel="bankruptcyLiabilitiesAmount" AllowRuleUsage="1" ContextlessLabel="" Name="bankruptcyLiabilitiesAmount" />
+		<DomainAttribute AttributeKey="10" DeployType="Date" ClassKey="17" DeployLabel="ldo:disposition-Date" DisplayLabel="dispositionDate" AllowRuleUsage="1" ContextlessLabel="" Name="dispositionDate" />
+		<DomainAttribute AttributeKey="11" DeployType="String" ClassKey="17" DeployLabel="ldo:docket-Identifier" DisplayLabel="docketIdentifier" AllowRuleUsage="1" ContextlessLabel="" Name="docketIdentifier" />
+		<DomainAttribute AttributeKey="12" DeployType="Date" ClassKey="17" DeployLabel="ldo:filed-Date" DisplayLabel="filedDate" AllowRuleUsage="1" ContextlessLabel="" Name="filedDate" />
+		<DomainAttribute AttributeKey="13" DeployType="Percent" ClassKey="17" DeployLabel="ldo:legal-Obligation-Amount" DisplayLabel="legalObligationAmount" AllowRuleUsage="1" ContextlessLabel="" Name="legalObligationAmount" />
+		<DomainAttribute AttributeKey="14" DeployType="Symbol" ClassKey="17" DeployLabel="ldo:other-Disposition-Type" DisplayLabel="otherDispositionType" AllowRuleUsage="1" ContextlessLabel="" Name="otherDispositionType">
+          <EnumValue DeployID="1" DeployValue="28" DisplayLabel="Acquitted" Inactive="No" />
+          <EnumValue DeployID="2" DeployValue="1" DisplayLabel="Adjudicated" Inactive="No" />
+          <EnumValue DeployID="3" DeployValue="2" DisplayLabel="Appealed" Inactive="No" />
+          <EnumValue DeployID="4" DeployValue="3" DisplayLabel="Cancelled" Inactive="No" />
+          <EnumValue DeployID="5" DeployValue="4" DisplayLabel="Completed" Inactive="No" />
+          <EnumValue DeployID="6" DeployValue="5" DisplayLabel="Converted" Inactive="No" />
+          <EnumValue DeployID="7" DeployValue="6" DisplayLabel="Discharged" Inactive="No" />
+          <EnumValue DeployID="8" DeployValue="30" DisplayLabel="Discharged In Bankruptcy" Inactive="No" />
+          <EnumValue DeployID="9" DeployValue="7" DisplayLabel="Dismissed" Inactive="No" />
+          <EnumValue DeployID="10" DeployValue="29" DisplayLabel="Disputed" Inactive="No" />
+          <EnumValue DeployID="11" DeployValue="8" DisplayLabel="Distributed" Inactive="No" />
+          <EnumValue DeployID="12" DeployValue="9" DisplayLabel="Filed" Inactive="No" />
+          <EnumValue DeployID="13" DeployValue="10" DisplayLabel="Granted" Inactive="No" />
+          <EnumValue DeployID="14" DeployValue="11" DisplayLabel="Involuntarily Discharged" Inactive="No" />
+          <EnumValue DeployID="15" DeployValue="31" DisplayLabel="Judgment For Defendant" Inactive="No" />
+          <EnumValue DeployID="16" DeployValue="32" DisplayLabel="Miscellaneous" Inactive="No" />
+          <EnumValue DeployID="17" DeployValue="12" DisplayLabel="Nonadjudicated" Inactive="No" />
+          <EnumValue DeployID="18" DeployValue="13" DisplayLabel="Other" Inactive="No" />
+          <EnumValue DeployID="19" DeployValue="14" DisplayLabel="Paid" Inactive="No" />
+          <EnumValue DeployID="20" DeployValue="15" DisplayLabel="Paid Not Satisfied" Inactive="No" />
+          <EnumValue DeployID="21" DeployValue="16" DisplayLabel="Pending" Inactive="No" />
+          <EnumValue DeployID="22" DeployValue="17" DisplayLabel="Real Estate Sold" Inactive="No" />
+          <EnumValue DeployID="23" DeployValue="18" DisplayLabel="Released" Inactive="No" />
+          <EnumValue DeployID="24" DeployValue="19" DisplayLabel="Rescinded" Inactive="No" />
+          <EnumValue DeployID="25" DeployValue="20" DisplayLabel="Satisfied" Inactive="No" />
+          <EnumValue DeployID="26" DeployValue="21" DisplayLabel="Settled" Inactive="No" />
+          <EnumValue DeployID="27" DeployValue="22" DisplayLabel="Unknown" Inactive="No" />
+          <EnumValue DeployID="28" DeployValue="23" DisplayLabel="Unreleased" Inactive="No" />
+          <EnumValue DeployID="29" DeployValue="24" DisplayLabel="Unsatisfied" Inactive="No" />
+          <EnumValue DeployID="30" DeployValue="25" DisplayLabel="Vacated" Inactive="No" />
+          <EnumValue DeployID="31" DeployValue="26" DisplayLabel="Voluntarily Discharged" Inactive="No" />
+          <EnumValue DeployID="32" DeployValue="27" DisplayLabel="Withdrawn" Inactive="No" />
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="15" DeployType="Symbol" ClassKey="17" DeployLabel="ldo:other-Public-Record-Type" DisplayLabel="otherPublicRecordType" AllowRuleUsage="1" ContextlessLabel="" Name="otherPublicRecordType">
+          <EnumValue DeployID="1" DeployValue="1" DisplayLabel="Annulment" Inactive="No" />
+          <EnumValue DeployID="2" DeployValue="2" DisplayLabel="Attachment" Inactive="No" />
+          <EnumValue DeployID="3" DeployValue="3" DisplayLabel="Bankruptcy Chapter 11" Inactive="No" />
+          <EnumValue DeployID="4" DeployValue="4" DisplayLabel="Bankruptcy Chapter 12" Inactive="No" />
+          <EnumValue DeployID="5" DeployValue="5" DisplayLabel="Bankruptcy Chapter 13" Inactive="No" />
+          <EnumValue DeployID="6" DeployValue="6" DisplayLabel="Bankruptcy Chapter 7" Inactive="No" />
+          <EnumValue DeployID="7" DeployValue="7" DisplayLabel="Bankruptcy Chapter 7 Invol" Inactive="No" />
+          <EnumValue DeployID="8" DeployValue="8" DisplayLabel="Bankruptcy Chapter 7 Volun" Inactive="No" />
+          <EnumValue DeployID="9" DeployValue="9" DisplayLabel="Bankruptcy 7" Inactive="No" />
+          <EnumValue DeployID="10" DeployValue="10" DisplayLabel="Collection" Inactive="No" />
+          <EnumValue DeployID="11" DeployValue="11" DisplayLabel="Custody Agreement" Inactive="No" />
+          <EnumValue DeployID="12" DeployValue="12" DisplayLabel="Divorce Decree" Inactive="No" />
+          <EnumValue DeployID="13" DeployValue="13" DisplayLabel="Ficticious Name" Inactive="No" />
+          <EnumValue DeployID="14" DeployValue="14" DisplayLabel="Financial Counseling" Inactive="No" />
+          <EnumValue DeployID="15" DeployValue="15" DisplayLabel="Financing Statement" Inactive="No" />
+          <EnumValue DeployID="16" DeployValue="16" DisplayLabel="Forcible Detainer" Inactive="No" />
+          <EnumValue DeployID="17" DeployValue="17" DisplayLabel="Foreclosure" Inactive="No" />
+          <EnumValue DeployID="18" DeployValue="18" DisplayLabel="Garnishment" Inactive="No" />
+          <EnumValue DeployID="19" DeployValue="19" DisplayLabel="Judgment" Inactive="No" />
+          <EnumValue DeployID="20" DeployValue="20" DisplayLabel="Law Suit" Inactive="No" />
+          <EnumValue DeployID="21" DeployValue="21" DisplayLabel="Lien" Inactive="No" />
+          <EnumValue DeployID="22" DeployValue="22" DisplayLabel="Non Responsibility" Inactive="No" />
+          <EnumValue DeployID="23" DeployValue="23" DisplayLabel="Notice Of Default" Inactive="No" />
+          <EnumValue DeployID="24" DeployValue="24" DisplayLabel="Other" Inactive="No" />
+          <EnumValue DeployID="25" DeployValue="25" DisplayLabel="Public Sale" Inactive="No" />
+          <EnumValue DeployID="26" DeployValue="26" DisplayLabel="Real Estate Recording" Inactive="No" />
+          <EnumValue DeployID="27" DeployValue="27" DisplayLabel="Repossession" Inactive="No" />
+          <EnumValue DeployID="28" DeployValue="28" DisplayLabel="Support Debt" Inactive="No" />
+          <EnumValue DeployID="29" DeployValue="29" DisplayLabel="Tax Lien - City" Inactive="No" />
+          <EnumValue DeployID="30" DeployValue="30" DisplayLabel="Tax Lien - County" Inactive="No" />
+          <EnumValue DeployID="31" DeployValue="31" DisplayLabel="Tax Lien - Federal" Inactive="No" />
+          <EnumValue DeployID="32" DeployValue="32" DisplayLabel="City/County Tax Lien" Inactive="No" />
+          <EnumValue DeployID="33" DeployValue="33" DisplayLabel="Tax Lien - State" Inactive="No" />
+          <EnumValue DeployID="34" DeployValue="34" DisplayLabel="Trusteeship" Inactive="No" />
+          <EnumValue DeployID="35" DeployValue="35" DisplayLabel="Unknown" Inactive="No" />
+          <EnumValue DeployID="36" DeployValue="36" DisplayLabel="Unlawful Detainer" Inactive="No" />
+          <EnumValue DeployID="37" DeployValue="37" DisplayLabel="Attachment" Inactive="No" />
+          <EnumValue DeployID="38" DeployValue="38" DisplayLabel="Judgment By Confession" Inactive="No" />
+          <EnumValue DeployID="39" DeployValue="39" DisplayLabel="Judgment By Default" Inactive="No" />
+          <EnumValue DeployID="40" DeployValue="40" DisplayLabel="District Judgment" Inactive="No" />
+          <EnumValue DeployID="41" DeployValue="41" DisplayLabel="Legal Separation" Inactive="No" />
+          <EnumValue DeployID="42" DeployValue="42" DisplayLabel="Wage Assignment" Inactive="No" />
+          <EnumValue DeployID="43" DeployValue="43" DisplayLabel="Criminal Arrest" Inactive="No" />
+          <EnumValue DeployID="44" DeployValue="44" DisplayLabel="Criminal Judgement" Inactive="No" />
+          <EnumValue DeployID="45" DeployValue="45" DisplayLabel="Chattel Mortgage" Inactive="No" />
+          <EnumValue DeployID="46" DeployValue="46" DisplayLabel="Legal Name Change" Inactive="No" />
+          <EnumValue DeployID="47" DeployValue="47" DisplayLabel="Execute Writ" Inactive="No" />
+          <EnumValue DeployID="48" DeployValue="48" DisplayLabel="Replevin" Inactive="No" />
+          <EnumValue DeployID="49" DeployValue="49" DisplayLabel="Lis Pendens" Inactive="No" />
+          <EnumValue DeployID="50" DeployValue="50" DisplayLabel="Landlord/Tenant" Inactive="No" />
+          <EnumValue DeployID="51" DeployValue="51" DisplayLabel="Miscellaneous" Inactive="No" />
+          <EnumValue DeployID="52" DeployValue="52" DisplayLabel="Sheriff Sale" Inactive="No" />
+          <EnumValue DeployID="53" DeployValue="53" DisplayLabel="Trust Deed" Inactive="No" />
+          <EnumValue DeployID="54" DeployValue="54" DisplayLabel="Warranty Deed" Inactive="No" />
+          <EnumValue DeployID="55" DeployValue="55" DisplayLabel="Detinue" Inactive="No" />
+          <EnumValue DeployID="56" DeployValue="56" DisplayLabel="Deficit Judgement" Inactive="No" />
+          <EnumValue DeployID="57" DeployValue="57" DisplayLabel="NM Mortgage" Inactive="No" />
+          <EnumValue DeployID="58" DeployValue="58" DisplayLabel="Real Estate Recording" Inactive="No" />
+          <EnumValue DeployID="59" DeployValue="59" DisplayLabel="Tax Lien - Other" Inactive="No" />
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="16" DeployType="Date" ClassKey="17" DeployLabel="ldo:paid-Date" DisplayLabel="paidDate" AllowRuleUsage="1" ContextlessLabel="" Name="paidDate" />
+		<DomainAttribute AttributeKey="17" DeployType="Date" ClassKey="17" DeployLabel="ldo:reported-Date" DisplayLabel="reportedDate" AllowRuleUsage="1" ContextlessLabel="" Name="reportedDate" />
+		<DomainAttribute AttributeKey="18" DeployType="Date" ClassKey="17" DeployLabel="ldo:settled-Date" DisplayLabel="settledDate" AllowRuleUsage="1" ContextlessLabel="" Name="settledDate" />
+		<DomainAttribute AttributeKey="19" DeployType="Symbol" ClassKey="17" DeployLabel="ldo:ecoa-Code" DisplayLabel="ecoaCode" AllowRuleUsage="1" ContextlessLabel="" Name="ecoaCode">
+          <EnumValue DeployID="1" DeployValue="A" DisplayLabel="Authorized to use someone else" Inactive="No" />
+          <EnumValue DeployID="2" DeployValue="T" DisplayLabel="Closed account" Inactive="No" />
+          <EnumValue DeployID="3" DeployValue="I" DisplayLabel="Individual account" Inactive="No" />
+          <EnumValue DeployID="4" DeployValue="M" DisplayLabel="Individual account" Inactive="No" />
+          <EnumValue DeployID="5" DeployValue="J" DisplayLabel="Joint account" Inactive="No" />
+          <EnumValue DeployID="6" DeployValue="S" DisplayLabel="Joint account" Inactive="No" />
+          <EnumValue DeployID="7" DeployValue="0" DisplayLabel="Joint account" Inactive="No" />
+          <EnumValue DeployID="8" DeployValue="3" DisplayLabel="Joint account" Inactive="No" />
+          <EnumValue DeployID="9" DeployValue="C" DisplayLabel="Joint responsibility for the account" Inactive="No" />
+          <EnumValue DeployID="10" DeployValue="U" DisplayLabel="Not designated by the creditor" Inactive="No" />
+          <EnumValue DeployID="11" DeployValue="B" DisplayLabel="Responsibility only in case of default" Inactive="No" />
+          <EnumValue DeployID="12" DeployValue="2" DisplayLabel="Spouse account" Inactive="No" />
+          <EnumValue DeployID="13" DeployValue="1" DisplayLabel="Subject account" Inactive="No" />
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="20" DeployType="Percent" ClassKey="17" DeployLabel="ldo:collections-Amount" DisplayLabel="collectionsAmount" AllowRuleUsage="1" ContextlessLabel="" Name="collectionsAmount" />
+		<DomainAttribute AttributeKey="21" DeployType="Symbol" ClassKey="17" DeployLabel="ldo:foreclosure-Age" DisplayLabel="foreclosureAge" AllowRuleUsage="1" ContextlessLabel="" Name="foreclosureAge">
+          <EnumValue DeployID="1" DeployValue="101" DisplayLabel="less than 3 years" Inactive="No" />
+          <EnumValue DeployID="2" DeployValue="102" DisplayLabel="3 or 4 years" Inactive="No" />
+          <EnumValue DeployID="3" DeployValue="103" DisplayLabel="5 years or more" Inactive="No" />
+          <EnumValue DeployID="4" DeployValue="999" DisplayLabel="None" Inactive="No" />
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="22" DeployType="Integer" ClassKey="17" DeployLabel="ldo:bankruptcy-Chapter" DisplayLabel="bankruptcyChapter" AllowRuleUsage="1" ContextlessLabel="" Name="bankruptcyChapter">
+          <EnumValue DeployID="1" DeployValue="100" DisplayLabel="None" Inactive="No" />
+          <EnumValue DeployID="2" DeployValue="101" DisplayLabel="Chapter 7" Inactive="No" />
+          <EnumValue DeployID="3" DeployValue="102" DisplayLabel="Chapter 11" Inactive="No" />
+          <EnumValue DeployID="4" DeployValue="103" DisplayLabel="Chapter 13" Inactive="No" />
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="23" DeployType="Symbol" ClassKey="17" DeployLabel="ldo:bankruptcy-Filing-Age" DisplayLabel="bankruptcyFilingAge" AllowRuleUsage="1" ContextlessLabel="" Name="bankruptcyFilingAge">
+          <EnumValue DeployID="1" DeployValue="100" DisplayLabel="less than 12 Months" Inactive="No" />
+          <EnumValue DeployID="2" DeployValue="101" DisplayLabel="12 Months or more" Inactive="No" />
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="24" DeployType="Symbol" ClassKey="17" DeployLabel="ldo:bankruptcy-Discharge-Age" DisplayLabel="bankruptcyDischargeAge" AllowRuleUsage="1" ContextlessLabel="" Name="bankruptcyDischargeAge">
+          <EnumValue DeployID="1" DeployValue="100" DisplayLabel="Open" Inactive="No" />
+          <EnumValue DeployID="2" DeployValue="101" DisplayLabel="6 to 12 Months" Inactive="No" />
+          <EnumValue DeployID="3" DeployValue="102" DisplayLabel="12 to 17 Months" Inactive="No" />
+          <EnumValue DeployID="4" DeployValue="103" DisplayLabel="18 to 23 Months" Inactive="No" />
+          <EnumValue DeployID="5" DeployValue="104" DisplayLabel="24 Months or more" Inactive="No" />
+          <EnumValue DeployID="6" DeployValue="105" DisplayLabel="less than 6 months" Inactive="No" />
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="25" DeployType="Boolean" ClassKey="17" DeployLabel="ldo:is-current" DisplayLabel="Is Current" AllowRuleUsage="1" ContextlessLabel="" Name="isCurrent" />
+		<DomainAttribute AttributeKey="26" DeployType="Integer" ClassKey="17" DeployLabel="ldo:filed-age-months" DisplayLabel="Filed Age Months" AllowRuleUsage="1" ContextlessLabel="" Name="filedAgeMonths" />
+		<DomainAttribute AttributeKey="27" DeployType="Integer" ClassKey="17" DeployLabel="ldo:discharge-age-months" DisplayLabel="Discharge age months" AllowRuleUsage="1" ContextlessLabel="" Name="dischargeAgeMonths" />
+		<DomainAttribute AttributeKey="28" DeployType="Integer" ClassKey="17" DeployLabel="ldo:disposition-age-months" DisplayLabel="Months since last activity" AllowRuleUsage="1" ContextlessLabel="" Name="dispositionAgeMonths" />
+	</DomainClass>
+
+<!-- From Arlene -->
+	<DomainClass ClassKey="24" DeployLabel="ldo:sales" AllowRuleUsage="1" DisplayLabel="Sales" HasMultiplicity="0" Name="Sales">
+		<DomainAttribute AttributeKey="15" DeployType="String" ClassKey="24" DeployLabel="ldo:business-channel" AllowRuleUsage="1" DisplayLabel="Business Channel" Name="BusinessChannel">
+			<EnumValue DeployID="1" DeployValue="Builder Services" DisplayLabel="Builder Services" Inactive="No"/>
+			<EnumValue DeployID="2" DeployValue="Realtor Services" DisplayLabel="Realtor Services" Inactive="No"/>
+			<EnumValue DeployID="3" DeployValue="Branch Retail" DisplayLabel="Branch Retail" Inactive="No"/>
+			<EnumValue DeployID="4" DeployValue="EUnit" DisplayLabel="EUnit"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="16" DeployType="Integer" ClassKey="24" DeployLabel="ldo:region" AllowRuleUsage="1" DisplayLabel="Region" Name="Region">
+			<EnumValue DeployID="1" DeployValue="3" DisplayLabel="3" Inactive="No"/>
+			<EnumValue DeployID="2" DeployValue="5" DisplayLabel="5" Inactive="No"/>
+			<EnumValue DeployID="3" DeployValue="2" DisplayLabel="2" Inactive="No"/>
+			<EnumValue DeployID="4" DeployValue="4" DisplayLabel="4" Inactive="No"/>
+			<EnumValue DeployID="5" DeployValue="6" DisplayLabel="6" Inactive="No"/>
+			<EnumValue DeployID="6" DeployValue="1" DisplayLabel="1" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="17" DeployType="String" ClassKey="24" DeployLabel="ldo:stores" AllowRuleUsage="1" DisplayLabel="Stores" Name="Stores">
+			<EnumValue DeployID="1" DeployValue="South Broward" DisplayLabel="South Broward" Inactive="No"/>
+			<EnumValue DeployID="2" DeployValue="Northwest Atlanta" DisplayLabel="Northwest Atlanta" Inactive="No"/>
+			<EnumValue DeployID="3" DeployValue="HomeBanc en Espanol" DisplayLabel="HomeBanc en Espanol" Inactive="No"/>
+			<EnumValue DeployID="4" DeployValue="Charlotte" DisplayLabel="Charlotte" Inactive="No"/>
+			<EnumValue DeployID="5" DeployValue="Central Atlanta" DisplayLabel="Central Atlanta" Inactive="No"/>
+			<EnumValue DeployID="6" DeployValue="East Atlanta" DisplayLabel="East Atlanta" Inactive="No"/>
+			<EnumValue DeployID="7" DeployValue="Conyers" DisplayLabel="Conyers" Inactive="No"/>
+			<EnumValue DeployID="8" DeployValue="Orlando" DisplayLabel="Orlando" Inactive="No"/>
+			<EnumValue DeployID="9" DeployValue="South Atlanta" DisplayLabel="South Atlanta" Inactive="No"/>
+			<EnumValue DeployID="10" DeployValue="Columbus" DisplayLabel="Columbus" Inactive="No"/>
+			<EnumValue DeployID="11" DeployValue="Jacksonville" DisplayLabel="Jacksonville" Inactive="No"/>
+			<EnumValue DeployID="12" DeployValue="West Georgia" DisplayLabel="West Georgia" Inactive="No"/>
+			<EnumValue DeployID="13" DeployValue="Miami-Dade" DisplayLabel="Miami-Dade" Inactive="No"/>
+			<EnumValue DeployID="14" DeployValue="Tampa Bay" DisplayLabel="Tampa Bay" Inactive="No"/>
+			<EnumValue DeployID="15" DeployValue="Northeast Atlanta" DisplayLabel="Northeast Atlanta" Inactive="No"/>
+			<EnumValue DeployID="16" DeployValue="Corporate Atlanta" DisplayLabel="Corporate Atlanta" Inactive="No"/>
+			<EnumValue DeployID="17" DeployValue="Stockbridge" DisplayLabel="Stockbridge" Inactive="No"/>
+			<EnumValue DeployID="18" DeployValue="North Atlanta" DisplayLabel="North Atlanta" Inactive="No"/>
+			<EnumValue DeployID="19" DeployValue="Newnan" DisplayLabel="Newnan" Inactive="No"/>
+			<EnumValue DeployID="20" DeployValue="Palm Beach" DisplayLabel="Palm Beach" Inactive="No"/>
+			<EnumValue DeployID="21" DeployValue="Athens" DisplayLabel="Athens" Inactive="No"/>
+			<EnumValue DeployID="22" DeployValue="Gainsville" DisplayLabel="Gainsville" Inactive="No"/>
+			<EnumValue DeployID="23" DeployValue="North Broward" DisplayLabel="North Broward" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute AttributeKey="18" DeployType="String" ClassKey="24" DeployLabel="ldo:loan-officer" AllowRuleUsage="1" DisplayLabel="Loan Officer" Name="LoanOfficer"/>
+	</DomainClass>
+
+<!-- to test TT 1225 -->
+	<DomainClass DeployLabel="dlc:lien" AllowRuleUsage="1" DisplayLabel="lien" HasMultiplicity="1" Name="lien" >
+		<DomainAttribute DeployType="Symbol"  DeployLabel="dlc:deal-id" DisplayLabel="deal-id" AllowRuleUsage="1" ContextlessLabel="" Name="deal_id"/>
+		<DomainAttribute DeployType="Symbol"  DeployLabel="dlc:lien-id" DisplayLabel="lien-id" AllowRuleUsage="1" ContextlessLabel="" Name="lien_id"/>
+		<DomainAttribute DeployType="Integer"  DeployLabel="dlc:lien-position" DisplayLabel="lien-position" AllowRuleUsage="1" ContextlessLabel="" Name="lien_position"/>
+		<DomainAttribute DeployType="String"  DeployLabel="dlc:product-code" DisplayLabel="product-code" AllowRuleUsage="1" ContextlessLabel="" Name="product_code"/>
+		<DomainAttribute DeployType="Integer"  DeployLabel="dlc:amortization-term" DisplayLabel="amortization-term" AllowRuleUsage="1" ContextlessLabel="" Name="amortization_term"/>
+		<DomainAttribute DeployType="String"  DeployLabel="dlc:amortization-type" DisplayLabel="amortization-type" AllowRuleUsage="1" ContextlessLabel="" Name="amortization_type">
+          <EnumValue DeployID="1" DeployValue="Fixed" DisplayLabel="Fixed" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="ARM" DisplayLabel="Variable" Inactive="No"/>
+          <EnumValue DeployID="3" DeployValue="Balloon" DisplayLabel="Balloon" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute DeployType="string"  DeployLabel="dlc:loan-term" DisplayLabel="Loan Term" AllowRuleUsage="1" ContextlessLabel="" Name="loan_term">
+          <EnumValue DeployID="1" DeployValue="2/28" DisplayLabel="2/28" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="3/27" DisplayLabel="3/27" Inactive="No"/>
+          <EnumValue DeployID="3" DeployValue="10/10" DisplayLabel="10/10" Inactive="No"/>
+          <EnumValue DeployID="4" DeployValue="15/15" DisplayLabel="15/15" Inactive="No"/>
+          <EnumValue DeployID="5" DeployValue="20/20" DisplayLabel="20/20" Inactive="No"/>
+          <EnumValue DeployID="6" DeployValue="25/25" DisplayLabel="25/25" Inactive="No"/>
+          <EnumValue DeployID="7" DeployValue="30/30" DisplayLabel="30/30" Inactive="No"/>
+          <EnumValue DeployID="8" DeployValue="30/15" DisplayLabel="30/15" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute DeployType="Currency"  DeployLabel="dlc:loan-amount-$" DisplayLabel="loan-amount-$" AllowRuleUsage="1" ContextlessLabel="" Name="loan_amount_dollar"/>
+		<DomainAttribute DeployType="Currency"  DeployLabel="dlc:min-loan-amount" DisplayLabel="min-loan-amount" AllowRuleUsage="1" ContextlessLabel="" Name="min_loan_amount"/>
+		<DomainAttribute DeployType="Currency"  DeployLabel="dlc:max-loan-amount" DisplayLabel="max-loan-amount" AllowRuleUsage="1" ContextlessLabel="" Name="max_loan_amount"/>
+		<DomainAttribute DeployType="Percent"  DeployLabel="dlc:max-LTV" DisplayLabel="max-LTV" AllowRuleUsage="1" ContextlessLabel="" Name="max_LTV"/>
+		<DomainAttribute DeployType="Percent"  DeployLabel="dlc:max-LTV-adjustments" DisplayLabel="max-LTV-adjustments" AllowRuleUsage="1" ContextlessLabel="" Name="max_LTV_adjustments"/>
+		<DomainAttribute DeployType="Currency"  DeployLabel="dlc:amount-financed" DisplayLabel="amount financed" AllowRuleUsage="1" ContextlessLabel="" Name="amount_financed"/>
+		<DomainAttribute DeployType="String"  DeployLabel="dlc:Pre-Pay-Penalty-Buy-Down" DisplayLabel="Pre-Pay-Penalty-Buy-Down" AllowRuleUsage="1" ContextlessLabel="" Name="Pre_Pay_Penalty_Buy_Down">
+          <EnumValue DeployID="1" DeployValue="Standard" DisplayLabel="Standard" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="Reduce" DisplayLabel="Reduce" Inactive="No"/>
+          <EnumValue DeployID="3" DeployValue="Waive" DisplayLabel="Waive" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute DeployType="string"  DeployLabel="dlc:product" DisplayLabel="product" AllowRuleUsage="1" ContextlessLabel="" Name="product">
+          <EnumValue DeployID="1" DeployValue="FIXED FIRST 5 YEAR" DisplayLabel="FIXED FIRST 5 YEAR" Inactive="No"/>
+          <EnumValue DeployID="2" DeployValue="FIXED SECOND 5 YEAR" DisplayLabel="FIXED SECOND 5 YEAR" Inactive="No"/>
+          <EnumValue DeployID="3" DeployValue="FIXED FIRST 7 YEAR" DisplayLabel="FIXED FIRST 7 YEAR" Inactive="No"/>
+          <EnumValue DeployID="4" DeployValue="FIXED SECOND 7 YEAR" DisplayLabel="FIXED SECOND 7 YEAR" Inactive="No"/>
+          <EnumValue DeployID="5" DeployValue="FIXED FIRST 10 YEAR" DisplayLabel="FIXED FIRST 10 YEAR" Inactive="No"/>
+          <EnumValue DeployID="6" DeployValue="FIXED SECOND 10 YEAR" DisplayLabel="FIXED SECOND 10 YEAR" Inactive="No"/>
+          <EnumValue DeployID="7" DeployValue="FIXED FIRST 15 YEAR" DisplayLabel="FIXED FIRST 15 YEAR" Inactive="No"/>
+          <EnumValue DeployID="8" DeployValue="FIXED SECOND 15 YEAR" DisplayLabel="FIXED SECOND 15 YEAR" Inactive="No"/>
+          <EnumValue DeployID="9" DeployValue="FIXED FIRST 20 YEAR" DisplayLabel="FIXED FIRST 20 YEAR" Inactive="No"/>
+          <EnumValue DeployID="10" DeployValue="FIXED SECOND 20 YEAR" DisplayLabel="FIXED SECOND 20 YEAR" Inactive="No"/>
+          <EnumValue DeployID="11" DeployValue="FIXED FIRST 25 YEAR" DisplayLabel="FIXED FIRST 25 YEAR" Inactive="No"/>
+          <EnumValue DeployID="12" DeployValue="FIXED SECOND 25 YEAR" DisplayLabel="FIXED SECOND 25 YEAR" Inactive="No"/>
+          <EnumValue DeployID="13" DeployValue="FIXED FIRST 30 YEAR" DisplayLabel="FIXED FIRST 30 YEAR" Inactive="No"/>
+          <EnumValue DeployID="14" DeployValue="FIXED SECOND 30 YEAR" DisplayLabel="FIXED SECOND 30 YEAR" Inactive="No"/>
+          <EnumValue DeployID="15" DeployValue="VARIABLE FIRST 2/28" DisplayLabel="VARIABLE FIRST 2/28" Inactive="No"/>
+          <EnumValue DeployID="16" DeployValue="VARIABLE FIRST 3/27" DisplayLabel="VARIABLE FIRST 3/27" Inactive="No"/>
+          <EnumValue DeployID="17" DeployValue="VARIABLE FIRST 5/25" DisplayLabel="VARIABLE FIRST 5/25" Inactive="No"/>
+          <EnumValue DeployID="18" DeployValue="VARIABLE FIRST 2/38 BALLOON" DisplayLabel="VARIABLE FIRST 2/38 BALLOON" Inactive="No"/>
+          <EnumValue DeployID="19" DeployValue="VARIABLE FIRST 3/37 BALLOON" DisplayLabel="VARIABLE FIRST 3/37 BALLOON" Inactive="No"/>
+          <EnumValue DeployID="20" DeployValue="VARIABLE FIRST 5/35 BALLOON" DisplayLabel="VARIABLE FIRST 5/35 BALLOON" Inactive="No"/>
+          <EnumValue DeployID="21" DeployValue="BALLOON FIRST 30/15" DisplayLabel="BALLOON FIRST 30/15" Inactive="No"/>
+          <EnumValue DeployID="22" DeployValue="BALLOON SECOND 30/15" DisplayLabel="BALLOON SECOND 30/15" Inactive="No"/>
+          <EnumValue DeployID="23" DeployValue="BALLOON FIRST 40/30" DisplayLabel="BALLOON FIRST 40/30" Inactive="No"/>
+		</DomainAttribute>
+		<DomainAttribute DeployType="Boolean"  DeployLabel="dlc:pre-payment-not-allowed" DisplayLabel="Pre-Pay-Penalty-Not-Allowed" AllowRuleUsage="1" ContextlessLabel="" Name="Pre_Pay_Penalty_Not_Allowed"/>
+		<DomainAttribute DeployType="Symbol"  DeployLabel="dlc:pricing-link" DisplayLabel="Pricing-Link" AllowRuleUsage="1" ContextlessLabel="" Name="pricing_link"/>
+		<DomainAttribute DeployType="Symbol"  DeployLabel="ldoc:lien-calc-link" DisplayLabel="lien-calc-link" AllowRuleUsage="1" ContextlessLabel="" Name="lien_calc_link"/>
+		<DomainClassLink HasMultiplicity="1" ParentClassName="lien" ChildClassName="lien_calc" DeployValue="ldoc:lien-calc-link"/>
+		<DomainClassLink HasMultiplicity="0" ParentClassName="lien" ChildClassName="PRICING" DeployValue="dlc:pricing-link"/>
+	</DomainClass>
+</DomainModel>

@@ -1,0 +1,9 @@
+/* Java Policy for MindBox PowerEditor. */
+/* DO NOT EDIT */
+
+
+grant codeBase "http://*/@deploy.root@/@applet.jar@" {
+  permission java.security.AllPermission;
+};
+
+  

@@ -1,0 +1,12 @@
+##
+## Execute the following commands to install third party dependencies that are not available in public repositories
+##
+
+## Run this first
+mvn install:inst all-file -Dfile=ext-lib/MDateSelector.jar -Dpackaging=jar -DgroupId=com.mseries -DartifactId=date-selector -Dversion=1.0
+
+## Then run this
+mvn install:install-file -Dfile=ext-lib/ojdbc14.jar -Dpackaging=jar -DgroupId=com.oracle -DartifactId=ojdbc14 -Dversion=10.2.0.5
+
+## And, run this
+mvn install:install-file -Dfile=ext-lib/sqljdbc4.jar -Dpackaging=jar -DgroupId=com.microsoft.sqlserver -DartifactId=sqljdbc4 -Dversion=3.0

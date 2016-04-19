@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PowerEditorEnumeration>
+
+<!-- Georgia Counties -->
+<EnumValue><DisplayLabel>Cherokee</DisplayLabel><Value>cherokee</Value><SelectorValue>GA</SelectorValue></EnumValue>
+<EnumValue><DisplayLabel>Clarke</DisplayLabel><Value>clarke</Value><SelectorValue>GA</SelectorValue></EnumValue>
+<EnumValue><DisplayLabel>Cobb</DisplayLabel><Value>cobb</Value><SelectorValue>GA</SelectorValue></EnumValue>
+<EnumValue><DisplayLabel>Forsyth</DisplayLabel><Value>forsyth</Value><SelectorValue>GA</SelectorValue></EnumValue>
+<EnumValue><DisplayLabel>Fulton</DisplayLabel><Value>fulton</Value><SelectorValue>GA</SelectorValue></EnumValue>
+<EnumValue><DisplayLabel>Gwinnett</DisplayLabel><Value>gwinnett</Value><SelectorValue>GA</SelectorValue></EnumValue>
+<EnumValue><DisplayLabel>Hall</DisplayLabel><Value>hall</Value><SelectorValue>GA</SelectorValue></EnumValue>
+
+<!-- Virgina States -->
+<EnumValue><DisplayLabel>Virginia One</DisplayLabel><Value>va-one</Value><SelectorValue>VA</SelectorValue></EnumValue>
+<EnumValue><DisplayLabel>Virginia Two</DisplayLabel><Value>va-two®</Value><SelectorValue>VA</SelectorValue></EnumValue>
+
+</PowerEditorEnumeration>

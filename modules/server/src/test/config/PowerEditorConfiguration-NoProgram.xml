@@ -1,0 +1,532 @@
+<?xml version="1.0"?>
+<!--
+=======================================================================
+PowerEditor Configuration File.
+
+Copyright (c) 2003-2004. MindBox. All rights reserved.
+
+
+***NOTE ***
+This file assumes that 
+(1) all PE configuration XML are located in c:\PEFiles\powereditor\config directory
+(2) Generate rules files are stored under   c:\PEFiles\powereditor\deploy directory
+(3) PE log files are located in             c:\PEFiles\powereditor\log    directory
+
+=======================================================================-->
+
+<PowerEditorConfiguration>
+
+<!--
+===============================================================
+Entity Configuration
+===============================================================-->
+	<EntityConfig>
+		<CategoryType name="Product Category" typeID="10" />
+		<CategoryType name="Channel Category" typeID="30" />
+		<CategoryType name="Investor Category" typeID="40" />
+		<EntityType name="channel" displayName="Channel" typeID="4" categoryType="30" useInContext="Yes" useInCompatibility="Yes"
+			canClone="yes" useInMessageContext="Yes">
+			<EntityProperty name="description" displayName="Description" showInSelectionTable="Yes" isRequired="No" isSearchable="Yes"
+				type="string" />
+			<EntityProperty name="isBase" displayName="Is Base" showInSelectionTable="no" isRequired="no" isSearchable="no" type="boolean" />
+		</EntityType>
+		<EntityType name="investor" displayName="Investor" typeID="1" useInContext="Yes" categoryType="40">
+			<EntityProperty name="description" displayName="Description" showInSelectionTable="Yes" isRequired="No" isSearchable="Yes"
+				type="string" />
+		</EntityType>
+		<!-- V4.5.0:
+		Product Definition 
+		-->
+		<EntityType name="product" displayName="Product" typeID="0" useInContext="Yes" useInCompatibility="Yes" canClone="Yes"
+			categoryType="10">
+		<!-- -->
+			<EntityProperty name="code" displayName="Product Code" showInSelectionTable="Yes" isRequired="Yes" isSearchable="Yes"
+				type="string" />
+			<EntityProperty name="description" displayName="Description" showInSelectionTable="Yes" isRequired="No" isSearchable="Yes"
+				type="string" />
+			<EntityProperty name="assumable" displayName="Assumable" showInSelectionTable="No" isRequired="No" isSearchable="No" type="boolean" />
+			<EntityProperty name="convertible" displayName="Convertible" showInSelectionTable="No" isRequired="No" isSearchable="No"
+				type="boolean" />
+			<EntityProperty name="prepay.penalty" displayName="Prepay Penalty" showInSelectionTable="No" isRequired="No" isSearchable="No"
+				type="boolean" />
+			<EntityProperty name="a.paper" displayName="IS-A-Paper" showInSelectionTable="No" isRequired="No" isSearchable="No" type="boolean" />
+			<EntityProperty name="negative.amort" displayName="Negative Amortization" showInSelectionTable="No" isRequired="No"
+				isSearchable="No" type="boolean" />
+			<EntityProperty name="min.credit" displayName="Minimum Credit" showInSelectionTable="No" isRequired="No" isSearchable="No"
+				type="string" />
+			<EntityProperty name="loan.type" displayName="Loan Type" showInSelectionTable="Yes" isRequired="No" isSearchable="Yes"
+				type="enum" enumType="product.loan_type" sort="No" />
+			<EntityProperty name="lien.priority" displayName="Lien Priority" showInSelectionTable="No" isRequired="No" isSearchable="No"
+				type="string" />
+			<EntityProperty name="amortization.type" displayName="Amortization Type" showInSelectionTable="No" isRequired="No"
+				isSearchable="No" type="enum" enumType="product.amortization_type" sort="No" />
+			<EntityProperty name="amortization.terms" displayName="Terms (months)" showInSelectionTable="Yes" isRequired="No"
+				isSearchable="No" type="integerList" />
+			<EntityProperty name="product.type" displayName="Product Type" showInSelectionTable="No" isRequired="No" isSearchable="No"
+				type="string" />
+			<EntityProperty name="pricing.group" displayName="Pricing Group" showInSelectionTable="No" isRequired="No" isSearchable="No"
+				type="string" />
+			<EntityProperty name="status" displayName="Status" showInSelectionTable="Yes" isRequired="Yes" isSearchable="Yes" type="enum"
+				enumType="system.status" sort="No" autoUpdatedDateProperty="status.change.date" />
+			<EntityProperty name="status.change.date" displayName="Last Status Changed Date" showInSelectionTable="No" isRequired="No"
+				isSearchable="No" type="string" />
+			<EntityProperty name="activation.date" displayName="Activation Date" showInSelectionTable="No" isRequired="No"
+				isSearchable="No" type="date" />
+			<EntityProperty name="expiration.date" displayName="Expiration Date" showInSelectionTable="No" isRequired="No"
+				isSearchable="No" type="date" />
+			<!-- 
+			Uncomment to use synchronization fields -->
+			<EntityProperty name="assumption.type" displayName="Assumption Type" showInSelectionTable="No" isRequired="Yes"
+				isSearchable="No" type="enum" enumType="product.assumption_type" sort="No" />
+			<EntityProperty name="calculation.type" displayName="Calculation Type" showInSelectionTable="No" isRequired="No"
+				isSearchable="No" type="enum" enumType="product.calculation_type" sort="No" />
+			<EntityProperty name="days.late" displayName="Days Late" showInSelectionTable="No" isRequired="No" isSearchable="No" type="integer" />
+			<EntityProperty name="hazard.insurance.required" displayName="Hazard Insurance Required" showInSelectionTable="No"
+				isRequired="No" isSearchable="No" type="boolean" />
+			<EntityProperty name="hazard.insurance.amount" displayName="Hazard Insurance Amount" showInSelectionTable="No" isRequired="No"
+				isSearchable="No" type="currency" />
+			<EntityProperty name="late.charged" displayName="Late Charge" showInSelectionTable="No" isRequired="No" isSearchable="No"
+				type="boolean" />
+			<EntityProperty name="late.charge.method" displayName="Late Charge Method" showInSelectionTable="No" isRequired="No"
+				isSearchable="No" type="enum" enumType="product.late_charge_method" sort="No" />
+			<EntityProperty name="late.charge.percent" displayName="Late Charge Percent" showInSelectionTable="No" isRequired="No"
+				isSearchable="No" type="percent" />
+			<EntityProperty name="late.charge.type" displayName="Late Charge Type" showInSelectionTable="No" isRequired="No"
+				isSearchable="No" type="integer" />
+			<EntityProperty name="penalty" displayName="Penalty" showInSelectionTable="No" isRequired="No" isSearchable="No" type="boolean" />
+			<EntityProperty name="prepay.penalty.percent" displayName="Prepayment Penalty Percent" showInSelectionTable="No"
+				isRequired="No" isSearchable="No" type="percent" />
+			<EntityProperty name="priority" displayName="Priority" showInSelectionTable="No" isRequired="No" isSearchable="No" type="integer" />
+			<EntityProperty name="property.insurance" displayName="Property Insurance" showInSelectionTable="No" isRequired="No"
+				isSearchable="No" type="boolean" />
+			<EntityProperty name="refund" displayName="Refund" showInSelectionTable="No" isRequired="No" isSearchable="No" type="boolean" />
+			<EntityProperty name="security" displayName="Security" showInSelectionTable="No" isRequired="No" isSearchable="No" type="boolean" />
+			<EntityProperty name="security.type" displayName="Security Type" showInSelectionTable="No" isRequired="No" isSearchable="No"
+				type="enum" enumType="product.security_type" sort="No" />
+			<EntityProperty name="prepaid.interest.factor" displayName="Prepaid Interest Factor" showInSelectionTable="No" isRequired="No"
+				isSearchable="No" type="enum" enumType="product.prepaid_int_factor" sort="No" />
+			<EntityProperty name="documentation.type" displayName="Documentation Type" showInSelectionTable="No" isRequired="No"
+				isSearchable="No" type="enum" sort="No" attributeMap="LDO_LOAN_FEATURES.LoanDocumentationType" /> <!-- enumType="product.documentation_type" -->
+					<!-- attributeMap="MMS_LOAN_INFORMATION.LoanDocumentationType"  -->
+			<EntityProperty name="interest.only.period" displayName="Interest Only Period" showInSelectionTable="No" isRequired="No"
+				isSearchable="No" type="integer" />
+			<EntityProperty name="buydown.not.allowed" displayName="Buydown Not Allowed" showInSelectionTable="No" isRequired="No"
+				isSearchable="No" type="boolean" />
+			<EntityProperty name="heloc" displayName="Heloc" showInSelectionTable="No" isRequired="No" isSearchable="No" type="boolean" />
+			<!-- 
+			Uncomment to use ARM fields -->
+			<EntityProperty name="arm.index.name" displayName="Index Name" showInSelectionTable="No" isRequired="No" isSearchable="No"
+				type="enum" enumType="product.arm_index_name" sort="No" />
+			<EntityProperty name="arm.index.value" displayName="Index Value" showInSelectionTable="No" isRequired="No" isSearchable="No"
+				type="percent" />
+			<EntityProperty name="arm.first.adjust.period" displayName="First Adjustment (months)" showInSelectionTable="No"
+				isRequired="No" isSearchable="No" type="integer" />
+			<EntityProperty name="arm.first.adjust.cap" displayName="First Adj Cap" showInSelectionTable="No" isRequired="No"
+				isSearchable="No" type="percent" />
+			<EntityProperty name="arm.later.adjust.period" displayName="Later Adjustment (months)" showInSelectionTable="No"
+				isRequired="No" isSearchable="No" type="integer" />
+			<EntityProperty name="arm.later.adjust.cap" displayName="Later Adj Cap" showInSelectionTable="No" isRequired="No"
+				isSearchable="No" type="percent" />
+			<EntityProperty name="arm.first.payment.period" displayName="First Payment Period" showInSelectionTable="No" isRequired="No"
+				isSearchable="No" type="integer" />
+			<EntityProperty name="arm.first.payment.cap" displayName="First Payment Cap" showInSelectionTable="No" isRequired="No"
+				isSearchable="No" type="percent" />
+			<EntityProperty name="arm.later.payment.period" displayName="Later Payment Period" showInSelectionTable="No" isRequired="No"
+				isSearchable="No" type="integer" />
+			<EntityProperty name="arm.later.payment.cap" displayName="Later Payment Cap" showInSelectionTable="No" isRequired="No"
+				isSearchable="No" type="percent" />
+			<EntityProperty name="arm.reamort.period" displayName="Reamortization Period" showInSelectionTable="No" isRequired="No"
+				isSearchable="No" type="integer" />
+			<EntityProperty name="deferred.limit" displayName="Deferred Limit" showInSelectionTable="No" isRequired="No" isSearchable="No"
+				type="integer" />
+		  <!-- V4.5.0: <EntityPropertyGroup> element No longer used -->
+		  <!-- V4.3.1: 
+		       Uncomment to use product synchronization fields.
+		  <EntityPropertyGroup
+		  	  name="synchronization" 
+		  	  displayName="Details"/>
+		   -->
+		</EntityType>
+	</EntityConfig>
+	<!--
+===============================================================
+User Interface Configurations
+V4 Upgrade: See Notes interspersed below.
+===============================================================-->
+	<UserInterface>
+		<!-- Entity Tab Configuration -->
+		<Entity showTab="Yes">
+			<EntityTab type="product" showTab="yes">
+			   	<!-- V4.5.0: used to group properties into tabs -->
+				<EntityPropertyTab title="Product Details">
+					<EntityPropertyName>description</EntityPropertyName>
+					<EntityPropertyName>assumable</EntityPropertyName>
+					<EntityPropertyName>convertible</EntityPropertyName>
+					<EntityPropertyName>prepay.penalty</EntityPropertyName>
+					<EntityPropertyName>a.paper</EntityPropertyName>
+					<EntityPropertyName>negative.amort</EntityPropertyName>
+					<EntityPropertyName>min.credit</EntityPropertyName>
+					<EntityPropertyName>loan.type</EntityPropertyName>
+					<EntityPropertyName>lien.priority</EntityPropertyName>
+					<EntityPropertyName>amortization.type</EntityPropertyName>
+					<EntityPropertyName>amortization.terms</EntityPropertyName>
+					<EntityPropertyName>product.type</EntityPropertyName>
+					<EntityPropertyName>pricing.group</EntityPropertyName>
+					<EntityPropertyName>status</EntityPropertyName>
+					<EntityPropertyName>status.change.date</EntityPropertyName>
+					<EntityPropertyName>activation.date</EntityPropertyName>
+					<EntityPropertyName>expiration.date</EntityPropertyName>
+				</EntityPropertyTab>
+			   	<!-- Comment this section is synchronization details are not used -->
+				<EntityPropertyTab title="Synchronziation Details">
+					<EntityPropertyName>assumption.type</EntityPropertyName>
+					<EntityPropertyName>calculation.type</EntityPropertyName>
+					<EntityPropertyName>days.late</EntityPropertyName>
+					<EntityPropertyName>hazard.insurance.required</EntityPropertyName>
+					<EntityPropertyName>hazard.insurance.amount</EntityPropertyName>
+					<EntityPropertyName>late.charged</EntityPropertyName>
+					<EntityPropertyName>late.charge.method</EntityPropertyName>
+					<EntityPropertyName>late.charge.percent</EntityPropertyName>
+					<EntityPropertyName>late.charge.type</EntityPropertyName>
+					<EntityPropertyName>penalty</EntityPropertyName>
+					<EntityPropertyName>prepay.penalty.percent</EntityPropertyName>
+					<EntityPropertyName>priority</EntityPropertyName>
+					<EntityPropertyName>property.insurance</EntityPropertyName>
+					<EntityPropertyName>refund</EntityPropertyName>
+					<EntityPropertyName>security</EntityPropertyName>
+					<EntityPropertyName>security.type</EntityPropertyName>
+					<EntityPropertyName>prepaid.interest.factor</EntityPropertyName>
+					<EntityPropertyName>documentation.type</EntityPropertyName>
+					<EntityPropertyName>interest.only.period</EntityPropertyName>
+					<EntityPropertyName>buydown.not.allowed</EntityPropertyName>
+					<EntityPropertyName>heloc</EntityPropertyName>
+				</EntityPropertyTab>
+				<EntityPropertyTab title="ARM Info">
+					<EntityPropertyName>arm.index.name</EntityPropertyName>
+					<EntityPropertyName>arm.index.value</EntityPropertyName>
+					<EntityPropertyName>arm.first.adjust.period</EntityPropertyName>
+					<EntityPropertyName>arm.first.adjust.cap</EntityPropertyName>
+					<EntityPropertyName>arm.later.adjust.period</EntityPropertyName>
+					<EntityPropertyName>arm.later.adjust.cap</EntityPropertyName>
+					<EntityPropertyName>arm.first.payment.period</EntityPropertyName>
+					<EntityPropertyName>arm.first.payment.cap</EntityPropertyName>
+					<EntityPropertyName>arm.later.payment.period</EntityPropertyName>
+					<EntityPropertyName>arm.later.payment.cap</EntityPropertyName>
+					<EntityPropertyName>arm.reamort.period</EntityPropertyName>
+					<EntityPropertyName>deferred.limit</EntityPropertyName>
+				</EntityPropertyTab>
+				<!-- V4.5.0: <Attribute> elements no longer used 
+				<Attribute name="Activation-Date-Set" show="Yes"/>
+				<Attribute name="Amortization-Type" show="Yes"/>
+				<Attribute name="ARM-Info-Set" show="Yes"/>
+				<Attribute name="Assumable" show="Yes"/>
+				<Attribute name="Category" show="Yes"/>
+				<Attribute name="Convertible" show="Yes"/>
+				<Attribute name="Description" show="Yes"/>
+				<Attribute name="IS-A-Paper" show="Yes"/>
+				<Attribute name="Lien-Priority" show="Yes"/>
+				<Attribute name="Loan-Type" show="Yes"/>
+				<Attribute name="Minimum-Credit" show="Yes"/>
+				<Attribute name="Prepay-Penalty" show="Yes"/>
+				<Attribute name="Status" show="Yes"/>
+				<Attribute name="Term-Months" show="Yes"/>
+				-->
+				<!-- v4.5.0: No longer used
+				<SelectionTable>
+					Supported attributes: 
+					       ID, Name, Code, Category, Description, Loan-Type, Status, and Term-Months
+					<Column attribute="ID"/>
+					<Column attribute="Name"/>
+					<Column attribute="Code"/>
+					<Column attribute="Description"/>
+					<Column attribute="Category"/>
+				</SelectionTable>
+				-->
+			</EntityTab>
+			<EntityTab type="channel" showTab="yes" />
+			<EntityTab type="investor" showTab="no" />
+		</Entity>
+		<UsageTypeList>
+			<UsageType name="Global-Qualify" displayName="Global Qualify" privilege="QualificationData" />
+			<UsageType name="Product-Qualify" displayName="Product Qualify" privilege="QualificationData" />
+			<UsageType name="Deal-Qualification" displayName="Deal Qualification" privilege="QualificationData" />
+			<UsageType name="Unit-Test" displayName="Unit Test" privilege="PricingData" />
+			<UsageType name="Rate-Adjustment" displayName="Rate Adjustment" privilege="PricingData" />
+			<UsageType name="Price-Adjustment" displayName="Price Adjustment" privilege="PricingData" />
+			<UsageType name="Stipulation" displayName="Stipulation" privilege="QualificationData" />
+			<UsageType name="MI-Packages" displayName="MI Packages" privilege="QualificationData" />
+			<UsageType name="Alternate-Scenario-Generation" displayName="Alternate Scenario Generation" privilege="QualificationData" />
+			<UsageType name="MMS-Initialize-Aggregations" displayName="Aggr Initialize" privilege="QualificationData" />
+			<UsageType name="MMS-Preprocess-Aggregations" displayName="Aggr Preprocess" privilege="QualificationData" />
+			<UsageType name="MMS-Compute-Aggregations" displayName="Aggr Compute" privilege="QualificationData" />
+			<UsageType name="MMS-Postprocess-Aggregations" displayName="Aggr Postprocess" privilege="QualificationData" />
+			<UsageType name="MMS-Identify-Hard-Exclusions" displayName="Hard Exclusion Identification" privilege="QualificationData" />
+			<UsageType name="MMS-Postprocess-Hard-Exclusions" displayName="HEX PostProcess" privilege="QualificationData" />
+			<UsageType name="MMS-Initialize-Qualification" displayName="Qual Initialize" privilege="QualificationData" />
+			<UsageType name="MMS-Set-Constraints" displayName="Qual Set Constraints" privilege="QualificationData" />
+			<UsageType name="MMS-Modify-Constraints" displayName="Qual Modify Constraints" privilege="QualificationData" />
+			<UsageType name="MMS-Inclusion-Qualification" displayName="Qual Inclusion" privilege="QualificationData" />
+			<UsageType name="MMS-Exclusion-Qualification" displayName="Qual Exclusion" privilege="QualificationData" />
+			<UsageType name="MMS-Postprocess-Qualification" displayName="Qual Postprocess" privilege="QualificationData" />
+			<UsageType name="MMS-Initialize-Stipulations" displayName="Stip Initialize" privilege="QualificationData" />
+			<UsageType name="MMS-Create-Stipulations" displayName="Stip Create" privilege="QualificationData" />
+			<UsageType name="MMS-Postprocess-Stipulations" displayName="Data Discrepancies" privilege="QualificationData" />
+			<UsageType name="MMS-Initialize-Findings" displayName="Finding Initialize" privilege="QualificationData" />
+			<UsageType name="MMS-Create-Findings" displayName="Finding Create" privilege="QualificationData" />
+			<UsageType name="MMS-Postprocess-Findings" displayName="Finding Postprocess" privilege="QualificationData" />
+			<UsageType name="MMS-Perform-Data-Validation" displayName="Data Validation Set Defaults" privilege="QualificationData" />
+			<UsageType name="MMS-Postprocess-Data-Validation" displayName="Data Validation Required Data" privilege="QualificationData" />
+		</UsageTypeList>
+		<!-- Guideline tab Configuration -->
+		<Guideline showTemplateID="Yes">
+			<GuidelineTab displayName="Qualification">
+				<UsageType name="MMS-Initialize-Qualification" />
+				<UsageType name="MMS-Inclusion-Qualification" />
+				<UsageType name="MMS-Exclusion-Qualification" />
+				<UsageType name="Global-Qualify" />
+				<UsageType name="Product-Qualify" />
+				<UsageType name="Deal-Qualification" />
+				<UsageType name="MMS-Postprocess-Qualification" />
+			</GuidelineTab>
+			<GuidelineTab displayName="Pricing">
+				<UsageType name="Unit-Test" />
+				<UsageType name="Rate-Adjustment" />
+				<UsageType name="Price-Adjustment" />
+			</GuidelineTab>
+			<GuidelineTab displayName="Stipulation">
+				<UsageType name="Stipulation" />
+			</GuidelineTab>
+			<GuidelineTab displayName="MI-Rules">
+				<UsageType name="MI-Packages" />
+			</GuidelineTab>
+			<GuidelineTab displayName="AUS Aggregation">
+				<UsageType name="MMS-Initialize-Aggregations" />
+				<UsageType name="MMS-Preprocess-Aggregations" />
+				<UsageType name="MMS-Compute-Aggregations" />
+				<UsageType name="MMS-Postprocess-Aggregations" />
+			</GuidelineTab>
+			<GuidelineTab displayName="Hard Exclusions">
+				<UsageType name="MMS-Identify-Hard-Exclusions" />
+				<UsageType name="MMS-Postprocess-Hard-Exclusions" />
+			</GuidelineTab>
+			<GuidelineTab displayName="Qual Constraints">
+				<UsageType name="MMS-Set-Constraints" />
+				<UsageType name="MMS-Modify-Constraints" />
+			</GuidelineTab>
+			<GuidelineTab displayName="Stipulations">
+				<UsageType name="MMS-Initialize-Stipulations" />
+				<UsageType name="MMS-Create-Stipulations" />
+				<UsageType name="MMS-Postprocess-Stipulations" />
+			</GuidelineTab>
+			<GuidelineTab displayName="Findings">
+				<UsageType name="MMS-Initialize-Findings" />
+				<UsageType name="MMS-Create-Findings" />
+				<UsageType name="MMS-Postprocess-Findings" />
+			</GuidelineTab>
+			<GuidelineTab displayName="Others">
+				<UsageType name="Alternate-Scenario-Generation" />
+			</GuidelineTab>
+		</Guideline>
+<!-- V4 Upgrade: DateSynonym section is new.
+     When a new date is created, this is the default time for that date.
+     This date is always editable. -->
+		<DateSynonym>
+			<DefaultTime>00:00</DefaultTime>
+		</DateSynonym>
+<!-- V4 Upgrade: DeployExpiration section is new.
+     Rules expired over DefaultDays ago will not be deployed,
+     unless this value is changed in the UI. -->
+		<DeployExpirationDate>
+			<DefaultDays>30</DefaultDays>
+		</DeployExpirationDate>
+	</UserInterface>
+	
+<!--
+=======================================================================
+Rule Generation Configurations
+=======================================================================-->
+
+	<RuleGeneration>
+		<RuleGenerationDefault>
+			<RuleNamePrefix>
+				<!-- the rule seed name for each type must be unique -->
+				<Guideline>GuidelineRule</Guideline>
+<!-- V4 Upgrade: Remove the following line:
+            <AdHoc>AdHocRule</AdHoc>  -->
+			</RuleNamePrefix>
+			<LHS>
+				<Date format="julian" />
+<!-- V4 Upgrade: The Key section has been removed.
+     Move the old value of Key:attribute to Pattern:Attribute:value. -->
+<!-- V4 Upgrade: The link-suffix section has been removed.
+     Instead, the link name must be specified in the domain file in the DomainClassLink:DeployValue attribute -->
+				<Pattern type="request" generate="No" class="request" prefix="pe:" usageTypeAsFocus="Yes" />
+				<!-- Since 4.5.3, control pattern attributes no longer support the "valueAsString" xml-attribute.
+				     Control pattern values are quoted, or not, at deploy-time based on the DomainAttribute.DeployType being "String". -->
+				<Pattern type="control" generate="No" class="deal">
+				     <!-- valid values for product: id, code, name -->
+					<Attribute type="product" name="product" value="id" />
+				     <!-- valid values for investor: id, name -->
+					<Attribute type="investor" name="investor" value="id" />
+				     <!-- valid values for channel: id, name -->
+					<Attribute type="channel" name="channel" value="id" />
+				     <!-- valid values for program: id, name, and attribute names -->
+					<Attribute type="program" name="programID" value="id" />
+				</Pattern>
+				<Pattern type="plan-evaluation" generate="No" />
+				<Pattern type="ruleset" generate="No" />
+				<Pattern type="lineage" generate="Yes" prefix="ldo:,bfe:" text="(scenario-id ?scenario-id)" variable="scenario-id" />
+				<Pattern type="lineage" generate="Yes" prefix="ldo:,pe:" text="(scenario-id ?scenario-id-pe)" variable="scenario-id-pe" />
+				<!-- for patterns that match on any value -->
+				<Pattern type="empty" generate="Yes" asSequence="No" />
+
+<!-- V4 Upgrade: New pattern: Value -->				
+				<!-- value used for conditions with unspecified operator -->
+				<Value type="unspecified" deployValue=":UNSPECIFIED" valueAsString="No" />
+			</LHS>
+			<RHS>
+				<PEActionOn>Yes</PEActionOn>
+
+				<!-- Format patterns for RHS ":message" date and date range values-used when a
+				     date value is known at Rules Generation time (e.g. Guideline template grid values).
+				     Syntax is the same as for java.text.SimpleDateFormat -->
+				<MessageDateFormat>MM/dd/yyyy h:mm a zzz</MessageDateFormat>
+				<MessageDateRangeFormat>MM/dd/yyyy</MessageDateRangeFormat>
+				
+				<!-- Format pattern for RHS ":message" date values-used when a date value is not known  
+				     until the rule is evaluated by the engine (e.g. Attribute values).
+				     Syntax is the same as for the format-julian-date ArtEnterprise function  -->
+				<MessageDateFormatAE>%m/%d/%Y %H:%M %p %Z</MessageDateFormatAE>
+
+				<!-- V4 upgrade: uncomment and set value to No, if you want
+				     multi-enum cell values to be deployed just as before in RHS
+				-->
+				<!--<MultiEnumAsSequence>Yes</MultiEnumAsSequence>-->
+			</RHS>
+
+<!-- message generation options -->
+			<MessageTypes>
+				<Message type="range" rangeStyle="verbose" />
+				<Message type="enum" cellSelection="enumIncludeMultiple" enumDelimiter=", " enumFinalDelimiter=" or " enumPrefix=" any of " />
+				<Message type="enum" cellSelection="enumExcludeSingle" enumPrefix=" not " />
+				<Message type="enum" cellSelection="enumExcludeMultiple" enumDelimiter=", " enumFinalDelimiter=" or " enumPrefix=" not any of " />
+				<Message type="conditional" conditionalDelimiter=", " conditionalFinalDelimiter=" and " />
+			</MessageTypes>
+		</RuleGenerationDefault>
+		
+		<!-- 
+		   The RuleGenerationOverride sections provide usage-specific rule generation configuraiton.
+		   Uncomment and modify usageType to use.
+		 -->
+		<!-- -->
+		<RuleGenerationOverride usageType="Unit-Test">
+			<LHS>
+				<Pattern type="request" generate="No" class="request" prefix="pe:" usageTypeAsFocus="Yes" />
+				<Pattern type="control" generate="Yes" class="deal">
+				     <!-- valid values for product: id, code, name -->
+					<Attribute type="product" name="product" value="id" />
+				     <!-- valid values for investor: id, name -->
+					<Attribute type="investor" name="investor" value="id" />
+				     <!-- valid values for channel: id, name -->
+					<Attribute type="channel" name="channel" value="id" />
+				     <!-- valid values for program: id, name, and attribute names -->
+					<Attribute type="program" name="programID" value="id" />
+				</Pattern>
+			<!--
+				<Pattern type="control" generate="Yes" class="deal">
+				     <Attribute type="product" name="product" value="code"/>
+				     <Attribute type="investor" name="investor" value="id"/>
+				     <Attribute type="channel" name="channel" value="id" />
+				     <Attribute type="program" name="program" value="id"/>
+				</Pattern>
+				<Value type="unspecified" deployValue="UNSPECIFIED" valueAsString="Yes" />
+				-->
+				<Pattern type="plan-evaluation" generate="No" />
+				<Pattern type="ruleset" generate="No" />
+				<Pattern type="lineage" generate="Yes" prefix="ldo:,bfe:" text="(scenario-id ?scenario-id)" variable="scenario-id" />
+				<Pattern type="lineage" generate="Yes" prefix="ldo:,pe:" text="(scenario-id ?scenario-id-pe)" variable="scenario-id-pe" />
+				<!-- for patterns that match on any value -->
+				<Pattern type="empty" generate="Yes" asSequence="Yes" />
+			</LHS>
+		</RuleGenerationOverride>
+		<!-- -->
+		
+		<!-- V4 Upgrade: ObjectGenerationDefault is new.
+		   Allowable values inside the <InstanceCreateText> tags are:
+		   "make-instance" and "define-instance".
+		   -->
+		<ObjectGenerationDefault>
+			<InstanceCreateText>make-instance</InstanceCreateText> 
+				<!-- For parameter context generation :
+				   type refers to a context element entity type
+				   name must match with a name attribute of a domain attribute
+				-->
+			<ParameterContext>
+				<Attribute type="product" name="product" value="id" />
+				<Attribute type="investor" name="investor" value="id" />
+				<Attribute type="channel" name="channel" value="id" />
+				<!-- Uncomment and modify the type attribute to match the name of generic entity,
+				     if and only if you are using a generic entity
+					 
+				-->
+				<Attribute type="program" name="program" value="id" />
+				<Attribute type="activationDate" name="activationDate" value="id" />
+				<Attribute type="expirationDate" name="expirationDate" value="id" />
+			</ParameterContext>
+		</ObjectGenerationDefault>
+	</RuleGeneration>
+
+<!--
+=======================================================================
+Server Configurations
+=======================================================================-->
+
+	<Server>
+		<!-- Location of KB XML files. Use absolute path names -->
+		<KnowledgeBase>
+			<DomainFile>src/test/config/MortgageDomain.xml</DomainFile>
+		</KnowledgeBase>
+
+		<Audit>
+			<AuditAll>Yes</AuditAll>
+		</Audit>
+
+		<Database>
+			<Provider>com.mindbox.pe.server.db.DefaultPEDBCProvider</Provider>
+			<MaxConnection>10</MaxConnection>
+
+			<!-- For mySQL -->
+			<!-- uncomment to use JDBC driver for mySQL -->
+			<Driver>com.mysql.jdbc.Driver</Driver>
+			<Connection>jdbc:mysql://localhost/powereditor</Connection>
+			<User>mindbox</User>
+			<Password>tWGfgWTc3LU=</Password>
+		</Database>
+
+		<Deployment>
+			<BaseDir>target/test/deploy/</BaseDir>
+			<SaveOldFiles>Yes</SaveOldFiles>
+			<UseTimeStampFolder>Yes</UseTimeStampFolder>
+			<!-- Uncomment if you want to run a script (any executable) after deploy process -->
+		</Deployment>
+
+		<Log>
+			<LogFile type="database" writeLog="Yes" debug="No" maxSize="4" file="target/test/log/database.log" pattern="%d{yyyy-MM-dd HH:mm:sss} [%7.15c] %c{2} %-5p: %m%n" />
+
+			<LogFile type="deployer" writeLog="Yes" debug="Yes" maxSize="4" file="target/test/log/deployer.log" pattern="%d{yyyy-MM-dd HH:mm:sss} %-5p [%c{2}] %m%n" />
+
+			<LogFile type="loader" writeLog="Yes" debug="Yes" maxSize="4" file="target/test/log/loader.log" pattern="%d{yyyy-MM-dd HH:mm:sss} %-5p [%c{2}] %m%n" />
+
+			<LogFile type="server" writeLog="Yes" debug="Yes" maxSize="4" file="target/test/log/server.log" pattern="%d{yyyy-MM-dd HH:mm:sss} %-5p [%c{2}] %m%n" />
+
+			<LogFile type="servlet" writeLog="Yes" debug="Yes" />
+		</Log>
+
+		<Session>
+			<TimeOutInMin>10</TimeOutInMin>
+			<MaxAuthenticationAttempts>5</MaxAuthenticationAttempts>
+			<MaxUserSessions>4</MaxUserSessions>
+		</Session>
+	</Server>
+
+</PowerEditorConfiguration>

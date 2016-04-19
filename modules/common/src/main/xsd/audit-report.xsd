@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- =================================================================
+XML Schema Definition of PowerEditor Audit Report.
+
+(c) Copyright 2007-2013 MDA MindBox, Inc. All rights reserved.
+================================================================= -->
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+	jaxb:version="2.0">
+	<xsd:annotation>
+		<xsd:appinfo>
+			<jaxb:globalBindings>
+				<jaxb:javaType name="int" xmlType="xsd:integer" />
+				<jaxb:javaType name="int" xmlType="xsd:positiveInteger" />
+			</jaxb:globalBindings>
+		</xsd:appinfo>
+	</xsd:annotation>
+	<xsd:element name="audit-report">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="audit-event" minOccurs="0" maxOccurs="unbounded">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="type" type="eventType" />
+							<xsd:element name="audit-date" type="xsd:dateTime" />
+							<xsd:element name="username" type="xsd:string" />
+							<xsd:element name="description" type="xsd:string" minOccurs="0" />
+							<xsd:element ref="change-details" minOccurs="0" maxOccurs="unbounded" />
+						</xsd:sequence>
+						<xsd:attribute name="auditID" type="xsd:integer" use="required" />
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element name="error-message" type="xsd:string" minOccurs="0" maxOccurs="unbounded" />
+				<xsd:element name="summary">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="report-date" type="xsd:dateTime" />
+							<xsd:element name="audit-event-count" type="xsd:integer" />
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="change-details">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="changed-element" type="changed-element" />
+				<xsd:element ref="change-detail" minOccurs="0" maxOccurs="unbounded" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:complexType name="changed-element">
+		<xsd:sequence>
+			<xsd:element name="usage-type" type="xsd:string" minOccurs="0" />
+			<xsd:element name="template-name" type="xsd:string" minOccurs="0" />
+			<xsd:element name="activation-date" type="xsd:dateTime" minOccurs="0" />
+			<xsd:element name="activation-date-name" type="xsd:string" minOccurs="0" />
+			<xsd:element name="expiration-date" type="xsd:dateTime" minOccurs="0" />
+			<xsd:element name="expiration-date-name" type="xsd:string" minOccurs="0" />
+			<xsd:element name="context" type="xsd:string" minOccurs="0" />
+			<xsd:element name="version" type="xsd:string" minOccurs="0" />
+		</xsd:sequence>
+		<xsd:attribute name="kbAuditID" type="xsd:integer" use="required" />
+		<xsd:attribute name="type" type="xsd:string" use="required" />
+		<xsd:attribute name="name" type="xsd:string" use="required" />
+	</xsd:complexType>
+
+	<xsd:element name="change-detail">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="change-type" type="xsd:string" />
+				<xsd:element name="changetype-id" type="xsd:integer" />
+				<xsd:element name="change-description" type="xsd:string" />
+			<!-- For entity property changes -->
+				<xsd:element name="property-name" type="xsd:string" minOccurs="0" />
+			<!-- For property/cell value changes -->
+				<xsd:element name="previous-value" type="xsd:string" minOccurs="0" />
+				<xsd:element name="previous-native-value" type="xsd:string" minOccurs="0" />
+			<!-- For property/cell value changes -->
+				<xsd:element name="new-value" type="xsd:string" minOccurs="0" />
+				<xsd:element name="new-native-value" type="xsd:string" minOccurs="0" />
+			<!-- For cell value changes -->
+				<xsd:element name="row-number" type="xsd:positiveInteger" minOccurs="0" />
+			<!-- For cell value changes -->
+				<xsd:element name="column-name" type="xsd:string" minOccurs="0" />
+				<xsd:element name="column-id" type="xsd:string" />
+				<xsd:element name="effective-date" type="xsd:string" minOccurs="0" />
+				<xsd:element name="expiration-date" type="xsd:string" minOccurs="0" />
+				<xsd:element name="context-element" type="xsd:string" minOccurs="0" />
+				<xsd:element name="inserted-values" type="cell-value-set" minOccurs="0" maxOccurs="unbounded" />
+				<xsd:element name="removed-values" type="cell-value-set" minOccurs="0" maxOccurs="unbounded" />
+				<xsd:element name="source" type="xsd:string" minOccurs="0" />
+				<xsd:element name="status" type="xsd:string" minOccurs="0" />
+				<xsd:element name="template" type="xsd:string" minOccurs="0" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:complexType name="cell-value-set">
+		<xsd:sequence>
+			<xsd:element name="column-name" type="xsd:string" />
+			<xsd:element name="column-id" type="xsd:string" />
+			<xsd:element name="cell-value" type="xsd:string" />
+			<xsd:element name="native-value" type="xsd:string" />
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:simpleType name="eventType">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="Logon" />
+			<xsd:enumeration value="Logoff" />
+			<xsd:enumeration value="Server Startup" />
+			<xsd:enumeration value="Server Shutdown" />
+			<xsd:enumeration value="KB Modification" />
+			<xsd:enumeration value="Deployment Started" />
+			<xsd:enumeration value="Deployment Completed" />
+		</xsd:restriction>
+	</xsd:simpleType>
+</xsd:schema>
