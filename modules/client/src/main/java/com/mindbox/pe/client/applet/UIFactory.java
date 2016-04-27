@@ -62,57 +62,43 @@ import com.mindbox.pe.xsd.config.CategoryType;
  */
 public final class UIFactory {
 
-	private static final Insets BUTTON_INSETS = new Insets(2, 4, 2, 4);
+	public static interface DialogButtonListener {
 
-	private static Cursor waitCursor = null;
-	private static Cursor normalCursor = null;
-	private static Dimension sScreenSize = null;
-
-	public static ButtonPanel create3ButtonPanel(final Action3Listener a3l, boolean showEditButton) {
-		JButton newButton, deleteButton, editButton = null;
-		if (a3l == null) throw new NullPointerException("Action3Listener cannot be null");
-		newButton = UIFactory.createButton("", "image.btn.small.add", new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) {
-				a3l.newPerformed(e);
-			}
-		}, "button.tooltip.create.new");
-		if (showEditButton) {
-			editButton = UIFactory.createButton("", "image.btn.small.edit", new ActionListener() {
-
-				public void actionPerformed(ActionEvent e) {
-					a3l.editPerformed(e);
-				}
-			}, "button.tooltip.edit");
-		}
-		deleteButton = UIFactory.createButton("", "image.btn.small.delete", new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) {
-				a3l.deletePerformed(e);
-			}
-		}, "button.tooltip.delete");
-		newButton.setEnabled(true);
-
-		return new ButtonPanel((showEditButton ? new JButton[] { newButton, editButton, deleteButton } : new JButton[] { newButton, deleteButton }), FlowLayout.LEFT);
+		public boolean acceptAction(String actionValue);
 	}
 
-	public static JPanel createTogglePanel(JLabel label, JComponent component, boolean wrapComponentWithScrollPane) {
-		if (label == null) throw new NullPointerException("label cannot be null");
+	private static final Insets BUTTON_INSETS = new Insets(2, 4, 2, 4);
+	private static Cursor waitCursor = null;
+	private static Cursor normalCursor = null;
 
-		JPanel buttonPanel = UIFactory.createBorderLayoutPanel(0, 0);
-		label.setFont(PowerEditorSwingTheme.boldFont);
+	private static Dimension sScreenSize = null;
 
-		buttonPanel.add(label, BorderLayout.CENTER);
-		buttonPanel.add(new ShowHideImageButton(component), BorderLayout.WEST);
-		buttonPanel.setBackground(PowerEditorSwingTheme.blueShadowColor);
+	public static final void addComponent(Container container, GridBagLayout bag, GridBagConstraints c, Component component) {
+		bag.setConstraints(component, c);
+		container.add(component);
+	}
 
-		JPanel panel = UIFactory.createBorderLayoutPanel(2, 2);
-		panel.setBorder(BorderFactory.createLineBorder(PowerEditorSwingTheme.blueShadowColor, 2));
-		panel.add(buttonPanel, BorderLayout.NORTH);
-		panel.add((wrapComponentWithScrollPane ? new JScrollPane(component) : component), BorderLayout.CENTER);
+	public static final void addComponent(JPanel panel, GridBagLayout bag, GridBagConstraints c, Component component) {
+		bag.setConstraints(component, c);
+		panel.add(component);
+	}
 
-		component.setMinimumSize(new Dimension(20, 0));
-		return panel;
+	public static void addToDialog(JDialog dialog, JPanel panel) {
+		dialog.getContentPane().setLayout(new BorderLayout(4, 4));
+		dialog.getContentPane().add(panel, BorderLayout.CENTER);
+		dialog.setSize(panel.getWidth() + 8, panel.getHeight() + 8);
+		centerize(dialog);
+	}
+
+	public static void addToToolbar(JToolBar toolBar, Action action, String tooltip) {
+		JButton button = new JButton();
+		button.setAction(action);
+		button.setBorderPainted(false);
+		button.setFocusable(false);
+		if (tooltip != null) {
+			button.setToolTipText(tooltip);
+		}
+		toolBar.add(button);
 	}
 
 	/**
@@ -124,72 +110,55 @@ public final class UIFactory {
 	public static void centerize(Component comp) {
 		Dimension screenSize = getScreenSize();
 		Dimension compSize = comp.getSize();
-		int widthPad = (int) (screenSize.width - compSize.width) / 2;
-		int heightPad = (int) (screenSize.height - compSize.height) / 2;
+		int widthPad = (screenSize.width - compSize.width) / 2;
+		int heightPad = (screenSize.height - compSize.height) / 2;
 		comp.setBounds(widthPad, heightPad, compSize.width, compSize.height);
 	}
 
-	public static Dimension getScreenSize() {
-		if (sScreenSize == null) {
-			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-			if (ge != null) {
-				sScreenSize = new Dimension(ge.getMaximumWindowBounds().width, ge.getMaximumWindowBounds().height);
+	public static ButtonPanel create3ButtonPanel(final Action3Listener a3l, boolean showEditButton) {
+		JButton newButton, deleteButton, editButton = null;
+		if (a3l == null) throw new NullPointerException("Action3Listener cannot be null");
+		newButton = UIFactory.createButton("", "image.btn.small.add", new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				a3l.newPerformed(e);
 			}
-			if (sScreenSize == null) {
-				sScreenSize = new JFrame().getToolkit().getScreenSize();
-			}
+		}, "button.tooltip.create.new");
+		if (showEditButton) {
+			editButton = UIFactory.createButton("", "image.btn.small.edit", new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					a3l.editPerformed(e);
+				}
+			}, "button.tooltip.edit");
 		}
-		return sScreenSize;
+		deleteButton = UIFactory.createButton("", "image.btn.small.delete", new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				a3l.deletePerformed(e);
+			}
+		}, "button.tooltip.delete");
+		newButton.setEnabled(true);
+
+		return new ButtonPanel((showEditButton ? new JButton[] { newButton, editButton, deleteButton } : new JButton[] { newButton, deleteButton }), FlowLayout.LEFT);
 	}
 
-	public static boolean isEmpty(JTextField field) {
-		return field.getText() == null || field.getText().trim().length() == 0;
+	public static JDialog createAsModelDialog(String titleKey, JPanel panel) {
+		JDialog dialog = new JDialog(JOptionPane.getFrameForComponent(ClientUtil.getApplet()), true);
+		dialog.setTitle(ClientUtil.getInstance().getLabel(titleKey));
+		UIFactory.addToDialog(dialog, panel);
+		return dialog;
 	}
 
-	public static boolean isEmpty(JPasswordField field) {
-		return field.getPassword() == null || new String(field.getPassword()).trim().length() == 0;
+	public static JPanel createBorderLayoutPanel(int x, int y) {
+		return createJPanel(new BorderLayout(x, y));
 	}
 
-	public static final void addComponent(JPanel panel, GridBagLayout bag, GridBagConstraints c, Component component) {
-		bag.setConstraints(component, c);
-		panel.add(component);
-	}
-
-	public static final void addComponent(Container container, GridBagLayout bag, GridBagConstraints c, Component component) {
-		bag.setConstraints(component, c);
-		container.add(component);
-	}
-
-	public static TitledBorder createTitledBorder(String title) {
-		TitledBorder titledBorder = new TitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), title);
-		titledBorder.setTitleFont(PowerEditorSwingTheme.windowtitlefont);
-		return titledBorder;
-	}
-
-	public static JSplitPane createSplitPane(int newOrientation) {
-		JSplitPane sp = new JSplitPane(newOrientation);
-		sp.setDividerSize(PowerEditorSwingTheme.DIVIDER_SIZE);
-		sp.setOneTouchExpandable(true);
-		setLookAndFeel(sp);
-		return sp;
-	}
-
-	public static JSplitPane createSplitPane(int newOrientation, Component comp1, Component comp2) {
-		JSplitPane sp = new JSplitPane(newOrientation, comp1, comp2);
-		sp.setDividerSize(PowerEditorSwingTheme.DIVIDER_SIZE);
-		sp.setOneTouchExpandable(true);
-		return sp;
-	}
-
-	public static JTree createTree(TreeModel treeModel, TreeCellRenderer renderer) {
-		JTree tree = new JTree(treeModel);
-		tree.setCellRenderer(renderer);
-		tree.setRootVisible(false);
-		tree.setScrollsOnExpand(true);
-		tree.setDoubleBuffered(true);
-		tree.setShowsRootHandles(true);
-		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-		return tree;
+	public static JButton createButton(String label, String iconKey, ActionListener al, String tooltipKey) {
+		return createButton(label, iconKey, al, tooltipKey, true);
 	}
 
 	/**
@@ -230,62 +199,6 @@ public final class UIFactory {
 		return button;
 	}
 
-	public static JButton createButton(String label, String iconKey, ActionListener al, String tooltipKey) {
-		return createButton(label, iconKey, al, tooltipKey, true);
-	}
-
-	public static JButton createJButton(String labelKey, String iconKey, ActionListener al, String tooltipKey) {
-		return createButton(ClientUtil.getInstance().getLabel(labelKey), iconKey, al, tooltipKey, true);
-	}
-
-	public static JPasswordField createPasswordField() {
-		JPasswordField field = new JPasswordField();
-		setLookAndFeel(field);
-		return field;
-	}
-
-	public static final void populateComboBox(JComboBox jcombobox, Object as[]) {
-		for (int i = 0; i < as.length; i++)
-			jcombobox.addItem(as[i]);
-	}
-
-	public static TypeEnumValueComboBox createStatusComboBox(boolean hasEmpty) {
-		return createTypeEnumComboBox(TypeEnumValue.TYPE_STATUS, hasEmpty, false);
-	}
-
-	public static JComboBox createComboBox() {
-		JComboBox combo = new JComboBox();
-		setLookAndFeel(combo);
-		return combo;
-	}
-
-	public static TypeEnumValueComboBox createTypeEnumComboBox(String typeKey) {
-		return createTypeEnumComboBox(typeKey, false, true);
-	}
-
-	public static TypeEnumValueComboBox createTypeEnumComboBox(String typeKey, boolean hasEmptyValue, boolean sortValues) {
-		TypeEnumValueComboBox combo = new TypeEnumValueComboBox(EntityModelCacheFactory.getInstance().getTypeEnumComboModel(typeKey, hasEmptyValue, sortValues));
-		return combo;
-	}
-
-	public static TypeEnumValueComboBox createTypeEnumComboBoxForAttributeMap(String attributeMap, boolean hasEmptyValue, boolean sortValues) {
-		TypeEnumValueComboBox combo = new TypeEnumValueComboBox(EntityModelCacheFactory.getInstance().getTypeEnumComboModelForDomainAttribute(attributeMap, hasEmptyValue, sortValues));
-		return combo;
-	}
-
-	public static TypeEnumMultiSelectPanel createTypeEnumMultiSelectPanel(String propName, String typeKey, boolean required, boolean sortValues) {
-		TypeEnumMultiSelectPanel panel = new TypeEnumMultiSelectPanel(propName, EntityModelCacheFactory.getInstance().getTypeEnumComboModel(typeKey, false, sortValues), required);
-		return panel;
-	}
-
-	public static TypeEnumMultiSelectPanel createTypeEnumMultiSelectPanelForAttributeMap(String propName, String attributeMap, boolean required, boolean sortValues) {
-		TypeEnumMultiSelectPanel panel = new TypeEnumMultiSelectPanel(
-				propName,
-				EntityModelCacheFactory.getInstance().getTypeEnumComboModelForDomainAttribute(attributeMap, false, sortValues),
-				required);
-		return panel;
-	}
-
 	public static JCheckBox createCheckBox(String labelKey) {
 		JCheckBox cb = new JCheckBox(((labelKey == null || labelKey.length() == 0) ? "" : ClientUtil.getInstance().getLabel(labelKey.trim())));
 		setLookAndFeel(cb);
@@ -293,22 +206,30 @@ public final class UIFactory {
 		return cb;
 	}
 
-	public static JRadioButton createRaiodButton(String labelKey) {
-		JRadioButton b = new JRadioButton(((labelKey == null || labelKey.length() == 0) ? "" : ClientUtil.getInstance().getLabel(labelKey.trim())));
-		setLookAndFeel(b);
-		return b;
+	public static <T> JComboBox<T> createComboBox() {
+		JComboBox<T> combo = new JComboBox<T>();
+		setLookAndFeel(combo);
+		return combo;
 	}
 
-	public static JLabel createLabel(String labelKey) {
-		return new JLabel(ClientUtil.getInstance().getLabel(labelKey));
+	public static JPanel createFlowLayoutPanel(int alignment, int x, int y) {
+		return createJPanel(new FlowLayout(alignment, x, y));
 	}
 
-	public static JLabel createLabel(String labelKey, Object[] params) {
-		return new JLabel(ClientUtil.getInstance().getLabel(labelKey, params));
+	public static JPanel createFlowLayoutPanelCenterAlignment(int x, int y) {
+		return createJPanel(new FlowLayout(FlowLayout.CENTER, x, y));
 	}
 
-	public static JLabel createLabel(GenericEntityType type) {
-		return new JLabel(ClientUtil.getInstance().getLabel(type));
+	public static JPanel createFlowLayoutPanelLeftAlignment(int x, int y) {
+		return createJPanel(new FlowLayout(FlowLayout.LEFT, x, y));
+	}
+
+	public static JLabel createFormLabel(CategoryType def) {
+		return new JLabel(ClientUtil.getInstance().getLabel(def) + ":");
+	}
+
+	public static JLabel createFormLabel(GenericEntityType type) {
+		return new JLabel(ClientUtil.getInstance().getLabel(type) + ":");
 	}
 
 	public static JLabel createFormLabel(String labelKey) {
@@ -332,18 +253,8 @@ public final class UIFactory {
 		return label;
 	}
 
-	public static JLabel createFormLabel(GenericEntityType type) {
-		return new JLabel(ClientUtil.getInstance().getLabel(type) + ":");
-	}
-
-	public static JLabel createFormLabel(CategoryType def) {
-		return new JLabel(ClientUtil.getInstance().getLabel(def) + ":");
-	}
-
-	public static JLabel createLabel(String labelKey, int verticalAlignment) {
-		JLabel label = createLabel(labelKey);
-		label.setVerticalAlignment(verticalAlignment);
-		return label;
+	public static JButton createJButton(String labelKey, String iconKey, ActionListener al, String tooltipKey) {
+		return createButton(ClientUtil.getInstance().getLabel(labelKey), iconKey, al, tooltipKey, true);
 	}
 
 	public static JPanel createJPanel() {
@@ -352,26 +263,77 @@ public final class UIFactory {
 		return panel;
 	}
 
-	public static JPanel createBorderLayoutPanel(int x, int y) {
-		return createJPanel(new BorderLayout(x, y));
-	}
-
-	public static JPanel createFlowLayoutPanel(int alignment, int x, int y) {
-		return createJPanel(new FlowLayout(alignment, x, y));
-	}
-
-	public static JPanel createFlowLayoutPanelLeftAlignment(int x, int y) {
-		return createJPanel(new FlowLayout(FlowLayout.LEFT, x, y));
-	}
-
-	public static JPanel createFlowLayoutPanelCenterAlignment(int x, int y) {
-		return createJPanel(new FlowLayout(FlowLayout.CENTER, x, y));
-	}
-
 	public static JPanel createJPanel(LayoutManager layout) {
 		JPanel panel = new JPanel(layout);
 		setLookAndFeel(panel);
 		return panel;
+	}
+
+	public static JLabel createLabel(GenericEntityType type) {
+		return new JLabel(ClientUtil.getInstance().getLabel(type));
+	}
+
+	public static JLabel createLabel(String labelKey) {
+		return new JLabel(ClientUtil.getInstance().getLabel(labelKey));
+	}
+
+	public static JLabel createLabel(String labelKey, int verticalAlignment) {
+		JLabel label = createLabel(labelKey);
+		label.setVerticalAlignment(verticalAlignment);
+		return label;
+	}
+
+	public static JLabel createLabel(String labelKey, Object[] params) {
+		return new JLabel(ClientUtil.getInstance().getLabel(labelKey, params));
+	}
+
+	public static <T> JList<T> createList() {
+		final JList<T> list = new JList<T>();
+		list.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+		return list;
+	}
+
+	public static <T> JList<T> createList(ListModel<T> model) {
+		final JList<T> list = new JList<T>(model);
+		list.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+		return list;
+	}
+
+	public static JPasswordField createPasswordField() {
+		JPasswordField field = new JPasswordField();
+		setLookAndFeel(field);
+		return field;
+	}
+
+	public static JRadioButton createRaiodButton(String labelKey) {
+		JRadioButton b = new JRadioButton(((labelKey == null || labelKey.length() == 0) ? "" : ClientUtil.getInstance().getLabel(labelKey.trim())));
+		setLookAndFeel(b);
+		return b;
+	}
+
+	public static JSplitPane createSplitPane(int newOrientation) {
+		JSplitPane sp = new JSplitPane(newOrientation);
+		sp.setDividerSize(PowerEditorSwingTheme.DIVIDER_SIZE);
+		sp.setOneTouchExpandable(true);
+		setLookAndFeel(sp);
+		return sp;
+	}
+
+	public static JSplitPane createSplitPane(int newOrientation, Component comp1, Component comp2) {
+		JSplitPane sp = new JSplitPane(newOrientation, comp1, comp2);
+		sp.setDividerSize(PowerEditorSwingTheme.DIVIDER_SIZE);
+		sp.setOneTouchExpandable(true);
+		return sp;
+	}
+
+	public static TypeEnumValueComboBox createStatusComboBox(boolean hasEmpty) {
+		return createTypeEnumComboBox(TypeEnumValue.TYPE_STATUS, hasEmpty, false);
+	}
+
+	public static TitledBorder createTitledBorder(String title) {
+		TitledBorder titledBorder = new TitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), title);
+		titledBorder.setTitleFont(PowerEditorSwingTheme.windowtitlefont);
+		return titledBorder;
 	}
 
 	public static JPanel createTitledPanel(String title) {
@@ -386,69 +348,62 @@ public final class UIFactory {
 		return panel;
 	}
 
-	public static void setLookAndFeel(JComponent component) {
-		component.setOpaque(true);
-		component.setDoubleBuffered(false);
+	public static JPanel createTogglePanel(JLabel label, JComponent component, boolean wrapComponentWithScrollPane) {
+		if (label == null) throw new NullPointerException("label cannot be null");
+
+		JPanel buttonPanel = UIFactory.createBorderLayoutPanel(0, 0);
+		label.setFont(PowerEditorSwingTheme.boldFont);
+
+		buttonPanel.add(label, BorderLayout.CENTER);
+		buttonPanel.add(new ShowHideImageButton(component), BorderLayout.WEST);
+		buttonPanel.setBackground(PowerEditorSwingTheme.blueShadowColor);
+
+		JPanel panel = UIFactory.createBorderLayoutPanel(2, 2);
+		panel.setBorder(BorderFactory.createLineBorder(PowerEditorSwingTheme.blueShadowColor, 2));
+		panel.add(buttonPanel, BorderLayout.NORTH);
+		panel.add((wrapComponentWithScrollPane ? new JScrollPane(component) : component), BorderLayout.CENTER);
+
+		component.setMinimumSize(new Dimension(20, 0));
+		return panel;
 	}
 
-	public static JList createList() {
-		JList list = new JList();
-		list.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-		return list;
+	public static JTree createTree(TreeModel treeModel, TreeCellRenderer renderer) {
+		JTree tree = new JTree(treeModel);
+		tree.setCellRenderer(renderer);
+		tree.setRootVisible(false);
+		tree.setScrollsOnExpand(true);
+		tree.setDoubleBuffered(true);
+		tree.setShowsRootHandles(true);
+		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+		return tree;
 	}
 
-	public static JList createList(ListModel model) {
-		JList list = new JList(model);
-		list.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-		return list;
+	public static TypeEnumValueComboBox createTypeEnumComboBox(String typeKey) {
+		return createTypeEnumComboBox(typeKey, false, true);
 	}
 
-	public static Cursor getDefaultCursor() {
-		if (normalCursor == null) {
-			normalCursor = Cursor.getDefaultCursor();
-		}
-		return normalCursor;
+	public static TypeEnumValueComboBox createTypeEnumComboBox(String typeKey, boolean hasEmptyValue, boolean sortValues) {
+		TypeEnumValueComboBox combo = new TypeEnumValueComboBox(EntityModelCacheFactory.getInstance().getTypeEnumComboModel(typeKey, hasEmptyValue, sortValues));
+		return combo;
 	}
 
-	public static Cursor getWaitCursor() {
-		if (waitCursor == null) {
-			waitCursor = Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR);
-		}
-		return waitCursor;
+	public static TypeEnumValueComboBox createTypeEnumComboBoxForAttributeMap(String attributeMap, boolean hasEmptyValue, boolean sortValues) {
+		TypeEnumValueComboBox combo = new TypeEnumValueComboBox(
+				EntityModelCacheFactory.getInstance().getTypeEnumComboModelForDomainAttribute(attributeMap, hasEmptyValue, sortValues));
+		return combo;
 	}
 
-	public static void addToToolbar(JToolBar toolBar, Action action, String tooltip) {
-		JButton button = new JButton();
-		button.setAction(action);
-		button.setBorderPainted(false);
-		button.setFocusable(false);
-		if (tooltip != null) {
-			button.setToolTipText(tooltip);
-		}
-		toolBar.add(button);
+	public static TypeEnumMultiSelectPanel createTypeEnumMultiSelectPanel(String propName, String typeKey, boolean required, boolean sortValues) {
+		TypeEnumMultiSelectPanel panel = new TypeEnumMultiSelectPanel(propName, EntityModelCacheFactory.getInstance().getTypeEnumComboModel(typeKey, false, sortValues), required);
+		return panel;
 	}
 
-	public static interface DialogButtonListener {
-
-		public boolean acceptAction(String actionValue);
-	}
-
-	public static JDialog createAsModelDialog(String titleKey, JPanel panel) {
-		JDialog dialog = new JDialog(JOptionPane.getFrameForComponent(ClientUtil.getApplet()), true);
-		dialog.setTitle(ClientUtil.getInstance().getLabel(titleKey));
-		UIFactory.addToDialog(dialog, panel);
-		return dialog;
-	}
-
-	public static void addToDialog(JDialog dialog, JPanel panel) {
-		dialog.getContentPane().setLayout(new BorderLayout(4, 4));
-		dialog.getContentPane().add(panel, BorderLayout.CENTER);
-		dialog.setSize(panel.getWidth() + 8, panel.getHeight() + 8);
-		centerize(dialog);
-	}
-
-	private UIFactory() {
-		super();
+	public static TypeEnumMultiSelectPanel createTypeEnumMultiSelectPanelForAttributeMap(String propName, String attributeMap, boolean required, boolean sortValues) {
+		TypeEnumMultiSelectPanel panel = new TypeEnumMultiSelectPanel(
+				propName,
+				EntityModelCacheFactory.getInstance().getTypeEnumComboModelForDomainAttribute(attributeMap, false, sortValues),
+				required);
+		return panel;
 	}
 
 	/*	
@@ -457,6 +412,16 @@ public final class UIFactory {
 	public static List<Component> disableContainerComponents(Container root) {
 		// generate the enabled list first, then disable the components.
 		List<Component> enabledComponetList = findEnabledContainerComponents(root, new ArrayList<Component>());
+		for (Component comp : enabledComponetList) {
+			comp.setEnabled(false);
+		}
+		return enabledComponetList;
+	}
+
+	public static List<Component> disableContainerComponents(Container root, List<Component> excludeList) {
+		if (excludeList == null) return null;
+		// generate the enabled list first, then disable the components.
+		List<Component> enabledComponetList = findEnabledContainerComponents(root, new ArrayList<Component>(), excludeList);
 		for (Component comp : enabledComponetList) {
 			comp.setEnabled(false);
 		}
@@ -485,16 +450,6 @@ public final class UIFactory {
 		return enabledComponetList;
 	}
 
-	public static List<Component> disableContainerComponents(Container root, List<Component> excludeList) {
-		if (excludeList == null) return null;
-		// generate the enabled list first, then disable the components.
-		List<Component> enabledComponetList = findEnabledContainerComponents(root, new ArrayList<Component>(), excludeList);
-		for (Component comp : enabledComponetList) {
-			comp.setEnabled(false);
-		}
-		return enabledComponetList;
-	}
-
 	private static List<Component> findEnabledContainerComponents(Container root, List<Component> enabledComponetList, List<Component> excludeList) {
 		// recurse root and adding all components found which are currently enabled
 		int cnt = root.getComponentCount();
@@ -512,6 +467,55 @@ public final class UIFactory {
 		}
 		if (root.isEnabled()) enabledComponetList.add(root);
 		return enabledComponetList;
+	}
+
+	public static Cursor getDefaultCursor() {
+		if (normalCursor == null) {
+			normalCursor = Cursor.getDefaultCursor();
+		}
+		return normalCursor;
+	}
+
+	public static Dimension getScreenSize() {
+		if (sScreenSize == null) {
+			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+			if (ge != null) {
+				sScreenSize = new Dimension(ge.getMaximumWindowBounds().width, ge.getMaximumWindowBounds().height);
+			}
+			if (sScreenSize == null) {
+				sScreenSize = new JFrame().getToolkit().getScreenSize();
+			}
+		}
+		return sScreenSize;
+	}
+
+	public static Cursor getWaitCursor() {
+		if (waitCursor == null) {
+			waitCursor = Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR);
+		}
+		return waitCursor;
+	}
+
+	public static boolean isEmpty(JPasswordField field) {
+		return field.getPassword() == null || new String(field.getPassword()).trim().length() == 0;
+	}
+
+	public static boolean isEmpty(JTextField field) {
+		return field.getText() == null || field.getText().trim().length() == 0;
+	}
+
+	public static final <T> void populateComboBox(JComboBox<T> jcombobox, T as[]) {
+		for (int i = 0; i < as.length; i++)
+			jcombobox.addItem(as[i]);
+	}
+
+	public static void setLookAndFeel(JComponent component) {
+		component.setOpaque(true);
+		component.setDoubleBuffered(false);
+	}
+
+	private UIFactory() {
+		super();
 	}
 
 }

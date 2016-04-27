@@ -2,7 +2,8 @@
 <!-- ======================================================================== 
 Filename...: pom.xml Description: POM for PE Server Module. 
 ============================================================================= -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.mindbox.pe</groupId>
@@ -161,44 +162,49 @@ Filename...: pom.xml Description: POM for PE Server Module.
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>jaxb2-maven-plugin</artifactId>
+				<groupId>org.jvnet.jaxb2.maven2</groupId>
+				<artifactId>maven-jaxb2-plugin</artifactId>
 				<executions>
 					<!-- PowerEditorData.xsd -->
 					<execution>
 						<id>data-xjc</id>
 						<goals>
-							<goal>xjc</goal>
+							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<target>2.1</target>
 							<schemaDirectory>src/main/xsd</schemaDirectory>
-							<schemaFiles>PowerEditorData.xsd</schemaFiles>
-							<extension>true</extension>
-							<staleFile>${project.build.directory}/generated-sources/jaxb/.staleFlag.data</staleFile>
-							<packageName>com.mindbox.pe.xsd.data</packageName>
+							<schemaIncludes>
+								<include>PowerEditorData.xsd</include>
+							</schemaIncludes>
+							<generatePackage>com.mindbox.pe.xsd.data</generatePackage>
 							<clearOutputDir>false</clearOutputDir>
+							<produces>
+								<pattern>com/mindbox/pe/xsd/data/**/*.*</pattern>
+							</produces>
 						</configuration>
 					</execution>
 					<!-- XMLEnumeration.xsd -->
 					<execution>
 						<id>enum-xjc</id>
 						<goals>
-							<goal>xjc</goal>
+							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<target>2.1</target>
 							<schemaDirectory>src/main/xsd</schemaDirectory>
-							<schemaFiles>XMLEnumeration.xsd</schemaFiles>
-							<staleFile>${project.build.directory}/generated-sources/jaxb/.staleFlag.extenum</staleFile>
-							<packageName>com.mindbox.pe.xsd.extenm</packageName>
+							<schemaIncludes>
+								<include>XMLEnumeration.xsd</include>
+							</schemaIncludes>
+							<generatePackage>com.mindbox.pe.xsd.extenm</generatePackage>
 							<clearOutputDir>false</clearOutputDir>
+							<produces>
+								<pattern>com/mindbox/pe/xsd/extenm/**/*.*</pattern>
+							</produces>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
+				<groupId>org.jvnet.jax-ws-commons</groupId>
 				<artifactId>jaxws-maven-plugin</artifactId>
 				<executions>
 					<execution>

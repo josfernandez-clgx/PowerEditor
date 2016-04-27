@@ -12,6 +12,9 @@ XML Schema Definition of PowerEditor Audit Report.
 				<jaxb:javaType name="int" xmlType="xsd:integer" />
 				<jaxb:javaType name="int" xmlType="xsd:positiveInteger" />
 			</jaxb:globalBindings>
+			<jaxb:schemaBindings>
+				<jaxb:package name="com.mindbox.pe.xsd.audit" />
+			</jaxb:schemaBindings>
 		</xsd:appinfo>
 	</xsd:annotation>
 	<xsd:element name="audit-report">

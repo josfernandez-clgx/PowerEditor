@@ -4,7 +4,8 @@
  Filename...: pom.xml
  Description: POM for PE Common Module. 
 ======================================================================== -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.mindbox.pe</groupId>
@@ -71,39 +72,45 @@
 		</testResources>
 		<plugins>
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>jaxb2-maven-plugin</artifactId>
+				<groupId>org.jvnet.jaxb2.maven2</groupId>
+				<artifactId>maven-jaxb2-plugin</artifactId>
 				<executions>
-					<!-- PowerEditorConfiguration.xsd -->
+				<!-- PowerEditorConfiguration.xsd -->
 					<execution>
 						<id>config-xjc</id>
+						<phase>generate-sources</phase>
 						<goals>
-							<goal>xjc</goal>
+							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<target>2.1</target>
 							<schemaDirectory>src/main/xsd</schemaDirectory>
-							<schemaFiles>PowerEditorConfiguration.xsd</schemaFiles>
-							<staleFile>${project.build.directory}/generated-sources/jaxb/.staleFlag.config</staleFile>
-							<packageName>com.mindbox.pe.xsd.config</packageName>
-							<extension>true</extension>
+							<schemaIncludes>
+								<include>PowerEditorConfiguration.xsd</include>
+							</schemaIncludes>
+							<generatePackage>com.mindbox.pe.xsd.config</generatePackage>
 							<clearOutputDir>false</clearOutputDir>
-							<generatedResourcesDirectory>target/generated-resources</generatedResourcesDirectory>
+							<produces>
+								<pattern>com/mindbox/pe/xsd/config/**/*.*</pattern>
+							</produces>
 						</configuration>
 					</execution>
 					<!-- audit-report.xsd -->
 					<execution>
 						<id>audit-xjc</id>
+						<phase>generate-sources</phase>
 						<goals>
-							<goal>xjc</goal>
+							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<target>2.1</target>
 							<schemaDirectory>src/main/xsd</schemaDirectory>
-							<schemaFiles>audit-report.xsd</schemaFiles>
-							<staleFile>${project.build.directory}/generated-sources/jaxb/.staleFlag.audit</staleFile>
-							<packageName>com.mindbox.pe.xsd.audit</packageName>
+							<schemaIncludes>
+								<include>audit-report.xsd</include>
+							</schemaIncludes>
+							<generatePackage>com.mindbox.pe.xsd.audit</generatePackage>
 							<clearOutputDir>false</clearOutputDir>
+							<produces>
+								<pattern>com/mindbox/pe/xsd/audit/**/*.*</pattern>
+							</produces>
 						</configuration>
 					</execution>
 				</executions>

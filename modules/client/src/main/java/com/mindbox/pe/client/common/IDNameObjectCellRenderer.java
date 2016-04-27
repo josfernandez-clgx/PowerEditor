@@ -23,7 +23,7 @@ import com.mindbox.pe.model.IDNameObject;
  * @author MindBox, Inc
  * @since PowerEditor 1.10.0
  */
-public class IDNameObjectCellRenderer extends JLabel implements ListCellRenderer {
+public class IDNameObjectCellRenderer extends JLabel implements ListCellRenderer<IDNameObject> {
 
 	/**
 	 * 
@@ -37,15 +37,13 @@ public class IDNameObjectCellRenderer extends JLabel implements ListCellRenderer
 		setOpaque(true);
 	}
 
-	public Component getListCellRendererComponent(JList arg0, Object value, int index, boolean isSelected, boolean arg4) {
+	@Override
+	public Component getListCellRendererComponent(JList<? extends IDNameObject> arg0, IDNameObject value, int index, boolean isSelected, boolean arg4) {
 		if (value == null) {
 			setText("");
 		}
-		else if (value instanceof IDNameObject) {
-			this.setText(((IDNameObject) value).getName());
-		}
 		else {
-			this.setText(value.toString());
+			this.setText(value.getName());
 		}
 		setBackground(isSelected ? PowerEditorSwingTheme.primary3 : Color.white);
 		return this;

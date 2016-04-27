@@ -15,25 +15,28 @@ import com.mindbox.pe.model.IDNameObject;
  * @author MindBox, Inc
  * @since PowerEditor 1.10.0
  */
-public class IDNameObjectComboBox extends JComboBox {
+public class IDNameObjectComboBox extends JComboBox<IDNameObject> {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -3951228734910107454L;
 
-	public IDNameObjectComboBox(boolean hasEmptyItem, String iconKey) {
-		this(hasEmptyItem, new IDNameObjectCellRenderer(iconKey));
-	}
+	// TODO use an instance with the name of 'Any'
+	private static final IDNameObject ANY_INSTANCE = null;
 
-	public IDNameObjectComboBox(boolean hasEmptyItem, ListCellRenderer renderer) {
+	public IDNameObjectComboBox(boolean hasEmptyItem, ListCellRenderer<IDNameObject> renderer) {
 		super();
 		if (renderer == null) throw new NullPointerException("renderer cannot be null");
 		UIFactory.setLookAndFeel(this);
 		if (hasEmptyItem) {
-			addItem("Any");
+			addItem(ANY_INSTANCE);
 		}
 		setRenderer(renderer);
 		setFocusable(true);
+	}
+
+	public IDNameObjectComboBox(boolean hasEmptyItem, String iconKey) {
+		this(hasEmptyItem, new IDNameObjectCellRenderer(iconKey));
 	}
 
 	public IDNameObject getSelectedIDNameObject() {
@@ -56,15 +59,9 @@ public class IDNameObjectComboBox extends JComboBox {
 		}
 	}
 
-	public void setValueList(List<? extends IDNameObject> objectList) {
-		for (IDNameObject object : objectList) {
-			addItem(object);
-		}
-	}
-
 	public final void selectObject(int objectID) {
 		if (objectID == -1) return;
-		ComboBoxModel model = getModel();
+		ComboBoxModel<IDNameObject> model = getModel();
 		for (int i = 0; i < model.getSize(); i++) {
 			Object item = model.getElementAt(i);
 			if (item instanceof IDNameObject) {
@@ -78,7 +75,7 @@ public class IDNameObjectComboBox extends JComboBox {
 
 	public final void selectObject(String name) {
 		if (name == null) return;
-		ComboBoxModel model = getModel();
+		ComboBoxModel<IDNameObject> model = getModel();
 		for (int i = 0; i < model.getSize(); i++) {
 			Object item = model.getElementAt(i);
 			if (item instanceof IDNameObject) {
@@ -87,6 +84,12 @@ public class IDNameObjectComboBox extends JComboBox {
 					return;
 				}
 			}
+		}
+	}
+
+	public void setValueList(List<? extends IDNameObject> objectList) {
+		for (IDNameObject object : objectList) {
+			addItem(object);
 		}
 	}
 

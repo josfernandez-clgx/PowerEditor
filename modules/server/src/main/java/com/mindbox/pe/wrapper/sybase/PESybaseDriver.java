@@ -9,7 +9,9 @@ import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 
 /**
@@ -41,22 +43,12 @@ public class PESybaseDriver implements Driver {
 		this.sybaseDriver = driver;
 	}
 
-	public int getMajorVersion() {
-		return sybaseDriver.getMajorVersion();
-	}
-
-	public int getMinorVersion() {
-		return sybaseDriver.getMinorVersion();
-	}
-
-	public boolean jdbcCompliant() {
-		return sybaseDriver.jdbcCompliant();
-	}
-
+	@Override
 	public boolean acceptsURL(String arg0) throws SQLException {
 		return arg0 != null && arg0.startsWith("jdbc:pesybase:");
 	}
 
+	@Override
 	public Connection connect(String arg0, Properties arg1) throws SQLException {
 		if (acceptsURL(arg0)) {
 			Connection conn = sybaseDriver.connect("jdbc:sybase:" + arg0.substring(14), arg1);
@@ -65,8 +57,29 @@ public class PESybaseDriver implements Driver {
 		return null;
 	}
 
+	@Override
+	public int getMajorVersion() {
+		return sybaseDriver.getMajorVersion();
+	}
+
+	@Override
+	public int getMinorVersion() {
+		return sybaseDriver.getMinorVersion();
+	}
+
+	@Override
+	public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+		throw new SQLFeatureNotSupportedException();
+	}
+
+	@Override
 	public DriverPropertyInfo[] getPropertyInfo(String arg0, Properties arg1) throws SQLException {
 		return sybaseDriver.getPropertyInfo(arg0, arg1);
+	}
+
+	@Override
+	public boolean jdbcCompliant() {
+		return sybaseDriver.jdbcCompliant();
 	}
 
 }

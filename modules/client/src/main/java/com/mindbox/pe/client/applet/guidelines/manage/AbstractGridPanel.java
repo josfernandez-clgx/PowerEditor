@@ -80,7 +80,7 @@ import com.mindbox.pe.model.template.GridTemplate;
  * @since PowerEditor 1.0
  */
 public abstract class AbstractGridPanel extends JPanel implements PowerEditorTabPanel, CellValueChangeListener {
-	private final class ActivationRenderer extends JLabel implements ListCellRenderer {
+	private final class ActivationRenderer extends JLabel implements ListCellRenderer<Object> {
 		/**
 		 * 
 		 */
@@ -95,23 +95,27 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 			emptyBorder = BorderFactory.createEmptyBorder(2, 2, 2, 2);
 		}
 
-		public Component getListCellRendererComponent(JList jlist, Object obj, int i, boolean flag, boolean flag1) {
+		@Override
+		public Component getListCellRendererComponent(JList<? extends Object> jlist, Object obj, int i, boolean flag, boolean flag1) {
 			if (obj == null) {
 				setText(ClientUtil.getInstance().getLabel("label.none"));
 				return this;
 			}
 			ProductGrid abstractgrid = (ProductGrid) obj;
 			setText(getActivationString(abstractgrid));
-			if (flag)
+			if (flag) {
 				setBorder(redBorder);
-			else
+			}
+			else {
 				setBorder(emptyBorder);
+			}
 			return this;
 		}
 	}
 
 	private class ComboL implements ActionListener {
 
+		@Override
 		public void actionPerformed(ActionEvent event) {
 			selectActivation();
 		}
@@ -119,6 +123,7 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 
 	private class ContextChangeL implements ContextChangeListener {
 
+		@Override
 		public void contextChanged(ContextChangeEvent e) {
 			setDirty(true);
 			contextMayHaveChanged = true;
@@ -128,6 +133,7 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 
 	private class GridAdapter extends AbstractThreadedActionAdapter {
 
+		@Override
 		public void performAction(ActionEvent actionevent) {
 			try {
 				Object obj = actionevent.getSource();
@@ -174,6 +180,7 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 
 	private class GridSelectionL implements ListSelectionListener {
 
+		@Override
 		public void valueChanged(ListSelectionEvent arg0) {
 			try {
 				ruleViewPanel.showRow(gridTablePanel.getSelectedRow());
@@ -186,6 +193,7 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 
 	private class GridTableModelL implements TableModelListener {
 
+		@Override
 		public void tableChanged(TableModelEvent event) {
 			if (event == null || event.getFirstRow() == TableModelEvent.HEADER_ROW) return;
 			switch (event.getType()) {
@@ -227,6 +235,7 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 
 	private final class ShowDateNameL extends AbstractThreadedActionAdapter {
 
+		@Override
 		public void performAction(ActionEvent e) {
 			((RefreshableComboBoxModel) activationsCombo.getModel()).refresh();
 		}
@@ -234,6 +243,7 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 
 	private class StatusComboL implements ActionListener {
 
+		@Override
 		public void actionPerformed(ActionEvent event) {
 			boolean dirty = isDirty;
 			String newStatus = statusField.getSelectedEnumValueValue();
@@ -255,7 +265,6 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 	 * 
 	 */
 	private static final long serialVersionUID = -3951228734910107454L;
-
 
 	private static final ActivationsComparator ACTIVATION_COMPARATOR = ActivationsComparator.getInstance();
 
@@ -294,7 +303,7 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 	protected GuidelineGridEditor gridEditor;
 	protected AbstractGuidelineGrid currentGrid;
 	protected AbstractGuidelineGrid lastSelectedGrid;
-	protected JComboBox activationsCombo;
+	protected JComboBox<ProductGrid> activationsCombo;
 	protected JLabel activationLabelLabel;
 	protected JPanel activationPanel;
 	protected final GuidelineContextPanel contextHolder;
@@ -549,6 +558,7 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 		}
 	}
 
+	@Override
 	public void cellValueChanged(int column, Object newValue) {
 		gridTablePanel.removeGridRowSelectionListener(gridSelectionListener);
 		gridTablePanel.removeGridTableModelListener(gridTableModelListener);
@@ -639,6 +649,7 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 		return gridData;
 	}
 
+	@Override
 	public void discardChanges() {
 		clearForm();
 		setDirty(false);
@@ -693,13 +704,17 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 		buff.append(" ");
 		synchronized (dateNameCheckbox) {
 			if (abstractgrid.getSunrise() != null) {
-				buff.append((dateNameCheckbox.isSelected() ? abstractgrid.getEffectiveDate().getName() : Constants.THREADLOCAL_FORMAT_DATE_TIME_SEC.get().format(
-						abstractgrid.getEffectiveDate().getDate())));
+				buff.append(
+						(dateNameCheckbox.isSelected()
+								? abstractgrid.getEffectiveDate().getName()
+								: Constants.THREADLOCAL_FORMAT_DATE_TIME_SEC.get().format(abstractgrid.getEffectiveDate().getDate())));
 			}
 			buff.append(" - ");
 			if (abstractgrid.getSunset() != null) {
-				buff.append((dateNameCheckbox.isSelected() ? abstractgrid.getExpirationDate().getName() : Constants.THREADLOCAL_FORMAT_DATE_TIME_SEC.get().format(
-						abstractgrid.getExpirationDate().getDate())));
+				buff.append(
+						(dateNameCheckbox.isSelected()
+								? abstractgrid.getExpirationDate().getName()
+								: Constants.THREADLOCAL_FORMAT_DATE_TIME_SEC.get().format(abstractgrid.getExpirationDate().getDate())));
 			}
 		}
 		return buff.toString();
@@ -742,6 +757,7 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 		return currentGrid != null && ClientUtil.hasProductionRestrictions(currentGrid.getStatus());
 	}
 
+	@Override
 	public boolean hasUnsavedChanges() {
 		return !viewOnly && isDirty;
 	}
@@ -791,6 +807,7 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 		JButton validateButton = UIFactory.createButton(ClientUtil.getInstance().getLabel("button.validate"), "image.btn.small.validate", null, "button.tooltip.validate");
 		validateButton.addMouseListener(new MouseAdapter() {
 
+			@Override
 			public void mousePressed(MouseEvent e) {
 				popup.show(e.getComponent(), e.getX(), e.getY());
 			}
@@ -807,6 +824,7 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 		final JButton toggleButton = UIFactory.createButton(ClientUtil.getInstance().getLabel("button.hide.context"), null, null, null);
 		toggleButton.addActionListener(new ActionListener() {
 
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				topPanel.setVisible(!topPanel.isVisible());
 				toggleButton.setText((topPanel.isVisible() ? ClientUtil.getInstance().getLabel("button.hide.context") : ClientUtil.getInstance().getLabel("button.show.context")));
@@ -818,6 +836,7 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 		ruleViewButton = UIFactory.createButton(ClientUtil.getInstance().getLabel("button.show.rule"), null, null, null);
 		ruleViewButton.addActionListener(new ActionListener() {
 
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (ruleViewPanel.isVisible()) {
 					hideRuleViewPanel();
@@ -833,6 +852,7 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 		ruleIDToggleButton = UIFactory.createButton(showLabel, null, null, null);
 		ruleIDToggleButton.addActionListener(new ActionListener() {
 
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				toggleRuleIDColumns();
 				ruleIDToggleButton.setText(ruleIDToggleButton.getText().equals(showLabel) ? ClientUtil.getInstance().getLabel("button.hide.rule.id") : showLabel);
@@ -859,6 +879,7 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 
 			editTemplateButton.addActionListener(new ActionListener() {
 
+				@Override
 				public void actionPerformed(ActionEvent e) {
 					if (template != null) {
 						try {
@@ -928,7 +949,9 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 					}
 				}
 				if (effDate == null || effDate.before(date)) effDate = date;
-				if (expDate == null || expDate.getDate() == null || (effDate != null && effDate.getDate() != null && expDate.getDate().getTime() - effDate.getDate().getTime() > 0x5265c00L)) break;
+				if (expDate == null || expDate.getDate() == null
+						|| (effDate != null && effDate.getDate() != null && expDate.getDate().getTime() - effDate.getDate().getTime() > 0x5265c00L))
+					break;
 			}
 
 		}
@@ -943,6 +966,7 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 	private void initTimer() {
 		updateStateTimer = new Timer(500, new ActionListener() {
 
+			@Override
 			public void actionPerformed(ActionEvent actionevent) {
 				if (!isDirty() && gridCardPanel.getSelectedCard().isDirty()) {
 					setDirty(true);
@@ -1051,7 +1075,8 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 		if (!checkAllowRemoveActivation()) {
 			return;
 		}
-		if (ClientUtil.getUserInterfaceConfig().getUIPolicies() != null && UtilBase.asBoolean(ClientUtil.getUserInterfaceConfig().getUIPolicies().isEnforceSequentialActivationDates(), false)) {
+		if (ClientUtil.getUserInterfaceConfig().getUIPolicies() != null
+				&& UtilBase.asBoolean(ClientUtil.getUserInterfaceConfig().getUIPolicies().isEnforceSequentialActivationDates(), false)) {
 			String msgKey = Validator.validateGapsInDatesForRemoval(
 					UtilBase.asBoolean(ClientUtil.getUserInterfaceConfig().getUIPolicies().isAllowGapsInActivationDates(), false),
 					gridToRemove,
@@ -1090,6 +1115,7 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 		}
 	}
 
+	@Override
 	public void saveChanges() throws CanceledException, ServerException {
 		saveChanges_internal();
 	}
@@ -1192,6 +1218,7 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 		ruleViewPanel.setEnabled(currentGrid != null && flag);
 	}
 
+	@Override
 	public void setEnabled(boolean flag) {
 		boolean enabled = flag && !isViewOnly() && !hasProductionRestrictions();
 

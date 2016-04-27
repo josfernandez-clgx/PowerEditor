@@ -17,15 +17,15 @@ import com.mindbox.pe.client.applet.UIFactory;
  * @author MindBox, Inc
  * @since PowerEditor 1.10.0
  */
-public class BooleanComboBox extends JComboBox {
+public class BooleanComboBox extends JComboBox<ComboBoolean> {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -3951228734910107454L;
+	static String GENERIC_ANY = "Any";
+	static String GENERIC_YES = "Yes";
 
-	private static String GENERIC_ANY = "Any";
-	private static String GENERIC_YES = "Yes";
-	private static String GENERIC_NO = "No";
+	static String GENERIC_NO = "No";
 
 	private static boolean hasInitialized = false;
 
@@ -39,34 +39,22 @@ public class BooleanComboBox extends JComboBox {
 		}
 	}
 
-	private class ComboBoolean {
+	private ComboBoolean NO_SEL;
 
-		public String toString() {
-			if (value == null) return GENERIC_ANY;
-			if (value.booleanValue())
-				return GENERIC_YES;
-			else
-				return GENERIC_NO;
-		}
+	private ComboBoolean YES;
 
-		private final Boolean value;
+	private ComboBoolean NO;
 
-		ComboBoolean(Boolean boolean1) {
-			value = boolean1;
-		}
-	}
-
-	public void setSelectedItem(Boolean boolean1) {
-		if (boolean1 == null)
-			super.setSelectedItem(NO_SEL);
-		else if (boolean1.booleanValue())
-			super.setSelectedItem(YES);
-		else
-			super.setSelectedItem(NO);
+	public BooleanComboBox() {
+		NO_SEL = new ComboBoolean(null);
+		YES = new ComboBoolean(new Boolean(true));
+		NO = new ComboBoolean(new Boolean(false));
+		UIFactory.setLookAndFeel(this);
+		init();
 	}
 
 	public Boolean getSelectedValue() {
-		return ((ComboBoolean) getSelectedItem()).value;
+		return ((ComboBoolean) getSelectedItem()).getValue();
 	}
 
 	void init() {
@@ -76,15 +64,12 @@ public class BooleanComboBox extends JComboBox {
 		addItem(NO);
 	}
 
-	private ComboBoolean NO_SEL;
-	private ComboBoolean YES;
-	private ComboBoolean NO;
-
-	public BooleanComboBox() {
-		NO_SEL = new ComboBoolean(null);
-		YES = new ComboBoolean(new Boolean(true));
-		NO = new ComboBoolean(new Boolean(false));
-		UIFactory.setLookAndFeel(this);
-		init();
+	public void setSelectedItem(Boolean boolean1) {
+		if (boolean1 == null)
+			super.setSelectedItem(NO_SEL);
+		else if (boolean1.booleanValue())
+			super.setSelectedItem(YES);
+		else
+			super.setSelectedItem(NO);
 	}
 }
