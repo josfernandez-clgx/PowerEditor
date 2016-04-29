@@ -40,6 +40,7 @@ public class RoleDetailsPanel extends PanelBase implements IClientConstants, Pow
 		RoleDetailsAdapter() {
 		}
 
+		@Override
 		public void performAction(ActionEvent actionevent) {
 			Object obj = actionevent.getSource();
 			if (obj == saveRoleButton) {
@@ -65,7 +66,7 @@ public class RoleDetailsPanel extends PanelBase implements IClientConstants, Pow
 	protected static String DETAILS_TITLE_LBL = "label.title.user.roles";
 
 	private JTextField nameField;
-	private CheckList privilegeListField;
+	private CheckList<Privilege> privilegeListField;
 	private JButton saveRoleButton;
 	protected Role theRole;
 	protected boolean viewOnly;
@@ -74,7 +75,7 @@ public class RoleDetailsPanel extends PanelBase implements IClientConstants, Pow
 	public RoleDetailsPanel() {
 		super();
 		nameField = new JTextField(10);
-		privilegeListField = new CheckList();
+		privilegeListField = new CheckList<Privilege>();
 		saveRoleButton = null;
 		theRole = null;
 		viewOnly = true;
@@ -200,7 +201,11 @@ public class RoleDetailsPanel extends PanelBase implements IClientConstants, Pow
 			setEnabled(!flag);
 		}
 		else {
-			JOptionPane.showMessageDialog(ClientUtil.getApplet(), ClientUtil.getInstance().getMessage("SelectItemFirstMsg"), ClientUtil.getInstance().getMessage("WarningMsgTitle"), 2);
+			JOptionPane.showMessageDialog(
+					ClientUtil.getApplet(),
+					ClientUtil.getInstance().getMessage("SelectItemFirstMsg"),
+					ClientUtil.getInstance().getMessage("WarningMsgTitle"),
+					2);
 			clearForm();
 		}
 	}
@@ -250,17 +255,19 @@ public class RoleDetailsPanel extends PanelBase implements IClientConstants, Pow
 
 	private boolean isPrivilegesDirty() {
 		boolean flag = false;
-		Object aobj[] = privilegeListField.getSelectedValues();
+		List<Privilege> selections = privilegeListField.getSelectedValuesList();
 		List<Privilege> list = theRole.getPrivileges();
 		if (list == null || list.size() == 0) {
-			return aobj != null && aobj.length > 0;
+			return selections != null && !selections.isEmpty();
 		}
-		if (aobj.length != list.size()) {
+		if (selections.size() != list.size()) {
 			return true;
 		}
-		for (int i = 0; i < aobj.length; i++) {
-			Privilege privilege = (Privilege) aobj[i];
-			if (list.contains(privilege)) continue;
+		for (int i = 0; i < selections.size(); i++) {
+			Privilege privilege = selections.get(i);
+			if (list.contains(privilege)) {
+				continue;
+			}
 			flag = true;
 			break;
 		}
@@ -295,10 +302,8 @@ public class RoleDetailsPanel extends PanelBase implements IClientConstants, Pow
 		ClientUtil.printInfo("Calling PopulateForm with " + role.toString());
 		nameField.setText(role.getName());
 		List<Privilege> list = role.getPrivileges();
-
 		try {
 			privilegeListField.removeListSelectionListener(this);
-
 			privilegeListField.clearSelection();
 			if (list != null) {
 				for (final Privilege privilege : list) {
@@ -346,8 +351,7 @@ public class RoleDetailsPanel extends PanelBase implements IClientConstants, Pow
 
 	private List<Privilege> searchPrivilegesToKeepForValueChanged() {
 		final List<Privilege> list = new ArrayList<Privilege>();
-		for (final Object selectedValue : privilegeListField.getSelectedValues()) {
-			final Privilege privilege = Privilege.class.cast(selectedValue);
+		for (final Privilege privilege : privilegeListField.getSelectedValuesList()) {
 			if (privilege.getName().equals(PrivilegeConstants.PRIV_MANAGE_ROLES) || privilege.getName().equals(PrivilegeConstants.PRIV_MANAGE_USERS)) {
 				list.add(privilege);
 			}
@@ -365,10 +369,8 @@ public class RoleDetailsPanel extends PanelBase implements IClientConstants, Pow
 
 	protected void uploadFromGUI() {
 		theRole.setName(nameField.getText());
-		Object aobj[] = privilegeListField.getSelectedValues();
 		LinkedList<Privilege> linkedlist = new LinkedList<Privilege>();
-		for (int i = 0; i < aobj.length; i++) {
-			Privilege privilege = (Privilege) aobj[i];
+		for (final Privilege privilege : privilegeListField.getSelectedValuesList()) {
 			linkedlist.add(privilege);
 		}
 		theRole.setPrivileges(linkedlist);

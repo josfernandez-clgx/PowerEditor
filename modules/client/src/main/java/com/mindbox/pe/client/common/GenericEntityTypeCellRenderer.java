@@ -17,10 +17,8 @@ import com.mindbox.pe.model.GenericEntityType;
  * @author MindBox
  * @since PowerEditor 3.0.0
  */
-public class GenericEntityTypeCellRenderer extends JLabel implements ListCellRenderer {
-	/**
-	 * 
-	 */
+public class GenericEntityTypeCellRenderer extends JLabel implements ListCellRenderer<GenericEntityType> {
+
 	private static final long serialVersionUID = -3951228734910107454L;
 
 	public GenericEntityTypeCellRenderer(String imageKey) {
@@ -30,15 +28,13 @@ public class GenericEntityTypeCellRenderer extends JLabel implements ListCellRen
 		setOpaque(true);
 	}
 
-	public Component getListCellRendererComponent(JList arg0, Object value, int index, boolean isSelected, boolean arg4) {
+	@Override
+	public Component getListCellRendererComponent(JList<? extends GenericEntityType> arg0, GenericEntityType value, int index, boolean isSelected, boolean arg4) {
 		if (value == null) {
 			setText("");
 		}
-		else if (value instanceof GenericEntityType) {
-			this.setText(ClientUtil.getInstance().getLabel((GenericEntityType) value));
-		}
 		else {
-			this.setText(value.toString());
+			this.setText(ClientUtil.getInstance().getLabel(value));
 		}
 		setBackground(isSelected ? PowerEditorSwingTheme.primary3 : Color.white);
 		return this;

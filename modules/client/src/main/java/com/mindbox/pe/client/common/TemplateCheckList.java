@@ -11,13 +11,14 @@ import com.mindbox.pe.model.template.GridTemplate;
  * @author Geneho Kim
  * @since PowerEditor 4.4.0
  */
-public final class TemplateCheckList extends CheckList {
+public final class TemplateCheckList extends CheckList<GridTemplate> {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -3951228734910107454L;
 
-	protected String getListText(Object obj) {
-		return (obj instanceof GridTemplate ? ((GridTemplate) obj).getName() + " (" + ((GridTemplate) obj).getVersion() + ")" : super.getListText(obj));
+	@Override
+	protected String getListText(GridTemplate obj) {
+		return obj.getName() + " (" + obj.getVersion() + ")";
 	}
 }

@@ -30,11 +30,6 @@ import com.mindbox.pe.model.DateSynonym;
  * @since PowerEditor 4.2.0
  */
 public class DateSelectorComboField extends JPanel implements ActionListener {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3951228734910107454L;
-
 	public static class Test {
 
 		public static void main(String[] args) {
@@ -50,8 +45,9 @@ public class DateSelectorComboField extends JPanel implements ActionListener {
 		}
 	}
 
-	private final boolean allowNewDates;
+	private static final long serialVersionUID = -3951228734910107454L;
 
+	private final boolean allowNewDates;
 	private final JButton newButton, deleteButton;
 	private DateSynonymComboBox dsCombo;
 	private Date minDate, maxDate = null;
@@ -81,10 +77,7 @@ public class DateSelectorComboField extends JPanel implements ActionListener {
 		initPanel();
 	}
 
-	public void refresh(boolean showName) {
-		dsCombo.refresh(showName);
-	}
-
+	@Override
 	public final void actionPerformed(ActionEvent arg0) {
 		if (arg0.getSource() == newButton) {
 			createNew();
@@ -96,10 +89,6 @@ public class DateSelectorComboField extends JPanel implements ActionListener {
 
 	public void addActionListener(ActionListener l) {
 		dsCombo.addActionListener(l);
-	}
-
-	public void removeActionListener(ActionListener l) {
-		dsCombo.removeActionListener(l);
 	}
 
 	private synchronized void createNew() {
@@ -119,29 +108,21 @@ public class DateSelectorComboField extends JPanel implements ActionListener {
 		}
 	}
 
-	public void setEnabled(boolean enabled) {
-		super.setEnabled(enabled);
-		dsCombo.setEnabled(enabled);
-		newButton.setEnabled(enabled);
-		deleteButton.setEnabled(enabled);
-	}
-
-	public Date getMinimum() {
-		return minDate;
-	}
-
-	public void setMinimum(Date date) {
-		this.minDate = date;
+	public synchronized Date getDate() {
+		return dsCombo.getDate();
 	}
 
 	public Date getMaximum() {
 		return maxDate;
 	}
 
-	public void setMaximum(Date date) {
-		this.maxDate = date;
+	public Date getMinimum() {
+		return minDate;
 	}
 
+	public synchronized DateSynonym getValue() {
+		return dsCombo.getValue();
+	}
 
 	private void initPanel() {
 		JPanel rightPanel = UIFactory.createFlowLayoutPanel(FlowLayout.RIGHT, 1, 1);
@@ -156,13 +137,14 @@ public class DateSelectorComboField extends JPanel implements ActionListener {
 		add(rightPanel, BorderLayout.EAST);
 	}
 
-	public synchronized Date getDate() {
-		return dsCombo.getDate();
+	public void refresh(boolean showName) {
+		dsCombo.refresh(showName);
 	}
 
-	public synchronized DateSynonym getValue() {
-		return dsCombo.getValue();
+	public void removeActionListener(ActionListener l) {
+		dsCombo.removeActionListener(l);
 	}
+
 
 	/**
 	 * Sets the date displayed in this field.
@@ -170,6 +152,22 @@ public class DateSelectorComboField extends JPanel implements ActionListener {
 	 */
 	public synchronized void setDate(Date date) {
 		dsCombo.setDate(date);
+	}
+
+	@Override
+	public void setEnabled(boolean enabled) {
+		super.setEnabled(enabled);
+		dsCombo.setEnabled(enabled);
+		newButton.setEnabled(enabled);
+		deleteButton.setEnabled(enabled);
+	}
+
+	public void setMaximum(Date date) {
+		this.maxDate = date;
+	}
+
+	public void setMinimum(Date date) {
+		this.minDate = date;
 	}
 
 	/**

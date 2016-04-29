@@ -15,15 +15,24 @@ import com.mindbox.pe.unittest.AbstractTestBase;
 
 public class EntityModelCacheFactory_DateSynonymTest extends AbstractTestBase {
 
-	@Test(expected = NullPointerException.class)
-	public void testAddDateSynonymWithNullThrowsNullPointerException() throws Exception {
-		EntityModelCacheFactory.getInstance().addDateSynonym(null);
+	private void invokeResortNamedDateSynonyms(DateSynonym[] dateSynonyms) {
+		ReflectionUtil.executePrivate(EntityModelCacheFactory.getInstance(), "resortNamedDateSynonyms", new Class[] { DateSynonym[].class }, new Object[] { dateSynonyms });
+	}
+
+	@Before
+	public void setUp() throws Exception {
+		ClientTestUtil.prepEntityModelCacheFactoryDateSynonymCache();
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		ClientTestUtil.clearEntityModelCacheFactoryDateSynonymCache();
 	}
 
 	@Test
 	public void testAddDateSynonymWithNamedDateSynonymUpdatesCachedComboModels() throws Exception {
-		ComboBoxModel modelWithEmptyValue = EntityModelCacheFactory.getInstance().createDateSynonymComboModel(true);
-		ComboBoxModel modelWithNoEmptyValue = EntityModelCacheFactory.getInstance().createDateSynonymComboModel(false);
+		ComboBoxModel<DateSynonym> modelWithEmptyValue = EntityModelCacheFactory.getInstance().createDateSynonymComboModel(true);
+		ComboBoxModel<DateSynonym> modelWithNoEmptyValue = EntityModelCacheFactory.getInstance().createDateSynonymComboModel(false);
 
 		DateSynonym ds = createDateSynonym();
 		EntityModelCacheFactory.getInstance().addDateSynonym(ds);
@@ -34,10 +43,16 @@ public class EntityModelCacheFactory_DateSynonymTest extends AbstractTestBase {
 		assertEquals(1, EntityModelCacheFactory.getInstance().getDateSynonymComboModel(false).getSize());
 	}
 
+
+	@Test(expected = NullPointerException.class)
+	public void testAddDateSynonymWithNullThrowsNullPointerException() throws Exception {
+		EntityModelCacheFactory.getInstance().addDateSynonym(null);
+	}
+
 	@Test
 	public void testResortNamedDateSynonymsUpdatesCachedComboModels() throws Exception {
-		ComboBoxModel modelWithEmptyValue = EntityModelCacheFactory.getInstance().createDateSynonymComboModel(true);
-		ComboBoxModel modelWithNoEmptyValue = EntityModelCacheFactory.getInstance().createDateSynonymComboModel(false);
+		ComboBoxModel<DateSynonym> modelWithEmptyValue = EntityModelCacheFactory.getInstance().createDateSynonymComboModel(true);
+		ComboBoxModel<DateSynonym> modelWithNoEmptyValue = EntityModelCacheFactory.getInstance().createDateSynonymComboModel(false);
 
 		DateSynonym ds = createDateSynonym();
 		invokeResortNamedDateSynonyms(new DateSynonym[] { ds });
@@ -46,21 +61,6 @@ public class EntityModelCacheFactory_DateSynonymTest extends AbstractTestBase {
 		assertEquals(1, modelWithNoEmptyValue.getSize());
 		assertEquals(2, EntityModelCacheFactory.getInstance().getDateSynonymComboModel(true).getSize());
 		assertEquals(1, EntityModelCacheFactory.getInstance().getDateSynonymComboModel(false).getSize());
-	}
-
-	private void invokeResortNamedDateSynonyms(DateSynonym[] dateSynonyms) {
-		ReflectionUtil.executePrivate(EntityModelCacheFactory.getInstance(), "resortNamedDateSynonyms", new Class[] { DateSynonym[].class }, new Object[] { dateSynonyms });
-	}
-
-
-	@Before
-	public void setUp() throws Exception {
-		ClientTestUtil.prepEntityModelCacheFactoryDateSynonymCache();
-	}
-
-	@After
-	public void tearDown() throws Exception {
-		ClientTestUtil.clearEntityModelCacheFactoryDateSynonymCache();
 	}
 
 }

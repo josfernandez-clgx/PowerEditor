@@ -36,13 +36,10 @@ import com.mindbox.pe.model.filter.SearchFilter;
  * @author deklerk
  */
 public class CBRCaseFilterPanel extends IDNameDescriptionObjectFilterPanel<CBRCase, EntityManagementButtonPanel<CBRCase>> implements ActionListener, ChangeListener {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -3951228734910107454L;
 
 	private CBRAttributeComboBox aCombo;
-	private JComboBox vCombo;
+	private JComboBox<String> vCombo;
 	private NumberOrTextField inputField1;
 	private NumberTextField inputField2;
 	private CBRCaseBase caseBase;
@@ -53,39 +50,13 @@ public class CBRCaseFilterPanel extends IDNameDescriptionObjectFilterPanel<CBRCa
 		aCombo.populateAttributes(caseBase.getID());
 	}
 
-	public CBRAttribute getCBRAttribute() {
-		return this.aCombo.getSelectedCBRAttribute();
-	}
-
-
-	public int getCBRAttributeID() {
-		CBRAttribute a = this.aCombo.getSelectedCBRAttribute();
-		return a == null ? Persistent.UNASSIGNED_ID : a.getId();
-	}
-
-
-	protected void clearSearchFields() {
-		super.clearSearchFields();
-		this.aCombo.selectCBRAttribute(null);
-		this.vCombo.setSelectedIndex(0);
-		this.inputField1.setText("");
-		this.inputField2.setText("");
+	@Override
+	public void actionPerformed(ActionEvent arg0) {
 		enableInputFields();
 	}
 
-	protected SearchFilter<CBRCase> getSearchFilterFromFields() {
-		CBRCaseSearchFilter filter = new CBRCaseSearchFilter();
-		filter.setNameCriterion(getNameFieldText());
-		filter.setDescriptionCriterion(this.getDescFieldText());
-		filter.setAttributeIDCriterion(this.getCBRAttributeID());
-		filter.setValueSearchType(this.getValueSearchTypeFromCombo());
-		filter.setValueSearchStringCriterion(this.inputField1.getText());
-		filter.setValueSearchIntMinCriterion(this.inputField1.getIntValue());
-		filter.setValueSearchIntMaxCriterion(this.inputField2.getIntValue());
-		filter.setCaseBaseID(this.caseBase.getID());
-		return filter;
-	}
 
+	@Override
 	protected void addComponents(GridBagLayout bag, GridBagConstraints c) {
 		super.addComponents(bag, c);
 		try {
@@ -99,14 +70,15 @@ public class CBRCaseFilterPanel extends IDNameDescriptionObjectFilterPanel<CBRCa
 		inputField2.setEnabled(false);
 
 		// HACK ALERT:  These strings have to match numeric constants in CBRCaseSearchFilter.java in order
-		vCombo = new JComboBox(new String[] {
-				ClientUtil.getInstance().getLabel("label.combo.case.search.any"),
-				ClientUtil.getInstance().getLabel("label.combo.case.search.equal.to"),
-				ClientUtil.getInstance().getLabel("label.combo.case.search.not.equal.to"),
-				ClientUtil.getInstance().getLabel("label.combo.case.search.contains"),
-				ClientUtil.getInstance().getLabel("label.combo.case.search.does.not.contain"),
-				ClientUtil.getInstance().getLabel("label.combo.case.search.between"),
-				ClientUtil.getInstance().getLabel("label.combo.case.search.not.between") });
+		vCombo = new JComboBox<String>(
+				new String[] {
+						ClientUtil.getInstance().getLabel("label.combo.case.search.any"),
+						ClientUtil.getInstance().getLabel("label.combo.case.search.equal.to"),
+						ClientUtil.getInstance().getLabel("label.combo.case.search.not.equal.to"),
+						ClientUtil.getInstance().getLabel("label.combo.case.search.contains"),
+						ClientUtil.getInstance().getLabel("label.combo.case.search.does.not.contain"),
+						ClientUtil.getInstance().getLabel("label.combo.case.search.between"),
+						ClientUtil.getInstance().getLabel("label.combo.case.search.not.between") });
 		vCombo.addActionListener(this);
 
 		c.gridwidth = 1;
@@ -140,8 +112,15 @@ public class CBRCaseFilterPanel extends IDNameDescriptionObjectFilterPanel<CBRCa
 		addComponent(this, bag, c, inputField2);
 	}
 
-	private int getValueSearchTypeFromCombo() {
-		return this.vCombo.getSelectedIndex() + CBRCaseSearchFilter.ANY_VALUE;
+
+	@Override
+	protected void clearSearchFields() {
+		super.clearSearchFields();
+		this.aCombo.selectCBRAttribute(null);
+		this.vCombo.setSelectedIndex(0);
+		this.inputField1.setText("");
+		this.inputField2.setText("");
+		enableInputFields();
 	}
 
 	private void enableInputFields() {
@@ -170,11 +149,35 @@ public class CBRCaseFilterPanel extends IDNameDescriptionObjectFilterPanel<CBRCa
 		}
 	}
 
-	public void actionPerformed(ActionEvent arg0) {
-		enableInputFields();
+	public CBRAttribute getCBRAttribute() {
+		return this.aCombo.getSelectedCBRAttribute();
+	}
+
+	public int getCBRAttributeID() {
+		CBRAttribute a = this.aCombo.getSelectedCBRAttribute();
+		return a == null ? Persistent.UNASSIGNED_ID : a.getId();
+	}
+
+	@Override
+	protected SearchFilter<CBRCase> getSearchFilterFromFields() {
+		CBRCaseSearchFilter filter = new CBRCaseSearchFilter();
+		filter.setNameCriterion(getNameFieldText());
+		filter.setDescriptionCriterion(this.getDescFieldText());
+		filter.setAttributeIDCriterion(this.getCBRAttributeID());
+		filter.setValueSearchType(this.getValueSearchTypeFromCombo());
+		filter.setValueSearchStringCriterion(this.inputField1.getText());
+		filter.setValueSearchIntMinCriterion(this.inputField1.getIntValue());
+		filter.setValueSearchIntMaxCriterion(this.inputField2.getIntValue());
+		filter.setCaseBaseID(this.caseBase.getID());
+		return filter;
+	}
+
+	private int getValueSearchTypeFromCombo() {
+		return this.vCombo.getSelectedIndex() + CBRCaseSearchFilter.ANY_VALUE;
 	}
 
 
+	@Override
 	public void stateChanged(ChangeEvent arg0) {
 		aCombo.populateAttributes(caseBase.getID());
 	}

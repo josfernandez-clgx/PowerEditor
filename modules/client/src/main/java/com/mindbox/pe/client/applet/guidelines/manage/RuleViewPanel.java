@@ -38,13 +38,9 @@ import com.mindbox.pe.model.template.GridTemplateColumn;
  * @since PowerEditor 
  */
 class RuleViewPanel extends PanelBase {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3951228734910107454L;
-
 	public class RowSpinnerL implements ChangeListener {
 
+		@Override
 		public void stateChanged(ChangeEvent arg0) {
 			try {
 				showRow_internal(getSelectedRow());
@@ -57,6 +53,7 @@ class RuleViewPanel extends PanelBase {
 
 	private class RuleForColumnComboL implements ActionListener {
 
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			try {
 				selectRuleDef();
@@ -70,6 +67,7 @@ class RuleViewPanel extends PanelBase {
 
 	private class RuleForColumnRadioL implements ActionListener {
 
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			try {
 				selectRuleDef();
@@ -83,6 +81,7 @@ class RuleViewPanel extends PanelBase {
 
 	private class RuleForTemplateRadioL implements ActionListener {
 
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			try {
 				selectRuleDef();
@@ -94,6 +93,7 @@ class RuleViewPanel extends PanelBase {
 		}
 	}
 
+	private static final long serialVersionUID = -3951228734910107454L;
 
 	private final JSpinner rowSpinner;
 	private final PowerEditPanel pePanel;
@@ -103,10 +103,8 @@ class RuleViewPanel extends PanelBase {
 	private final SpinnerNumberModel spinnerModel;
 	private final CellValueChangeListener cellValueChangeListener;
 	private final RowSpinnerL rowSpinnerChangeListener;
-
 	private final JRadioButton ruleForTemplateRadio, ruleForColumnRadio;
-	private final JComboBox columnCombo;
-
+	private final JComboBox<String> columnCombo;
 
 	public RuleViewPanel(CellValueChangeListener cellValueChangeListener) {
 		pePanel = new PowerEditPanel(true, null);
@@ -115,7 +113,7 @@ class RuleViewPanel extends PanelBase {
 
 		ruleForTemplateRadio = new JRadioButton("Template");
 		ruleForColumnRadio = new JRadioButton("Column: ");
-		columnCombo = new JComboBox(new String[] { " 1 - Column Name" });
+		columnCombo = new JComboBox<String>(new String[] { " 1 - Column Name" });
 
 
 		ButtonGroup ruleForGroup = new ButtonGroup();
@@ -136,6 +134,41 @@ class RuleViewPanel extends PanelBase {
 
 	}
 
+	private void clearRule() {
+		pePanel.clearFields();
+	}
+
+	private RuleDefinition findInitialRuleDef() {
+		if (template.getRuleDefinition() != null) return template.getRuleDefinition();
+		GridTemplateColumn selectedColumn = getSelectedColumn();
+		if (selectedColumn != null) return selectedColumn.getRuleDefinition();
+		return null;
+	}
+
+	private GridTemplateColumn getSelectedColumn() {
+		String str = (String) columnCombo.getSelectedItem();
+		if (str == null || str.length() == 0) {
+			return null;
+		}
+		else {
+			try {
+				int colIndex = Integer.parseInt(str.substring(0, str.indexOf(" ")));
+				return template.getColumn(colIndex);
+			}
+			catch (NumberFormatException ex) {
+				return null;
+			}
+			catch (Exception ex) {
+				ClientUtil.handleRuntimeException(ex);
+				return null;
+			}
+		}
+	}
+
+	synchronized int getSelectedRow() {
+		return ((Number) rowSpinner.getValue()).intValue();
+	}
+
 	private void initPanel() {
 		JPanel rowPanel = UIFactory.createJPanel(new FlowLayout(FlowLayout.LEFT));
 		rowPanel.add(new JLabel("Row:"));
@@ -152,44 +185,41 @@ class RuleViewPanel extends PanelBase {
 		add(pePanel, BorderLayout.CENTER);
 	}
 
-	synchronized int getSelectedRow() {
-		return ((Number) rowSpinner.getValue()).intValue();
-	}
-
-	synchronized void setGrid(GridTemplate template, AbstractGridTableModel<?> model) throws InvalidDataException {
-		this.template = template;
-		this.gridTableModel = model;
-		this.ruleDef = findInitialRuleDef();
-
-		initRuleScopeWidgets();
-
-		if (template != null && gridTableModel != null) {
-			spinnerModel.setMaximum(new Integer(gridTableModel.getRowCount()));
-			rowSpinner.removeChangeListener(rowSpinnerChangeListener);
-			try {
-				rowSpinner.setValue(new Integer(1));
-				showRow_internal(1);
+	private void initRuleScopeWidgets() {
+		columnCombo.removeAllItems();
+		boolean hasColumnRules = false;
+		List<GridTemplateColumn> columnList = template.getColumns();
+		if (columnList.size() > 0) {
+			for (Iterator<GridTemplateColumn> iter = columnList.iterator(); iter.hasNext();) {
+				GridTemplateColumn column = iter.next();
+				if (column.getRuleDefinition() != null) {
+					columnCombo.addItem(column.getID() + " " + column.getTitle());
+					hasColumnRules = true;
+				}
 			}
-			finally {
-				rowSpinner.addChangeListener(rowSpinnerChangeListener);
-			}
+		}
+
+		columnCombo.setEnabled(true);
+		ruleForColumnRadio.setEnabled(true);
+		ruleForTemplateRadio.setSelected(true);
+
+		if (template.getRuleDefinition() != null) {
+			ruleForTemplateRadio.setEnabled(true);
 		}
 		else {
-			clearRule();
+			ruleForTemplateRadio.setEnabled(false);
+			ruleForTemplateRadio.setSelected(false);
 		}
-	}
+		if (hasColumnRules) {
+			ruleForColumnRadio.setEnabled(true);
+			columnCombo.setEnabled(true);
+		}
+		else {
+			ruleForColumnRadio.setEnabled(false);
+			columnCombo.setEnabled(false);
+			ruleForColumnRadio.setSelected(false);
+		}
 
-	synchronized void showRow(int row) throws InvalidDataException {
-		if (row > 0) {
-			rowSpinner.removeChangeListener(rowSpinnerChangeListener);
-			try {
-				rowSpinner.setValue(new Integer(row));
-				showRow_internal(row);
-			}
-			finally {
-				rowSpinner.addChangeListener(rowSpinnerChangeListener);
-			}
-		}
 	}
 
 	synchronized void refresh(int row) throws InvalidDataException {
@@ -250,6 +280,61 @@ class RuleViewPanel extends PanelBase {
 		}
 	}
 
+	private void selectRuleDef() {
+		if (ruleForTemplateRadio.isSelected())
+			ruleDef = template.getRuleDefinition();
+		else if (ruleForColumnRadio.isSelected()) {
+			GridTemplateColumn col = getSelectedColumn();
+			if (col != null) {
+				ruleDef = getSelectedColumn().getRuleDefinition();
+			}
+			else {
+				ruleDef = null;
+			}
+		}
+	}
+
+	@Override
+	public void setEnabled(boolean enabled) {
+		pePanel.setEnabled(enabled);
+	}
+
+	synchronized void setGrid(GridTemplate template, AbstractGridTableModel<?> model) throws InvalidDataException {
+		this.template = template;
+		this.gridTableModel = model;
+		this.ruleDef = findInitialRuleDef();
+
+		initRuleScopeWidgets();
+
+		if (template != null && gridTableModel != null) {
+			spinnerModel.setMaximum(new Integer(gridTableModel.getRowCount()));
+			rowSpinner.removeChangeListener(rowSpinnerChangeListener);
+			try {
+				rowSpinner.setValue(new Integer(1));
+				showRow_internal(1);
+			}
+			finally {
+				rowSpinner.addChangeListener(rowSpinnerChangeListener);
+			}
+		}
+		else {
+			clearRule();
+		}
+	}
+
+	synchronized void showRow(int row) throws InvalidDataException {
+		if (row > 0) {
+			rowSpinner.removeChangeListener(rowSpinnerChangeListener);
+			try {
+				rowSpinner.setValue(new Integer(row));
+				showRow_internal(row);
+			}
+			finally {
+				rowSpinner.addChangeListener(rowSpinnerChangeListener);
+			}
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	private synchronized void showRow_internal(int row) throws InvalidDataException {
 		if (row < 1) return;
@@ -269,94 +354,4 @@ class RuleViewPanel extends PanelBase {
 			}
 		}
 	}
-
-	private void clearRule() {
-		pePanel.clearFields();
-	}
-
-	public void setEnabled(boolean enabled) {
-		pePanel.setEnabled(enabled);
-	}
-
-	private void initRuleScopeWidgets() {
-
-		columnCombo.removeAllItems();
-		boolean hasColumnRules = false;
-		List<GridTemplateColumn> columnList = template.getColumns();
-		if (columnList.size() > 0) {
-			for (Iterator<GridTemplateColumn> iter = columnList.iterator(); iter.hasNext();) {
-				GridTemplateColumn column = iter.next();
-				if (column.getRuleDefinition() != null) {
-					columnCombo.addItem(column.getID() + " " + column.getTitle());
-					hasColumnRules = true;
-				}
-			}
-		}
-
-		columnCombo.setEnabled(true);
-		ruleForColumnRadio.setEnabled(true);
-
-		ruleForTemplateRadio.setSelected(true);
-
-
-		if (template.getRuleDefinition() != null)
-			ruleForTemplateRadio.setEnabled(true);
-		else {
-			ruleForTemplateRadio.setEnabled(false);
-			ruleForTemplateRadio.setSelected(false);
-		}
-		if (hasColumnRules) {
-			ruleForColumnRadio.setEnabled(true);
-			columnCombo.setEnabled(true);
-		}
-		else {
-			ruleForColumnRadio.setEnabled(false);
-			columnCombo.setEnabled(false);
-			ruleForColumnRadio.setSelected(false);
-		}
-
-	}
-
-	private RuleDefinition findInitialRuleDef() {
-		if (template.getRuleDefinition() != null) return template.getRuleDefinition();
-		GridTemplateColumn selectedColumn = getSelectedColumn();
-		if (selectedColumn != null) return selectedColumn.getRuleDefinition();
-		return null;
-	}
-
-	private GridTemplateColumn getSelectedColumn() {
-		String str = (String) columnCombo.getSelectedItem();
-		if (str == null || str.length() == 0) {
-			return null;
-		}
-		else {
-			try {
-				int colIndex = Integer.parseInt(str.substring(0, str.indexOf(" ")));
-				return (GridTemplateColumn) template.getColumn(colIndex);
-			}
-			catch (NumberFormatException ex) {
-				return null;
-			}
-			catch (Exception ex) {
-				ClientUtil.handleRuntimeException(ex);
-				return null;
-			}
-		}
-	}
-
-	private void selectRuleDef() {
-		if (ruleForTemplateRadio.isSelected())
-			ruleDef = template.getRuleDefinition();
-		else if (ruleForColumnRadio.isSelected()) {
-			GridTemplateColumn col = getSelectedColumn();
-			if (col != null) {
-				ruleDef = getSelectedColumn().getRuleDefinition();
-			}
-			else {
-				ruleDef = null;
-			}
-		}
-	}
-
-
 }

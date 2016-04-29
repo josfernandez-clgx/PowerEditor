@@ -30,6 +30,7 @@ import com.mindbox.pe.client.common.dialog.GuidelineContextDialog;
 import com.mindbox.pe.common.GuidelineContextProvider;
 import com.mindbox.pe.common.config.ConfigUtil;
 import com.mindbox.pe.model.GenericCategory;
+import com.mindbox.pe.model.GenericContextElement;
 import com.mindbox.pe.model.GenericEntity;
 import com.mindbox.pe.model.GenericEntityType;
 import com.mindbox.pe.model.GuidelineContext;
@@ -52,6 +53,7 @@ public final class GuidelineContextPanel extends DefaultGuidelineContextHolderFo
 
 	private class EditContextL implements ActionListener {
 
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			editContextButton.setEnabled(false);
 			try {
@@ -71,7 +73,7 @@ public final class GuidelineContextPanel extends DefaultGuidelineContextHolderFo
 		}
 	}
 
-	private final Map<GenericEntityType, JList> genericEntityJListMap;
+	private final Map<GenericEntityType, JList<GenericContextElement>> genericEntityJListMap;
 	private final Map<GenericEntityType, JLabel> genericEntityCatLabelMap;
 	private final Map<GenericEntityType, String[]> genericEntityLabelMap;
 	private boolean allowEdit, hasProductionRestrictions;
@@ -91,9 +93,6 @@ public final class GuidelineContextPanel extends DefaultGuidelineContextHolderFo
 		this(editButtonLabelKey, allowEdit, false, false);
 	}
 
-	/**
-	 * 
-	 */
 	public GuidelineContextPanel(String editButtonLabelKey, boolean allowEdit, boolean verticalOrientation) {
 		this(editButtonLabelKey, allowEdit, verticalOrientation, false);
 	}
@@ -102,7 +101,7 @@ public final class GuidelineContextPanel extends DefaultGuidelineContextHolderFo
 		this.allowEdit = allowEdit;
 		this.showSearchOptions = showSearchOptions;
 
-		genericEntityJListMap = new HashMap<GenericEntityType, JList>();
+		genericEntityJListMap = new HashMap<GenericEntityType, JList<GenericContextElement>>();
 		genericEntityCatLabelMap = new HashMap<GenericEntityType, JLabel>();
 		genericEntityLabelMap = new HashMap<GenericEntityType, String[]>();
 
@@ -112,13 +111,143 @@ public final class GuidelineContextPanel extends DefaultGuidelineContextHolderFo
 		initPanel(verticalOrientation);
 	}
 
+	@Override
+	public synchronized void addContext(GenericCategory[] categories) {
+		if (categories.length > 0) {
+			super.addContext(categories);
+			GenericEntityType type = GenericEntityType.forCategoryType(categories[0].getType());
+			genericEntityCatLabelMap.get(type).setText(genericEntityLabelMap.get(type)[1]);
+		}
+	}
+
+	@Override
+	public void addContext(GenericEntity[] entities) {
+		if (entities.length > 0) {
+			super.addContext(entities);
+			genericEntityCatLabelMap.get(entities[0].getType()).setText(genericEntityLabelMap.get(entities[0].getType())[0]);
+		}
+
+	}
+
+	@Override
+	public synchronized void clearContext() {
+		super.clearContext();
+		for (Map.Entry<GenericEntityType, JLabel> entry : genericEntityCatLabelMap.entrySet()) {
+			entry.getValue().setText(getGenericCategoryOrEntityLabel(entry.getKey()));
+		}
+	}
+
+	public void clearSearchOptions() {
+		includeChildrenCheckbox.setSelected(false);
+		includeParentsCheckbox.setSelected(false);
+		searchInColumnCheckbox.setSelected(false);
+		includeEmptyContextsCheckbox.setSelected(false);
+	}
+
+	private String getGenericCategoryOrEntityLabel(GenericEntityType type) {
+		String[] strs = genericEntityLabelMap.get(type);
+		if (strs != null) {
+			return strs[0] + '/' + strs[1];
+		}
+		else {
+			return "Category/" + type;
+		}
+	}
+
+	private JList<GenericContextElement> getGenericEntityList(final GenericEntityType type) {
+		if (genericEntityJListMap.containsKey(type)) {
+			return genericEntityJListMap.get(type);
+		}
+		else {
+			JList<GenericContextElement> list = UIFactory.createList(getGenenricEntityListModel(type));
+			list.setCellRenderer(new CategoryOrEntityCellRenderer());
+			list.addMouseListener(new MouseAdapter() {
+
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					if (allowEdit && e.getClickCount() == 2) {
+						if (hasProductionRestrictions) {
+							ClientUtil.getInstance().showWarning("msg.warning.context.production.activation", new Object[] { ClientUtil.getHighestStatusDisplayLabel() });
+						}
+						else {
+							removeSelectedGenericEntities(type);
+							removeSelectedGenericCategories(type);
+						}
+					}
+				}
+			});
+			genericEntityJListMap.put(type, list);
+			return list;
+		}
+	}
+
 	public JPanel getJPanel() {
 		return panel;
 	}
 
-	public final void setEditContextEnabled(boolean enabled) {
-		allowEdit = enabled;
-		if (editContextButton != null) editContextButton.setEnabled(enabled);
+	synchronized GenericCategory[] getSelectedGenericCategories() {
+		List<GenericCategory> result = new ArrayList<GenericCategory>();
+		for (Iterator<JList<GenericContextElement>> iter = genericEntityJListMap.values().iterator(); iter.hasNext();) {
+			JList<GenericContextElement> list = iter.next();
+			for (GenericContextElement element : list.getSelectedValuesList()) {
+				if (element instanceof GenericCategory) {
+					result.add(GenericCategory.class.cast(element));
+				}
+			}
+		}
+		return result.toArray(new GenericCategory[0]);
+	}
+
+	synchronized GenericCategory[] getSelectedGenericCategories(int categoryType) {
+		GenericEntityType type = ClientUtil.getEntityConfigHelper().findEntityTypeForCategoryType(categoryType);
+		DefaultListModel<GenericContextElement> model = getGenenricEntityListModel(type);
+		if (model.isEmpty() || !hasGenericCategoryContext(type)) {
+			return new GenericCategory[0];
+		}
+		else {
+			List<GenericContextElement> elements = getGenericEntityList(type).getSelectedValuesList();
+			GenericCategory[] categories = new GenericCategory[elements.size()];
+			for (int i = 0; i < categories.length; i++) {
+				categories[i] = (GenericCategory) elements.get(i);
+			}
+			return categories;
+		}
+	}
+
+	synchronized GenericEntity[] getSelectedGenericEntities() {
+		List<GenericEntity> list = new ArrayList<GenericEntity>();
+		for (Iterator<JList<GenericContextElement>> iter = genericEntityJListMap.values().iterator(); iter.hasNext();) {
+			JList<GenericContextElement> jlist = iter.next();
+			for (GenericContextElement element : jlist.getSelectedValuesList()) {
+				if (element instanceof GenericEntity) {
+					list.add(GenericEntity.class.cast(element));
+				}
+			}
+		}
+		return list.toArray(new GenericEntity[0]);
+	}
+
+	synchronized GenericEntity[] getSelectedGenericEntities(GenericEntityType type) {
+		List<GenericEntity> list = new ArrayList<GenericEntity>();
+		JList<GenericContextElement> jlist = genericEntityJListMap.get(type);
+		for (GenericContextElement element : jlist.getSelectedValuesList()) {
+			if (element instanceof GenericEntity) {
+				list.add(GenericEntity.class.cast(element));
+			}
+		}
+		return list.toArray(new GenericEntity[0]);
+	}
+
+	public boolean includeChildrenCategories() {
+		return includeChildrenCheckbox.isSelected();
+	}
+
+	public boolean includeEmptyContexts() {
+		return includeEmptyContextsCheckbox.isSelected();
+	}
+
+	public boolean includeParentCategories() {
+		return includeParentsCheckbox.isSelected();
 	}
 
 	private void initPanel(boolean verticalOrientation) {
@@ -132,7 +261,9 @@ public final class GuidelineContextPanel extends DefaultGuidelineContextHolderFo
 			if (ConfigUtil.isUseInContext(entityType)) {
 				GenericEntityType type = GenericEntityType.forID(entityType.getTypeID().intValue());
 				CategoryType catDef = ClientUtil.getEntityConfigHelper().getCategoryDefinition(type);
-				genericEntityLabelMap.put(type, new String[] { ClientUtil.getInstance().getLabel(type), (catDef == null ? "Category" : ClientUtil.getInstance().getLabel(catDef)) });
+				genericEntityLabelMap.put(
+						type,
+						new String[] { ClientUtil.getInstance().getLabel(type), (catDef == null ? "Category" : ClientUtil.getInstance().getLabel(catDef)) });
 
 				genericEntityCatLabelMap.put(type, new JLabel(getGenericCategoryOrEntityLabel(type)));
 
@@ -212,52 +343,30 @@ public final class GuidelineContextPanel extends DefaultGuidelineContextHolderFo
 		}
 	}
 
-	public void addContext(GenericEntity[] entities) {
-		if (entities.length > 0) {
-			super.addContext(entities);
-			genericEntityCatLabelMap.get(entities[0].getType()).setText(genericEntityLabelMap.get(entities[0].getType())[0]);
-		}
-
-	}
-
-	public synchronized void addContext(GenericCategory[] categories) {
-		if (categories.length > 0) {
-			super.addContext(categories);
-			GenericEntityType type = GenericEntityType.forCategoryType(categories[0].getType());
-			genericEntityCatLabelMap.get(type).setText(genericEntityLabelMap.get(type)[1]);
-		}
-	}
-
-	private JList getGenericEntityList(final GenericEntityType type) {
-		if (genericEntityJListMap.containsKey(type)) {
-			return genericEntityJListMap.get(type);
-		}
-		else {
-			JList list = UIFactory.createList(getGenenricEntityListModel(type));
-			list.setCellRenderer(new CategoryOrEntityCellRenderer());
-			list.addMouseListener(new MouseAdapter() {
-
-				public void mouseClicked(MouseEvent e) {
-					if (allowEdit && e.getClickCount() == 2) {
-						if (hasProductionRestrictions) {
-							ClientUtil.getInstance().showWarning("msg.warning.context.production.activation", new Object[] { ClientUtil.getHighestStatusDisplayLabel() });
-						}
-						else {
-							removeSelectedGenericEntities(type);
-							removeSelectedGenericCategories(type);
-						}
-					}
-				}
-			});
-			genericEntityJListMap.put(type, list);
-			return list;
+	@Override
+	public void removeContext(GenericCategory[] categories) {
+		super.removeContext(categories);
+		if (categories != null && categories.length > 0) {
+			GenericEntityType type = ClientUtil.getEntityConfigHelper().findEntityTypeForCategoryType(categories[0].getType());
+			if (type == null) {
+				throw new IllegalArgumentException("Cannot add categories: invalid type " + categories[0].getID());
+			}
+			DefaultListModel<GenericContextElement> model = getGenenricEntityListModel(type);
+			if (model.isEmpty()) {
+				genericEntityCatLabelMap.get(type).setText(getGenericCategoryOrEntityLabel(type));
+			}
+			fireContextChangeEvent();
 		}
 	}
 
-	private void removeSelectedGenericEntities(GenericEntityType type) {
-		GenericEntity[] entities = getSelectedGenericEntities(type);
+	@Override
+	public void removeContext(GenericEntity[] entities) {
+		super.removeContext(entities);
 		if (entities != null && entities.length > 0) {
-			removeContext(entities);
+			DefaultListModel<GenericContextElement> model = getGenenricEntityListModel(entities[0].getType());
+			if (model.isEmpty()) {
+				genericEntityCatLabelMap.get(entities[0].getType()).setText(getGenericCategoryOrEntityLabel(entities[0].getType()));
+			}
 		}
 	}
 
@@ -271,125 +380,20 @@ public final class GuidelineContextPanel extends DefaultGuidelineContextHolderFo
 		}
 	}
 
-	public void removeContext(GenericEntity[] entities) {
-		super.removeContext(entities);
+	private void removeSelectedGenericEntities(GenericEntityType type) {
+		GenericEntity[] entities = getSelectedGenericEntities(type);
 		if (entities != null && entities.length > 0) {
-			DefaultListModel model = getGenenricEntityListModel(entities[0].getType());
-			if (model.isEmpty()) {
-				genericEntityCatLabelMap.get(entities[0].getType()).setText(getGenericCategoryOrEntityLabel(entities[0].getType()));
-			}
+			removeContext(entities);
 		}
-	}
-
-	private String getGenericCategoryOrEntityLabel(GenericEntityType type) {
-		String[] strs = genericEntityLabelMap.get(type);
-		if (strs != null) {
-			return strs[0] + '/' + strs[1];
-		}
-		else {
-			return "Category/" + type;
-		}
-	}
-
-	public void removeContext(GenericCategory[] categories) {
-		super.removeContext(categories);
-		if (categories != null && categories.length > 0) {
-			GenericEntityType type = ClientUtil.getEntityConfigHelper().findEntityTypeForCategoryType(categories[0].getType());
-			if (type == null) {
-				throw new IllegalArgumentException("Cannot add categories: invalid type " + categories[0].getID());
-			}
-			DefaultListModel model = getGenenricEntityListModel(type);
-			if (model.isEmpty()) {
-				genericEntityCatLabelMap.get(type).setText(getGenericCategoryOrEntityLabel(type));
-			}
-			fireContextChangeEvent();
-		}
-	}
-
-	synchronized GenericEntity[] getSelectedGenericEntities(GenericEntityType type) {
-		List<Object> list = new ArrayList<Object>();
-		JList element = genericEntityJListMap.get(type);
-		Object[] objs = element.getSelectedValues();
-		for (int i = 0; i < objs.length; i++) {
-			if (objs[i] instanceof GenericEntity) {
-				list.add(objs[i]);
-			}
-		}
-		return list.toArray(new GenericEntity[0]);
-	}
-
-	synchronized GenericEntity[] getSelectedGenericEntities() {
-		List<Object> list = new ArrayList<Object>();
-		for (Iterator<JList> iter = genericEntityJListMap.values().iterator(); iter.hasNext();) {
-			JList element = iter.next();
-			Object[] objs = element.getSelectedValues();
-			for (int i = 0; i < objs.length; i++) {
-				if (objs[i] instanceof GenericEntity) {
-					list.add(objs[i]);
-				}
-			}
-		}
-		return list.toArray(new GenericEntity[0]);
-	}
-
-	synchronized GenericCategory[] getSelectedGenericCategories(int categoryType) {
-		GenericEntityType type = ClientUtil.getEntityConfigHelper().findEntityTypeForCategoryType(categoryType);
-		DefaultListModel model = getGenenricEntityListModel(type);
-		if (model.isEmpty() || !hasGenericCategoryContext(type)) {
-			return new GenericCategory[0];
-		}
-		else {
-			Object[] objs = getGenericEntityList(type).getSelectedValues();
-			GenericCategory[] categories = new GenericCategory[objs.length];
-			for (int i = 0; i < categories.length; i++) {
-				categories[i] = (GenericCategory) objs[i];
-			}
-			return categories;
-		}
-	}
-
-	synchronized GenericCategory[] getSelectedGenericCategories() {
-		List<Object> result = new ArrayList<Object>();
-		for (Iterator<JList> iter = genericEntityJListMap.values().iterator(); iter.hasNext();) {
-			JList list = iter.next();
-			Object[] objs = list.getSelectedValues();
-			for (int i = 0; i < objs.length; i++) {
-				if (objs[i] instanceof GenericCategory) {
-					result.add(objs[i]);
-				}
-			}
-		}
-		return result.toArray(new GenericCategory[0]);
-	}
-
-	public synchronized void clearContext() {
-		super.clearContext();
-		for (Map.Entry<GenericEntityType, JLabel> entry : genericEntityCatLabelMap.entrySet()) {
-			entry.getValue().setText(getGenericCategoryOrEntityLabel(entry.getKey()));
-		}
-	}
-
-	public boolean includeEmptyContexts() {
-		return includeEmptyContextsCheckbox.isSelected();
-	}
-
-	public boolean includeParentCategories() {
-		return includeParentsCheckbox.isSelected();
 	}
 
 	public boolean searchInColumnCheckbox() {
 		return searchInColumnCheckbox.isSelected();
 	}
 
-	public boolean includeChildrenCategories() {
-		return includeChildrenCheckbox.isSelected();
-	}
-
-	public void clearSearchOptions() {
-		includeChildrenCheckbox.setSelected(false);
-		includeParentsCheckbox.setSelected(false);
-		searchInColumnCheckbox.setSelected(false);
-		includeEmptyContextsCheckbox.setSelected(false);
+	public final void setEditContextEnabled(boolean enabled) {
+		allowEdit = enabled;
+		if (editContextButton != null) editContextButton.setEnabled(enabled);
 	}
 
 	public void setHasProductionRestrictions(boolean hasProductionRestrictions) {

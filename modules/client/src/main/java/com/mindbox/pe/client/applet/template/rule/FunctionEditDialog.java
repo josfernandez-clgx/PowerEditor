@@ -39,26 +39,39 @@ import com.mindbox.pe.model.rule.TestCondition;
  * @since PowerEditor 2.3.0
  */
 public abstract class FunctionEditDialog extends JPanel {
-	/**
-	 * 
-	 */
+
+	private class AcceptL implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (updateFunctionCall()) {
+				//dialog.setVisible(false);
+				dialog.dispose();
+			}
+		}
+	}
+
+	private class CancelL implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			function = null;
+			//dialog.setVisible(false);
+			dialog.dispose();
+		}
+	}
+
+	private class TypeComboL implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			resetDescField();
+		}
+	}
+
 	private static final long serialVersionUID = -3951228734910107454L;
 
 	public static RuleAction editRuleAction(Frame owner, TemplateUsageType usageType, RuleAction action) {
 		JDialog dialog = new JDialog(owner, true);
 		dialog.setTitle("Edit Rule Action");
 		ActionEditDialog panel = new ActionEditDialog(dialog, usageType, action);
-		UIFactory.addToDialog(dialog, panel);
-
-		dialog.setVisible(true);
-
-		return (RuleAction) panel.function;
-	}
-
-	public static RuleAction newRuleAction(Frame owner, TemplateUsageType usageType) {
-		JDialog dialog = new JDialog(owner, true);
-		dialog.setTitle("New Rule Action");
-		ActionEditDialog panel = new ActionEditDialog(dialog, usageType, null);
 		UIFactory.addToDialog(dialog, panel);
 
 		dialog.setVisible(true);
@@ -77,6 +90,17 @@ public abstract class FunctionEditDialog extends JPanel {
 		return (TestCondition) panel.function;
 	}
 
+	public static RuleAction newRuleAction(Frame owner, TemplateUsageType usageType) {
+		JDialog dialog = new JDialog(owner, true);
+		dialog.setTitle("New Rule Action");
+		ActionEditDialog panel = new ActionEditDialog(dialog, usageType, null);
+		UIFactory.addToDialog(dialog, panel);
+
+		dialog.setVisible(true);
+
+		return (RuleAction) panel.function;
+	}
+
 	public static TestCondition newTestCondition(Frame owner) {
 		JDialog dialog = new JDialog(owner, true);
 		dialog.setTitle("New Test Condition");
@@ -88,38 +112,11 @@ public abstract class FunctionEditDialog extends JPanel {
 		return (TestCondition) panel.function;
 	}
 
-	private class AcceptL implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			if (updateFunctionCall()) {
-				//dialog.setVisible(false);
-				dialog.dispose();
-			}
-		}
-	}
-
-	private class CancelL implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			function = null;
-			//dialog.setVisible(false);
-			dialog.dispose();
-		}
-	}
-
-	private class TypeComboL implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			resetDescField();
-		}
-	}
-
 	protected FunctionCall function = null;
 	private final JDialog dialog;
-
-	private final IDNameObjectComboBox typeCombo;
+	private final IDNameObjectComboBox<FunctionTypeDefinition> typeCombo;
 	private final JTextField typeDescField = new JTextField(10);
 
-	/**
-	 * 
-	 */
 	protected FunctionEditDialog(JDialog dialog, FunctionCall function, Object typeDeterminer) {
 		this.dialog = dialog;
 		this.function = function;
@@ -127,7 +124,7 @@ public abstract class FunctionEditDialog extends JPanel {
 		typeDescField.setEditable(false);
 
 		List<? extends FunctionTypeDefinition> typeList = getTypeList(typeDeterminer);
-		typeCombo = new IDNameObjectComboBox(false, getIconString());
+		typeCombo = new IDNameObjectComboBox<FunctionTypeDefinition>(false, getIconString());
 		for (Iterator<? extends FunctionTypeDefinition> iter = typeList.iterator(); iter.hasNext();) {
 			FunctionTypeDefinition element = iter.next();
 			typeCombo.addItem(element);
@@ -146,38 +143,13 @@ public abstract class FunctionEditDialog extends JPanel {
 		typeCombo.addActionListener(new TypeComboL());
 	}
 
-	private void resetDescField() {
-		if (typeCombo.getSelectedIndex() >= 0) {
-			typeDescField.setText(((FunctionTypeDefinition) typeCombo.getSelectedItem()).getDescription());
-		}
-		else {
-			typeDescField.setText("");
-		}
-	}
+	public abstract FunctionCall createFunctionCallInstance();
 
-	private boolean updateFunctionCall() {
-		if (typeCombo.getSelectedIndex() < 0) {
-			ClientUtil.getInstance().showWarning("msg.warning.empty.field", new Object[] { "function type" });
-			return false;
-		}
+	public abstract String getFunctionTypeLabel();
 
-		List<FunctionParameter> oldParams = null;
-		FunctionTypeDefinition oldTypeDef = null;
-		if (function == null) {
-			function = createFunctionCallInstance();
-		}
-		else {
-			if (function.size() > 0) oldParams = function.getElements();
-			oldTypeDef = function.getFunctionType();
-		}
+	public abstract String getIconString();
 
-		FunctionTypeDefinition typeDef = (FunctionTypeDefinition) typeCombo.getSelectedItem();
-
-
-		if (oldTypeDef == null || (!oldTypeDef.equals(typeDef))) RuleElementFactory.getInstance().createParametersForFunctionCall(function, typeDef, oldParams, oldTypeDef);
-		return true;
-	}
-
+	public abstract List<? extends FunctionTypeDefinition> getTypeList(Object typeDeterminer);
 
 	private void initPanel() {
 		GridBagLayout bag = new GridBagLayout();
@@ -223,12 +195,35 @@ public abstract class FunctionEditDialog extends JPanel {
 		PanelBase.addComponent(this, bag, c, buttonPanel);
 	}
 
-	abstract public String getIconString();
+	private void resetDescField() {
+		if (typeCombo.getSelectedIndex() >= 0) {
+			typeDescField.setText(((FunctionTypeDefinition) typeCombo.getSelectedItem()).getDescription());
+		}
+		else {
+			typeDescField.setText("");
+		}
+	}
 
-	abstract public FunctionCall createFunctionCallInstance();
+	private boolean updateFunctionCall() {
+		if (typeCombo.getSelectedIndex() < 0) {
+			ClientUtil.getInstance().showWarning("msg.warning.empty.field", new Object[] { "function type" });
+			return false;
+		}
 
-	abstract public String getFunctionTypeLabel();
+		List<FunctionParameter> oldParams = null;
+		FunctionTypeDefinition oldTypeDef = null;
+		if (function == null) {
+			function = createFunctionCallInstance();
+		}
+		else {
+			if (function.size() > 0) oldParams = function.getElements();
+			oldTypeDef = function.getFunctionType();
+		}
 
-	abstract public List<? extends FunctionTypeDefinition> getTypeList(Object typeDeterminer);
-
+		FunctionTypeDefinition typeDef = (FunctionTypeDefinition) typeCombo.getSelectedItem();
+		if (oldTypeDef == null || (!oldTypeDef.equals(typeDef))) {
+			RuleElementFactory.getInstance().createParametersForFunctionCall(function, typeDef, oldParams, oldTypeDef);
+		}
+		return true;
+	}
 }

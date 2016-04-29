@@ -13,12 +13,9 @@ import com.mindbox.pe.model.comparator.GenericEntityTypeComparator;
 /**
  * JComboBox that displays generic entity types.
  * @author Geneho Kim
- *
  */
-public class GenericEntityTypeComboBox extends JComboBox {
-	/**
-	 * 
-	 */
+public class GenericEntityTypeComboBox extends JComboBox<GenericEntityType> {
+
 	private static final long serialVersionUID = -3951228734910107454L;
 
 	public GenericEntityTypeComboBox(boolean hasEmpty, boolean sortItems, boolean compatibilityOnly) {
@@ -27,7 +24,7 @@ public class GenericEntityTypeComboBox extends JComboBox {
 		setRenderer(new GenericEntityTypeCellRenderer(null));
 		setFocusable(true);
 		if (hasEmpty) {
-			addItem(" ");
+			addItem(null);
 		}
 		GenericEntityType[] types = GenericEntityType.getAllGenericEntityTypes();
 		if (compatibilityOnly) {
@@ -56,21 +53,21 @@ public class GenericEntityTypeComboBox extends JComboBox {
 		return super.getSelectedIndex() >= 0;
 	}
 
-	public void selectGenericEntityType(String entityName) {
-		if (entityName == null || GenericEntityType.forName(entityName) == null) {
-			setSelectedIndex(-1);
-		}
-		else {
-			setSelectedItem(GenericEntityType.forName(entityName));
-		}
-	}
-
 	public void selectGenericEntityType(GenericEntityType type) {
 		if (type == null) {
 			setSelectedIndex(-1);
 		}
 		else {
 			setSelectedItem(type);
+		}
+	}
+
+	public void selectGenericEntityType(String entityName) {
+		if (entityName == null || GenericEntityType.forName(entityName) == null) {
+			setSelectedIndex(-1);
+		}
+		else {
+			setSelectedItem(GenericEntityType.forName(entityName));
 		}
 	}
 }

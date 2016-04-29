@@ -25,21 +25,32 @@ import com.mindbox.pe.model.template.ColumnDataSpecDigest;
 import com.mindbox.pe.model.template.ColumnDataSpecDigest.EnumSourceType;
 
 public class EnumCellEditor extends DefaultCellEditor {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3951228734910107454L;
 
-	public static final List<EnumValue> fetchSortedEnumValueListIfConfigured(ColumnDataSpecDigest columnDataSpecDigest) {
-		List<EnumValue> enumValueList = new ArrayList<EnumValue>();
-		if (!(columnDataSpecDigest.getEnumSourceType() == EnumSourceType.EXTERNAL && columnDataSpecDigest.isEnumSelectorColumnSet())) {
-			enumValueList.addAll(EnumValuesDataHelper.getAllEnumValues(columnDataSpecDigest, DomainModel.getInstance(), ClientUtil.getEnumerationSourceProxy()));
-			if (columnDataSpecDigest.isEnumValueNeedSorted()) {
-				Collections.sort(enumValueList);
+	private class ActionL implements ActionListener {
+		@Override
+		public synchronized void actionPerformed(ActionEvent e) {
+			if (!UtilBase.isSame(tableModel.getCellValueAt(currentRow, columnName), getCellEditorValue())) {
+				if (!UtilBase.isEmptyCellValue(tableModel.getCellValueAt(currentRow, columnName)) && tableModel.hasNonEmptyDepedentCell(currentRow, columnName)) {
+					// display a warning dialog with Yes/No/Cancel option.
+					List<Integer> columnIDs = tableModel.getNonEmptyDependentColumnIDs(currentRow, columnName);
+					StringBuilder buff = new StringBuilder();
+					for (Iterator<Integer> iterator = columnIDs.iterator(); iterator.hasNext();) {
+						buff.append(tableModel.getTemplate().getColumn(iterator.next()).getTitle());
+						if (iterator.hasNext()) buff.append(", ");
+					}
+					if (ClientUtil.getInstance().showConfirmation("msg.warning.enum.column.clear.dependent.cells", buff.toString())) {
+						tableModel.clearNonEmptyDependentColumns(currentRow, columnName);
+					}
+					else {
+						cancelCellEditing();
+					}
+				}
 			}
 		}
-		return enumValueList;
+
 	}
+
+	private static final long serialVersionUID = -3951228734910107454L;
 
 	public static final List<EnumValue> fetchSortedApplicableEnumValueListIfConfigured(ColumnDataSpecDigest columnDataSpecDigest, String selectorValue) {
 		List<EnumValue> enumValueList = new ArrayList<EnumValue>();
@@ -52,10 +63,21 @@ public class EnumCellEditor extends DefaultCellEditor {
 		return enumValueList;
 	}
 
+	public static final List<EnumValue> fetchSortedEnumValueListIfConfigured(ColumnDataSpecDigest columnDataSpecDigest) {
+		List<EnumValue> enumValueList = new ArrayList<EnumValue>();
+		if (!(columnDataSpecDigest.getEnumSourceType() == EnumSourceType.EXTERNAL && columnDataSpecDigest.isEnumSelectorColumnSet())) {
+			enumValueList.addAll(EnumValuesDataHelper.getAllEnumValues(columnDataSpecDigest, DomainModel.getInstance(), ClientUtil.getEnumerationSourceProxy()));
+			if (columnDataSpecDigest.isEnumValueNeedSorted()) {
+				Collections.sort(enumValueList);
+			}
+		}
+		return enumValueList;
+	}
+
 	private boolean viewOnly;
 	private final ColumnDataSpecDigest columnDataSpecDigest;
 	private final AbstractGridTableModel<?> tableModel;
-	private DefaultComboBoxModel comboModel;
+	private DefaultComboBoxModel<EnumValue> comboModel;
 	private final String columnName;
 	private int currentRow;
 
@@ -64,24 +86,33 @@ public class EnumCellEditor extends DefaultCellEditor {
 		this.viewOnly = viewOnly;
 		this.columnDataSpecDigest = columnDataSpecDigest;
 		this.tableModel = tableModel;
-		this.comboModel = new DefaultComboBoxModel();
+		this.comboModel = new DefaultComboBoxModel<EnumValue>();
 		this.columnName = columnName;
 		initEditor(columnDataSpecDigest);
 	}
 
-	public boolean isCellEditable(EventObject eventobject) {
-		return !viewOnly;
+	@Override
+	public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+		resetListModelForSelectionIfNeeded(row);
+		this.currentRow = row;
+		return super.getTableCellEditorComponent(table, value, isSelected, row, column);
 	}
 
+	@SuppressWarnings("unchecked")
 	private void initEditor(ColumnDataSpecDigest columnDataSpecDigest) {
 		List<EnumValue> enumValueList = fetchSortedEnumValueListIfConfigured(columnDataSpecDigest);
 		resetComboModel(enumValueList);
 
-		JComboBox combo = (JComboBox) getComponent();
+		JComboBox<EnumValue> combo = (JComboBox<EnumValue>) getComponent();
 		combo.setRenderer(new EnumValueCellRenderer(enumValueList));
 		combo.setModel(comboModel);
 		combo.addActionListener(new ActionL());
 		setClickCountToStart(1);
+	}
+
+	@Override
+	public boolean isCellEditable(EventObject eventobject) {
+		return !viewOnly;
 	}
 
 	private void resetComboModel(List<EnumValue> enumValueList) {
@@ -112,13 +143,6 @@ public class EnumCellEditor extends DefaultCellEditor {
 	}
 
 	@Override
-	public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-		resetListModelForSelectionIfNeeded(row);
-		this.currentRow = row;
-		return super.getTableCellEditorComponent(table, value, isSelected, row, column);
-	}
-
-	@Override
 	public boolean shouldSelectCell(EventObject anEvent) {
 		if ((comboModel.getSize() == 0 || (comboModel.getSize() == 1 && columnDataSpecDigest.isBlankAllowed())) && columnDataSpecDigest.isEnumSelectorColumnSet()) {
 			String columnName = this.tableModel.getColumnName(tableModel.getColumnIndex(columnDataSpecDigest.getEnumSelectorColumnName()));
@@ -129,29 +153,5 @@ public class EnumCellEditor extends DefaultCellEditor {
 		else {
 			return super.shouldSelectCell(anEvent);
 		}
-	}
-
-	private class ActionL implements ActionListener {
-		@Override
-		public synchronized void actionPerformed(ActionEvent e) {
-			if (!UtilBase.isSame(tableModel.getCellValueAt(currentRow, columnName), getCellEditorValue())) {
-				if (!UtilBase.isEmptyCellValue(tableModel.getCellValueAt(currentRow, columnName)) && tableModel.hasNonEmptyDepedentCell(currentRow, columnName)) {
-					// display a warning dialog with Yes/No/Cancel option.
-					List<Integer> columnIDs = tableModel.getNonEmptyDependentColumnIDs(currentRow, columnName);
-					StringBuilder buff = new StringBuilder();
-					for (Iterator<Integer> iterator = columnIDs.iterator(); iterator.hasNext();) {
-						buff.append(tableModel.getTemplate().getColumn(iterator.next()).getTitle());
-						if (iterator.hasNext()) buff.append(", ");
-					}
-					if (ClientUtil.getInstance().showConfirmation("msg.warning.enum.column.clear.dependent.cells", buff.toString())) {
-						tableModel.clearNonEmptyDependentColumns(currentRow, columnName);
-					}
-					else {
-						cancelCellEditing();
-					}
-				}
-			}
-		}
-
 	}
 }

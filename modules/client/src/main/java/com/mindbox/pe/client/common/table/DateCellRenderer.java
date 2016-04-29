@@ -23,15 +23,24 @@ import com.mindbox.pe.model.Constants;
  * @author MindBox, Inc
  * @since PowerEditor 4.2.0
  */
-public final class DateCellRenderer extends JLabel implements ListCellRenderer, TableCellRenderer {
-	/**
-	 * 
-	 */
+public final class DateCellRenderer extends JLabel implements ListCellRenderer<Date>, TableCellRenderer {
 	private static final long serialVersionUID = -3951228734910107454L;
 
 	public DateCellRenderer() {
 		super();
 		setOpaque(true);
+	}
+
+	@Override
+	public Component getListCellRendererComponent(JList<? extends Date> arg0, Date value, int index, boolean isSelected, boolean arg4) {
+		setDisplayString(value, isSelected);
+		return this;
+	}
+
+	@Override
+	public Component getTableCellRendererComponent(JTable arg0, Object value, boolean isSelected, boolean arg3, int arg4, int arg5) {
+		setDisplayString(value, isSelected);
+		return this;
 	}
 
 	private void setDisplayString(Object value, boolean isSelected) {
@@ -43,15 +52,4 @@ public final class DateCellRenderer extends JLabel implements ListCellRenderer, 
 		}
 		setBackground(isSelected ? PowerEditorSwingTheme.primary3 : Color.white);
 	}
-
-	public Component getListCellRendererComponent(JList arg0, Object value, int index, boolean isSelected, boolean arg4) {
-		setDisplayString(value, isSelected);
-		return this;
-	}
-
-	public Component getTableCellRendererComponent(JTable arg0, Object value, boolean isSelected, boolean arg3, int arg4, int arg5) {
-		setDisplayString(value, isSelected);
-		return this;
-	}
-
 }

@@ -35,9 +35,88 @@ import com.mindbox.pe.model.assckey.MutableTimedAssociationKey;
  * @since PowerEditor 5.1.0
  */
 public class CategoryToEntityListPanel extends PanelBase {
-	/**
-	 * 
-	 */
+
+	private class AddL extends AbstractThreadedActionAdapter {
+		@Override
+		public void performAction(ActionEvent event) throws Exception {
+			if (category != null) {
+				CategoryToEntityAssociationData data = CategoryToEntityEditDialog.newAssociationData(category);
+				while (data != null && !isValid(null, data)) {
+					data = CategoryToEntityEditDialog.editAssociationData(category, data);
+				}
+
+				if (data != null) {
+					try {
+						lockEntity(data.getEntity());
+						selectionTable.getSelectionTableModel().addData(data);
+					}
+					catch (ServerException e) {
+						ClientUtil.getInstance().showErrorDialog(
+								"msg.error.failure.lock",
+								new Object[] { data.getEntity().getName(), ClientUtil.getInstance().getErrorMessage(e) });
+					}
+				}
+			}
+
+		}
+	}
+
+	private class EditL extends AbstractThreadedActionAdapter {
+
+		@Override
+		public void performAction(ActionEvent event) throws Exception {
+			CategoryToEntityAssociationData oldData = getSelectedData();
+			int row = selectionTable.getSelectedRow();
+			if (oldData != null) {
+				CategoryToEntityAssociationData newData = CategoryToEntityEditDialog.editAssociationData(category, oldData);
+				while (newData != null && !isValid(oldData, newData)) {
+					newData = CategoryToEntityEditDialog.editAssociationData(category, newData);
+				}
+				if (newData != null) {
+					try {
+						lockEntity(newData.getEntity());
+						oldData.setEntity(newData.getEntity());
+						oldData.setMutableTimedAssociationKey(newData.getAssociationKey());
+						selectionTable.updateRow(row);
+					}
+					catch (ServerException e) {
+						ClientUtil.getInstance().showErrorDialog(
+								"msg.error.failure.lock",
+								new Object[] { newData.getEntity().getName(), ClientUtil.getInstance().getErrorMessage(e) });
+					}
+				}
+
+			}
+		}
+	}
+
+	private class RemoveL extends AbstractThreadedActionAdapter {
+
+		@Override
+		public void performAction(ActionEvent event) throws Exception {
+			if (ClientUtil.getInstance().showConfirmation("msg.question.remove.entity", new Object[] { "entity to category association" })) {
+				CategoryToEntityAssociationData data = getSelectedData();
+				selectionTable.getSelectionTableModel().removeData(data);
+			}
+		}
+	}
+
+	private final class ShowDateNameL extends AbstractThreadedActionAdapter {
+
+		@Override
+		public void performAction(ActionEvent e) {
+			selectionTable.refresh(dateNameCheckbox.isSelected());
+		}
+	}
+
+	private class TableSelectionL implements ListSelectionListener {
+
+		@Override
+		public void valueChanged(ListSelectionEvent arg0) {
+			setEnabledSelectionAwares(selectionTable.getSelectedRow() > -1);
+		}
+	}
+
 	private static final long serialVersionUID = -3951228734910107454L;
 
 	private final CategoryToEntitySelectionTable selectionTable;
@@ -46,10 +125,6 @@ public class CategoryToEntityListPanel extends PanelBase {
 	private final JCheckBox dateNameCheckbox;
 	private List<GenericEntity> lockedEntities;
 
-	/**
-	 * @throws ServerException 
-	 *  
-	 */
 	public CategoryToEntityListPanel(GenericCategory category) throws ServerException {
 		super();
 		this.category = category;
@@ -68,9 +143,33 @@ public class CategoryToEntityListPanel extends PanelBase {
 		initPanel();
 
 		setEnabled(false);
-		ComboBoxModel model = EntityModelCacheFactory.getInstance().getGenericEntityComboModel(GenericEntityType.forCategoryType(category.getType()), false);
+		ComboBoxModel<GenericEntity> model = EntityModelCacheFactory.getInstance().getGenericEntityComboModel(GenericEntityType.forCategoryType(category.getType()), false);
 		addButton.setEnabled(model.getSize() > 0);
 		selectionTable.getSelectionModel().addListSelectionListener(new TableSelectionL());
+	}
+
+	public List<MutableTimedAssociationKey> getEntityAssociations(int entityID) {
+		List<MutableTimedAssociationKey> results = new ArrayList<MutableTimedAssociationKey>();
+		if (selectionTable.getSelectionTableModel().getDataList() != null) {
+			for (CategoryToEntityAssociationData data : selectionTable.getSelectionTableModel().getDataList()) {
+				if (data.getEntity().getID() == entityID) {
+					results.add(data.getAssociationKey());
+				}
+			}
+		}
+		return results;
+	}
+
+	List<GenericEntity> getLockedEntities() {
+		return lockedEntities;
+	}
+
+	private CategoryToEntityAssociationData getSelectedData() {
+		return selectionTable.getSelectedDataObject();
+	}
+
+	CategoryToEntitySelectionTable getSelectionTable() {
+		return selectionTable;
 	}
 
 	private void initPanel() throws ServerException {
@@ -87,19 +186,22 @@ public class CategoryToEntityListPanel extends PanelBase {
 		populateData();
 	}
 
-	private synchronized void populateData() throws ServerException {
-		List<CategoryToEntityAssociationData> dataList = EntityModelCacheFactory.getInstance().getCategoryToEntityAssociationsByCategory(category);
-		List<GenericEntity> entities = new ArrayList<GenericEntity>();
-		for (Iterator<CategoryToEntityAssociationData> i = dataList.iterator(); i.hasNext();) {
-			CategoryToEntityAssociationData data = i.next();
-			entities.add(data.getEntity());
+	private boolean isValid(CategoryToEntityAssociationData oldData, CategoryToEntityAssociationData newData) {
+		if (newData.getAssociationKey().getEffectiveDate() != null && newData.getAssociationKey().getExpirationDate() != null
+				&& newData.getAssociationKey().getEffectiveDate().after(newData.getAssociationKey().getExpirationDate())) {
+			ClientUtil.getInstance().showErrorDialog("InvalidActivationDateRangeMsg");
+			return false;
 		}
-		lockEntities(entities);
-
-		selectionTable.setDataList(dataList);
-		setEnabled(true);
-		setEnabledSelectionAwares(false);
-		addButton.setEnabled(true);
+		else {
+			for (CategoryToEntityAssociationData listData : selectionTable.getSelectionTableModel().getDataList()) {
+				if ((oldData == null || oldData != listData) && newData.getEntity().equals(listData.getEntity())
+						&& newData.getAssociationKey().overlapsWith(listData.getAssociationKey())) {
+					ClientUtil.getInstance().showErrorDialog("EntityToCategoryRelationshipOverlaps");
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
 	/**
@@ -126,6 +228,22 @@ public class CategoryToEntityListPanel extends PanelBase {
 		}
 	}
 
+	private synchronized void populateData() throws ServerException {
+		List<CategoryToEntityAssociationData> dataList = EntityModelCacheFactory.getInstance().getCategoryToEntityAssociationsByCategory(category);
+		List<GenericEntity> entities = new ArrayList<GenericEntity>();
+		for (Iterator<CategoryToEntityAssociationData> i = dataList.iterator(); i.hasNext();) {
+			CategoryToEntityAssociationData data = i.next();
+			entities.add(data.getEntity());
+		}
+		lockEntities(entities);
+
+		selectionTable.setDataList(dataList);
+		setEnabled(true);
+		setEnabledSelectionAwares(false);
+		addButton.setEnabled(true);
+	}
+
+	@Override
 	public void setEnabled(boolean enabled) {
 		removeButton.setEnabled(enabled);
 		editButton.setEnabled(enabled);
@@ -134,119 +252,6 @@ public class CategoryToEntityListPanel extends PanelBase {
 	private void setEnabledSelectionAwares(boolean enabled) {
 		removeButton.setEnabled(enabled);
 		editButton.setEnabled(enabled);
-	}
-
-	private final class ShowDateNameL extends AbstractThreadedActionAdapter {
-
-		public void performAction(ActionEvent e) {
-			selectionTable.refresh(dateNameCheckbox.isSelected());
-		}
-	}
-
-	private class AddL extends AbstractThreadedActionAdapter {
-		public void performAction(ActionEvent event) throws Exception {
-			if (category != null) {
-				CategoryToEntityAssociationData data = CategoryToEntityEditDialog.newAssociationData(category);
-				while (data != null && !isValid(null, data)) {
-					data = CategoryToEntityEditDialog.editAssociationData(category, data);
-				}
-
-				if (data != null) {
-					try {
-						lockEntity(data.getEntity());
-						selectionTable.getSelectionTableModel().addData(data);
-					}
-					catch (ServerException e) {
-						ClientUtil.getInstance().showErrorDialog("msg.error.failure.lock", new Object[] { data.getEntity().getName(), ClientUtil.getInstance().getErrorMessage(e) });
-					}
-				}
-			}
-
-		}
-	}
-
-	private class RemoveL extends AbstractThreadedActionAdapter {
-
-		public void performAction(ActionEvent event) throws Exception {
-			if (ClientUtil.getInstance().showConfirmation("msg.question.remove.entity", new Object[] { "entity to category association" })) {
-				CategoryToEntityAssociationData data = getSelectedData();
-				selectionTable.getSelectionTableModel().removeData(data);
-			}
-		}
-	}
-
-	private class EditL extends AbstractThreadedActionAdapter {
-
-		public void performAction(ActionEvent event) throws Exception {
-			CategoryToEntityAssociationData oldData = getSelectedData();
-			int row = selectionTable.getSelectedRow();
-			if (oldData != null) {
-				CategoryToEntityAssociationData newData = CategoryToEntityEditDialog.editAssociationData(category, oldData);
-				while (newData != null && !isValid(oldData, newData)) {
-					newData = CategoryToEntityEditDialog.editAssociationData(category, newData);
-				}
-				if (newData != null) {
-					try {
-						lockEntity(newData.getEntity());
-						oldData.setEntity(newData.getEntity());
-						oldData.setMutableTimedAssociationKey(newData.getAssociationKey());
-						selectionTable.updateRow(row);
-					}
-					catch (ServerException e) {
-						ClientUtil.getInstance().showErrorDialog("msg.error.failure.lock", new Object[] { newData.getEntity().getName(), ClientUtil.getInstance().getErrorMessage(e) });
-					}
-				}
-
-			}
-		}
-	}
-
-	private class TableSelectionL implements ListSelectionListener {
-
-		public void valueChanged(ListSelectionEvent arg0) {
-			setEnabledSelectionAwares(selectionTable.getSelectedRow() > -1);
-		}
-	}
-
-	public List<MutableTimedAssociationKey> getEntityAssociations(int entityID) {
-		List<MutableTimedAssociationKey> results = new ArrayList<MutableTimedAssociationKey>();
-		if (selectionTable.getSelectionTableModel().getDataList() != null) {
-			for (CategoryToEntityAssociationData data : selectionTable.getSelectionTableModel().getDataList()) {
-				if (data.getEntity().getID() == entityID) {
-					results.add(data.getAssociationKey());
-				}
-			}
-		}
-		return results;
-	}
-
-	private boolean isValid(CategoryToEntityAssociationData oldData, CategoryToEntityAssociationData newData) {
-		if (newData.getAssociationKey().getEffectiveDate() != null && newData.getAssociationKey().getExpirationDate() != null
-				&& newData.getAssociationKey().getEffectiveDate().after(newData.getAssociationKey().getExpirationDate())) {
-			ClientUtil.getInstance().showErrorDialog("InvalidActivationDateRangeMsg");
-			return false;
-		}
-		else {
-			for (CategoryToEntityAssociationData listData : selectionTable.getSelectionTableModel().getDataList()) {
-				if ((oldData == null || oldData != listData) && newData.getEntity().equals(listData.getEntity()) && newData.getAssociationKey().overlapsWith(listData.getAssociationKey())) {
-					ClientUtil.getInstance().showErrorDialog("EntityToCategoryRelationshipOverlaps");
-					return false;
-				}
-			}
-		}
-		return true;
-	}
-
-	private CategoryToEntityAssociationData getSelectedData() {
-		return selectionTable.getSelectedDataObject();
-	}
-
-	List<GenericEntity> getLockedEntities() {
-		return lockedEntities;
-	}
-
-	CategoryToEntitySelectionTable getSelectionTable() {
-		return selectionTable;
 	}
 
 }

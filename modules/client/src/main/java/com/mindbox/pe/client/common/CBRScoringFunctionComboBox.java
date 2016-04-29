@@ -25,16 +25,10 @@ import com.mindbox.pe.model.cbr.CBRScoringFunction;
  * @author MindBox, Inc
  * @since PowerEditor 1.10.0
  */
-public final class CBRScoringFunctionComboBox extends JComboBox {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3951228734910107454L;
+public final class CBRScoringFunctionComboBox extends JComboBox<CBRScoringFunction> {
 
-	private static class CBRScoringFunctionCellRenderer extends JLabel implements ListCellRenderer {
-		/**
-		 * 
-		 */
+	private static class CBRScoringFunctionCellRenderer extends JLabel implements ListCellRenderer<CBRScoringFunction> {
+
 		private static final long serialVersionUID = -3951228734910107454L;
 
 		public CBRScoringFunctionCellRenderer(String imageKey) {
@@ -44,20 +38,20 @@ public final class CBRScoringFunctionComboBox extends JComboBox {
 			setOpaque(true);
 		}
 
-		public Component getListCellRendererComponent(JList arg0, Object value, int index, boolean isSelected, boolean arg4) {
+		@Override
+		public Component getListCellRendererComponent(JList<? extends CBRScoringFunction> arg0, CBRScoringFunction value, int index, boolean isSelected, boolean arg4) {
 			if (value == null) {
 				setText("");
 			}
-			else if (value instanceof CBRScoringFunction) {
-				this.setText(((CBRScoringFunction) value).getName());
-			}
 			else {
-				this.setText(value.toString());
+				this.setText(value.getName());
 			}
 			setBackground(isSelected ? PowerEditorSwingTheme.primary3 : Color.white);
 			return this;
 		}
 	}
+
+	private static final long serialVersionUID = -3951228734910107454L;
 
 	public static CBRScoringFunctionComboBox createInstance() throws ServerException {
 		return new CBRScoringFunctionComboBox(ClientUtil.fetchAllCBRScoringFunctions());
@@ -69,6 +63,9 @@ public final class CBRScoringFunctionComboBox extends JComboBox {
 		setRenderer(new CBRScoringFunctionCellRenderer(null));
 	}
 
+	public void clearSelection() {
+		setSelectedIndex(0);
+	}
 
 	public CBRScoringFunction getSelectedCBRScoringFunction() {
 		Object obj = super.getSelectedItem();
@@ -80,12 +77,10 @@ public final class CBRScoringFunctionComboBox extends JComboBox {
 		}
 	}
 
-	public void clearSelection() {
-		setSelectedIndex(0);
-	}
-
 	public void selectCBRScoringFunction(CBRScoringFunction scoringFunction) {
-		if (scoringFunction == null) return;
+		if (scoringFunction == null) {
+			return;
+		}
 		setSelectedItem(scoringFunction);
 	}
 }

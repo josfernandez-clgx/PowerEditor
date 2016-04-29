@@ -86,16 +86,16 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 	 * @param model
 	 * @return copy of <code>model</code>, if it's not <code>null</code>; empty combo model, otherwise
 	 */
-	private static DefaultComboBoxModel copyComboBoxModel(ComboBoxModel model) {
+	private static DefaultComboBoxModel<GenericEntity> copyComboBoxModel(ComboBoxModel<GenericEntity> model) {
 		if (model == null) {
-			return new DefaultComboBoxModel();
+			return new DefaultComboBoxModel<GenericEntity>();
 		}
 
-		Object[] items = new Object[model.getSize()];
+		GenericEntity[] items = new GenericEntity[model.getSize()];
 		for (int i = 0; i < items.length; i++) {
 			items[i] = model.getElementAt(i);
 		}
-		return new DefaultComboBoxModel(items);
+		return new DefaultComboBoxModel<GenericEntity>(items);
 	}
 
 	private static TemplateTreeNode findTemplateTreeNode(UsageTypeTreeNode usageNode, int templateID) {
@@ -154,11 +154,12 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 
 	private final List<EntityDeleteListener> entityDeleteListenerList;
 
-	private final List<DefaultComboBoxModel> dateSynonymModelList, dateSynonymWithEmptyModelList;
+	private final List<DefaultComboBoxModel<DateSynonym>> dateSynonymModelList, dateSynonymWithEmptyModelList;
 
-	private final DefaultComboBoxModel dateSynonymModel, dateSynonymWithEmptyModel;
-	private final DefaultComboBoxModel privilegeModel, roleModel;
-	private final DefaultComboBoxModel paramTemplateModel, paramTemplateWithEmptyModel;
+	private final DefaultComboBoxModel<DateSynonym> dateSynonymModel, dateSynonymWithEmptyModel;
+	private final DefaultComboBoxModel<Privilege> privilegeModel;
+	private final DefaultComboBoxModel<Role> roleModel;
+	private final DefaultComboBoxModel<ParameterTemplate> paramTemplateModel, paramTemplateWithEmptyModel;
 	private final ClientCache cacheInstance;
 	private final List<GridTemplate> cachedTemplateList;
 	private final List<GridTemplate> cachedSearchTemplateList;
@@ -174,27 +175,31 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 	private final Map<TemplateUsageType, UsageTypeTreeNode> usageTreeNodeMap = Collections.synchronizedMap(new HashMap<TemplateUsageType, UsageTypeTreeNode>());
 	private final Map<TemplateUsageType, UsageTypeTreeNode> usageSearchTreeNodeMap = Collections.synchronizedMap(new HashMap<TemplateUsageType, UsageTypeTreeNode>());
 
-	private final Map<GenericEntityType, ComboBoxModel> genericEntityComboModelMap = Collections.synchronizedMap(new HashMap<GenericEntityType, ComboBoxModel>());
-	private final Map<GenericEntityType, ComboBoxModel> genericEntityWithEmptyComboModelMap = Collections.synchronizedMap(new HashMap<GenericEntityType, ComboBoxModel>());
-	private final Map<GenericEntityType, List<DefaultComboBoxModel>> genericEntityComboModelCopyMap = Collections.synchronizedMap(new HashMap<GenericEntityType, List<DefaultComboBoxModel>>());
-	private final Map<GenericEntityType, List<DefaultComboBoxModel>> genericEntityWithEmptyComboModelCopyMap = Collections.synchronizedMap(new HashMap<GenericEntityType, List<DefaultComboBoxModel>>());
+	private final Map<GenericEntityType, ComboBoxModel<GenericEntity>> genericEntityComboModelMap = Collections.synchronizedMap(
+			new HashMap<GenericEntityType, ComboBoxModel<GenericEntity>>());
+	private final Map<GenericEntityType, ComboBoxModel<GenericEntity>> genericEntityWithEmptyComboModelMap = Collections.synchronizedMap(
+			new HashMap<GenericEntityType, ComboBoxModel<GenericEntity>>());
+	private final Map<GenericEntityType, List<DefaultComboBoxModel<GenericEntity>>> genericEntityComboModelCopyMap = Collections.synchronizedMap(
+			new HashMap<GenericEntityType, List<DefaultComboBoxModel<GenericEntity>>>());
+	private final Map<GenericEntityType, List<DefaultComboBoxModel<GenericEntity>>> genericEntityWithEmptyComboModelCopyMap = Collections.synchronizedMap(
+			new HashMap<GenericEntityType, List<DefaultComboBoxModel<GenericEntity>>>());
 	private final Map<Integer, List<GenericCategory>> cachedGenericCategoryMap;
 	private final Map<Integer, List<DatedCategoryTreeModel>> cachedGenericCategoryTreeModelMap;
 	private final Map<String, List<TypeEnumValue>> cachedTypeEnumValueMap = new HashMap<String, List<TypeEnumValue>>();
-	private ComboBoxModel usageTypeModel = null;
+	private ComboBoxModel<TemplateUsageType> usageTypeModel = null;
 
 	private EntityModelCacheFactory() {
 		cacheInstance = new ClientCache();
 		entityDeleteListenerList = new ArrayList<EntityDeleteListener>();
-		dateSynonymModelList = new ArrayList<DefaultComboBoxModel>();
-		dateSynonymWithEmptyModelList = new ArrayList<DefaultComboBoxModel>();
+		dateSynonymModelList = new ArrayList<DefaultComboBoxModel<DateSynonym>>();
+		dateSynonymWithEmptyModelList = new ArrayList<DefaultComboBoxModel<DateSynonym>>();
 
-		dateSynonymModel = new DefaultComboBoxModel();
-		dateSynonymWithEmptyModel = new DefaultComboBoxModel();
-		paramTemplateModel = new DefaultComboBoxModel();
-		paramTemplateWithEmptyModel = new DefaultComboBoxModel();
-		privilegeModel = new DefaultComboBoxModel();
-		roleModel = new DefaultComboBoxModel();
+		dateSynonymModel = new DefaultComboBoxModel<DateSynonym>();
+		dateSynonymWithEmptyModel = new DefaultComboBoxModel<DateSynonym>();
+		paramTemplateModel = new DefaultComboBoxModel<ParameterTemplate>();
+		paramTemplateWithEmptyModel = new DefaultComboBoxModel<ParameterTemplate>();
+		privilegeModel = new DefaultComboBoxModel<Privilege>();
+		roleModel = new DefaultComboBoxModel<Role>();
 		templateTableModel = new TemplateIDNameTableModel();
 		cachedTemplateList = new LinkedList<GridTemplate>();
 		cachedSearchTemplateList = new LinkedList<GridTemplate>();
@@ -204,17 +209,17 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 	}
 
 	public void add(GenericEntity entity) {
-		DefaultComboBoxModel model = (DefaultComboBoxModel) getGenericEntityComboModel(entity.getType(), false);
+		DefaultComboBoxModel<GenericEntity> model = (DefaultComboBoxModel<GenericEntity>) getGenericEntityComboModel(entity.getType(), false);
 		GenericEntity[] entities = new GenericEntity[model.getSize() + 1];
 		for (int i = 0; i < entities.length; i++) {
-			entities[i] = (GenericEntity) model.getElementAt(i);
+			entities[i] = model.getElementAt(i);
 		}
 		entities[entities.length - 1] = entity;
 		Arrays.sort(entities, new IDNameObjectComparator<GenericEntity>());
 
 		add_helper(entities, false, model);
 
-		add_helper(entities, true, (DefaultComboBoxModel) getGenericEntityComboModel(entity.getType(), true));
+		add_helper(entities, true, (DefaultComboBoxModel<GenericEntity>) getGenericEntityComboModel(entity.getType(), true));
 
 		add_helper(entities, false, genericEntityComboModelCopyMap.get(entity.getType()));
 		add_helper(entities, true, genericEntityWithEmptyComboModelCopyMap.get(entity.getType()));
@@ -251,15 +256,17 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 		}
 	}
 
-	private void add_helper(GenericEntity[] entities, boolean hasEmpty, DefaultComboBoxModel model) {
+	private void add_helper(GenericEntity[] entities, boolean hasEmpty, DefaultComboBoxModel<GenericEntity> model) {
 		model.removeAllElements();
-		if (hasEmpty) model.addElement(" ");
+		if (hasEmpty) {
+			model.addElement(null);
+		}
 		for (int i = 0; i < entities.length; i++) {
 			model.addElement(entities[i]);
 		}
 	}
 
-	private void add_helper(GenericEntity[] entities, boolean hasEmpty, List<DefaultComboBoxModel> comboModelList) {
+	private void add_helper(GenericEntity[] entities, boolean hasEmpty, List<DefaultComboBoxModel<GenericEntity>> comboModelList) {
 		if (comboModelList != null) {
 			for (int i = 0; i < comboModelList.size(); i++) {
 				add_helper(entities, hasEmpty, comboModelList.get(i));
@@ -419,33 +426,33 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 
 	}
 
-	public ComboBoxModel copyGenericEntityComboModel(GenericEntityType type, boolean hasEmpty) {
+	public ComboBoxModel<GenericEntity> copyGenericEntityComboModel(GenericEntityType type, boolean hasEmpty) {
 		return copyGenericEntityComboModel_aux(type, hasEmpty);
 	}
 
-	private ComboBoxModel copyGenericEntityComboModel_aux(GenericEntityType type, boolean hasEmpty) {
-		DefaultComboBoxModel model = copyComboBoxModel(getGenericEntityModel_aux(type, hasEmpty));
-		Map<GenericEntityType, List<DefaultComboBoxModel>> copyMap = (hasEmpty ? genericEntityWithEmptyComboModelCopyMap : genericEntityComboModelCopyMap);
-		List<DefaultComboBoxModel> list = null;
+	private ComboBoxModel<GenericEntity> copyGenericEntityComboModel_aux(GenericEntityType type, boolean hasEmpty) {
+		DefaultComboBoxModel<GenericEntity> model = copyComboBoxModel(getGenericEntityModel_aux(type, hasEmpty));
+		Map<GenericEntityType, List<DefaultComboBoxModel<GenericEntity>>> copyMap = (hasEmpty ? genericEntityWithEmptyComboModelCopyMap : genericEntityComboModelCopyMap);
+		List<DefaultComboBoxModel<GenericEntity>> list = null;
 		if (copyMap.containsKey(type)) {
 			list = copyMap.get(type);
 		}
 		else {
-			list = new ArrayList<DefaultComboBoxModel>();
+			list = new ArrayList<DefaultComboBoxModel<GenericEntity>>();
 			copyMap.put(type, list);
 		}
 		list.add(model);
 		return model;
 	}
 
-	public ListModel copyGenericEntityListModel(GenericEntityType type, boolean hasEmpty) {
+	public ListModel<GenericEntity> copyGenericEntityListModel(GenericEntityType type, boolean hasEmpty) {
 		return copyGenericEntityComboModel_aux(type, hasEmpty);
 	}
 
-	public ComboBoxModel createDateSynonymComboModel(boolean hasEmpty) {
+	public ComboBoxModel<DateSynonym> createDateSynonymComboModel(boolean hasEmpty) {
 		if (hasEmpty) {
 			synchronized (dateSynonymWithEmptyModelList) {
-				DefaultComboBoxModel model = new DefaultComboBoxModel();
+				DefaultComboBoxModel<DateSynonym> model = new DefaultComboBoxModel<DateSynonym>();
 				for (int i = 0; i < dateSynonymWithEmptyModel.getSize(); i++) {
 					model.addElement(dateSynonymWithEmptyModel.getElementAt(i));
 				}
@@ -455,7 +462,7 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 		}
 		else {
 			synchronized (dateSynonymModelList) {
-				DefaultComboBoxModel model = new DefaultComboBoxModel();
+				DefaultComboBoxModel<DateSynonym> model = new DefaultComboBoxModel<DateSynonym>();
 				for (int i = 0; i < dateSynonymModel.getSize(); i++) {
 					model.addElement(dateSynonymModel.getElementAt(i));
 				}
@@ -466,7 +473,9 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 	}
 
 	private GenericCategoryNode createGenericCategoryNode(GenericCategory category, boolean sort, boolean needsEntitiesLoaded) {
-		return (sort ? new GenericCategoryNode(category, GenericCategoryComparator.getSortByNameInstance(), needsEntitiesLoaded) : new GenericCategoryNode(category, needsEntitiesLoaded));
+		return (sort
+				? new GenericCategoryNode(category, GenericCategoryComparator.getSortByNameInstance(), needsEntitiesLoaded)
+				: new GenericCategoryNode(category, needsEntitiesLoaded));
 	}
 
 	public DatedCategoryTreeModel createGenericCategoryTreeModel(int categoryType, Date date, boolean showEntities, boolean sort) {
@@ -524,10 +533,10 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 		if (type == null) throw new NullPointerException("type cannot be null");
 		if (UtilBase.isEmpty(name)) return null;
 		List<GenericEntity> list = new ArrayList<GenericEntity>();
-		ListModel model = getGenericEntityListModel(type, false);
+		ListModel<GenericEntity> model = getGenericEntityListModel(type, false);
 		if (model != null) {
 			for (int i = 0; i < model.getSize(); i++) {
-				GenericEntity entity = (GenericEntity) model.getElementAt(i);
+				GenericEntity entity = model.getElementAt(i);
 				if (entity != null && entity.getName().equals(name)) {
 					list.add(entity);
 				}
@@ -535,7 +544,6 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 		}
 		return list;
 	}
-
 
 	/**
 	 * Note this considers all dates.
@@ -594,13 +602,19 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 	}
 
 	public GenericCategory[] findGenericCategoryByName(GenericEntityType type, String name) {
-		if (type == null) throw new NullPointerException("type cannot be null");
-		if (UtilBase.isEmpty(name)) return null;
+		if (type == null) {
+			throw new NullPointerException("type cannot be null");
+		}
+		if (UtilBase.isEmpty(name)) {
+			return null;
+		}
 		return findGenericCategoryByName(type.getCategoryType(), name);
 	}
 
 	private GenericCategory[] findGenericCategoryByName(int categoryType, String name) {
-		if (UtilBase.isEmpty(name)) return null;
+		if (UtilBase.isEmpty(name)) {
+			return null;
+		}
 		if (name.indexOf(Constants.CATEGORY_PATH_DELIMITER) > 0) {
 			return new GenericCategory[] { findFullyQualifiedGenericCategoryByPath(categoryType, name) };
 		}
@@ -618,12 +632,16 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 	}
 
 	public GenericEntity findGenericEntity(GenericEntityType type, String name) {
-		if (type == null) throw new NullPointerException("type cannot be null");
-		if (UtilBase.isEmpty(name)) return null;
-		ListModel model = getGenericEntityListModel(type, false);
+		if (type == null) {
+			throw new NullPointerException("type cannot be null");
+		}
+		if (UtilBase.isEmpty(name)) {
+			return null;
+		}
+		ListModel<GenericEntity> model = getGenericEntityListModel(type, false);
 		if (model != null) {
 			for (int i = 0; i < model.getSize(); i++) {
-				GenericEntity entity = (GenericEntity) model.getElementAt(i);
+				GenericEntity entity = model.getElementAt(i);
 				if (entity != null && entity.getName().equals(name)) {
 					return entity;
 				}
@@ -635,7 +653,7 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 	public DateSynonym findNamedDateSynonym(Date date) {
 		if (date == null) return null;
 		for (int i = 0; i < dateSynonymModel.getSize(); i++) {
-			DateSynonym ds = (DateSynonym) dateSynonymModel.getElementAt(i);
+			DateSynonym ds = dateSynonymModel.getElementAt(i);
 			if (ds.getDate().equals(date)) {
 				return ds;
 			}
@@ -694,7 +712,7 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 	public List<ParameterTemplate> getAllParameterTemplates() {
 		List<ParameterTemplate> templates = new ArrayList<ParameterTemplate>();
 		for (int i = 0; i < paramTemplateModel.getSize(); i++) {
-			templates.add((ParameterTemplate) paramTemplateModel.getElementAt(i));
+			templates.add(paramTemplateModel.getElementAt(i));
 		}
 		return Collections.unmodifiableList(templates);
 	}
@@ -783,7 +801,11 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 	public List<CategoryToEntityAssociationData> getCategoryToEntityAssociationsByCategory(GenericCategory category) {
 		List<CategoryToEntityAssociationData> result = new ArrayList<CategoryToEntityAssociationData>();
 		try {
-			GenericEntityByCategoryFilter filter = new GenericEntityByCategoryFilter(GenericEntityType.forCategoryType(category.getType()), new int[] { category.getId() }, null, false);
+			GenericEntityByCategoryFilter filter = new GenericEntityByCategoryFilter(
+					GenericEntityType.forCategoryType(category.getType()),
+					new int[] { category.getId() },
+					null,
+					false);
 			List<GenericEntity> entities = ClientUtil.getCommunicator().search(filter);
 			if (entities != null && !entities.isEmpty()) {
 				Collections.sort(entities, new IDNameObjectComparator<GenericEntity>());
@@ -825,7 +847,7 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 		return domainClassTreeModel;
 	}
 
-	public ComboBoxModel getDateSynonymComboModel(boolean hasEmpty) {
+	public ComboBoxModel<DateSynonym> getDateSynonymComboModel(boolean hasEmpty) {
 		return (hasEmpty ? dateSynonymWithEmptyModel : dateSynonymModel);
 	}
 
@@ -858,10 +880,12 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 
 	}
 
+	@Override
 	public GenericCategory getGenericCategory(GenericEntityType type, int categoryID) {
 		return getGenericCategory(type.getCategoryType(), categoryID);
 	}
 
+	@Override
 	public GenericCategory getGenericCategory(int categoryType, int categoryID) {
 		List<GenericCategory> list = getCachedGenericCategoryList(new Integer(categoryType));
 		for (int i = 0; i < list.size(); i++) {
@@ -893,6 +917,7 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 		return null;
 	}
 
+	@Override
 	public List<GenericEntity> getGenericEntitiesInCategory(GenericEntityType entityType, int categoryID, Date date, boolean includeDescendents) throws ServerException {
 		GenericEntityByCategoryFilter filter = new GenericEntityByCategoryFilter(entityType, new int[] { categoryID }, date, includeDescendents);
 		List<GenericEntity> result = ClientUtil.getCommunicator().search(filter);
@@ -907,10 +932,10 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 	 * @since 3.0.0
 	 */
 	public GenericEntity getGenericEntity(GenericEntityType type, int id) {
-		ListModel model = getGenericEntityListModel(type, false);
+		ListModel<GenericEntity> model = getGenericEntityListModel(type, false);
 		if (model != null) {
 			for (int i = 0; i < model.getSize(); i++) {
-				GenericEntity entity = (GenericEntity) model.getElementAt(i);
+				GenericEntity entity = model.getElementAt(i);
 				if (entity != null && entity.getID() == id) {
 					return entity;
 				}
@@ -919,11 +944,11 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 		return null;
 	}
 
-	public ComboBoxModel getGenericEntityComboModel(GenericEntityType type, boolean hasEmpty) {
+	public ComboBoxModel<GenericEntity> getGenericEntityComboModel(GenericEntityType type, boolean hasEmpty) {
 		return getGenericEntityModel_aux(type, hasEmpty);
 	}
 
-	public ListModel getGenericEntityListModel(GenericEntityType type, boolean hasEmpty) {
+	public ListModel<GenericEntity> getGenericEntityListModel(GenericEntityType type, boolean hasEmpty) {
 		return getGenericEntityModel_aux(type, hasEmpty);
 	}
 
@@ -935,11 +960,11 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 	 * @since 5.0.0
 	 */
 	public Map<Integer, Integer> getGenericEntityListModelMap(GenericEntityType type) {
-		ListModel model = getGenericEntityListModel(type, false);
+		ListModel<GenericEntity> model = getGenericEntityListModel(type, false);
 		Map<Integer, Integer> map = new HashMap<Integer, Integer>();
 		if (model != null) {
 			for (int i = 0; i < model.getSize(); i++) {
-				GenericEntity entity = (GenericEntity) model.getElementAt(i);
+				GenericEntity entity = model.getElementAt(i);
 				map.put(new Integer(entity.getID()), new Integer(i));
 			}
 		}
@@ -956,10 +981,10 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 	 * @param hasEmpty
 	 * @return the combobox model
 	 */
-	private ComboBoxModel getGenericEntityModel_aux(GenericEntityType type, boolean hasEmpty) {
-		ComboBoxModel model = (ComboBoxModel) (hasEmpty ? genericEntityWithEmptyComboModelMap.get(type) : genericEntityComboModelMap.get(type));
+	private ComboBoxModel<GenericEntity> getGenericEntityModel_aux(GenericEntityType type, boolean hasEmpty) {
+		ComboBoxModel<GenericEntity> model = hasEmpty ? genericEntityWithEmptyComboModelMap.get(type) : genericEntityComboModelMap.get(type);
 		if (model == null) {
-			model = new DefaultComboBoxModel();
+			model = new DefaultComboBoxModel<GenericEntity>();
 			if (hasEmpty) {
 				genericEntityWithEmptyComboModelMap.put(type, model);
 			}
@@ -983,10 +1008,10 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 	}
 
 	private String getGenericEntityName_internal(GenericEntityType type, int id, String defaultValue) {
-		ListModel model = getGenericEntityListModel(type, false);
+		ListModel<GenericEntity> model = getGenericEntityListModel(type, false);
 		if (model != null) {
 			for (int i = 0; i < model.getSize(); i++) {
-				GenericEntity entity = (GenericEntity) model.getElementAt(i);
+				GenericEntity entity = model.getElementAt(i);
 				if (entity != null && entity.getID() == id) {
 					return entity.getName();
 				}
@@ -1046,15 +1071,15 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 		return path;
 	}
 
-	public ComboBoxModel getParameterTemplateComboModel(boolean hasEmpty) {
+	public ComboBoxModel<ParameterTemplate> getParameterTemplateComboModel(boolean hasEmpty) {
 		return (hasEmpty ? paramTemplateWithEmptyModel : paramTemplateModel);
 	}
 
-	public ListModel getPrivilegeListModel() {
+	public ListModel<Privilege> getPrivilegeListModel() {
 		return privilegeModel;
 	}
 
-	public ListModel getRoleListModel() {
+	public ListModel<Role> getRoleListModel() {
 		return roleModel;
 	}
 
@@ -1071,11 +1096,15 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 	 * @param sortValues if <code>true</code>, the items in the combo are sorted in alphabetical order
 	 * @return the type enum combo model for <code>typeKey</code>
 	 */
-	public ComboBoxModel getTypeEnumComboModel(String typeKey, boolean hasEmpty, boolean sortValues) {
+	public ComboBoxModel<TypeEnumValue> getTypeEnumComboModel(String typeKey, boolean hasEmpty, boolean sortValues) {
 		List<TypeEnumValue> enumValueList = getEnumValueList(typeKey);
-		if (sortValues) Collections.sort(enumValueList, TypeEnumValueComparator.getInstance());
-		DefaultComboBoxModel model = new DefaultComboBoxModel();
-		if (hasEmpty) model.addElement(" ");
+		if (sortValues) {
+			Collections.sort(enumValueList, TypeEnumValueComparator.getInstance());
+		}
+		DefaultComboBoxModel<TypeEnumValue> model = new DefaultComboBoxModel<TypeEnumValue>();
+		if (hasEmpty) {
+			model.addElement(null);
+		}
 		for (Iterator<TypeEnumValue> iter = enumValueList.iterator(); iter.hasNext();) {
 			TypeEnumValue element = iter.next();
 			model.addElement(element);
@@ -1083,8 +1112,8 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 		return model;
 	}
 
-	public ComboBoxModel getTypeEnumComboModelForDomainAttribute(String attributeMap, boolean hasEmpty, boolean sortValues) {
-		DefaultComboBoxModel model = new DefaultComboBoxModel();
+	public ComboBoxModel<TypeEnumValue> getTypeEnumComboModelForDomainAttribute(String attributeMap, boolean hasEmpty, boolean sortValues) {
+		DefaultComboBoxModel<TypeEnumValue> model = new DefaultComboBoxModel<TypeEnumValue>();
 		DomainAttribute da = DomainModel.getInstance().getDomainAttribute(attributeMap);
 		if (da != null) {
 			EnumValue[] enumValues = da.getEnumValues();
@@ -1096,8 +1125,12 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 				}
 			}
 
-			if (sortValues) Collections.sort(enumValueList, TypeEnumValueComparator.getInstance());
-			if (hasEmpty) model.addElement(" ");
+			if (sortValues) {
+				Collections.sort(enumValueList, TypeEnumValueComparator.getInstance());
+			}
+			if (hasEmpty) {
+				model.addElement(null);
+			}
 			for (Iterator<TypeEnumValue> iter = enumValueList.iterator(); iter.hasNext();) {
 				TypeEnumValue element = iter.next();
 				model.addElement(element);
@@ -1106,11 +1139,11 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 		return model;
 	}
 
-	public ComboBoxModel getUsageTypeModel() {
+	public ComboBoxModel<TemplateUsageType> getUsageTypeModel() {
 		if (usageTypeModel == null) {
 			TemplateUsageType[] usageTypes = TemplateUsageType.getAllInstances();
 			Arrays.sort(usageTypes, UsageTypeComparator.getInstance());
-			usageTypeModel = new DefaultComboBoxModel(usageTypes);
+			usageTypeModel = new DefaultComboBoxModel<TemplateUsageType>(usageTypes);
 		}
 		return usageTypeModel;
 	}
@@ -1168,23 +1201,23 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 		insertNamedDateSynonym(ds, dateSynonymModel);
 		insertNamedDateSynonym(ds, dateSynonymWithEmptyModel);
 		synchronized (dateSynonymModelList) {
-			for (Iterator<DefaultComboBoxModel> iter = dateSynonymModelList.iterator(); iter.hasNext();) {
-				DefaultComboBoxModel element = iter.next();
+			for (Iterator<DefaultComboBoxModel<DateSynonym>> iter = dateSynonymModelList.iterator(); iter.hasNext();) {
+				DefaultComboBoxModel<DateSynonym> element = iter.next();
 				insertNamedDateSynonym(ds, element);
 			}
 		}
 		synchronized (dateSynonymWithEmptyModelList) {
-			for (Iterator<DefaultComboBoxModel> iter = dateSynonymWithEmptyModelList.iterator(); iter.hasNext();) {
-				DefaultComboBoxModel element = iter.next();
+			for (Iterator<DefaultComboBoxModel<DateSynonym>> iter = dateSynonymWithEmptyModelList.iterator(); iter.hasNext();) {
+				DefaultComboBoxModel<DateSynonym> element = iter.next();
 				insertNamedDateSynonym(ds, element);
 			}
 		}
 	}
 
-	public void insertNamedDateSynonym(DateSynonym ds, DefaultComboBoxModel model) {
+	public void insertNamedDateSynonym(DateSynonym ds, DefaultComboBoxModel<DateSynonym> model) {
 		for (int i = 0; i < model.getSize(); i++) {
 			if (model.getElementAt(i) instanceof DateSynonym) {
-				DateSynonym ds2 = (DateSynonym) model.getElementAt(i);
+				DateSynonym ds2 = model.getElementAt(i);
 				if (ds.getName().compareTo(ds2.getName()) <= 0) {
 					model.insertElementAt(ds, i);
 					return;
@@ -1284,29 +1317,29 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 
 			ClientUtil.getLogger().info("generic entities loaded: " + entities.length);
 
-			DefaultComboBoxModel comboModel = null;
+			DefaultComboBoxModel<GenericEntity> comboModel = null;
 			if (genericEntityComboModelMap.containsKey(types[i])) {
-				comboModel = (DefaultComboBoxModel) genericEntityComboModelMap.get(types[i]);
+				comboModel = (DefaultComboBoxModel<GenericEntity>) genericEntityComboModelMap.get(types[i]);
 				comboModel.removeAllElements();
 			}
 			else {
-				comboModel = new DefaultComboBoxModel();
+				comboModel = new DefaultComboBoxModel<GenericEntity>();
 				genericEntityComboModelMap.put(types[i], comboModel);
 			}
 			for (int j = 0; j < entities.length; j++) {
 				comboModel.addElement(entities[j]);
 			}
 
-			DefaultComboBoxModel comboWithEmptyModel = null;
+			DefaultComboBoxModel<GenericEntity> comboWithEmptyModel = null;
 			if (genericEntityWithEmptyComboModelMap.containsKey(types[i])) {
-				comboWithEmptyModel = (DefaultComboBoxModel) genericEntityWithEmptyComboModelMap.get(types[i]);
+				comboWithEmptyModel = (DefaultComboBoxModel<GenericEntity>) genericEntityWithEmptyComboModelMap.get(types[i]);
 				comboWithEmptyModel.removeAllElements();
 			}
 			else {
-				comboWithEmptyModel = new DefaultComboBoxModel();
+				comboWithEmptyModel = new DefaultComboBoxModel<GenericEntity>();
 				genericEntityWithEmptyComboModelMap.put(types[i], comboWithEmptyModel);
 			}
-			comboWithEmptyModel.addElement("  ");
+			comboWithEmptyModel.addElement(null);
 			for (int j = 0; j < entities.length; j++) {
 				comboWithEmptyModel.addElement(entities[j]);
 			}
@@ -1327,7 +1360,7 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 			List<ParameterTemplate> list = ClientUtil.getCommunicator().search(new AllSearchFilter<ParameterTemplate>(PeDataType.PARAMETER_TEMPLATE));
 			paramTemplateModel.removeAllElements();
 			paramTemplateWithEmptyModel.removeAllElements();
-			paramTemplateWithEmptyModel.addElement("Any");
+			paramTemplateWithEmptyModel.addElement(null);
 			if (list != null) {
 				ParameterTemplate[] templates = list.toArray(new ParameterTemplate[0]);
 				Arrays.sort(templates, new IDNameObjectComparator<ParameterTemplate>());
@@ -1393,8 +1426,8 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 	}
 
 	public void remove(GenericEntity entity) {
-		remove_helper(entity, (DefaultComboBoxModel) getGenericEntityComboModel(entity.getType(), false));
-		remove_helper(entity, (DefaultComboBoxModel) getGenericEntityComboModel(entity.getType(), true));
+		remove_helper(entity, (DefaultComboBoxModel<GenericEntity>) getGenericEntityComboModel(entity.getType(), false));
+		remove_helper(entity, (DefaultComboBoxModel<GenericEntity>) getGenericEntityComboModel(entity.getType(), true));
 
 		remove_helper(entity, genericEntityComboModelCopyMap.get(entity.getType()));
 		remove_helper(entity, genericEntityWithEmptyComboModelCopyMap.get(entity.getType()));
@@ -1421,11 +1454,11 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 		}
 	}
 
-	private void remove_helper(GenericEntity entity, DefaultComboBoxModel model) {
+	private void remove_helper(GenericEntity entity, DefaultComboBoxModel<GenericEntity> model) {
 		model.removeElement(entity);
 	}
 
-	private void remove_helper(GenericEntity entity, List<DefaultComboBoxModel> comboModelList) {
+	private void remove_helper(GenericEntity entity, List<DefaultComboBoxModel<GenericEntity>> comboModelList) {
 		if (comboModelList != null) {
 			for (int i = 0; i < comboModelList.size(); i++) {
 				remove_helper(entity, comboModelList.get(i));
@@ -1461,10 +1494,10 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 	// TT 2021
 	public void removeEntityCategoryAssociation(GenericCategory category) {
 		GenericEntityType type = GenericEntityType.forCategoryType(category.getType());
-		DefaultComboBoxModel model = (DefaultComboBoxModel) genericEntityComboModelMap.get(type);
+		DefaultComboBoxModel<GenericEntity> model = (DefaultComboBoxModel<GenericEntity>) genericEntityComboModelMap.get(type);
 
 		for (int i = 0; i < model.getSize(); i++) {
-			GenericEntity entity = (GenericEntity) model.getElementAt(i);
+			GenericEntity entity = model.getElementAt(i);
 			entity.removeAllCategoryAssociations(category.getId());
 		}
 	}
@@ -1493,14 +1526,14 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 		dateSynonymModel.removeElement(ds);
 		dateSynonymWithEmptyModel.removeElement(ds);
 		synchronized (dateSynonymModelList) {
-			for (Iterator<DefaultComboBoxModel> iter = dateSynonymModelList.iterator(); iter.hasNext();) {
-				DefaultComboBoxModel element = iter.next();
+			for (Iterator<DefaultComboBoxModel<DateSynonym>> iter = dateSynonymModelList.iterator(); iter.hasNext();) {
+				DefaultComboBoxModel<DateSynonym> element = iter.next();
 				element.removeElement(ds);
 			}
 		}
 		synchronized (dateSynonymWithEmptyModelList) {
-			for (Iterator<DefaultComboBoxModel> iter = dateSynonymWithEmptyModelList.iterator(); iter.hasNext();) {
-				DefaultComboBoxModel element = iter.next();
+			for (Iterator<DefaultComboBoxModel<DateSynonym>> iter = dateSynonymWithEmptyModelList.iterator(); iter.hasNext();) {
+				DefaultComboBoxModel<DateSynonym> element = iter.next();
 				element.removeElement(ds);
 			}
 		}
@@ -1523,15 +1556,15 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 		Arrays.sort(dateSynonyms, DateSynonymComparator.getInstance());
 		dateSynonymModel.removeAllElements();
 		dateSynonymWithEmptyModel.removeAllElements();
-		dateSynonymWithEmptyModel.addElement("");
+		dateSynonymWithEmptyModel.addElement(null);
 		for (int i = 0; i < dateSynonyms.length; i++) {
 			dateSynonymModel.addElement(dateSynonyms[i]);
 			dateSynonymWithEmptyModel.addElement(dateSynonyms[i]);
 		}
 
 		synchronized (dateSynonymModelList) {
-			for (Iterator<DefaultComboBoxModel> iter = dateSynonymModelList.iterator(); iter.hasNext();) {
-				DefaultComboBoxModel element = iter.next();
+			for (Iterator<DefaultComboBoxModel<DateSynonym>> iter = dateSynonymModelList.iterator(); iter.hasNext();) {
+				DefaultComboBoxModel<DateSynonym> element = iter.next();
 				element.removeAllElements();
 				for (int i = 0; i < dateSynonyms.length; i++) {
 					element.addElement(dateSynonyms[i]);
@@ -1539,10 +1572,10 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 			}
 		}
 		synchronized (dateSynonymWithEmptyModelList) {
-			for (Iterator<DefaultComboBoxModel> iter = dateSynonymWithEmptyModelList.iterator(); iter.hasNext();) {
-				DefaultComboBoxModel element = iter.next();
+			for (Iterator<DefaultComboBoxModel<DateSynonym>> iter = dateSynonymWithEmptyModelList.iterator(); iter.hasNext();) {
+				DefaultComboBoxModel<DateSynonym> element = iter.next();
 				element.removeAllElements();
-				element.addElement("");
+				element.addElement(null);
 				for (int i = 0; i < dateSynonyms.length; i++) {
 					element.addElement(dateSynonyms[i]);
 				}
@@ -1569,7 +1602,6 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 		this.relodRolesInRoleTabpanel = relodRolesInRoleTabpanel;
 	}
 
-
 	public String toGenericCategoryIDStr(int categoryType, List<Integer> categoryIDList) {
 		StringBuilder buff = new StringBuilder();
 		if (categoryIDList != null) {
@@ -1588,10 +1620,10 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 	// TT 2072
 	public void update(GenericEntity entity) {
 		if (entity != null) {
-			DefaultComboBoxModel model = (DefaultComboBoxModel) getGenericEntityComboModel(entity.getType(), false);
+			DefaultComboBoxModel<GenericEntity> model = (DefaultComboBoxModel<GenericEntity>) getGenericEntityComboModel(entity.getType(), false);
 			GenericEntity[] entities = new GenericEntity[model.getSize()];
 			for (int i = 0; i < entities.length; i++) {
-				GenericEntity currEntity = (GenericEntity) model.getElementAt(i);
+				GenericEntity currEntity = model.getElementAt(i);
 				// replace existing one
 				if (currEntity.getId() == entity.getId())
 					entities[i] = entity;
@@ -1600,11 +1632,10 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 			}
 			Arrays.sort(entities, new IDNameObjectComparator<GenericEntity>());
 			add_helper(entities, false, model);
-			add_helper(entities, true, (DefaultComboBoxModel) getGenericEntityComboModel(entity.getType(), true));
+			add_helper(entities, true, (DefaultComboBoxModel<GenericEntity>) getGenericEntityComboModel(entity.getType(), true));
 
 			add_helper(entities, false, genericEntityComboModelCopyMap.get(entity.getType()));
 			add_helper(entities, true, genericEntityWithEmptyComboModelCopyMap.get(entity.getType()));
-
 		}
 	}
 
@@ -1623,9 +1654,9 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 	public void updateEntityAssociationDateSynonyms(DateSynonym ds) {
 		GenericEntityType[] types = GenericEntityType.getAllGenericEntityTypes();
 		for (int i = 0; i < types.length; i++) {
-			DefaultComboBoxModel model = (DefaultComboBoxModel) genericEntityComboModelMap.get(types[i]);
+			DefaultComboBoxModel<GenericEntity> model = (DefaultComboBoxModel<GenericEntity>) genericEntityComboModelMap.get(types[i]);
 			for (int j = 0; j < model.getSize(); j++) {
-				GenericEntity entity = (GenericEntity) model.getElementAt(j);
+				GenericEntity entity = model.getElementAt(j);
 				for (Iterator<MutableTimedAssociationKey> k = entity.getCategoryIterator(); k.hasNext();) {
 					MutableTimedAssociationKey key = k.next();
 					key.updateEffExpDates(ds);

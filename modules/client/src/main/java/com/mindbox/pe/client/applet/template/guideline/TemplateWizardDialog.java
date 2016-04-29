@@ -48,9 +48,82 @@ import com.mindbox.pe.model.template.GridTemplate;
  * @since PowerEditor 
  */
 public class TemplateWizardDialog extends JDialog {
-	/**
-	 * 
-	 */
+	private class ActionComboL implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			resetDescField();
+		}
+	}
+
+	private class AttributeButtonL extends Action3Adapter {
+
+		@Override
+		public void deletePerformed(ActionEvent e) {
+			if (attributeList.getSelectedIndex() >= 0) {
+				removeFromAttributeList(attributeList.getSelectedValue());
+			}
+		}
+
+		@Override
+		public void newPerformed(ActionEvent e) {
+			String attrStr = DialogFactory.showAttributeSelector(null);
+			if (attrStr != null && attrStr.length() > 0) {
+				addToAttributeList(attrStr);
+			}
+
+		}
+	}
+
+	private class BackL implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			--currentStep;
+			showCorrectPanel();
+		}
+	}
+
+	private class CancelL implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			template = null;
+			dispose();
+		}
+	}
+
+	private class FinishL implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			doFinish();
+		}
+	}
+
+	private class NextL implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			doNext();
+		}
+	}
+
+	private class UsageComboL implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (usageTypeField.getSelectedUsage() != null) {
+				try {
+					resetActionCombo(usageTypeField.getSelectedUsage());
+				}
+				catch (ServerException ex) {
+					ex.printStackTrace();
+				}
+			}
+		}
+	}
+
 	private static final long serialVersionUID = -3951228734910107454L;
 
 	public static GridTemplate createTemplate(TemplateUsageType usage) throws ServerException {
@@ -74,82 +147,13 @@ public class TemplateWizardDialog extends JDialog {
 		}
 	}
 
-	private class FinishL implements ActionListener {
-
-		public void actionPerformed(ActionEvent e) {
-			doFinish();
-		}
-	}
-
-	private class NextL implements ActionListener {
-
-		public void actionPerformed(ActionEvent e) {
-			doNext();
-		}
-	}
-
-	private class BackL implements ActionListener {
-
-		public void actionPerformed(ActionEvent e) {
-			--currentStep;
-			showCorrectPanel();
-		}
-	}
-
-	private class CancelL implements ActionListener {
-
-		public void actionPerformed(ActionEvent e) {
-			template = null;
-			dispose();
-		}
-	}
-
-	private class AttributeButtonL extends Action3Adapter {
-
-		public void deletePerformed(ActionEvent e) {
-			if (attributeList.getSelectedIndex() >= 0) {
-				removeFromAttributeList((String) attributeList.getSelectedValue());
-			}
-		}
-
-		public void newPerformed(ActionEvent e) {
-			String attrStr = DialogFactory.showAttributeSelector(null);
-			if (attrStr != null && attrStr.length() > 0) {
-				addToAttributeList(attrStr);
-			}
-
-		}
-	}
-
-	private class UsageComboL implements ActionListener {
-
-		public void actionPerformed(ActionEvent e) {
-			if (usageTypeField.getSelectedUsage() != null) {
-				try {
-					resetActionCombo(usageTypeField.getSelectedUsage());
-				}
-				catch (ServerException ex) {
-					ex.printStackTrace();
-				}
-			}
-		}
-	}
-
-	private class ActionComboL implements ActionListener {
-
-		public void actionPerformed(ActionEvent e) {
-			resetDescField();
-		}
-	}
-
 	private GridTemplate template = null;
 	private final JButton finishButton, backButton, nextButton, cancelButton;
 	private final JTextField nameField;
 	private final UsageTypeComboBox usageTypeField;
-	//private final ActivationLabelComboBox labelCombo;
-	private final JList attributeList;
+	private final JList<String> attributeList;
 	private final ButtonPanel attributeButtonPanel;
-	private final IDNameObjectComboBox actionCombo;
+	private final IDNameObjectComboBox<ActionTypeDefinition> actionCombo;
 	private final JTextField actionDescField = new JTextField(10);
 
 	private final CardLayout card;
@@ -175,16 +179,13 @@ public class TemplateWizardDialog extends JDialog {
 			usageTypeField.setSelectedIndex(0);
 		}
 
-		//labelCombo = ActivationLabelComboBox.createInstance();
-		//labelCombo.setEditable(false);
-
-		actionCombo = new IDNameObjectComboBox(false, "image.node.adhoc.action");
+		actionCombo = new IDNameObjectComboBox<ActionTypeDefinition>(false, "image.node.adhoc.action");
 		resetActionCombo(usage);
 
 		card = new CardLayout();
 		detailPanel = UIFactory.createJPanel(card);
 
-		attributeList = new JList(new DefaultListModel());
+		attributeList = new JList<String>(new DefaultListModel<String>());
 		attributeButtonPanel = UIFactory.create3ButtonPanel(new AttributeButtonL(), false);
 
 		initDialog();
@@ -202,22 +203,39 @@ public class TemplateWizardDialog extends JDialog {
 		nameField.requestFocus();
 	}
 
-	private void resetActionCombo(TemplateUsageType usage) throws ServerException {
-		actionCombo.removeAllItems();
-		List<ActionTypeDefinition> typeList = ClientUtil.getActionTypes(usage);
-		for (Iterator<ActionTypeDefinition> iter = typeList.iterator(); iter.hasNext();) {
-			ActionTypeDefinition element = iter.next();
-			actionCombo.addItem(element);
-		}
-		resetDescField();
-	}
-
 	private void addToAttributeList(String str) {
-		((DefaultListModel) attributeList.getModel()).addElement(str);
+		((DefaultListModel<String>) attributeList.getModel()).addElement(str);
 	}
 
-	private void removeFromAttributeList(String str) {
-		((DefaultListModel) attributeList.getModel()).removeElement(str);
+	private void doFinish() {
+		try {
+			String field = updateFromFields(true);
+			if (field != null) {
+				ClientUtil.getInstance().showWarning("msg.warning.empty.field", new Object[] { field });
+			}
+			else {
+				dispose();
+			}
+		}
+		catch (CanceledException ex) {
+
+		}
+	}
+
+	private void doNext() {
+		try {
+			String field = updateFromFields(false);
+			if (field != null) {
+				ClientUtil.getInstance().showWarning("msg.warning.empty.field", new Object[] { field });
+			}
+			else {
+				++currentStep;
+				showCorrectPanel();
+			}
+		}
+		catch (CanceledException ex) {
+
+		}
 	}
 
 	private void initDialog() {
@@ -251,16 +269,6 @@ public class TemplateWizardDialog extends JDialog {
 		c.gridwidth = GridBagConstraints.REMAINDER;
 		c.weightx = 1.0;
 		UIFactory.addComponent(panel, bag, c, nameField);
-
-		/*
-		 c.gridwidth = 1;
-		 c.weightx = 0.0;
-		 UIFactory.addComponent(panel, bag, c, UIFactory.createFormLabel("label.activation.label"));
-
-		 c.gridwidth = GridBagConstraints.REMAINDER;
-		 c.weightx = 1.0;
-		 UIFactory.addComponent(panel, bag, c, labelCombo);
-		 */
 
 		detailPanel.add(panel, "1");
 
@@ -327,7 +335,6 @@ public class TemplateWizardDialog extends JDialog {
 
 		UIFactory.addComponent(getContentPane(), bag, c, new JSeparator());
 
-
 		c.gridwidth = GridBagConstraints.REMAINDER;
 		c.weightx = 1.0;
 		c.gridheight = 1;
@@ -344,43 +351,26 @@ public class TemplateWizardDialog extends JDialog {
 		UIFactory.addComponent(getContentPane(), bag, c, bp);
 	}
 
+	private void removeFromAttributeList(String str) {
+		((DefaultListModel<String>) attributeList.getModel()).removeElement(str);
+	}
+
+	private void resetActionCombo(TemplateUsageType usage) throws ServerException {
+		actionCombo.removeAllItems();
+		List<ActionTypeDefinition> typeList = ClientUtil.getActionTypes(usage);
+		for (Iterator<ActionTypeDefinition> iter = typeList.iterator(); iter.hasNext();) {
+			ActionTypeDefinition element = iter.next();
+			actionCombo.addItem(element);
+		}
+		resetDescField();
+	}
+
 	private void resetDescField() {
 		if (actionCombo.getSelectedIndex() >= 0) {
 			actionDescField.setText(((ActionTypeDefinition) actionCombo.getSelectedItem()).getDescription());
 		}
 		else {
 			actionDescField.setText("");
-		}
-	}
-
-	private void doNext() {
-		try {
-			String field = updateFromFields(false);
-			if (field != null) {
-				ClientUtil.getInstance().showWarning("msg.warning.empty.field", new Object[] { field });
-			}
-			else {
-				++currentStep;
-				showCorrectPanel();
-			}
-		}
-		catch (CanceledException ex) {
-
-		}
-	}
-
-	private void doFinish() {
-		try {
-			String field = updateFromFields(true);
-			if (field != null) {
-				ClientUtil.getInstance().showWarning("msg.warning.empty.field", new Object[] { field });
-			}
-			else {
-				dispose();
-			}
-		}
-		catch (CanceledException ex) {
-
 		}
 	}
 
@@ -420,14 +410,15 @@ public class TemplateWizardDialog extends JDialog {
 			template.setName(nameField.getText());
 			template.setDescription(template.getName() + " template");
 			template.setUsageType(usageTypeField.getSelectedUsage());
-			for (int i = 1; i <= template.getNumColumns(); i++)
+			for (int i = 1; i <= template.getNumColumns(); i++) {
 				template.removeTemplateColumn(i);
+			}
 		}
 		else if (currentStep == 2) {
 			template.removeAllTemplateColumns();
 
 			for (int i = 0; i < attributeList.getModel().getSize(); i++) {
-				String reference = (String) attributeList.getModel().getElementAt(i);
+				String reference = attributeList.getModel().getElementAt(i);
 				template.addGridTemplateColumn(TemplateUtil.generateColumnsFromAttribute(DomainModel.getInstance(), template.getUsageType(), reference, (i + 1)));
 			}
 			if (fromFinish) {//user hit finish in step 2, hence generate LHS of rule based on existing template columns

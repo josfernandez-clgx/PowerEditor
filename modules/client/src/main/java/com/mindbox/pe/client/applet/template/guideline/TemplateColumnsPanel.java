@@ -72,13 +72,388 @@ import com.mindbox.pe.server.parser.jtb.message.ParseException;
  * @since PowerEditor
  */
 class TemplateColumnsPanel extends PanelBase {
-	/**
-	 * 
-	 */
+
+	private class AttrItemActionL extends Action3Adapter {
+		@Override
+		public void deletePerformed(ActionEvent e) {
+			ColumnAttributeItemDigest attrItem = getSelectedAttributeItem();
+			if (attrItem == null) {
+				return;
+			}
+			if (ClientUtil.getInstance().showConfirmation("msg.question.delete.column.attr.item")) {
+				((JButton) e.getSource()).setEnabled(false);
+				try {
+					attributeItemTableModel.removeRow(attrItem);
+				}
+				finally {
+					((JButton) e.getSource()).setEnabled(true);
+				}
+			}
+		}
+
+		@Override
+		public void editPerformed(ActionEvent e) {
+			ColumnAttributeItemDigest attrItem = getSelectedAttributeItem();
+			if (attrItem == null) {
+				return;
+			}
+			attrItem = ColumnAttributeItemDialog.editColumnAttributeItem(attrItem);
+			if (attrItem != null) {
+				attributeItemTableModel.updateRow(attributeItemTable.getSelectedRow());
+			}
+		}
+
+		@Override
+		public void newPerformed(ActionEvent e) {
+			ColumnAttributeItemDigest attrItem = ColumnAttributeItemDialog.newColumnAttributeItem();
+			if (attrItem != null) {
+				attributeItemTableModel.addRow(attrItem);
+			}
+		}
+	}
+
+	private class ColumnActionL extends Action3Adapter {
+		@Override
+		public void deletePerformed(ActionEvent e) {
+			if (columnTable.getSelectedRow() != -1) {
+				GridTemplateColumn column = columnTableModel.getColumnAt(columnTable.getSelectedRow());
+				int option = JOptionPane.showConfirmDialog(
+						ClientUtil.getApplet(),
+						"Are you sure you want to delete Column " + column.getID() + " '" + column.getTitle() + "'?",
+						"Confirm Delete",
+						JOptionPane.YES_NO_OPTION);
+
+				if (option == JOptionPane.YES_OPTION) {
+					columnTable.getSelectionModel().removeListSelectionListener(columnSelectionL);
+					deleteColumn();
+					clearColumnFields();
+					currentColumn = null;
+					columnTable.getSelectionModel().addListSelectionListener(columnSelectionL);
+				}
+			}
+		}
+
+		@Override
+		public void newPerformed(ActionEvent e) {
+			try {
+				updateCurrentColumn();
+
+				createColumn();
+				setEditableColumnFields(true);
+			}
+			catch (ValidationException e1) {
+				e1.showAsWarning();
+			}
+		}
+	}
+
+	private class ColumnMessageActionL extends Action3Adapter {
+		@Override
+		public void deletePerformed(ActionEvent e) {
+			ColumnMessageFragmentDigest digest = getSelectedColumnMessageFragment();
+
+			if (digest != null) {
+				if (ClientUtil.getInstance().showConfirmation("msg.question.delete.message.column")) {
+					columnMessageTableModel.removeRow(digest);
+					currentColumn.removeMessageFragmentDigest(digest);
+				}
+			}
+		}
+
+		@Override
+		public void editPerformed(ActionEvent e) {
+			ColumnMessageFragmentDigest digest = getSelectedColumnMessageFragment();
+
+			if (digest != null) {
+				String prevText = digest.getText();
+				digest = ColumnMessageFragmentEditDialog.editColumnMessageFragmentDigest(
+						JOptionPane.getFrameForComponent(ClientUtil.getApplet()),
+						template,
+						currentColumn.getColumnNumber(),
+						digest);
+
+				if (digest != null) {
+					try {
+						currentColumn.updateColumnMessageFragmentText(digest);
+						columnMessageTableModel.updateRow(columnMessageTable.getSelectedRow());
+					}
+					catch (ParseException e1) {
+						e1.printStackTrace();
+						ClientUtil.getInstance().showWarning("msg.warning.failure.update.column.message", new Object[] { e1.getMessage() });
+						digest.setText(prevText);
+					}
+				}
+			}
+		}
+
+		@Override
+		public void newPerformed(ActionEvent e) {
+			ColumnMessageFragmentDigest digest = ColumnMessageFragmentEditDialog.createColumnMessageFragmentDigest(
+					JOptionPane.getFrameForComponent(ClientUtil.getApplet()),
+					template,
+					currentColumn.getColumnNumber());
+
+			if (digest != null) {
+				try {
+					currentColumn.addColumnMessageFragment(digest);
+					columnMessageTableModel.addRow(digest);
+				}
+				catch (ParseException e1) {
+					e1.printStackTrace();
+					ClientUtil.getInstance().showWarning("msg.warning.failure.add.column.message", new Object[] { e1.getMessage() });
+				}
+			}
+		}
+	}
+
+	private class ColumnSelectionL implements ListSelectionListener {
+		private void cancelEvent() {
+			columnTable.getSelectionModel().removeListSelectionListener(this);
+			try {
+				columnTable.getSelectionModel().setSelectionInterval(currentColumn.getColumnNumber() - 1, currentColumn.getColumnNumber() - 1);
+			}
+			finally {
+				columnTable.getSelectionModel().addListSelectionListener(this);
+			}
+		}
+
+		@Override
+		public synchronized void valueChanged(ListSelectionEvent arg0) {
+			if (arg0.getValueIsAdjusting()) {
+				removeDocumentListener(detailPanel.getFieldChangeListener());
+				try {
+					updateCurrentColumn();
+
+					if (columnTable.getSelectedRow() != -1) {
+						currentColumn = columnTableModel.getColumnAt(columnTable.getSelectedRow());
+						populateColumnFields(currentColumn);
+
+						if (isEnabled()) {
+							setEditableColumnFields(true);
+							titleField.requestFocus();
+							setEnabledColumnSelectionAwareButtons(true);
+						}
+					}
+					else {
+						currentColumn = null;
+						clearColumnFields();
+						setEditableColumnFields(false);
+						setEnabledColumnSelectionAwareButtons(false);
+					}
+				}
+				catch (ValidationException e1) {
+					e1.showAsWarning();
+					cancelEvent();
+				}
+				finally {
+					addDocumentListener(detailPanel.getFieldChangeListener());
+				}
+			}
+		}
+	}
+
+	private final class DataTypeComboL implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			String selection = (String) dataTypeCombo.getSelectedItem();
+
+			if (selection != null) {
+				if (selection.equals(ColumnDataSpecDigest.TYPE_ENUM_LIST)) {
+					columnDTDetailCard.show(columnDTDetailPanel, "ENUM");
+				}
+				else if (selection.equals(ColumnDataSpecDigest.TYPE_DYNAMIC_STRING)) {
+					columnDTDetailCard.show(columnDTDetailPanel, "DYNAMICSTRING");
+				}
+				else if (selection.equals(ColumnDataSpecDigest.TYPE_INTEGER) || selection.equals(ColumnDataSpecDigest.TYPE_INTEGER_RANGE)) {
+					columnDTDetailCard.show(columnDTDetailPanel, "RANGE");
+				}
+				else if (selection.equals(ColumnDataSpecDigest.TYPE_CURRENCY) || selection.equals(ColumnDataSpecDigest.TYPE_CURRENCY_RANGE)
+						|| selection.equals(ColumnDataSpecDigest.TYPE_FLOAT) || selection.equals(ColumnDataSpecDigest.TYPE_FLOAT_RANGE)) {
+					columnDTDetailCard.show(columnDTDetailPanel, "FLOAT");
+				}
+				else if (selection.equals(ColumnDataSpecDigest.TYPE_ENTITY)) {
+					columnDTDetailCard.show(columnDTDetailPanel, "ENTITY");
+				}
+				else {
+					columnDTDetailCard.show(columnDTDetailPanel, "EMPTY");
+				}
+				allowNullCheckBox.setVisible(!selection.equals(ColumnDataSpecDigest.TYPE_RULE_ID));
+				multiSelectCheckBox.setVisible(selection.equals(ColumnDataSpecDigest.TYPE_ENUM_LIST) || selection.equals(ColumnDataSpecDigest.TYPE_ENTITY));
+				sortEnumCheckBox.setVisible(selection.equals(ColumnDataSpecDigest.TYPE_ENUM_LIST) || selection.equals(ColumnDataSpecDigest.TYPE_ENTITY));
+				showLHSAttrCheckBox.setVisible(selection.equals(ColumnDataSpecDigest.TYPE_DYNAMIC_STRING));
+				if (sortEnumCheckBox.isVisible()) {
+					sortEnumCheckBox.setText(
+							ClientUtil.getInstance().getLabel(selection.equals(ColumnDataSpecDigest.TYPE_ENUM_LIST) ? "checkbox.sort.enum" : "checkbox.sort.entity"));
+				}
+			}
+			else {
+				columnDTDetailCard.show(columnDTDetailPanel, "EMPTY");
+			}
+		}
+	}
+
+	private class DownColumnL extends AbstractThreadedActionAdapter {
+		@Override
+		public void performAction(ActionEvent e) {
+			if (columnTable.getSelectedRow() != -1) {
+				try {
+					updateCurrentColumn();
+
+					GridTemplateColumn column = columnTableModel.getColumnAt(columnTable.getSelectedRow());
+					columnTable.clearSelection();
+					moveColumnDown(column.getID());
+				}
+				catch (ValidationException e1) {
+					e1.showAsWarning();
+				}
+			}
+		}
+	}
+
+	private class DownEnumL implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			final int index = enumValueList.getSelectedIndex();
+			if ((index >= 0) && (index < (enumValueListModel.getSize() - 1))) {
+				String selection = enumValueListModel.remove(index);
+				enumValueListModel.insertElementAt(selection, index + 1);
+				enumValueList.setSelectedIndex(index + 1);
+			}
+		}
+	}
+
+	private class EntityTypeActionL implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			GenericEntityType entityType = entityTypeCombo.getSelectedEntityType();
+			resetEntityContentCombo(entityType != null && entityType.hasCategory(), null);
+		}
+	}
+
+	private class EnumSourceDetailComboL implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (enumSourceDetailCombo.getSelectedIndex() >= 0) {
+				selectorColumnCombo.setEnabled(((ExternalEnumSourceDetail) enumSourceDetailCombo.getSelectedItem()).isSupportsSelector());
+			}
+		}
+	}
+
+	private class EnumValueActionL extends Action3Adapter {
+		@Override
+		public void deletePerformed(ActionEvent e) {
+			String prevValue = enumValueList.getSelectedValue();
+
+			if (prevValue != null) {
+				int option = JOptionPane.showConfirmDialog(
+						ClientUtil.getApplet(),
+						"Are you sure you want to delete the selected enum value '" + prevValue + "'?",
+						"Confirm Delete",
+						JOptionPane.YES_NO_OPTION);
+
+				if (option == JOptionPane.YES_OPTION) {
+					enumValueListModel.removeElement(prevValue);
+				}
+			}
+		}
+
+		@Override
+		public void editPerformed(ActionEvent e) {
+			String prevValue = enumValueList.getSelectedValue();
+			if (prevValue != null) {
+				final Object value = JOptionPane.showInputDialog(
+						ClientUtil.getApplet(),
+						"Edit Enumeration Value for " + currentColumn.getTitle(),
+						"Edit Enum Value",
+						JOptionPane.PLAIN_MESSAGE,
+						null,
+						null,
+						prevValue);
+
+				if ((value != null) && !prevValue.equals(value)) {
+					enumValueListModel.removeElement(prevValue);
+					enumValueListModel.addElement(String.class.cast(value));
+				}
+			}
+		}
+
+		@Override
+		public void newPerformed(ActionEvent e) {
+			final String value = JOptionPane.showInputDialog(
+					ClientUtil.getApplet(),
+					"New Enumeration Value for " + currentColumn.getTitle(),
+					"New Enum Value",
+					JOptionPane.PLAIN_MESSAGE);
+
+			if (value != null) {
+				enumValueListModel.addElement(value);
+			}
+		}
+	}
+
+	private class EnumValueSelectionL implements ListSelectionListener {
+		@Override
+		public void valueChanged(ListSelectionEvent arg0) {
+			int index = enumValueList.getSelectedIndex();
+			setEnabledEnumValueSelectionAwareButtons(index > -1);
+
+			if (index == 0) {
+				upEnumButton.setEnabled(false);
+			}
+
+			if (index == (enumValueListModel.size() - 1)) {
+				downEnumButton.setEnabled(false);
+			}
+		}
+	}
+
+	private class SortAscL implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			sortEnumValues(true);
+		}
+	}
+
+	private class SortDescL implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			sortEnumValues(false);
+		}
+	}
+
+	private class UpColumnL extends AbstractThreadedActionAdapter {
+		@Override
+		public void performAction(ActionEvent e) {
+			if (columnTable.getSelectedRow() != -1) {
+				try {
+					updateCurrentColumn();
+
+					GridTemplateColumn column = columnTableModel.getColumnAt(columnTable.getSelectedRow());
+					columnTable.clearSelection();
+					moveColumnUp(column.getID());
+				}
+				catch (ValidationException e1) {
+					e1.showAsWarning();
+				}
+			}
+		}
+	}
+
+	private class UpEnumL implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			int index = enumValueList.getSelectedIndex();
+
+			if (index > 0) {
+				String selection = enumValueListModel.remove(index);
+				enumValueListModel.insertElementAt(selection, index - 1);
+				enumValueList.setSelectedIndex(index - 1);
+			}
+		}
+	}
+
 	private static final long serialVersionUID = -3951228734910107454L;
-
 	private static final int MAX_MIN_PRECISION = 15;
-
 	/**
 	 * Whenever you modify this array, be sure to update indices in {@link #updateDataTypeDetails(int)} method.
 	 */
@@ -99,13 +474,12 @@ class TemplateColumnsPanel extends PanelBase {
 			ColumnDataSpecDigest.TYPE_STRING,
 			ColumnDataSpecDigest.TYPE_SYMBOL,
 			ColumnDataSpecDigest.TYPE_TIME_RANGE };
-
 	private final ButtonPanel columnButtonPanel;
 	private final JButton upColumnButton;
 	private final JButton downColumnButton;
 	private final ColumnTableModel columnTableModel;
 	private final JTable columnTable;
-	private final JComboBox idField;
+	private final JComboBox<Integer> idField;
 	private final JTextField titleField = new JTextField();
 	private final JCheckBox allowNullCheckBox = UIFactory.createCheckBox("checkbox.allow.null");
 	private final JCheckBox multiSelectCheckBox = UIFactory.createCheckBox("checkbox.select.multiple");
@@ -122,13 +496,12 @@ class TemplateColumnsPanel extends PanelBase {
 	private final FloatTextField maxFloatField = new FloatTextField(MAX_MIN_PRECISION, false);
 	private final NumberTextField precisionField = new NumberTextField(4, 0, -1, false);
 	private final ButtonPanel enumValueButtonPanel;
-	private final DefaultListModel enumValueListModel;
-	private final JList enumValueList;
+	private final DefaultListModel<String> enumValueListModel;
+	private final JList<String> enumValueList;
 	private final JTextField colNameField = new JTextField();
 	private final JTextField colDescField = new JTextField();
 	private final AttributeReferenceSelectField attrMapField = new AttributeReferenceSelectField();
-
-	private final JComboBox dataTypeCombo;
+	private final JComboBox<String> dataTypeCombo;
 	private final ColumnMessageFragmentTableModel columnMessageTableModel;
 	private final JTable columnMessageTable;
 	private final ButtonPanel messageFragmentButtonPanel;
@@ -144,15 +517,15 @@ class TemplateColumnsPanel extends PanelBase {
 	private final TemplateDetailPanel detailPanel;
 	private ColumnSelectionL columnSelectionL;
 	private final GenericEntityTypeComboBox entityTypeCombo;
-	private final JComboBox entityContentCombo;
+	private final JComboBox<String> entityContentCombo;
 	private final ActionListener entityTypeListener;
 	private final CardLayout enumDetailCardLayout;
 	private final JPanel enumDetailCenterPanel;
 	// Enumeration source fields
-	private final JComboBox enumSourceTypeCombo;
-	private final JComboBox enumSourceDetailCombo;
-	private final JComboBox selectorColumnCombo;
-	private final DefaultComboBoxModel selectorColumnComboBoxModel;
+	private final JComboBox<EnumSourceType> enumSourceTypeCombo;
+	private final JComboBox<ExternalEnumSourceDetail> enumSourceDetailCombo;
+	private final JComboBox<GridTemplateColumn> selectorColumnCombo;
+	private final DefaultComboBoxModel<GridTemplateColumn> selectorColumnComboBoxModel;
 	private final EnumSourceDetailComboL enumSourceDetailComboL;
 
 	TemplateColumnsPanel(TemplateDetailPanel detailPanel) {
@@ -163,11 +536,10 @@ class TemplateColumnsPanel extends PanelBase {
 		entityContentCombo = UIFactory.createComboBox();
 		resetEntityContentCombo(true);
 
-		idField = new JComboBox();
-
+		idField = new JComboBox<Integer>();
 		// modify here to allow more than 20 columns, set it to 99
 		for (int i = 1; i <= 99; i++) {
-			idField.addItem(String.valueOf(i));
+			idField.addItem(i);
 		}
 
 		columnMessageTableModel = new ColumnMessageFragmentTableModel();
@@ -194,7 +566,7 @@ class TemplateColumnsPanel extends PanelBase {
 		downColumnButton = UIFactory.createButton("", "image.btn.small.down", new DownColumnL(), "button.tooltip.choice.move.down");
 		upColumnButton = UIFactory.createButton("", "image.btn.small.up", new UpColumnL(), "button.tooltip.choice.move.up");
 
-		dataTypeCombo = new JComboBox(DATA_TYPES);
+		dataTypeCombo = new JComboBox<String>(DATA_TYPES);
 
 		columnDTDetailPanel = new JPanel(columnDTDetailCard);
 		columnDTDetailPanel.setPreferredSize(new Dimension(200, 120));
@@ -204,8 +576,8 @@ class TemplateColumnsPanel extends PanelBase {
 		sortAscButton = UIFactory.createButton("", "image.btn.small.sort.asc", new SortAscL(), "button.tooltip.sort.asc");
 		sortDescButton = UIFactory.createButton("", "image.btn.small.sort.desc", new SortDescL(), "button.tooltip.sort.desc");
 		enumValueButtonPanel = UIFactory.create3ButtonPanel(new EnumValueActionL(), true);
-		enumValueListModel = new DefaultListModel();
-		enumValueList = new JList(enumValueListModel);
+		enumValueListModel = new DefaultListModel<String>();
+		enumValueList = new JList<String>(enumValueListModel);
 		enumValueList.addListSelectionListener(new EnumValueSelectionL());
 
 		attrItemButtonPanel = UIFactory.create3ButtonPanel(new AttrItemActionL(), true);
@@ -220,7 +592,7 @@ class TemplateColumnsPanel extends PanelBase {
 		enumSourceTypeCombo = UIFactory.createComboBox();
 		enumSourceDetailCombo = UIFactory.createComboBox();
 		enumSourceDetailCombo.setRenderer(new ExternalEnumSourceDetailCellRenderer());
-		selectorColumnComboBoxModel = new DefaultComboBoxModel();
+		selectorColumnComboBoxModel = new DefaultComboBoxModel<GridTemplateColumn>();
 		selectorColumnCombo = UIFactory.createComboBox();
 		selectorColumnCombo.setModel(selectorColumnComboBoxModel);
 		selectorColumnCombo.setRenderer(new TemplateColumnCellRenderer());
@@ -262,12 +634,14 @@ class TemplateColumnsPanel extends PanelBase {
 		idField.setEnabled(false);
 
 		columnMessageTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+			@Override
 			public void valueChanged(ListSelectionEvent arg0) {
 				setEnabledColumnMessageSelectionAwareButtons(columnMessageTable.getSelectedRow() >= 0);
 			}
 		});
 
 		attributeItemTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+			@Override
 			public void valueChanged(ListSelectionEvent arg0) {
 				setEnabledAttributeItemSelectionAwareButtons(attributeItemTable.getSelectedRow() >= 0);
 			}
@@ -304,33 +678,131 @@ class TemplateColumnsPanel extends PanelBase {
 		selectorColumnCombo.addActionListener(changeListener);
 	}
 
-	private synchronized void removeDocumentListener(TemplateDetailPanel.FieldChangeListener changeListener) {
-		attrMapField.removeChangeListener(changeListener);
-		titleField.getDocument().removeDocumentListener(changeListener);
-		colDescField.getDocument().removeDocumentListener(changeListener);
-		fontField.getDocument().removeDocumentListener(changeListener);
-		widthField.getDocument().removeDocumentListener(changeListener);
-		colorField.getDocument().removeDocumentListener(changeListener);
-		allowNullCheckBox.removeActionListener(changeListener);
-		multiSelectCheckBox.removeActionListener(changeListener);
-		sortEnumCheckBox.removeActionListener(changeListener);
-		showLHSAttrCheckBox.removeActionListener(changeListener);
-		dataTypeCombo.removeActionListener(changeListener);
-		minField.getDocument().removeDocumentListener(changeListener);
-		maxField.getDocument().removeDocumentListener(changeListener);
-		minFloatField.getDocument().removeDocumentListener(changeListener);
-		maxFloatField.getDocument().removeDocumentListener(changeListener);
-		precisionField.getDocument().removeDocumentListener(changeListener);
-		columnTableModel.removeTableModelListener(changeListener);
-		columnMessageTableModel.removeTableModelListener(changeListener);
-		attributeItemTableModel.removeTableModelListener(changeListener);
-		enumValueListModel.removeListDataListener(changeListener);
-		entityTypeCombo.removeActionListener(changeListener);
-		entityContentCombo.removeActionListener(changeListener);
-		entityTypeCombo.removeActionListener(entityTypeListener);
-		enumSourceTypeCombo.removeActionListener(changeListener);
-		enumSourceDetailCombo.removeActionListener(changeListener);
-		selectorColumnCombo.removeActionListener(changeListener);
+	private void clearColumnFields() {
+		idField.setSelectedIndex(0);
+		colNameField.setText("");
+		titleField.setText("");
+		allowNullCheckBox.setSelected(false);
+		multiSelectCheckBox.setSelected(false);
+		showLHSAttrCheckBox.setSelected(false);
+		sortEnumCheckBox.setSelected(false);
+		fontField.setText("");
+		widthField.setValue(0);
+		colorField.setText("");
+		minField.setValue(0);
+		maxField.setText("");
+		maxFloatField.setText("");
+		minFloatField.setValue(0);
+		precisionField.setValue(FloatFormatter.DEFAULT_PRECISION);
+		colDescField.setText("");
+		attrMapField.clearValue();
+		dataTypeCombo.setSelectedIndex(-1);
+		entityTypeCombo.setSelectedIndex(-1);
+		selectorColumnComboBoxModel.removeAllElements();
+		enumSourceTypeCombo.setSelectedIndex(-1);
+		enumSourceDetailCombo.setSelectedIndex(-1);
+		enumValueListModel.removeAllElements();
+		resetEntityContentCombo(true);
+		attributeItemTableModel.removeAllRows();
+		columnMessageTableModel.removeAllRows();
+	}
+
+	public final void clearFields() {
+		this.template = null;
+		this.currentColumn = null;
+		columnTableModel.removeAllRows();
+		clearColumnFields();
+		setEditable(false);
+		setEnabledEnumValueSelectionAwareButtons(false);
+	}
+
+	private void createColumn() {
+		int columnID = getNextColumnID();
+		GridTemplateColumn column = new GridTemplateColumn(columnID, getNextColumnName(columnID), "", 100, template.getUsageType());
+		column.setDataSpecDigest(new ColumnDataSpecDigest());
+		column.getColumnDataSpecDigest().setType(DeployType.STRING.toString());
+		column.getColumnDataSpecDigest().setIsBlankAllowed(true);
+		column.getColumnDataSpecDigest().setIsMultiSelectAllowed(false);
+		column.setColor("automatic");
+		column.setFont("arial");
+		column.setColumnWidth(100);
+		column.setTitle(column.getTitle());
+		template.addGridTemplateColumn(column);
+		columnTableModel.addRow(column);
+
+		int index = columnTableModel.indexOf(column);
+
+		if (index > -1) {
+			columnTable.setRowSelectionInterval(index, index);
+		}
+
+		this.currentColumn = column;
+		populateColumnFields(currentColumn);
+
+		detailPanel.columnAdded();
+		detailPanel.fireDetailChanged();
+
+		postCreateColumnAction();
+	}
+
+	private void deleteColumn() {
+		if (template != null) {
+			template.removeTemplateColumn(currentColumn.getColumnNumber());
+			columnTableModel.removeRow(currentColumn);
+			detailPanel.columnDeleted();
+			postDeleteColumnAction();
+		}
+	}
+
+	private int getIndexOfExternalEnumSource(String sourceName) {
+		for (int i = 0; i < enumSourceDetailCombo.getItemCount(); i++) {
+			ExternalEnumSourceDetail detail = enumSourceDetailCombo.getItemAt(i);
+			if (detail != null && detail.getName().equals(sourceName)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	private int getNextColumnID() {
+		logger.debug(">>> getNextColumnID");
+		int nextID = 0;
+
+		if (template.getNumColumns() > 0) {
+			for (Iterator<GridTemplateColumn> iter = template.getColumns().iterator(); iter.hasNext();) {
+				GridTemplateColumn element = iter.next();
+
+				if (element.getID() > nextID) {
+					nextID = element.getID();
+				}
+			}
+		}
+
+		logger.debug("<<< getNextColumnID with " + (nextID + 1));
+
+		return nextID + 1;
+	}
+
+	private String getNextColumnName(int baseNo) {
+		String nameToCheck = "Column " + baseNo;
+
+		if (template.getNumColumns() > 0) {
+			for (Iterator<GridTemplateColumn> iter = template.getColumns().iterator(); iter.hasNext();) {
+				GridTemplateColumn element = iter.next();
+
+				if (element.getName().equals(nameToCheck)) {
+					return getNextColumnName(baseNo + 1);
+				}
+			}
+		}
+
+		return nameToCheck;
+	}
+
+	private ColumnAttributeItemDigest getSelectedAttributeItem() {
+		int index = attributeItemTable.getSelectedRow();
+
+		return ((index >= 0) ? (ColumnAttributeItemDigest) attributeItemTableModel.getValueAt(index, -1) : null);
 	}
 
 	private ColumnMessageFragmentDigest getSelectedColumnMessageFragment() {
@@ -344,20 +816,8 @@ class TemplateColumnsPanel extends PanelBase {
 		}
 	}
 
-	private ColumnAttributeItemDigest getSelectedAttributeItem() {
-		int index = attributeItemTable.getSelectedRow();
-
-		return ((index >= 0) ? (ColumnAttributeItemDigest) attributeItemTableModel.getValueAt(index, -1) : null);
-	}
-
-	/**
-	 * Validate attribute map text.
-	 * Returns <code>null</code> on success.
-	 * @param text
-	 * @return message resource key if validation failed; <code>null</code>, otherwise
-	 */
-	protected String validateAttributeMap() {
-		return null;
+	private ExternalEnumSourceDetail getSelectedExternalEnumSourceDetail() {
+		return (ExternalEnumSourceDetail) enumSourceDetailCombo.getSelectedItem();
 	}
 
 	private void initPanel() {
@@ -655,56 +1115,6 @@ class TemplateColumnsPanel extends PanelBase {
 		add(columnPane, BorderLayout.CENTER);
 	}
 
-	public final void clearFields() {
-		this.template = null;
-		this.currentColumn = null;
-		columnTableModel.removeAllRows();
-		clearColumnFields();
-		setEditable(false);
-		setEnabledEnumValueSelectionAwareButtons(false);
-	}
-
-	private void createColumn() {
-		int columnID = getNextColumnID();
-		GridTemplateColumn column = new GridTemplateColumn(columnID, getNextColumnName(columnID), "", 100, template.getUsageType());
-		column.setDataSpecDigest(new ColumnDataSpecDigest());
-		column.getColumnDataSpecDigest().setType(DeployType.STRING.toString());
-		column.getColumnDataSpecDigest().setIsBlankAllowed(true);
-		column.getColumnDataSpecDigest().setIsMultiSelectAllowed(false);
-		column.setColor("automatic");
-		column.setFont("arial");
-		column.setColumnWidth(100);
-		column.setTitle(column.getTitle());
-		template.addGridTemplateColumn(column);
-		columnTableModel.addRow(column);
-
-		int index = columnTableModel.indexOf(column);
-
-		if (index > -1) {
-			columnTable.setRowSelectionInterval(index, index);
-		}
-
-		this.currentColumn = column;
-		populateColumnFields(currentColumn);
-
-		detailPanel.columnAdded();
-		detailPanel.fireDetailChanged();
-
-		postCreateColumnAction();
-	}
-
-	protected void postCreateColumnAction() {
-	}
-
-	private void deleteColumn() {
-		if (template != null) {
-			template.removeTemplateColumn(currentColumn.getColumnNumber());
-			columnTableModel.removeRow(currentColumn);
-			detailPanel.columnDeleted();
-			postDeleteColumnAction();
-		}
-	}
-
 	private void moveColumnDown(int columnNo) {
 		try {
 			updateCurrentColumn();
@@ -733,136 +1143,6 @@ class TemplateColumnsPanel extends PanelBase {
 		populateColumnFields(currentColumn);
 		columnTableModel.moveRow(columnNo, true);
 		detailPanel.columnsSwapped();
-	}
-
-	protected void postDeleteColumnAction() {
-	}
-
-	private void clearColumnFields() {
-		idField.setSelectedIndex(0);
-		colNameField.setText("");
-		titleField.setText("");
-		allowNullCheckBox.setSelected(false);
-		multiSelectCheckBox.setSelected(false);
-		showLHSAttrCheckBox.setSelected(false);
-		sortEnumCheckBox.setSelected(false);
-		fontField.setText("");
-		widthField.setValue(0);
-		colorField.setText("");
-		minField.setValue(0);
-		maxField.setText("");
-		maxFloatField.setText("");
-		minFloatField.setValue(0);
-		precisionField.setValue(FloatFormatter.DEFAULT_PRECISION);
-		colDescField.setText("");
-		attrMapField.clearValue();
-		dataTypeCombo.setSelectedIndex(-1);
-		entityTypeCombo.setSelectedIndex(-1);
-		selectorColumnComboBoxModel.removeAllElements();
-		enumSourceTypeCombo.setSelectedIndex(-1);
-		enumSourceDetailCombo.setSelectedIndex(-1);
-		enumValueListModel.removeAllElements();
-		resetEntityContentCombo(true);
-		attributeItemTableModel.removeAllRows();
-		columnMessageTableModel.removeAllRows();
-	}
-
-	private void resetEntityContentCombo(boolean allowCatgory, String valueToSelect) {
-		entityContentCombo.removeAllItems();
-		if (allowCatgory) entityContentCombo.addItem(ClientUtil.getInstance().getLabel("label.category"));
-		entityContentCombo.addItem(ClientUtil.getInstance().getLabel("label.entity"));
-		if (allowCatgory) entityContentCombo.addItem(ClientUtil.getInstance().getLabel("label.category.and.entity"));
-		if (valueToSelect != null) entityContentCombo.setSelectedItem(valueToSelect);
-	}
-
-	private void resetEntityContentCombo(boolean allowCatgory) {
-		resetEntityContentCombo(allowCatgory, ClientUtil.getInstance().getLabel("label.entity"));
-	}
-
-	public final void populateFields(GridTemplate template, boolean dataChanged) {
-		this.template = template;
-		columnTableModel.setData(template.getColumns(), dataChanged);
-		clearColumnFields();
-		currentColumn = null;
-	}
-
-	private int getNextColumnID() {
-		logger.debug(">>> getNextColumnID");
-		int nextID = 0;
-
-		if (template.getNumColumns() > 0) {
-			for (Iterator<GridTemplateColumn> iter = template.getColumns().iterator(); iter.hasNext();) {
-				GridTemplateColumn element = iter.next();
-
-				if (element.getID() > nextID) {
-					nextID = element.getID();
-				}
-			}
-		}
-
-		logger.debug("<<< getNextColumnID with " + (nextID + 1));
-
-		return nextID + 1;
-	}
-
-	private String getNextColumnName(int baseNo) {
-		String nameToCheck = "Column " + baseNo;
-
-		if (template.getNumColumns() > 0) {
-			for (Iterator<GridTemplateColumn> iter = template.getColumns().iterator(); iter.hasNext();) {
-				GridTemplateColumn element = iter.next();
-
-				if (element.getName().equals(nameToCheck)) {
-					return getNextColumnName(baseNo + 1);
-				}
-			}
-		}
-
-		return nameToCheck;
-	}
-
-	private void sortEnumValues(boolean ascending) {
-		String[] values = new String[enumValueListModel.getSize()];
-
-		for (int i = 0; i < values.length; i++) {
-			values[i] = (String) enumValueListModel.getElementAt(i);
-		}
-
-		if (ascending) {
-			Arrays.sort(values);
-		}
-		else {
-			Arrays.sort(values, Collections.reverseOrder());
-		}
-
-		enumValueListModel.clear();
-
-		for (int i = 0; i < values.length; i++) {
-			enumValueListModel.addElement(values[i]);
-		}
-	}
-
-	private void setEntityTypeSelection(GenericEntityType newType) {
-		entityTypeCombo.removeActionListener(entityTypeListener);
-		try {
-			entityTypeCombo.selectGenericEntityType(newType);
-		}
-		finally {
-			entityTypeCombo.addActionListener(entityTypeListener);
-		}
-	}
-
-	private void refreshSelectorColumnComboItems(GridTemplateColumn currentColumn) {
-		selectorColumnComboBoxModel.removeAllElements();
-		if (currentColumn != null && enumSourceDetailCombo.getItemCount() > 0) {
-			// populate selectorColumnCombo
-			selectorColumnComboBoxModel.addElement(" ");
-			for (int i = 1; i <= template.getColumnCount(); i++) {
-				if (template.getColumn(i).getColumnDataSpecDigest().canBeSelector() && !template.getColumn(i).getName().equals(currentColumn.getName())) {
-					selectorColumnComboBoxModel.addElement(template.getColumn(i));
-				}
-			}
-		}
 	}
 
 	private void populateColumnFields(GridTemplateColumn column) {
@@ -984,37 +1264,81 @@ class TemplateColumnsPanel extends PanelBase {
 		}
 	}
 
-	private int getIndexOfExternalEnumSource(String sourceName) {
-		for (int i = 0; i < enumSourceDetailCombo.getItemCount(); i++) {
-			ExternalEnumSourceDetail detail = (ExternalEnumSourceDetail) enumSourceDetailCombo.getItemAt(i);
-			if (detail != null && detail.getName().equals(sourceName)) {
-				return i;
-			}
-		}
-		return -1;
+	public final void populateFields(GridTemplate template, boolean dataChanged) {
+		this.template = template;
+		columnTableModel.setData(template.getColumns(), dataChanged);
+		clearColumnFields();
+		currentColumn = null;
 	}
 
-	private ExternalEnumSourceDetail getSelectedExternalEnumSourceDetail() {
-		return (ExternalEnumSourceDetail) enumSourceDetailCombo.getSelectedItem();
+	protected void postCreateColumnAction() {
+	}
+
+	protected void postDeleteColumnAction() {
+	}
+
+	private void refreshSelectorColumnComboItems(GridTemplateColumn currentColumn) {
+		selectorColumnComboBoxModel.removeAllElements();
+		if (currentColumn != null && enumSourceDetailCombo.getItemCount() > 0) {
+			// populate selectorColumnCombo
+			selectorColumnComboBoxModel.addElement(null);
+			for (int i = 1; i <= template.getColumnCount(); i++) {
+				if (template.getColumn(i).getColumnDataSpecDigest().canBeSelector() && !template.getColumn(i).getName().equals(currentColumn.getName())) {
+					selectorColumnComboBoxModel.addElement(template.getColumn(i));
+				}
+			}
+		}
+	}
+
+	private synchronized void removeDocumentListener(TemplateDetailPanel.FieldChangeListener changeListener) {
+		attrMapField.removeChangeListener(changeListener);
+		titleField.getDocument().removeDocumentListener(changeListener);
+		colDescField.getDocument().removeDocumentListener(changeListener);
+		fontField.getDocument().removeDocumentListener(changeListener);
+		widthField.getDocument().removeDocumentListener(changeListener);
+		colorField.getDocument().removeDocumentListener(changeListener);
+		allowNullCheckBox.removeActionListener(changeListener);
+		multiSelectCheckBox.removeActionListener(changeListener);
+		sortEnumCheckBox.removeActionListener(changeListener);
+		showLHSAttrCheckBox.removeActionListener(changeListener);
+		dataTypeCombo.removeActionListener(changeListener);
+		minField.getDocument().removeDocumentListener(changeListener);
+		maxField.getDocument().removeDocumentListener(changeListener);
+		minFloatField.getDocument().removeDocumentListener(changeListener);
+		maxFloatField.getDocument().removeDocumentListener(changeListener);
+		precisionField.getDocument().removeDocumentListener(changeListener);
+		columnTableModel.removeTableModelListener(changeListener);
+		columnMessageTableModel.removeTableModelListener(changeListener);
+		attributeItemTableModel.removeTableModelListener(changeListener);
+		enumValueListModel.removeListDataListener(changeListener);
+		entityTypeCombo.removeActionListener(changeListener);
+		entityContentCombo.removeActionListener(changeListener);
+		entityTypeCombo.removeActionListener(entityTypeListener);
+		enumSourceTypeCombo.removeActionListener(changeListener);
+		enumSourceDetailCombo.removeActionListener(changeListener);
+		selectorColumnCombo.removeActionListener(changeListener);
+	}
+
+	private void resetEntityContentCombo(boolean allowCatgory) {
+		resetEntityContentCombo(allowCatgory, ClientUtil.getInstance().getLabel("label.entity"));
+	}
+
+	private void resetEntityContentCombo(boolean allowCatgory, String valueToSelect) {
+		entityContentCombo.removeAllItems();
+		if (allowCatgory) {
+			entityContentCombo.addItem(ClientUtil.getInstance().getLabel("label.category"));
+		}
+		entityContentCombo.addItem(ClientUtil.getInstance().getLabel("label.entity"));
+		if (allowCatgory) {
+			entityContentCombo.addItem(ClientUtil.getInstance().getLabel("label.category.and.entity"));
+		}
+		if (valueToSelect != null) {
+			entityContentCombo.setSelectedItem(valueToSelect);
+		}
 	}
 
 	private void selectExternalEnumSource(String sourceName) {
 		enumSourceDetailCombo.setSelectedIndex(getIndexOfExternalEnumSource(sourceName));
-	}
-
-	public void setEnabled(boolean enable) {
-		super.setEnabled(enable);
-		setEditable(enable);
-	}
-
-	private void setEnabledColumnSelectionAwareButtons(boolean enabled) {
-		if (enabled && !ClientUtil.checkViewOrEditAnyTemplatePermission()) {
-			return;
-		}
-
-		columnButtonPanel.setEnabledSelectionAwareButtons(enabled && (columnTable.getSelectedRow() > -1));
-		upColumnButton.setEnabled(enabled && (columnTable.getSelectedRow() >= 1));
-		downColumnButton.setEnabled(enabled && (columnTable.getSelectedRow() < (template.getNumColumns() - 1)) && (columnTable.getSelectedRow() >= 0));
 	}
 
 	private void setEditable(boolean editable) {
@@ -1069,6 +1393,36 @@ class TemplateColumnsPanel extends PanelBase {
 		setEnableSelectorColumnCombo(editable);
 	}
 
+	@Override
+	public void setEnabled(boolean enable) {
+		super.setEnabled(enable);
+		setEditable(enable);
+	}
+
+	private void setEnabledAttributeItemSelectionAwareButtons(boolean enabled) {
+		attrItemButtonPanel.setEnabledSelectionAwareButtons(enabled);
+	}
+
+	private void setEnabledColumnMessageSelectionAwareButtons(boolean enabled) {
+		messageFragmentButtonPanel.setEnabledSelectionAwareButtons(enabled);
+	}
+
+	private void setEnabledColumnSelectionAwareButtons(boolean enabled) {
+		if (enabled && !ClientUtil.checkViewOrEditAnyTemplatePermission()) {
+			return;
+		}
+
+		columnButtonPanel.setEnabledSelectionAwareButtons(enabled && (columnTable.getSelectedRow() > -1));
+		upColumnButton.setEnabled(enabled && (columnTable.getSelectedRow() >= 1));
+		downColumnButton.setEnabled(enabled && (columnTable.getSelectedRow() < (template.getNumColumns() - 1)) && (columnTable.getSelectedRow() >= 0));
+	}
+
+	private void setEnabledEnumValueSelectionAwareButtons(boolean enabled) {
+		enumValueButtonPanel.setEnabledSelectionAwareButtons(enabled);
+		upEnumButton.setEnabled(enabled);
+		downEnumButton.setEnabled(enabled);
+	}
+
 	private void setEnableSelectorColumnCombo(boolean editable) {
 		if (editable) {
 			ExternalEnumSourceDetail externalEnumSourceDetail = getSelectedExternalEnumSourceDetail();
@@ -1079,18 +1433,35 @@ class TemplateColumnsPanel extends PanelBase {
 		}
 	}
 
-	private void setEnabledEnumValueSelectionAwareButtons(boolean enabled) {
-		enumValueButtonPanel.setEnabledSelectionAwareButtons(enabled);
-		upEnumButton.setEnabled(enabled);
-		downEnumButton.setEnabled(enabled);
+	private void setEntityTypeSelection(GenericEntityType newType) {
+		entityTypeCombo.removeActionListener(entityTypeListener);
+		try {
+			entityTypeCombo.selectGenericEntityType(newType);
+		}
+		finally {
+			entityTypeCombo.addActionListener(entityTypeListener);
+		}
 	}
 
-	private void setEnabledColumnMessageSelectionAwareButtons(boolean enabled) {
-		messageFragmentButtonPanel.setEnabledSelectionAwareButtons(enabled);
-	}
+	private void sortEnumValues(boolean ascending) {
+		String[] values = new String[enumValueListModel.getSize()];
 
-	private void setEnabledAttributeItemSelectionAwareButtons(boolean enabled) {
-		attrItemButtonPanel.setEnabledSelectionAwareButtons(enabled);
+		for (int i = 0; i < values.length; i++) {
+			values[i] = enumValueListModel.getElementAt(i);
+		}
+
+		if (ascending) {
+			Arrays.sort(values);
+		}
+		else {
+			Arrays.sort(values, Collections.reverseOrder());
+		}
+
+		enumValueListModel.clear();
+
+		for (int i = 0; i < values.length; i++) {
+			enumValueListModel.addElement(values[i]);
+		}
 	}
 
 	private synchronized void updateCurrentColumn() throws ValidationException {
@@ -1146,7 +1517,6 @@ class TemplateColumnsPanel extends PanelBase {
 		}
 	}
 
-
 	private void updateDataTypeDetails(int index) throws ValidationException {
 		switch (index) {
 		case 0: // boolean
@@ -1157,7 +1527,6 @@ class TemplateColumnsPanel extends PanelBase {
 		case 15: // symbol
 		case 16: // timerange
 			break;
-
 		case 1: // currency
 		case 2: // currency range
 		case 8: // float
@@ -1243,355 +1612,13 @@ class TemplateColumnsPanel extends PanelBase {
 		}
 	}
 
-	private final class DataTypeComboL implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			String selection = (String) dataTypeCombo.getSelectedItem();
-
-			if (selection != null) {
-				if (selection.equals(ColumnDataSpecDigest.TYPE_ENUM_LIST)) {
-					columnDTDetailCard.show(columnDTDetailPanel, "ENUM");
-				}
-				else if (selection.equals(ColumnDataSpecDigest.TYPE_DYNAMIC_STRING)) {
-					columnDTDetailCard.show(columnDTDetailPanel, "DYNAMICSTRING");
-				}
-				else if (selection.equals(ColumnDataSpecDigest.TYPE_INTEGER) || selection.equals(ColumnDataSpecDigest.TYPE_INTEGER_RANGE)) {
-					columnDTDetailCard.show(columnDTDetailPanel, "RANGE");
-				}
-				else if (selection.equals(ColumnDataSpecDigest.TYPE_CURRENCY) || selection.equals(ColumnDataSpecDigest.TYPE_CURRENCY_RANGE) || selection.equals(ColumnDataSpecDigest.TYPE_FLOAT)
-						|| selection.equals(ColumnDataSpecDigest.TYPE_FLOAT_RANGE)) {
-					columnDTDetailCard.show(columnDTDetailPanel, "FLOAT");
-				}
-				else if (selection.equals(ColumnDataSpecDigest.TYPE_ENTITY)) {
-					columnDTDetailCard.show(columnDTDetailPanel, "ENTITY");
-				}
-				else {
-					columnDTDetailCard.show(columnDTDetailPanel, "EMPTY");
-				}
-				allowNullCheckBox.setVisible(!selection.equals(ColumnDataSpecDigest.TYPE_RULE_ID));
-				multiSelectCheckBox.setVisible(selection.equals(ColumnDataSpecDigest.TYPE_ENUM_LIST) || selection.equals(ColumnDataSpecDigest.TYPE_ENTITY));
-				sortEnumCheckBox.setVisible(selection.equals(ColumnDataSpecDigest.TYPE_ENUM_LIST) || selection.equals(ColumnDataSpecDigest.TYPE_ENTITY));
-				showLHSAttrCheckBox.setVisible(selection.equals(ColumnDataSpecDigest.TYPE_DYNAMIC_STRING));
-				if (sortEnumCheckBox.isVisible()) {
-					sortEnumCheckBox.setText(ClientUtil.getInstance().getLabel(selection.equals(ColumnDataSpecDigest.TYPE_ENUM_LIST) ? "checkbox.sort.enum" : "checkbox.sort.entity"));
-				}
-			}
-			else {
-				columnDTDetailCard.show(columnDTDetailPanel, "EMPTY");
-			}
-		}
-	}
-
-	private class ColumnSelectionL implements ListSelectionListener {
-		public synchronized void valueChanged(ListSelectionEvent arg0) {
-			if (arg0.getValueIsAdjusting()) {
-				removeDocumentListener(detailPanel.getFieldChangeListener());
-				try {
-					updateCurrentColumn();
-
-					if (columnTable.getSelectedRow() != -1) {
-						currentColumn = columnTableModel.getColumnAt(columnTable.getSelectedRow());
-						populateColumnFields(currentColumn);
-
-						if (isEnabled()) {
-							setEditableColumnFields(true);
-							titleField.requestFocus();
-							setEnabledColumnSelectionAwareButtons(true);
-						}
-					}
-					else {
-						currentColumn = null;
-						clearColumnFields();
-						setEditableColumnFields(false);
-						setEnabledColumnSelectionAwareButtons(false);
-					}
-				}
-				catch (ValidationException e1) {
-					e1.showAsWarning();
-					cancelEvent();
-				}
-				finally {
-					addDocumentListener(detailPanel.getFieldChangeListener());
-				}
-			}
-		}
-
-		private void cancelEvent() {
-			columnTable.getSelectionModel().removeListSelectionListener(this);
-			try {
-				columnTable.getSelectionModel().setSelectionInterval(currentColumn.getColumnNumber() - 1, currentColumn.getColumnNumber() - 1);
-			}
-			finally {
-				columnTable.getSelectionModel().addListSelectionListener(this);
-			}
-		}
-	}
-
-
-	private class EntityTypeActionL implements ActionListener {
-		public void actionPerformed(ActionEvent arg0) {
-			GenericEntityType entityType = entityTypeCombo.getSelectedEntityType();
-			resetEntityContentCombo(entityType != null && entityType.hasCategory(), null);
-		}
-	}
-
-	private class EnumValueSelectionL implements ListSelectionListener {
-		public void valueChanged(ListSelectionEvent arg0) {
-			int index = enumValueList.getSelectedIndex();
-			setEnabledEnumValueSelectionAwareButtons(index > -1);
-
-			if (index == 0) {
-				upEnumButton.setEnabled(false);
-			}
-
-			if (index == (enumValueListModel.size() - 1)) {
-				downEnumButton.setEnabled(false);
-			}
-		}
-	}
-
-	private class EnumValueActionL extends Action3Adapter {
-		public void deletePerformed(ActionEvent e) {
-			String prevValue = (String) enumValueList.getSelectedValue();
-
-			if (prevValue != null) {
-				int option = JOptionPane.showConfirmDialog(
-						ClientUtil.getApplet(),
-						"Are you sure you want to delete the selected enum value '" + prevValue + "'?",
-						"Confirm Delete",
-						JOptionPane.YES_NO_OPTION);
-
-				if (option == JOptionPane.YES_OPTION) {
-					enumValueListModel.removeElement(prevValue);
-				}
-			}
-		}
-
-		public void editPerformed(ActionEvent e) {
-			String prevValue = (String) enumValueList.getSelectedValue();
-
-			if (prevValue != null) {
-				Object value = JOptionPane.showInputDialog(
-						ClientUtil.getApplet(),
-						"Edit Enumeration Value for " + currentColumn.getTitle(),
-						"Edit Enum Value",
-						JOptionPane.PLAIN_MESSAGE,
-						null,
-						null,
-						prevValue);
-
-				if ((value != null) && !prevValue.equals(value)) {
-					enumValueListModel.removeElement(prevValue);
-					enumValueListModel.addElement(value);
-				}
-			}
-		}
-
-		public void newPerformed(ActionEvent e) {
-			Object value = JOptionPane.showInputDialog(ClientUtil.getApplet(), "New Enumeration Value for " + currentColumn.getTitle(), "New Enum Value", JOptionPane.PLAIN_MESSAGE);
-
-			if (value != null) {
-				enumValueListModel.addElement(value);
-			}
-		}
-	}
-
-	private class DownEnumL implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			int index = enumValueList.getSelectedIndex();
-
-			if ((index >= 0) && (index < (enumValueListModel.getSize() - 1))) {
-				Object selection = enumValueListModel.remove(index);
-				enumValueListModel.insertElementAt(selection, index + 1);
-				enumValueList.setSelectedIndex(index + 1);
-			}
-		}
-	}
-
-	private class UpEnumL implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			int index = enumValueList.getSelectedIndex();
-
-			if (index > 0) {
-				Object selection = enumValueListModel.remove(index);
-				enumValueListModel.insertElementAt(selection, index - 1);
-				enumValueList.setSelectedIndex(index - 1);
-			}
-		}
-	}
-
-	private class SortAscL implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			sortEnumValues(true);
-		}
-	}
-
-	private class SortDescL implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			sortEnumValues(false);
-		}
-	}
-
-	private class ColumnMessageActionL extends Action3Adapter {
-		public void deletePerformed(ActionEvent e) {
-			ColumnMessageFragmentDigest digest = getSelectedColumnMessageFragment();
-
-			if (digest != null) {
-				if (ClientUtil.getInstance().showConfirmation("msg.question.delete.message.column")) {
-					columnMessageTableModel.removeRow(digest);
-					currentColumn.removeMessageFragmentDigest(digest);
-				}
-			}
-		}
-
-		public void editPerformed(ActionEvent e) {
-			ColumnMessageFragmentDigest digest = getSelectedColumnMessageFragment();
-
-			if (digest != null) {
-				String prevText = digest.getText();
-				digest = ColumnMessageFragmentEditDialog.editColumnMessageFragmentDigest(JOptionPane.getFrameForComponent(ClientUtil.getApplet()), template, currentColumn.getColumnNumber(), digest);
-
-				if (digest != null) {
-					try {
-						currentColumn.updateColumnMessageFragmentText(digest);
-						columnMessageTableModel.updateRow(columnMessageTable.getSelectedRow());
-					}
-					catch (ParseException e1) {
-						e1.printStackTrace();
-						ClientUtil.getInstance().showWarning("msg.warning.failure.update.column.message", new Object[] { e1.getMessage() });
-						digest.setText(prevText);
-					}
-				}
-			}
-		}
-
-		public void newPerformed(ActionEvent e) {
-			ColumnMessageFragmentDigest digest = ColumnMessageFragmentEditDialog.createColumnMessageFragmentDigest(
-					JOptionPane.getFrameForComponent(ClientUtil.getApplet()),
-					template,
-					currentColumn.getColumnNumber());
-
-			if (digest != null) {
-				try {
-					currentColumn.addColumnMessageFragment(digest);
-					columnMessageTableModel.addRow(digest);
-				}
-				catch (ParseException e1) {
-					e1.printStackTrace();
-					ClientUtil.getInstance().showWarning("msg.warning.failure.add.column.message", new Object[] { e1.getMessage() });
-				}
-			}
-		}
-	}
-
-	private class ColumnActionL extends Action3Adapter {
-		public void deletePerformed(ActionEvent e) {
-			if (columnTable.getSelectedRow() != -1) {
-				GridTemplateColumn column = columnTableModel.getColumnAt(columnTable.getSelectedRow());
-				int option = JOptionPane.showConfirmDialog(
-						ClientUtil.getApplet(),
-						"Are you sure you want to delete Column " + column.getID() + " '" + column.getTitle() + "'?",
-						"Confirm Delete",
-						JOptionPane.YES_NO_OPTION);
-
-				if (option == JOptionPane.YES_OPTION) {
-					columnTable.getSelectionModel().removeListSelectionListener(columnSelectionL);
-					deleteColumn();
-					clearColumnFields();
-					currentColumn = null;
-					columnTable.getSelectionModel().addListSelectionListener(columnSelectionL);
-				}
-			}
-		}
-
-		public void newPerformed(ActionEvent e) {
-			try {
-				updateCurrentColumn();
-
-				createColumn();
-				setEditableColumnFields(true);
-			}
-			catch (ValidationException e1) {
-				e1.showAsWarning();
-			}
-		}
-	}
-
-	private class DownColumnL extends AbstractThreadedActionAdapter {
-		public void performAction(ActionEvent e) {
-			if (columnTable.getSelectedRow() != -1) {
-				try {
-					updateCurrentColumn();
-
-					GridTemplateColumn column = columnTableModel.getColumnAt(columnTable.getSelectedRow());
-					columnTable.clearSelection();
-					moveColumnDown(column.getID());
-				}
-				catch (ValidationException e1) {
-					e1.showAsWarning();
-				}
-			}
-		}
-	}
-
-	private class UpColumnL extends AbstractThreadedActionAdapter {
-		public void performAction(ActionEvent e) {
-			if (columnTable.getSelectedRow() != -1) {
-				try {
-					updateCurrentColumn();
-
-					GridTemplateColumn column = columnTableModel.getColumnAt(columnTable.getSelectedRow());
-					columnTable.clearSelection();
-					moveColumnUp(column.getID());
-				}
-				catch (ValidationException e1) {
-					e1.showAsWarning();
-				}
-			}
-		}
-	}
-
-	private class AttrItemActionL extends Action3Adapter {
-		public void deletePerformed(ActionEvent e) {
-			ColumnAttributeItemDigest attrItem = getSelectedAttributeItem();
-			if (attrItem == null) {
-				return;
-			}
-			if (ClientUtil.getInstance().showConfirmation("msg.question.delete.column.attr.item")) {
-				((JButton) e.getSource()).setEnabled(false);
-				try {
-					attributeItemTableModel.removeRow(attrItem);
-				}
-				finally {
-					((JButton) e.getSource()).setEnabled(true);
-				}
-			}
-		}
-
-		public void editPerformed(ActionEvent e) {
-			ColumnAttributeItemDigest attrItem = getSelectedAttributeItem();
-			if (attrItem == null) {
-				return;
-			}
-			attrItem = ColumnAttributeItemDialog.editColumnAttributeItem(attrItem);
-			if (attrItem != null) {
-				attributeItemTableModel.updateRow(attributeItemTable.getSelectedRow());
-			}
-		}
-
-		public void newPerformed(ActionEvent e) {
-			ColumnAttributeItemDigest attrItem = ColumnAttributeItemDialog.newColumnAttributeItem();
-			if (attrItem != null) {
-				attributeItemTableModel.addRow(attrItem);
-			}
-		}
-	}
-
-	private class EnumSourceDetailComboL implements ActionListener {
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			if (enumSourceDetailCombo.getSelectedIndex() >= 0) {
-				selectorColumnCombo.setEnabled(((ExternalEnumSourceDetail) enumSourceDetailCombo.getSelectedItem()).isSupportsSelector());
-			}
-		}
+	/**
+	 * Validate attribute map text.
+	 * Returns <code>null</code> on success.
+	 * @param text
+	 * @return message resource key if validation failed; <code>null</code>, otherwise
+	 */
+	protected String validateAttributeMap() {
+		return null;
 	}
 }

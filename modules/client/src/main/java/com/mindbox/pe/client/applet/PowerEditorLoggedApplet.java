@@ -62,10 +62,13 @@ public class PowerEditorLoggedApplet extends JApplet implements TimeOutHandler {
 		application = null;
 	}
 
+	@SuppressWarnings("deprecation")
 	private boolean checkSecurity() {
 		SecurityManager sm = System.getSecurityManager();
 		try {
-			if (sm != null) sm.checkSystemClipboardAccess();
+			if (sm != null) {
+				sm.checkSystemClipboardAccess();
+			}
 		}
 		catch (SecurityException ex) {
 			ex.printStackTrace(System.err);
@@ -96,7 +99,8 @@ public class PowerEditorLoggedApplet extends JApplet implements TimeOutHandler {
 
 	private JPanel getTimedOutPanel() {
 		if (timedOutPanel == null) {
-			final JLabel messageLabel = new JLabel(String.format("<html><body><font size='+1'><b>%s</b></font></body></html>", ClientUtil.getInstance().getMessage("msg.warning.timed.out")));
+			final JLabel messageLabel = new JLabel(
+					String.format("<html><body><font size='+1'><b>%s</b></font></body></html>", ClientUtil.getInstance().getMessage("msg.warning.timed.out")));
 			timedOutPanel = UIFactory.createFlowLayoutPanel(FlowLayout.CENTER, 12, 40);
 			timedOutPanel.setBackground(Color.WHITE);
 			timedOutPanel.setOpaque(true);
@@ -174,6 +178,7 @@ public class PowerEditorLoggedApplet extends JApplet implements TimeOutHandler {
 		try {
 			SwingUtilities.invokeAndWait(new Runnable() {
 
+				@Override
 				public void run() {
 					initGUI();
 				}
@@ -216,6 +221,22 @@ public class PowerEditorLoggedApplet extends JApplet implements TimeOutHandler {
 		ClientUtil.getLogger().info("<-- logoff");
 	}
 
+	private PowerEditorConfiguration parsePowerEditorConfiguration(final String configXmlString) throws JAXBException {
+		PowerEditorConfiguration powerEditorConfiguration = null;
+		try {
+			powerEditorConfiguration = unmarshal(configXmlString, PowerEditorConfiguration.class);
+		}
+		catch (Exception e) {
+			logWarn(ClientUtil.getLogger(), e, "Failed to parse config xml using default method; trying alternate approach...");
+			final JAXBContext jaxbContext = JAXBContext.newInstance(
+					PowerEditorConfiguration.class.getPackage().toString(),
+					new PowerEditorConfiguration().getClass().getClassLoader());
+			final Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+			powerEditorConfiguration = PowerEditorConfiguration.class.cast(unmarshaller.unmarshal(new StringReader(configXmlString)));
+		}
+		return powerEditorConfiguration;
+	}
+
 	private void printPackageInfo() {
 		Package appletPackage = Package.getPackage("com.mindbox.pe.client.applet");
 		if (appletPackage != null) {
@@ -233,20 +254,6 @@ public class PowerEditorLoggedApplet extends JApplet implements TimeOutHandler {
 
 	private void setMessage(String messageStr) {
 		showStatus(messageStr);
-	}
-
-	private PowerEditorConfiguration parsePowerEditorConfiguration(final String configXmlString) throws JAXBException {
-		PowerEditorConfiguration powerEditorConfiguration = null;
-		try {
-			powerEditorConfiguration = unmarshal(configXmlString, PowerEditorConfiguration.class);
-		}
-		catch (Exception e) {
-			logWarn(ClientUtil.getLogger(), e, "Failed to parse config xml using default method; trying alternate approach...");
-			final JAXBContext jaxbContext = JAXBContext.newInstance(PowerEditorConfiguration.class.getPackage().toString(), new PowerEditorConfiguration().getClass().getClassLoader());
-			final Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-			powerEditorConfiguration = PowerEditorConfiguration.class.cast(unmarshaller.unmarshal(new StringReader(configXmlString)));
-		}
-		return powerEditorConfiguration;
 	}
 
 	private boolean showMainFrame() throws ServerException, IOException, ClassNotFoundException, JAXBException {
@@ -270,7 +277,10 @@ public class PowerEditorLoggedApplet extends JApplet implements TimeOutHandler {
 
 		// Then, create template usage types
 		for (final UsageType usageType : powerEditorConfiguration.getUserInterface().getUsageTypeList().getUsageType()) {
-			TemplateUsageType.createInstance(usageType.getName(), (usageType.getDisplayName() == null ? usageType.getName() : usageType.getDisplayName()), usageType.getPrivilege());
+			TemplateUsageType.createInstance(
+					usageType.getName(),
+					(usageType.getDisplayName() == null ? usageType.getName() : usageType.getDisplayName()),
+					usageType.getPrivilege());
 		}
 
 		// Then reset PE config
@@ -280,7 +290,8 @@ public class PowerEditorLoggedApplet extends JApplet implements TimeOutHandler {
 
 		ClientUtil.getInstance().initializeTimeOutController(powerEditorConfiguration.getServer().getSession().getTimeOutInMin().longValue() * 60);
 
-		final boolean readOnly = (powerEditorConfiguration.getKnowledgeBaseFilter() != null && powerEditorConfiguration.getKnowledgeBaseFilter().getDateFilter() != null && powerEditorConfiguration.getKnowledgeBaseFilter().getDateFilter().getEndDate() != null);
+		final boolean readOnly = (powerEditorConfiguration.getKnowledgeBaseFilter() != null && powerEditorConfiguration.getKnowledgeBaseFilter().getDateFilter() != null
+				&& powerEditorConfiguration.getKnowledgeBaseFilter().getDateFilter().getEndDate() != null);
 
 		logInfo(ClientUtil.getLogger(), "Initialized applet data (readOnly?=%b). Setting up UI elements...", readOnly);
 

@@ -47,34 +47,14 @@ import com.mindbox.pe.xsd.config.RangeStyleType;
  * @since PowerEditor 
  */
 public class ColumnMessageFragmentEditDialog extends JPanel {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3951228734910107454L;
+	private class AcceptL implements ActionListener {
 
-	private static final MessageFormat validateMessageFormat = new MessageFormat("* Validataion Failed *" + System.getProperty("line.separator") + System.getProperty("line.separator")
-			+ "Error Type   : {0}" + System.getProperty("line.separator") + "Error Message: {1}" + System.getProperty("line.separator") + System.getProperty("line.separator"));
-
-	public static ColumnMessageFragmentDigest editColumnMessageFragmentDigest(Frame owner, GridTemplate template, int columnNo, ColumnMessageFragmentDigest digest) {
-		JDialog dialog = new JDialog(owner, true);
-		dialog.setTitle("Edit Column Message");
-		ColumnMessageFragmentEditDialog panel = new ColumnMessageFragmentEditDialog(dialog, template, columnNo, digest);
-		UIFactory.addToDialog(dialog, panel);
-
-		dialog.setVisible(true);
-
-		return panel.digest;
-	}
-
-	public static ColumnMessageFragmentDigest createColumnMessageFragmentDigest(Frame owner, GridTemplate template, int columnNo) {
-		JDialog dialog = new JDialog(owner, true);
-		dialog.setTitle("New Column Message");
-		ColumnMessageFragmentEditDialog panel = new ColumnMessageFragmentEditDialog(dialog, template, columnNo, null);
-		UIFactory.addToDialog(dialog, panel);
-
-		dialog.setVisible(true);
-
-		return panel.digest;
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (updateMessage()) {
+				dialog.dispose();
+			}
+		}
 	}
 
 	private class BrowseAttributeL implements ActionListener {
@@ -89,6 +69,11 @@ public class ColumnMessageFragmentEditDialog extends JPanel {
 		public BrowseAttributeL(JTextArea textArea, boolean forMessage) {
 			this.textArea = textArea;
 			this.forMessage = forMessage;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			pasteValue(DialogFactory.showAttributeSelector(null));
 		}
 
 		void pasteValue(String val) {
@@ -106,10 +91,6 @@ public class ColumnMessageFragmentEditDialog extends JPanel {
 				textArea.requestFocus();
 			}
 		}
-
-		public void actionPerformed(ActionEvent e) {
-			pasteValue(DialogFactory.showAttributeSelector(null));
-		}
 	}
 
 	private class BrowseColumnL extends BrowseAttributeL {
@@ -118,6 +99,7 @@ public class ColumnMessageFragmentEditDialog extends JPanel {
 			super(textArea);
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			String[] columnValues = new String[template.getNumColumns()];
 			for (int i = 1; i <= columnValues.length; i++) {
@@ -131,40 +113,18 @@ public class ColumnMessageFragmentEditDialog extends JPanel {
 		}
 	}
 
-	private class ValidateRuleL implements ActionListener, WarningConsumer {
+	private class CancelL implements ActionListener {
 
-		final List<String> warningList;
-		final JTextArea textArea;
-
-		public ValidateRuleL() {
-			warningList = new LinkedList<String>();
-			textArea = new JTextArea();
-			textArea.setAutoscrolls(true);
-			textArea.setEditable(false);
-			textArea.setBackground(new Color(255, 162, 162));
-			textArea.setOpaque(true);
-		}
-
-		public void addWarning(int level, String message) {
-			warningList.add(WarningInfo.toString(level) + ": " + message);
-		}
-
-		public void addWarning(int level, String message, String resource) {
-			warningList.add(WarningInfo.toString(level) + ": " + message + " at " + resource);
-		}
-
-		@SuppressWarnings("unused")
-		String toErrorMessage(Throwable ex) {
-			String errorName = ex.getClass().getName().substring(ex.getClass().getName().lastIndexOf(".") + 1);
-			return validateMessageFormat.format(new Object[] { errorName, ex.getMessage() });
-		}
-
+		@Override
 		public void actionPerformed(ActionEvent e) {
+			digest = null;
+			dialog.dispose();
 		}
 	}
 
 	private class ValidateMessageL extends ValidateRuleL {
 
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (messageText.getText() != null && messageText.getText().length() > 0) {
 				warningList.clear();
@@ -187,28 +147,74 @@ public class ColumnMessageFragmentEditDialog extends JPanel {
 		}
 	}
 
+	private class ValidateRuleL implements ActionListener, WarningConsumer {
 
-	private class AcceptL implements ActionListener {
+		final List<String> warningList;
+		final JTextArea textArea;
 
+		public ValidateRuleL() {
+			warningList = new LinkedList<String>();
+			textArea = new JTextArea();
+			textArea.setAutoscrolls(true);
+			textArea.setEditable(false);
+			textArea.setBackground(new Color(255, 162, 162));
+			textArea.setOpaque(true);
+		}
+
+		@Override
 		public void actionPerformed(ActionEvent e) {
-			if (updateMessage()) {
-				dialog.dispose();
-			}
+		}
+
+		@Override
+		public void addWarning(int level, String message) {
+			warningList.add(WarningInfo.toString(level) + ": " + message);
+		}
+
+		@Override
+		public void addWarning(int level, String message, String resource) {
+			warningList.add(WarningInfo.toString(level) + ": " + message + " at " + resource);
+		}
+
+		@SuppressWarnings("unused")
+		String toErrorMessage(Throwable ex) {
+			String errorName = ex.getClass().getName().substring(ex.getClass().getName().lastIndexOf(".") + 1);
+			return validateMessageFormat.format(new Object[] { errorName, ex.getMessage() });
 		}
 	}
 
-	private class CancelL implements ActionListener {
+	private static final long serialVersionUID = -3951228734910107454L;
 
-		public void actionPerformed(ActionEvent e) {
-			digest = null;
-			dialog.dispose();
-		}
+	private static final MessageFormat validateMessageFormat = new MessageFormat(
+			"* Validataion Failed *" + System.getProperty("line.separator") + System.getProperty("line.separator") + "Error Type   : {0}" + System.getProperty("line.separator")
+					+ "Error Message: {1}" + System.getProperty("line.separator") + System.getProperty("line.separator"));
+
+
+	public static ColumnMessageFragmentDigest createColumnMessageFragmentDigest(Frame owner, GridTemplate template, int columnNo) {
+		JDialog dialog = new JDialog(owner, true);
+		dialog.setTitle("New Column Message");
+		ColumnMessageFragmentEditDialog panel = new ColumnMessageFragmentEditDialog(dialog, template, columnNo, null);
+		UIFactory.addToDialog(dialog, panel);
+
+		dialog.setVisible(true);
+
+		return panel.digest;
+	}
+
+	public static ColumnMessageFragmentDigest editColumnMessageFragmentDigest(Frame owner, GridTemplate template, int columnNo, ColumnMessageFragmentDigest digest) {
+		JDialog dialog = new JDialog(owner, true);
+		dialog.setTitle("Edit Column Message");
+		ColumnMessageFragmentEditDialog panel = new ColumnMessageFragmentEditDialog(dialog, template, columnNo, digest);
+		UIFactory.addToDialog(dialog, panel);
+
+		dialog.setVisible(true);
+
+		return panel.digest;
 	}
 
 	private ColumnMessageFragmentDigest digest = null;
-	private final JComboBox typeCombo;
-	private final JComboBox rangeStyleCombo;
-	private final JComboBox cellSelectionCombo;
+	private final JComboBox<String> typeCombo;
+	private final JComboBox<String> rangeStyleCombo;
+	private final JComboBox<String> cellSelectionCombo;
 	private final JTextField enumDelimField;
 	private final JTextField enumFinalDelimField;
 	private final JTextField enumPrefixField;
@@ -217,7 +223,7 @@ public class ColumnMessageFragmentEditDialog extends JPanel {
 	private final JButton validateMessageButton;
 	private final JButton browseMessageElemButton;
 	private final JButton browseMessageColButton;
-	private final JComboBox columnCombo;
+	private final JComboBox<String> columnCombo;
 	private final int columnSize;
 	private final boolean forTemplate;
 	private final GridTemplate template;
@@ -233,13 +239,14 @@ public class ColumnMessageFragmentEditDialog extends JPanel {
 		this.forTemplate = true;
 		this.columnNo = columnNo;
 
-		this.typeCombo = new JComboBox(new String[] { MessageConfigType.ANY.value(), MessageConfigType.ENUM.value(), MessageConfigType.RANGE.value() });
-		this.rangeStyleCombo = new JComboBox(new String[] { RangeStyleType.SYMBOLIC.value(), RangeStyleType.VERBOSE.value(), RangeStyleType.BRACKETED.value() });
-		this.cellSelectionCombo = new JComboBox(new String[] {
-				CellSelectionType.DEFAULT.value(),
-				CellSelectionType.ENUM_INCLUDE_MULTIPLE.value(),
-				CellSelectionType.ENUM_EXCLUDE_SINGLE.value(),
-				CellSelectionType.ENUM_EXCLUDE_MULTIPLE.value() });
+		this.typeCombo = new JComboBox<String>(new String[] { MessageConfigType.ANY.value(), MessageConfigType.ENUM.value(), MessageConfigType.RANGE.value() });
+		this.rangeStyleCombo = new JComboBox<String>(new String[] { RangeStyleType.SYMBOLIC.value(), RangeStyleType.VERBOSE.value(), RangeStyleType.BRACKETED.value() });
+		this.cellSelectionCombo = new JComboBox<String>(
+				new String[] {
+						CellSelectionType.DEFAULT.value(),
+						CellSelectionType.ENUM_INCLUDE_MULTIPLE.value(),
+						CellSelectionType.ENUM_EXCLUDE_SINGLE.value(),
+						CellSelectionType.ENUM_EXCLUDE_MULTIPLE.value() });
 
 		messageText = new JTextArea();
 		messageText.setColumns(80);
@@ -249,7 +256,7 @@ public class ColumnMessageFragmentEditDialog extends JPanel {
 		enumFinalDelimField = new JTextField();
 		enumPrefixField = new JTextField();
 
-		columnCombo = new JComboBox(new String[] { " 1 - Column Name" });
+		columnCombo = new JComboBox<String>(new String[] { " 1 - Column Name" });
 		columnCombo.setEnabled(false);
 
 		validateMessageButton = UIFactory.createButton("", "image.btn.small.validate", new ValidateMessageL(), null);
@@ -324,6 +331,7 @@ public class ColumnMessageFragmentEditDialog extends JPanel {
 
 		typeCombo.addActionListener(new ActionListener() {
 
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (typeCombo.getSelectedItem() != null) {
 					card.show(detailPanel, (String) typeCombo.getSelectedItem());

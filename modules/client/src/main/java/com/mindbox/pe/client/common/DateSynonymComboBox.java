@@ -10,46 +10,44 @@ import com.mindbox.pe.model.DateSynonym;
 
 /**
  * Date synonym editing combo box.
+ * @author Gene Kim
  * @author deklerk
  */
-public class DateSynonymComboBox extends JComboBox {
-	/**
-	 * 
-	 */
+public class DateSynonymComboBox extends JComboBox<DateSynonym> {
+
 	private static final long serialVersionUID = -3951228734910107454L;
 
 	public DateSynonymComboBox(boolean hasEmpty, boolean createModel) {
 		super();
-		setModel(new RefreshableComboBoxModel(createModel
-				? EntityModelCacheFactory.getInstance().createDateSynonymComboModel(hasEmpty)
-				: EntityModelCacheFactory.getInstance().getDateSynonymComboModel(hasEmpty)));
+		setModel(
+				new RefreshableComboBoxModel<DateSynonym>(createModel
+						? EntityModelCacheFactory.getInstance().createDateSynonymComboModel(hasEmpty)
+						: EntityModelCacheFactory.getInstance().getDateSynonymComboModel(hasEmpty)));
 		this.setRenderer(new DateSynonymCellRenderer());
 		UIFactory.setLookAndFeel(this);
 	}
 
-	void refresh(boolean showName) {
-		((DateSynonymCellRenderer) getRenderer()).setShowName(showName);
-		((RefreshableComboBoxModel) getModel()).refresh();
-	}
-
 	public Date getDate() {
 		Object selectedItem = getSelectedItem();
-
 		if ((selectedItem == null) || !(selectedItem instanceof DateSynonym)) {
 			return null;
 		}
-
 		return ((DateSynonym) selectedItem).getDate();
 	}
 
 	public synchronized DateSynonym getValue() {
 		Object selectedItem = getSelectedItem();
-
 		if ((selectedItem == null) || !(selectedItem instanceof DateSynonym)) {
 			return null;
 		}
+		else {
+			return (DateSynonym) selectedItem;
+		}
+	}
 
-		return (DateSynonym) selectedItem;
+	void refresh(boolean showName) {
+		((DateSynonymCellRenderer) getRenderer()).setShowName(showName);
+		((RefreshableComboBoxModel<DateSynonym>) getModel()).refresh();
 	}
 
 	public synchronized void setDate(Date date) {

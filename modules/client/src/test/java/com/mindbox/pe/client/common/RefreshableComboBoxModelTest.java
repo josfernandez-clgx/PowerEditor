@@ -14,21 +14,18 @@ import com.mindbox.pe.unittest.AbstractTestBase;
 
 public class RefreshableComboBoxModelTest extends AbstractTestBase {
 
-	@Test
-	public void testConstructorWithNullModelThrowsNullPointerException() throws Exception {
-		try {
-			new RefreshableComboBoxModel(null);
-			fail("Excepted NullPointerException");
-		}
-		catch (NullPointerException ex) {
-			// expected
-		}
+	@Before
+	public void setUp() throws Exception {
+	}
+
+	@After
+	public void tearDown() throws Exception {
 	}
 
 	@Test
 	public void testChangesInBaseModelUpdatesItems() throws Exception {
-		DefaultComboBoxModel baseModel = new DefaultComboBoxModel();
-		RefreshableComboBoxModel refreshableComboBoxModel = new RefreshableComboBoxModel(baseModel);
+		DefaultComboBoxModel<Integer> baseModel = new DefaultComboBoxModel<Integer>();
+		RefreshableComboBoxModel<Integer> refreshableComboBoxModel = new RefreshableComboBoxModel<Integer>(baseModel);
 		assertEquals(0, refreshableComboBoxModel.getSize());
 
 		baseModel.addElement(createInteger());
@@ -41,22 +38,25 @@ public class RefreshableComboBoxModelTest extends AbstractTestBase {
 
 	@Test
 	public void testClearingBaseModelRemovesAllItems() throws Exception {
-		DefaultComboBoxModel baseModel = new DefaultComboBoxModel();
+		DefaultComboBoxModel<Integer> baseModel = new DefaultComboBoxModel<Integer>();
 		baseModel.addElement(createInteger());
 		baseModel.addElement(createInteger());
 
-		RefreshableComboBoxModel refreshableComboBoxModel = new RefreshableComboBoxModel(baseModel);
+		RefreshableComboBoxModel<Integer> refreshableComboBoxModel = new RefreshableComboBoxModel<Integer>(baseModel);
 		assertEquals(2, refreshableComboBoxModel.getSize());
 
 		baseModel.removeAllElements();
 		assertEquals(0, refreshableComboBoxModel.getSize());
 	}
 
-	@Before
-	public void setUp() throws Exception {
-	}
-
-	@After
-	public void tearDown() throws Exception {
+	@Test
+	public void testConstructorWithNullModelThrowsNullPointerException() throws Exception {
+		try {
+			new RefreshableComboBoxModel<Object>(null);
+			fail("Excepted NullPointerException");
+		}
+		catch (NullPointerException ex) {
+			// expected
+		}
 	}
 }

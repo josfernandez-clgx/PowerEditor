@@ -33,12 +33,14 @@ import com.mindbox.pe.xsd.config.EntityPropertyType;
 public class GenericEntityUtilTest extends AbstractClientTestBase {
 	private GenericEntityFilterSpec filterSpec;
 
+	@Override
 	@Before
 	public void setUp() throws Exception {
 		super.setUp();
 		filterSpec = new GenericEntityFilterSpec(entityType2, 1, "name");
 	}
 
+	@Override
 	@After
 	public void tearDown() throws Exception {
 		filterSpec = null;
@@ -162,7 +164,7 @@ public class GenericEntityUtilTest extends AbstractClientTestBase {
 
 	@Test
 	public void testHasEditComponentValueWithEnumTypeHappyCase() throws Exception {
-		DefaultComboBoxModel comboBoxModel = new DefaultComboBoxModel();
+		DefaultComboBoxModel<TypeEnumValue> comboBoxModel = new DefaultComboBoxModel<TypeEnumValue>();
 		TypeEnumValue typeEnumValue = new TypeEnumValue(1, "value", "Value");
 		comboBoxModel.addElement(typeEnumValue);
 		TypeEnumValueComboBox component = new TypeEnumValueComboBox(comboBoxModel);
@@ -220,12 +222,20 @@ public class GenericEntityUtilTest extends AbstractClientTestBase {
 
 	@Test
 	public void testHasEditComponentValueWithNullComponentThrowsNullPointerException() throws Exception {
-		assertThrowsNullPointerException(GenericEntityUtil.class, "hasEditComponentValue", new Class[] { JComponent.class, EntityPropertyType.class }, new Object[] { null, EntityPropertyType.STRING });
+		assertThrowsNullPointerException(
+				GenericEntityUtil.class,
+				"hasEditComponentValue",
+				new Class[] { JComponent.class, EntityPropertyType.class },
+				new Object[] { null, EntityPropertyType.STRING });
 	}
 
 	@Test
 	public void testHasEditComponentValueWithNullTypeThrowsNullPointerException() throws Exception {
-		assertThrowsNullPointerException(GenericEntityUtil.class, "hasEditComponentValue", new Class[] { JComponent.class, EntityPropertyType.class }, new Object[] { new JTextField(), null });
+		assertThrowsNullPointerException(
+				GenericEntityUtil.class,
+				"hasEditComponentValue",
+				new Class[] { JComponent.class, EntityPropertyType.class },
+				new Object[] { new JTextField(), null });
 	}
 
 	@Test
@@ -310,7 +320,7 @@ public class GenericEntityUtilTest extends AbstractClientTestBase {
 		EntityPropertyType propType = EntityPropertyType.ENUM;
 		GenericEntity entity = new GenericEntity(1, entityType2, "name");
 		entity.clearProperty(propType.value());
-		DefaultComboBoxModel comboBoxModel = new DefaultComboBoxModel();
+		DefaultComboBoxModel<TypeEnumValue> comboBoxModel = new DefaultComboBoxModel<TypeEnumValue>();
 		TypeEnumValue typeEnumValue = new TypeEnumValue(1, "value", "Value");
 		comboBoxModel.addElement(typeEnumValue);
 		TypeEnumValueComboBox component = new TypeEnumValueComboBox(comboBoxModel);
@@ -398,38 +408,38 @@ public class GenericEntityUtilTest extends AbstractClientTestBase {
 
 	@Test
 	public void testSetEditComponentValueForGenericEntityWithNullComponentThrowsNullPointerException() throws Exception {
-		assertThrowsNullPointerException(GenericEntityUtil.class, "setEditComponentValue", new Class[] { GenericEntity.class, String.class, JComponent.class, EntityPropertyType.class }, new Object[] {
-				new GenericEntity(1, entityType1, "name"),
-				"description",
-				null,
-				EntityPropertyType.STRING });
+		assertThrowsNullPointerException(
+				GenericEntityUtil.class,
+				"setEditComponentValue",
+				new Class[] { GenericEntity.class, String.class, JComponent.class, EntityPropertyType.class },
+				new Object[] { new GenericEntity(1, entityType1, "name"), "description", null, EntityPropertyType.STRING });
 	}
 
 	@Test
 	public void testSetEditComponentValueForGenericEntityWithNullEntityThrowsNullPointerException() throws Exception {
-		assertThrowsNullPointerException(GenericEntityUtil.class, "setEditComponentValue", new Class[] { GenericEntity.class, String.class, JComponent.class, EntityPropertyType.class }, new Object[] {
-				null,
-				"description",
-				new JTextField(),
-				EntityPropertyType.STRING });
+		assertThrowsNullPointerException(
+				GenericEntityUtil.class,
+				"setEditComponentValue",
+				new Class[] { GenericEntity.class, String.class, JComponent.class, EntityPropertyType.class },
+				new Object[] { null, "description", new JTextField(), EntityPropertyType.STRING });
 	}
 
 	@Test
 	public void testSetEditComponentValueForGenericEntityWithNullPropertyNameThrowsNullPointerException() throws Exception {
-		assertThrowsNullPointerException(GenericEntityUtil.class, "setEditComponentValue", new Class[] { GenericEntity.class, String.class, JComponent.class, EntityPropertyType.class }, new Object[] {
-				new GenericEntity(1, entityType1, "name"),
-				null,
-				new JTextField(),
-				EntityPropertyType.STRING });
+		assertThrowsNullPointerException(
+				GenericEntityUtil.class,
+				"setEditComponentValue",
+				new Class[] { GenericEntity.class, String.class, JComponent.class, EntityPropertyType.class },
+				new Object[] { new GenericEntity(1, entityType1, "name"), null, new JTextField(), EntityPropertyType.STRING });
 	}
 
 	@Test
 	public void testSetEditComponentValueForGenericEntityWithNullTypeThrowsNullPointerException() throws Exception {
-		assertThrowsNullPointerException(GenericEntityUtil.class, "setEditComponentValue", new Class[] { GenericEntity.class, String.class, JComponent.class, EntityPropertyType.class }, new Object[] {
-				new GenericEntity(1, entityType1, "name"),
-				"description",
-				new JTextField(),
-				null });
+		assertThrowsNullPointerException(
+				GenericEntityUtil.class,
+				"setEditComponentValue",
+				new Class[] { GenericEntity.class, String.class, JComponent.class, EntityPropertyType.class },
+				new Object[] { new GenericEntity(1, entityType1, "name"), "description", new JTextField(), null });
 	}
 
 	@Test
@@ -474,7 +484,7 @@ public class GenericEntityUtilTest extends AbstractClientTestBase {
 
 	@Test
 	public void testSetPropertyFromEditComponentForGenericEntityFilterSpecWithEnumTypeSetsPropertyCriterion() throws Exception {
-		DefaultComboBoxModel comboBoxModel = new DefaultComboBoxModel();
+		DefaultComboBoxModel<TypeEnumValue> comboBoxModel = new DefaultComboBoxModel<TypeEnumValue>();
 		TypeEnumValue typeEnumValue = new TypeEnumValue(1, "value", "Value");
 		comboBoxModel.addElement(typeEnumValue);
 		TypeEnumValueComboBox component = new TypeEnumValueComboBox(comboBoxModel);
@@ -566,7 +576,7 @@ public class GenericEntityUtilTest extends AbstractClientTestBase {
 	public void testSetPropertyFromEditComponentForGenericEntityFilterSpecWithNoValueOfEnumTypeClearsCriteria() throws Exception {
 		filterSpec.setPropertyCriterion("product.amortization_type", "value");
 
-		DefaultComboBoxModel comboBoxModel = new DefaultComboBoxModel();
+		DefaultComboBoxModel<TypeEnumValue> comboBoxModel = new DefaultComboBoxModel<TypeEnumValue>();
 		TypeEnumValue typeEnumValue = new TypeEnumValue(1, "value", "Value");
 		comboBoxModel.addElement(typeEnumValue);
 		TypeEnumValueComboBox component = new TypeEnumValueComboBox(comboBoxModel);
@@ -733,7 +743,7 @@ public class GenericEntityUtilTest extends AbstractClientTestBase {
 		GenericEntity entity = new GenericEntity(1, entityType2, "name");
 		entity.setProperty("product.amortization_type", "value");
 
-		DefaultComboBoxModel comboBoxModel = new DefaultComboBoxModel();
+		DefaultComboBoxModel<TypeEnumValue> comboBoxModel = new DefaultComboBoxModel<TypeEnumValue>();
 		TypeEnumValue typeEnumValue = new TypeEnumValue(1, "value", "Value");
 		comboBoxModel.addElement(typeEnumValue);
 		TypeEnumValueComboBox component = new TypeEnumValueComboBox(comboBoxModel);

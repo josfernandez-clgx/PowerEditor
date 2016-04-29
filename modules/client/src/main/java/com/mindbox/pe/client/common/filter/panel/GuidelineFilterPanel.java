@@ -66,7 +66,50 @@ import com.mindbox.pe.xsd.config.GuidelineTab;
  */
 public final class GuidelineFilterPanel extends PanelBase {
 
-	private static final long serialVersionUID = 4489985693297838626L;
+	private final class ActiveOnDateRadioL extends AbstractThreadedActionAdapter {
+
+		@Override
+		public void performAction(ActionEvent e) {
+			if (((JRadioButton) e.getSource()).isSelected()) {
+				setEnabledExpDatePanel(false);
+				actDateField.setEnabled(true);
+				changesOnDateField.setEnabled(false);
+			}
+		}
+	}
+
+	private final class ChangesOnDateRadioL extends AbstractThreadedActionAdapter {
+		@Override
+		public void performAction(ActionEvent e) {
+			if (((JRadioButton) e.getSource()).isSelected()) {
+				setEnabledExpDatePanel(false);
+				actDateField.setEnabled(false);
+				changesOnDateField.setEnabled(true);
+			}
+		}
+	}
+
+	private class ExpDateLimitSpinnerL implements ChangeListener {
+
+		@Override
+		public void stateChanged(ChangeEvent event) {
+			Date now = new Date();
+			expDate.setTime(now.getTime() - (((Integer) expDateLimitSpinner.getValue()).longValue() * Constants.DAY_ADJUSTMENT));
+			expDateLabel.setText(Constants.THREADLOCAL_FORMAT_DATE.get().format(expDate));
+		}
+	}
+
+	private final class ExpDateRadioL extends AbstractThreadedActionAdapter {
+
+		@Override
+		public void performAction(ActionEvent e) {
+			if (((JRadioButton) e.getSource()).isSelected()) {
+				setEnabledExpDatePanel(true);
+				actDateField.setEnabled(false);
+				changesOnDateField.setEnabled(false);
+			}
+		}
+	}
 
 	private final class StatusAndAboveRadioItemL implements ItemListener {
 		@Override
@@ -92,46 +135,146 @@ public final class GuidelineFilterPanel extends PanelBase {
 		}
 	}
 
-	private class ExpDateLimitSpinnerL implements ChangeListener {
+	private static final long serialVersionUID = 4489985693297838626L;
 
-		public void stateChanged(ChangeEvent event) {
-			Date now = new Date();
-			expDate.setTime(now.getTime() - (((Integer) expDateLimitSpinner.getValue()).longValue() * Constants.DAY_ADJUSTMENT));
-			expDateLabel.setText(Constants.THREADLOCAL_FORMAT_DATE.get().format(expDate));
+	private final MDateDateField actDateField;
+	private final DateSelectorComboField changesOnDateField;
+	private final GuidelineContextPanel guidelineContextPanel;
+	private final GuidelineTypeTemplateCheckBoxSelectionPanel usageTypeTemplateSelectionPanel;
+	private final JTextField valueField;
+	private final AttributeReferenceSelectField attributeField;
+	private GuidelineReportFilter filter;
+	private final JTabbedPane selectionTab;
+	private final JButton clearCriteriaButton;
+	private final TypeEnumCheckList statusCheckList;
+	private final NumberTextField ruleIDField;
+	private final StatusSelectorComboField statusComboBox;
+	private final JLabel expDateDaysAgoLabel;
+	private final JSpinner expDateLimitSpinner;
+	private JLabel expDateLabel; // The date: changes every time the spinner changes.
+	private Date expDate;
+	private List<Component> enabledGuidelineFilterPanelComponetList = null;
+	private List<Component> enabledParameterFilterTabComponetList = null;
+	private List<Component> enabledGuidelineFilterTabComponetList = null;
+	private List<Component> excludeComponetList = new ArrayList<Component>();
+	private boolean allowDisablingPanel = true;
+	private JPanel dateSelectionTogglePanel;
+	private JPanel attributeStatusTogglePanel;
+	private JPanel contextTogglePanel;
+	private JPanel templateTogglePanel;
+	private JRadioButton statusAndAboveRadio;
+	private JRadioButton statusOneOrMoreRadio;
+	private JRadioButton expDateRadio;
+	private JRadioButton activeOnDateRadio;
+	private JRadioButton changesOnDateRadio;
+	private JLabel attributeFieldLabel, attributeValueFieldLabel, attributeStatusTogglePanelLable;
+	private final CheckList<ParameterTemplate> paramTemplateCheckList;
+	private final JPanel parameterSelectionPanel;
+	private JTabbedPane templateTabPane;
+
+	public GuidelineFilterPanel(boolean showClearButton) {
+		super();
+		this.guidelineContextPanel = new GuidelineContextPanel("button.select.entities", true, true, true);
+		selectionTab = new JTabbedPane();
+		selectionTab.setFont(PowerEditorSwingTheme.smallTabFont);
+		filter = null;
+		if (showClearButton) {
+			clearCriteriaButton = UIFactory.createButton(ClientUtil.getInstance().getLabel("button.clear.criteria"), null, new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					clearSelectionCriteria();
+				}
+			}, null);
 		}
+		else {
+			clearCriteriaButton = null;
+		}
+
+		statusComboBox = new StatusSelectorComboField(false);
+		expDateDaysAgoLabel = UIFactory.createFormLabel("label.expire.days.ago");
+		int defaultDays = getDefaultExpDays();
+		SpinnerModel numberModel = new SpinnerNumberModel(new Integer(defaultDays), new Integer(0), null, new Integer(1));
+		expDateLimitSpinner = new JSpinner(numberModel);
+
+		expDate = new Date();
+		long delta = defaultDays * Constants.DAY_ADJUSTMENT;
+		expDate.setTime(expDate.getTime() - delta);
+		expDateLabel = new JLabel(Constants.THREADLOCAL_FORMAT_DATE.get().format(expDate));
+
+		this.statusCheckList = new TypeEnumCheckList(TypeEnumValue.TYPE_STATUS, false);
+
+		actDateField = new MDateDateField(true, true, true);
+		actDateField.setValue(null);
+		changesOnDateField = new DateSelectorComboField(false, true, true);
+		changesOnDateField.setValue(null);
+		valueField = new JTextField(10);
+		attributeField = new AttributeReferenceSelectField();
+		ruleIDField = new NumberTextField(12);
+		usageTypeTemplateSelectionPanel = new GuidelineTypeTemplateCheckBoxSelectionPanel(true);
+		usageTypeTemplateSelectionPanel.setMinimumSize(new Dimension(40, 20));
+		usageTypeTemplateSelectionPanel.setPreferredSize(new Dimension(usageTypeTemplateSelectionPanel.getPreferredSize().width, 100));
+
+		paramTemplateCheckList = new CheckList<ParameterTemplate>();
+		paramTemplateCheckList.setModel(EntityModelCacheFactory.getInstance().getParameterTemplateComboModel(false));
+		parameterSelectionPanel = createParameterSelectionPanel();
+		parameterSelectionPanel.setMinimumSize(new Dimension(40, 20));
+		parameterSelectionPanel.setPreferredSize(new Dimension(parameterSelectionPanel.getPreferredSize().width, 100));
+
+		excludeComponetList.add(usageTypeTemplateSelectionPanel);
+		excludeComponetList.add(parameterSelectionPanel);
+
+		initPanel();
 	}
 
-	private final class ExpDateRadioL extends AbstractThreadedActionAdapter {
+	public void clearSelectionCriteria() {
+		actDateField.setValue(null);
+		changesOnDateField.setValue(null);
+		attributeField.setValue(null, null);
+		valueField.setText(null);
+		guidelineContextPanel.clearContext();
+		guidelineContextPanel.clearSearchOptions();
+		usageTypeTemplateSelectionPanel.clearSelection();
+		statusCheckList.clearSelection();
+		ruleIDField.clearValue();
 
-		public void performAction(ActionEvent e) {
-			if (((JRadioButton) e.getSource()).isSelected()) {
-				setEnabledExpDatePanel(true);
-				actDateField.setEnabled(false);
-				changesOnDateField.setEnabled(false);
-			}
-		}
+		statusComboBox.setSelectedStatus(Constants.DRAFT_STATUS);
+		setExpDateLimitSpinnerDefaultDays();
+		paramTemplateCheckList.clearSelection();
+
 	}
 
-	private final class ActiveOnDateRadioL extends AbstractThreadedActionAdapter {
+	private JPanel createParameterSelectionPanel() {
+		JPanel parameterSelectionPanel = UIFactory.createBorderLayoutPanel(0, 0);
+		JPanel bPanel = UIFactory.createFlowLayoutPanelLeftAlignment(2, 2);
 
-		public void performAction(ActionEvent e) {
-			if (((JRadioButton) e.getSource()).isSelected()) {
-				setEnabledExpDatePanel(false);
-				actDateField.setEnabled(true);
-				changesOnDateField.setEnabled(false);
+		JButton button = UIFactory.createButton(ClientUtil.getInstance().getLabel("button.select.all"), null, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				paramTemplateCheckList.selectAll();
 			}
-		}
+		}, null);
+		bPanel.add(button);
+
+		button = UIFactory.createButton(ClientUtil.getInstance().getLabel("button.clear.selection"), null, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				paramTemplateCheckList.clearSelection();
+			}
+		}, null);
+		bPanel.add(button);
+
+		parameterSelectionPanel.add(bPanel, BorderLayout.NORTH);
+		parameterSelectionPanel.add(new JScrollPane(paramTemplateCheckList), BorderLayout.CENTER);
+
+		return parameterSelectionPanel;
 	}
 
-	private final class ChangesOnDateRadioL extends AbstractThreadedActionAdapter {
+	private int getDefaultExpDays() {
+		return ((MainPanel) ClientUtil.getParent()).getUserSession().getDefaultExpirationDays();
+	}
 
-		public void performAction(ActionEvent e) {
-			if (((JRadioButton) e.getSource()).isSelected()) {
-				setEnabledExpDatePanel(false);
-				actDateField.setEnabled(false);
-				changesOnDateField.setEnabled(true);
-			}
-		}
+	public GuidelineReportFilter getFilter(String prefix) {
+		return getGuidelineReportFilter(prefix);
 	}
 
 	private GuidelineReportFilter getGuidelineReportFilter(String descPrefix) {
@@ -250,19 +393,19 @@ public final class GuidelineFilterPanel extends PanelBase {
 
 		}
 		else {
-			Object[] values = statusCheckList.getSelectedValues();
-			if (values != null && values.length > 0) {
+			List<TypeEnumValue> values = statusCheckList.getSelectedValuesList();
+			if (values != null && !values.isEmpty()) {
 				if (!isBeginning) {
 					buff.append("; ");
 				}
 				buff.append("Status select one or more: ");
 				isBeginning = false;
-				for (int i = 0; i < values.length; i++) {
-					if (i > 0) buff.append(",");
-					if (values[i] instanceof TypeEnumValue) {
-						filter.addStatus(((TypeEnumValue) values[i]).getValue());
-						buff.append(((TypeEnumValue) values[i]).getDisplayLabel());
+				for (int i = 0; i < values.size(); i++) {
+					if (i > 0) {
+						buff.append(",");
 					}
+					filter.addStatus(values.get(i).getValue());
+					buff.append(values.get(i).getDisplayLabel());
 				}
 			}
 		}
@@ -337,8 +480,8 @@ public final class GuidelineFilterPanel extends PanelBase {
 
 		// handle parameter selection
 		if (templateTabPane.isEnabledAt(1)) {
-			Object[] selection = paramTemplateCheckList.getSelectedValues();
-			if (selection != null && selection.length > 0) {
+			List<ParameterTemplate> selection = paramTemplateCheckList.getSelectedValuesList();
+			if (selection != null && selection.size() > 0) {
 				if (!isBeginning) {
 					buff.append("; ");
 				}
@@ -346,11 +489,11 @@ public final class GuidelineFilterPanel extends PanelBase {
 				buff.append(ClientUtil.getInstance().getLabel("label.template.parameter"));
 				buff.append(": ");
 
-				for (int i = 0; i < selection.length; i++) {
-					ParameterTemplate template = (ParameterTemplate) selection[i];
+				for (int i = 0; i < selection.size(); i++) {
+					ParameterTemplate template = selection.get(i);
 					filter.addParameterTemplateID(new Integer(template.getID()));
 					buff.append(template.getName());
-					if (i + 1 < selection.length) {
+					if (i + 1 < selection.size()) {
 						buff.append(",");
 					}
 				}
@@ -360,146 +503,6 @@ public final class GuidelineFilterPanel extends PanelBase {
 		buff.append("</html>");
 		filter.setSearchDescription(buff.toString());
 		return filter;
-	}
-
-	private int getDefaultExpDays() {
-		return ((MainPanel) ClientUtil.getParent()).getUserSession().getDefaultExpirationDays();
-	}
-
-	private final MDateDateField actDateField;
-	private final DateSelectorComboField changesOnDateField;
-	private final GuidelineContextPanel guidelineContextPanel;
-	private final GuidelineTypeTemplateCheckBoxSelectionPanel usageTypeTemplateSelectionPanel;
-	private final JTextField valueField;
-	private final AttributeReferenceSelectField attributeField;
-	private GuidelineReportFilter filter;
-	private final JTabbedPane selectionTab;
-	private final JButton clearCriteriaButton;
-	private final TypeEnumCheckList statusCheckList;
-	private final NumberTextField ruleIDField;
-
-	private final StatusSelectorComboField statusComboBox;
-	private final JLabel expDateDaysAgoLabel;
-	private final JSpinner expDateLimitSpinner;
-	private JLabel expDateLabel; // The date: changes every time the spinner changes.
-	private Date expDate;
-	private List<Component> enabledGuidelineFilterPanelComponetList = null;
-	private List<Component> enabledParameterFilterTabComponetList = null;
-	private List<Component> enabledGuidelineFilterTabComponetList = null;
-	private List<Component> excludeComponetList = new ArrayList<Component>();
-	private boolean allowDisablingPanel = true;
-
-	private JPanel dateSelectionTogglePanel;
-	private JPanel attributeStatusTogglePanel;
-	private JPanel contextTogglePanel;
-	private JPanel templateTogglePanel;
-	private JRadioButton statusAndAboveRadio;
-	private JRadioButton statusOneOrMoreRadio;
-	private JRadioButton expDateRadio;
-	private JRadioButton activeOnDateRadio;
-	private JRadioButton changesOnDateRadio;
-	private JLabel attributeFieldLabel, attributeValueFieldLabel, attributeStatusTogglePanelLable;
-	private final CheckList paramTemplateCheckList;
-	private final JPanel parameterSelectionPanel;
-	private JTabbedPane templateTabPane;
-
-	public GuidelineFilterPanel(boolean showClearButton) {
-		super();
-		this.guidelineContextPanel = new GuidelineContextPanel("button.select.entities", true, true, true);
-		selectionTab = new JTabbedPane();
-		selectionTab.setFont(PowerEditorSwingTheme.smallTabFont);
-		filter = null;
-		if (showClearButton) {
-			clearCriteriaButton = UIFactory.createButton(ClientUtil.getInstance().getLabel("button.clear.criteria"), null, new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					clearSelectionCriteria();
-				}
-			}, null);
-		}
-		else {
-			clearCriteriaButton = null;
-		}
-
-		statusComboBox = new StatusSelectorComboField(false);
-		expDateDaysAgoLabel = UIFactory.createFormLabel("label.expire.days.ago");
-		int defaultDays = getDefaultExpDays();
-		SpinnerModel numberModel = new SpinnerNumberModel(new Integer(defaultDays), new Integer(0), null, new Integer(1));
-		expDateLimitSpinner = new JSpinner(numberModel);
-
-		expDate = new Date();
-		long delta = (long) defaultDays * Constants.DAY_ADJUSTMENT;
-		expDate.setTime(expDate.getTime() - delta);
-		expDateLabel = new JLabel(Constants.THREADLOCAL_FORMAT_DATE.get().format(expDate));
-
-		this.statusCheckList = new TypeEnumCheckList(TypeEnumValue.TYPE_STATUS, false);
-
-		actDateField = new MDateDateField(true, true, true);
-		actDateField.setValue(null);
-		changesOnDateField = new DateSelectorComboField(false, true, true);
-		changesOnDateField.setValue(null);
-		valueField = new JTextField(10);
-		attributeField = new AttributeReferenceSelectField();
-		ruleIDField = new NumberTextField(12);
-		usageTypeTemplateSelectionPanel = new GuidelineTypeTemplateCheckBoxSelectionPanel(true);
-		usageTypeTemplateSelectionPanel.setMinimumSize(new Dimension(40, 20));
-		usageTypeTemplateSelectionPanel.setPreferredSize(new Dimension(usageTypeTemplateSelectionPanel.getPreferredSize().width, 100));
-
-		paramTemplateCheckList = new CheckList();
-		paramTemplateCheckList.setModel(EntityModelCacheFactory.getInstance().getParameterTemplateComboModel(false));
-		parameterSelectionPanel = createParameterSelectionPanel();
-		parameterSelectionPanel.setMinimumSize(new Dimension(40, 20));
-		parameterSelectionPanel.setPreferredSize(new Dimension(parameterSelectionPanel.getPreferredSize().width, 100));
-
-		excludeComponetList.add(usageTypeTemplateSelectionPanel);
-		excludeComponetList.add(parameterSelectionPanel);
-
-		initPanel();
-	}
-
-	public void clearSelectionCriteria() {
-		actDateField.setValue(null);
-		changesOnDateField.setValue(null);
-		attributeField.setValue(null, null);
-		valueField.setText(null);
-		guidelineContextPanel.clearContext();
-		guidelineContextPanel.clearSearchOptions();
-		usageTypeTemplateSelectionPanel.clearSelection();
-		statusCheckList.clearSelection();
-		ruleIDField.clearValue();
-
-		statusComboBox.setSelectedStatus(Constants.DRAFT_STATUS);
-		setExpDateLimitSpinnerDefaultDays();
-		paramTemplateCheckList.clearSelection();
-
-	}
-
-	private void setExpDateLimitSpinnerWidth() {
-		JFormattedTextField textField = null;
-		JComponent editor = expDateLimitSpinner.getEditor();
-		if (editor instanceof JSpinner.DefaultEditor) {
-			textField = ((JSpinner.DefaultEditor) editor).getTextField();
-		}
-		else {
-			ClientUtil.getLogger().warn("Unexpected editor type: " + expDateLimitSpinner.getEditor().getClass() + " isn't a descendent of DefaultEditor");
-		}
-		if (textField != null) {
-			textField.setColumns(4);
-		}
-	}
-
-	private void setEnabledExpDatePanel(boolean enabled) {
-		expDateLimitSpinner.setEnabled(enabled);
-		expDateDaysAgoLabel.setEnabled(enabled);
-		expDateLabel.setEnabled(enabled);
-	}
-
-	private void setExpDateLimitSpinnerDefaultDays() {
-		int defaultDays = getDefaultExpDays();
-		expDateLimitSpinner.setValue(new Integer(defaultDays));
-		expDate = new Date();
-		long delta = (long) defaultDays * Constants.DAY_ADJUSTMENT;
-		expDate.setTime(expDate.getTime() - delta);
-		expDateLabel.setText(Constants.THREADLOCAL_FORMAT_DATE.get().format(expDate));
 	}
 
 	private void initPanel() {
@@ -665,43 +668,18 @@ public final class GuidelineFilterPanel extends PanelBase {
 		add(templateTogglePanel, BorderLayout.CENTER);
 	}
 
-	private JPanel createParameterSelectionPanel() {
-		JPanel parameterSelectionPanel = UIFactory.createBorderLayoutPanel(0, 0);
-		JPanel bPanel = UIFactory.createFlowLayoutPanelLeftAlignment(2, 2);
-
-		JButton button = UIFactory.createButton(ClientUtil.getInstance().getLabel("button.select.all"), null, new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				paramTemplateCheckList.selectAll();
-			}
-		}, null);
-		bPanel.add(button);
-
-		button = UIFactory.createButton(ClientUtil.getInstance().getLabel("button.clear.selection"), null, new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				paramTemplateCheckList.clearSelection();
-			}
-		}, null);
-		bPanel.add(button);
-
-		parameterSelectionPanel.add(bPanel, BorderLayout.NORTH);
-		parameterSelectionPanel.add(new JScrollPane(paramTemplateCheckList), BorderLayout.CENTER);
-
-		return parameterSelectionPanel;
+	public boolean isAllowDisablingPanel() {
+		return allowDisablingPanel;
 	}
 
-	public GuidelineReportFilter getFilter(String prefix) {
-		return getGuidelineReportFilter(prefix);
+	public void setAllowDisablingPanel(boolean allowDisablingPanel) {
+		this.allowDisablingPanel = allowDisablingPanel;
 	}
 
-	public void setEnabledPanel(boolean enabled) {
-		if (allowDisablingPanel) {
-			if (enabled && !this.isEnabled() && enabledGuidelineFilterPanelComponetList != null) {
-				UIFactory.enableContainerComponents(enabledGuidelineFilterPanelComponetList);
-			}
-			else if (!enabled && this.isEnabled()) {
-				enabledGuidelineFilterPanelComponetList = UIFactory.disableContainerComponents(this, excludeComponetList);
-			}
-		}
+	private void setEnabledExpDatePanel(boolean enabled) {
+		expDateLimitSpinner.setEnabled(enabled);
+		expDateDaysAgoLabel.setEnabled(enabled);
+		expDateLabel.setEnabled(enabled);
 	}
 
 	public void setEnabledGuidelineFilterTab(boolean enabled) {
@@ -712,6 +690,17 @@ public final class GuidelineFilterPanel extends PanelBase {
 		else if (!enabled && usageTypeTemplateSelectionPanel.isEnabled()) {
 			enabledGuidelineFilterTabComponetList = UIFactory.disableContainerComponents(usageTypeTemplateSelectionPanel);
 			templateTabPane.setEnabledAt(0, enabled);
+		}
+	}
+
+	public void setEnabledPanel(boolean enabled) {
+		if (allowDisablingPanel) {
+			if (enabled && !this.isEnabled() && enabledGuidelineFilterPanelComponetList != null) {
+				UIFactory.enableContainerComponents(enabledGuidelineFilterPanelComponetList);
+			}
+			else if (!enabled && this.isEnabled()) {
+				enabledGuidelineFilterPanelComponetList = UIFactory.disableContainerComponents(this, excludeComponetList);
+			}
 		}
 	}
 
@@ -726,9 +715,45 @@ public final class GuidelineFilterPanel extends PanelBase {
 		}
 	}
 
+	private void setExpDateLimitSpinnerDefaultDays() {
+		int defaultDays = getDefaultExpDays();
+		expDateLimitSpinner.setValue(new Integer(defaultDays));
+		expDate = new Date();
+		long delta = defaultDays * Constants.DAY_ADJUSTMENT;
+		expDate.setTime(expDate.getTime() - delta);
+		expDateLabel.setText(Constants.THREADLOCAL_FORMAT_DATE.get().format(expDate));
+	}
+
+	private void setExpDateLimitSpinnerWidth() {
+		JFormattedTextField textField = null;
+		JComponent editor = expDateLimitSpinner.getEditor();
+		if (editor instanceof JSpinner.DefaultEditor) {
+			textField = ((JSpinner.DefaultEditor) editor).getTextField();
+		}
+		else {
+			ClientUtil.getLogger().warn("Unexpected editor type: " + expDateLimitSpinner.getEditor().getClass() + " isn't a descendent of DefaultEditor");
+		}
+		if (textField != null) {
+			textField.setColumns(4);
+		}
+	}
+
 	public void setThisStatusOrAboveStatus(String status) {
 		this.statusAndAboveRadio.setSelected(true);
 		this.statusComboBox.setSelectedStatus(status);
+	}
+
+	public void setVisibleAttributeField(boolean enable) {
+		attributeFieldLabel.setVisible(enable);
+		attributeField.setVisible(enable);
+		attributeValueFieldLabel.setVisible(enable);
+		valueField.setVisible(enable);
+		if (enable) {
+			attributeStatusTogglePanelLable.setText(ClientUtil.getInstance().getLabel("label.policy.attr.status.other.selection"));
+		}
+		else {
+			attributeStatusTogglePanelLable.setText(ClientUtil.getInstance().getLabel("label.policy.status.other.selection"));
+		}
 	}
 
 	public void setVisibleChangesOnDateField(boolean enable) {
@@ -745,24 +770,4 @@ public final class GuidelineFilterPanel extends PanelBase {
 		statusOneOrMoreRadio.setVisible(visible);
 		statusCheckList.setVisible(visible);
 	}
-
-	public void setVisibleAttributeField(boolean enable) {
-		attributeFieldLabel.setVisible(enable);
-		attributeField.setVisible(enable);
-		attributeValueFieldLabel.setVisible(enable);
-		valueField.setVisible(enable);
-		if (enable)
-			attributeStatusTogglePanelLable.setText(ClientUtil.getInstance().getLabel("label.policy.attr.status.other.selection"));
-		else
-			attributeStatusTogglePanelLable.setText(ClientUtil.getInstance().getLabel("label.policy.status.other.selection"));
-	}
-
-	public boolean isAllowDisablingPanel() {
-		return allowDisablingPanel;
-	}
-
-	public void setAllowDisablingPanel(boolean allowDisablingPanel) {
-		this.allowDisablingPanel = allowDisablingPanel;
-	}
-
 }

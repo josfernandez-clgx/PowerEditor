@@ -29,16 +29,10 @@ import com.mindbox.pe.model.filter.CBRAttributeSearchFilter;
  * @author MindBox, LLC
  * @since PowerEditor 4.1.0
  */
-public final class CBRAttributeComboBox extends JComboBox {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3951228734910107454L;
+public final class CBRAttributeComboBox extends JComboBox<CBRAttribute> {
 
-	private static class CBRAttributeCellRenderer extends JLabel implements ListCellRenderer {
-		/**
-		 * 
-		 */
+	private static class CBRAttributeCellRenderer extends JLabel implements ListCellRenderer<CBRAttribute> {
+
 		private static final long serialVersionUID = -3951228734910107454L;
 
 		public CBRAttributeCellRenderer(String imageKey) {
@@ -48,20 +42,20 @@ public final class CBRAttributeComboBox extends JComboBox {
 			setOpaque(true);
 		}
 
-		public Component getListCellRendererComponent(JList arg0, Object value, int index, boolean isSelected, boolean arg4) {
+		@Override
+		public Component getListCellRendererComponent(JList<? extends CBRAttribute> arg0, CBRAttribute value, int index, boolean isSelected, boolean arg4) {
 			if (value == null) {
-				setText("");
-			}
-			else if (value instanceof CBRAttribute) {
-				this.setText(((CBRAttribute) value).getName());
+				setText("Any");
 			}
 			else {
-				this.setText(value.toString());
+				this.setText(value.getName());
 			}
 			setBackground(isSelected ? PowerEditorSwingTheme.primary3 : Color.white);
 			return this;
 		}
 	}
+
+	private static final long serialVersionUID = -3951228734910107454L;
 
 	public static CBRAttributeComboBox createInstance() throws ServerException {
 		return new CBRAttributeComboBox(false);
@@ -71,7 +65,6 @@ public final class CBRAttributeComboBox extends JComboBox {
 		return new CBRAttributeComboBox(allowNull);
 	}
 
-
 	private boolean allowNull = false;
 
 	public CBRAttributeComboBox(boolean allowNull) {
@@ -80,20 +73,8 @@ public final class CBRAttributeComboBox extends JComboBox {
 		this.allowNull = allowNull;
 	}
 
-	public void populateAttributes(int caseBaseID) {
-		try {
-			CBRAttributeSearchFilter sf = new CBRAttributeSearchFilter();
-			sf.setCaseBaseID(caseBaseID);
-			List<CBRAttribute> atList = ClientUtil.getCommunicator().search(sf);
-			DefaultComboBoxModel model = (DefaultComboBoxModel) this.getModel();
-			model.removeAllElements();
-			if (allowNull) model.addElement("Any");
-			Iterator<CBRAttribute> it = atList.iterator();
-			while (it.hasNext())
-				model.addElement(it.next());
-		}
-		catch (Exception x) {
-		}
+	public void clearSelection() {
+		setSelectedIndex(0);
 	}
 
 	public CBRAttribute getSelectedCBRAttribute() {
@@ -111,21 +92,40 @@ public final class CBRAttributeComboBox extends JComboBox {
 		return at == null ? Persistent.UNASSIGNED_ID : at.getId();
 	}
 
-	public void clearSelection() {
-		setSelectedIndex(0);
+	public void populateAttributes(int caseBaseID) {
+		try {
+			CBRAttributeSearchFilter sf = new CBRAttributeSearchFilter();
+			sf.setCaseBaseID(caseBaseID);
+			List<CBRAttribute> atList = ClientUtil.getCommunicator().search(sf);
+			DefaultComboBoxModel<CBRAttribute> model = (DefaultComboBoxModel<CBRAttribute>) this.getModel();
+			model.removeAllElements();
+			if (allowNull) {
+				model.addElement(null);
+			}
+			Iterator<CBRAttribute> it = atList.iterator();
+			while (it.hasNext()) {
+				model.addElement(it.next());
+			}
+		}
+		catch (Exception e) {
+			ClientUtil.getLogger().error(e);
+		}
 	}
 
 	public void selectCBRAttribute(CBRAttribute attribute) {
-		if (attribute == null) this.setSelectedIndex(0);
+		if (attribute == null) {
+			this.setSelectedIndex(0);
+		}
 		setSelectedItem(attribute);
 	}
 
 	public void selectCBRAttributeFromID(int id) {
-		if (id == Persistent.UNASSIGNED_ID)
+		if (id == Persistent.UNASSIGNED_ID) {
 			setSelectedIndex(0);
+		}
 		else {
 			for (int i = 1; i < this.getItemCount(); i++) {
-				CBRAttribute at = (CBRAttribute) this.getItemAt(i);
+				CBRAttribute at = this.getItemAt(i);
 				if (at.getID() == id) {
 					setSelectedItem(at);
 					return;

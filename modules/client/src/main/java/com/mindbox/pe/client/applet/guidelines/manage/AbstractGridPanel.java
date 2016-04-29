@@ -80,6 +80,7 @@ import com.mindbox.pe.model.template.GridTemplate;
  * @since PowerEditor 1.0
  */
 public abstract class AbstractGridPanel extends JPanel implements PowerEditorTabPanel, CellValueChangeListener {
+
 	private final class ActivationRenderer extends JLabel implements ListCellRenderer<Object> {
 		/**
 		 * 
@@ -237,7 +238,7 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 
 		@Override
 		public void performAction(ActionEvent e) {
-			((RefreshableComboBoxModel) activationsCombo.getModel()).refresh();
+			((RefreshableComboBoxModel<ProductGrid>) activationsCombo.getModel()).refresh();
 		}
 	}
 
@@ -261,13 +262,8 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 		}
 	}
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -3951228734910107454L;
-
 	private static final ActivationsComparator ACTIVATION_COMPARATOR = ActivationsComparator.getInstance();
-
 	public static final SimpleDateFormat ACTIVATION_DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a z");
 
 	private static final void addComponent(JPanel panel, GridBagLayout bag, GridBagConstraints c, Component component) {
@@ -296,7 +292,6 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 	}
 
 	protected int[] productIDs;
-
 	protected GridTemplate template;
 	protected final List<ProductGrid> gridList;
 	protected final List<ProductGrid> removedGrids;
@@ -363,7 +358,7 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 		cloneActivationBtn = null;
 		removeActivationBtn = null;
 		activationsCombo = UIFactory.createComboBox();
-		activationsCombo.setModel(new RefreshableComboBoxModel());
+		activationsCombo.setModel(new RefreshableComboBoxModel<ProductGrid>());
 		statusField = UIFactory.createStatusComboBox(false);
 		commentsField = new JTextArea();
 		lastStatusChangeField = new JTextField(10);

@@ -11,9 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.swing.JButton;
@@ -44,17 +42,11 @@ import com.mindbox.pe.xsd.config.EntityType;
  * @since PowerEditor 4.2.0
  */
 public final class GuidelineContextSelectionPanel extends PanelBase {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -3951228734910107454L;
 
 	private final GuidelineContextHolder contextHolder;
-
 	private final JTabbedPane tabPane;
-
-	private final Map<GenericEntityType, JList> genericEntityJListMap;
-
+	private final Map<GenericEntityType, JList<GenericEntity>> genericEntityJListMap;
 	private final Map<GenericEntityType, GenericCategorySelectionTree> genericCategoryTreeMap;
 
 	public GuidelineContextSelectionPanel(GuidelineContextHolder contextHolder) {
@@ -62,51 +54,21 @@ public final class GuidelineContextSelectionPanel extends PanelBase {
 
 		this.tabPane = new JTabbedPane(JTabbedPane.TOP);
 
-		genericEntityJListMap = new HashMap<GenericEntityType, JList>();
+		genericEntityJListMap = new HashMap<GenericEntityType, JList<GenericEntity>>();
 		genericCategoryTreeMap = new HashMap<GenericEntityType, GenericCategorySelectionTree>();
 
 		initPanel();
 	}
 
-	private JList getGenericEntityList(GenericEntityType type) {
-		if (genericEntityJListMap.containsKey(type)) {
-			return genericEntityJListMap.get(type);
-		}
-		else {
-			final GenericEntityType genericEntityType = type;
-			JList list = UIFactory.createList(EntityModelCacheFactory.getInstance().getGenericEntityListModel(genericEntityType, false));
-			list.setCellRenderer(new IDNameObjectCellRenderer("image.node.entity"));
-			list.addMouseListener(new MouseAdapter() {
-
-				public void mouseClicked(MouseEvent e) {
-					if (e.getClickCount() == 2) {
-						addSelectedGenericEntities(genericEntityType);
-					}
-				}
-			});
-			genericEntityJListMap.put(genericEntityType, list);
-			return list;
-		}
-	}
-
-	private GenericCategorySelectionTree getGenericCategoryTree(GenericEntityType type) {
-		if (genericCategoryTreeMap.containsKey(type)) {
-			return genericCategoryTreeMap.get(type);
-		}
-		else {
-			CategoryType catDef = ClientUtil.getEntityConfigHelper().getCategoryDefinition(type);
-			final GenericEntityType genericEntityType = type;
-			GenericCategorySelectionTree tree = new GenericCategorySelectionTree(catDef.getTypeID().intValue(), false, true, true);
-			tree.addMouseListener(new MouseAdapter() {
-
-				public void mouseClicked(MouseEvent e) {
-					if (e.getClickCount() == 2) {
-						addSelectedGenericCategories(genericEntityType);
-					}
-				}
-			});
-			genericCategoryTreeMap.put(genericEntityType, tree);
-			return tree;
+	private void addSelectedGenericCategories(GenericEntityType type) {
+		GenericCategory[] entities = getSelectedGenericCategories(type);
+		if (entities != null && entities.length > 0) {
+			try {
+				contextHolder.addContext(entities);
+			}
+			catch (IllegalArgumentException ex) {
+				ClientUtil.getInstance().showWarning("msg.warning.invalid.context.generic.category");
+			}
 		}
 	}
 
@@ -122,33 +84,84 @@ public final class GuidelineContextSelectionPanel extends PanelBase {
 		}
 	}
 
-	private void addSelectedGenericCategories(GenericEntityType type) {
-		GenericCategory[] entities = getSelectedGenericCategories(type);
-		if (entities != null && entities.length > 0) {
-			try {
-				contextHolder.addContext(entities);
+	private JPanel createCategoryContextPanel(final GenericEntityType type) {
+		JButton addButton = UIFactory.createButton(ClientUtil.getInstance().getLabel("button.add.context"), "image.btn.small.forward", new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				GenericCategory[] catgories = getSelectedGenericCategories(type);
+				if (catgories == null || catgories.length == 0) {
+					ClientUtil.getInstance().showWarning("msg.warning.select.generic");
+				}
+				else {
+					try {
+						contextHolder.addContext(catgories);
+					}
+					catch (IllegalArgumentException ex) {
+						ClientUtil.getInstance().showWarning("msg.warning.invalid.context.generic.category");
+					}
+
+				}
 			}
-			catch (IllegalArgumentException ex) {
-				ClientUtil.getInstance().showWarning("msg.warning.invalid.context.generic.category");
-			}
+		}, null);
+		JPanel categoryContextPanel = UIFactory.createBorderLayoutPanel(2, 2);
+		categoryContextPanel.add(addButton, BorderLayout.NORTH);
+		categoryContextPanel.add(getGenericCategoryTree(type).getJComponent(), BorderLayout.CENTER);
+		return categoryContextPanel;
+	}
+
+	private GenericCategorySelectionTree getGenericCategoryTree(GenericEntityType type) {
+		if (genericCategoryTreeMap.containsKey(type)) {
+			return genericCategoryTreeMap.get(type);
+		}
+		else {
+			CategoryType catDef = ClientUtil.getEntityConfigHelper().getCategoryDefinition(type);
+			final GenericEntityType genericEntityType = type;
+			GenericCategorySelectionTree tree = new GenericCategorySelectionTree(catDef.getTypeID().intValue(), false, true, true);
+			tree.addMouseListener(new MouseAdapter() {
+
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					if (e.getClickCount() == 2) {
+						addSelectedGenericCategories(genericEntityType);
+					}
+				}
+			});
+			genericCategoryTreeMap.put(genericEntityType, tree);
+			return tree;
 		}
 	}
 
-	synchronized GenericEntity[] getSelectedGenericEntities(GenericEntityType type) {
-		List<Object> list = new ArrayList<Object>();
-		JList element = genericEntityJListMap.get(type);
-		Object[] objs = element.getSelectedValues();
-		for (int i = 0; i < objs.length; i++) {
-			if (objs[i] instanceof GenericEntity) {
-				list.add(objs[i]);
-			}
+	private JList<GenericEntity> getGenericEntityList(GenericEntityType type) {
+		if (genericEntityJListMap.containsKey(type)) {
+			return genericEntityJListMap.get(type);
 		}
-		return list.toArray(new GenericEntity[0]);
+		else {
+			final GenericEntityType genericEntityType = type;
+			JList<GenericEntity> list = UIFactory.createList(EntityModelCacheFactory.getInstance().getGenericEntityListModel(genericEntityType, false));
+			list.setCellRenderer(new IDNameObjectCellRenderer<GenericEntity>("image.node.entity"));
+			list.addMouseListener(new MouseAdapter() {
+
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					if (e.getClickCount() == 2) {
+						addSelectedGenericEntities(genericEntityType);
+					}
+				}
+			});
+			genericEntityJListMap.put(genericEntityType, list);
+			return list;
+		}
 	}
 
 	synchronized GenericCategory[] getSelectedGenericCategories(GenericEntityType type) {
 		GenericCategorySelectionTree tree = genericCategoryTreeMap.get(type);
 		return (tree == null ? new GenericCategory[0] : tree.getSelectedCategories());
+	}
+
+	synchronized GenericEntity[] getSelectedGenericEntities(GenericEntityType type) {
+		JList<GenericEntity> element = genericEntityJListMap.get(type);
+		return element.getSelectedValuesList().toArray(new GenericEntity[0]);
 	}
 
 	private void initPanel() {
@@ -159,6 +172,7 @@ public final class GuidelineContextSelectionPanel extends PanelBase {
 
 				JButton addButton = UIFactory.createButton(ClientUtil.getInstance().getLabel("button.add.context"), "image.btn.small.forward", new ActionListener() {
 
+					@Override
 					public void actionPerformed(ActionEvent e) {
 						GenericEntity[] entities = getSelectedGenericEntities(type);
 						if (entities == null || entities.length == 0) {
@@ -195,30 +209,5 @@ public final class GuidelineContextSelectionPanel extends PanelBase {
 		add(tabPane, BorderLayout.CENTER);
 
 		setBorder(UIFactory.createTitledBorder(ClientUtil.getInstance().getLabel("label.title.guideline.context.selection")));
-	}
-
-	private JPanel createCategoryContextPanel(final GenericEntityType type) {
-		JButton addButton = UIFactory.createButton(ClientUtil.getInstance().getLabel("button.add.context"), "image.btn.small.forward", new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) {
-				GenericCategory[] catgories = getSelectedGenericCategories(type);
-				if (catgories == null || catgories.length == 0) {
-					ClientUtil.getInstance().showWarning("msg.warning.select.generic");
-				}
-				else {
-					try {
-						contextHolder.addContext(catgories);
-					}
-					catch (IllegalArgumentException ex) {
-						ClientUtil.getInstance().showWarning("msg.warning.invalid.context.generic.category");
-					}
-
-				}
-			}
-		}, null);
-		JPanel categoryContextPanel = UIFactory.createBorderLayoutPanel(2, 2);
-		categoryContextPanel.add(addButton, BorderLayout.NORTH);
-		categoryContextPanel.add(getGenericCategoryTree(type).getJComponent(), BorderLayout.CENTER);
-		return categoryContextPanel;
 	}
 }

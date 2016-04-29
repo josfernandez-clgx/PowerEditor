@@ -53,18 +53,22 @@ final class GenericEntityUtil {
 			this.targetField = targetField;
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			updateField();
 		}
 
+		@Override
 		public void changedUpdate(DocumentEvent arg0) {
 			updateField();
 		}
 
+		@Override
 		public void insertUpdate(DocumentEvent arg0) {
 			updateField();
 		}
 
+		@Override
 		public void removeUpdate(DocumentEvent arg0) {
 			updateField();
 		}
@@ -82,7 +86,7 @@ final class GenericEntityUtil {
 			((JTextComponent) sourceComponent).getDocument().addDocumentListener(autoUpdateChangeListener);
 		}
 		else if (sourceComponent instanceof JComboBox) {
-			((JComboBox) sourceComponent).addActionListener(autoUpdateChangeListener);
+			((JComboBox<?>) sourceComponent).addActionListener(autoUpdateChangeListener);
 		}
 		else if (sourceComponent instanceof AbstractButton) {
 			((AbstractButton) sourceComponent).addActionListener(autoUpdateChangeListener);

@@ -15,19 +15,18 @@ import com.mindbox.pe.model.TemplateUsageType;
 import com.mindbox.pe.model.admin.Privilege;
 import com.mindbox.pe.model.template.GridTemplateColumn;
 
-public class CheckList extends JList {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3951228734910107454L;
+public class CheckList<T> extends JList<T> {
 
-	private class CheckListRenderer extends JCheckBox implements ListCellRenderer {
-		/**
-		 * 
-		 */
+	private class CheckListRenderer extends JCheckBox implements ListCellRenderer<T> {
 		private static final long serialVersionUID = -3951228734910107454L;
 
-		public Component getListCellRendererComponent(JList jlist, Object obj, int i, boolean flag, boolean flag1) {
+		public CheckListRenderer() {
+			this.setBackground(UIManager.getColor("List.background"));
+			this.setForeground(UIManager.getColor("List.foreground"));
+		}
+
+		@Override
+		public Component getListCellRendererComponent(JList<? extends T> jlist, T obj, int i, boolean flag, boolean flag1) {
 			this.setEnabled(jlist.isEnabled());
 			setSelected(flag);
 			this.setFont(jlist.getFont());
@@ -40,37 +39,38 @@ public class CheckList extends JList {
 			setText(getListText(obj));
 			return this;
 		}
-
-		public CheckListRenderer() {
-			this.setBackground(UIManager.getColor("List.background"));
-			this.setForeground(UIManager.getColor("List.foreground"));
-		}
 	}
 
 	private class ToggleSelectionModel extends DefaultListSelectionModel {
-		/**
-		 * 
-		 */
+
 		private static final long serialVersionUID = -3951228734910107454L;
-
-		public void setValueIsAdjusting(boolean flag) {
-			if (!flag) gestureStarted = false;
-		}
-
-		public void setSelectionInterval(int i, int j) {
-			if (this.isSelectedIndex(i) && !gestureStarted)
-				super.removeSelectionInterval(i, j);
-			else
-				super.addSelectionInterval(i, j);
-			gestureStarted = true;
-		}
 
 		boolean gestureStarted;
 
 		ToggleSelectionModel() {
 			gestureStarted = false;
 		}
+
+		@Override
+		public void setSelectionInterval(int i, int j) {
+			if (this.isSelectedIndex(i) && !gestureStarted) {
+				super.removeSelectionInterval(i, j);
+			}
+			else {
+				super.addSelectionInterval(i, j);
+			}
+			gestureStarted = true;
+		}
+
+		@Override
+		public void setValueIsAdjusting(boolean flag) {
+			if (!flag) {
+				gestureStarted = false;
+			}
+		}
 	}
+
+	private static final long serialVersionUID = -3951228734910107454L;
 
 	public CheckList() {
 		setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -79,18 +79,23 @@ public class CheckList extends JList {
 		setBorder(new EtchedBorder());
 	}
 
-	public void selectAll() {
-		super.setSelectionInterval(0, getModel().getSize() - 1);
-	}
-
 	/**
 	 * Override this to customize text displayed for each item in this list.
 	 * @param obj 
 	 * @return string representation of <code>obj</code>
 	 */
-	protected String getListText(Object obj) {
-		return (obj instanceof GridTemplateColumn ? ((GridTemplateColumn) obj).getTitle() : ((obj instanceof Privilege) ? ((Privilege) obj).getDisplayString() : ((obj instanceof IDNameObject)
-				? ((IDNameObject) obj).getName()
-				: ((obj instanceof TemplateUsageType) ? ((TemplateUsageType) obj).getDisplayName() : obj.toString()))));
+	protected String getListText(T obj) {
+		// TODO This is a poor implementation; refactor as multiple classes
+		return (obj instanceof GridTemplateColumn
+				? ((GridTemplateColumn) obj).getTitle()
+				: ((obj instanceof Privilege)
+						? ((Privilege) obj).getDisplayString()
+						: ((obj instanceof IDNameObject)
+								? ((IDNameObject) obj).getName()
+								: ((obj instanceof TemplateUsageType) ? ((TemplateUsageType) obj).getDisplayName() : obj.toString()))));
+	}
+
+	public void selectAll() {
+		super.setSelectionInterval(0, getModel().getSize() - 1);
 	}
 }

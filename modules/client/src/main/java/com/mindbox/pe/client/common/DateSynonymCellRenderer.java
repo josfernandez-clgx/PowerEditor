@@ -17,10 +17,8 @@ import com.mindbox.pe.model.DateSynonym;
  * @author MindBox
  * @since PowerEditor 4.2.0
  */
-public class DateSynonymCellRenderer extends JLabel implements ListCellRenderer {
-	/**
-	 * 
-	 */
+public class DateSynonymCellRenderer extends JLabel implements ListCellRenderer<DateSynonym> {
+
 	private static final long serialVersionUID = -3951228734910107454L;
 
 	private boolean showName = true;
@@ -29,15 +27,13 @@ public class DateSynonymCellRenderer extends JLabel implements ListCellRenderer 
 		setOpaque(true);
 	}
 
-	public Component getListCellRendererComponent(JList arg0, Object value, int index, boolean isSelected, boolean arg4) {
+	@Override
+	public Component getListCellRendererComponent(JList<? extends DateSynonym> arg0, DateSynonym value, int index, boolean isSelected, boolean arg4) {
 		if (value == null) {
 			setText("");
 		}
-		else if (value instanceof DateSynonym) {
-			this.setText((showName ? ((DateSynonym) value).getName() : Constants.THREADLOCAL_FORMAT_DATE_TIME_SEC.get().format(((DateSynonym) value).getDate())));
-		}
 		else {
-			this.setText(value.toString());
+			this.setText((showName ? value.getName() : Constants.THREADLOCAL_FORMAT_DATE_TIME_SEC.get().format(value.getDate())));
 		}
 		setBackground(isSelected ? PowerEditorSwingTheme.primary3 : Color.white);
 		return this;
@@ -46,5 +42,4 @@ public class DateSynonymCellRenderer extends JLabel implements ListCellRenderer 
 	public void setShowName(boolean showName) {
 		this.showName = showName;
 	}
-
 }

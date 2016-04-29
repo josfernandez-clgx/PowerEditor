@@ -25,9 +25,7 @@ import com.mindbox.pe.model.table.EnumValues;
  * @since PowerEditor 2.3.0
  */
 class MultiEnumEditDialog extends JPanel {
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = -3951228734910107454L;
 
 	public static <E> String editEnums(JDialog parent, List<EnumValue> enumValueList, String enumStr) {
@@ -49,12 +47,12 @@ class MultiEnumEditDialog extends JPanel {
 		return editEnums(parent, enumValueList, null);
 	}
 
-	private final DefaultListModel listModel;
-	private final JList jlist;
+	private final DefaultListModel<EnumValue> listModel;
+	private final JList<EnumValue> jlist;
 	private final JCheckBox excludeCheckBox;
 
 	private MultiEnumEditDialog(List<EnumValue> enumValueList) {
-		this.listModel = new DefaultListModel();
+		this.listModel = new DefaultListModel<EnumValue>();
 		this.excludeCheckBox = UIFactory.createCheckBox("checkbox.exclude.enum");
 
 		if (enumValueList != null && enumValueList.size() > 0) {
@@ -66,7 +64,7 @@ class MultiEnumEditDialog extends JPanel {
 		}
 		setLayout(new BorderLayout(4, 4));
 
-		this.jlist = new JList();
+		this.jlist = new JList<EnumValue>();
 		jlist.setCellRenderer(new EnumValueCellRenderer());
 		jlist.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		jlist.setModel(listModel);
@@ -74,6 +72,30 @@ class MultiEnumEditDialog extends JPanel {
 		this.add(new JLabel("Select one or more values"), BorderLayout.NORTH);
 		this.add(new JScrollPane(jlist), BorderLayout.CENTER);
 		this.add(excludeCheckBox, BorderLayout.SOUTH);
+	}
+
+	private String extractSelectedValues() {
+		StringBuilder buff = new StringBuilder();
+		List<EnumValue> selections = jlist.getSelectedValuesList();
+		if (selections.isEmpty()) {
+			return "";
+		}
+		else {
+			if (excludeCheckBox.isSelected()) {
+				buff.append("Not ");
+			}
+			boolean first = true;
+			for (EnumValue selection : selections) {
+				if (!first) {
+					buff.append(",");
+				}
+				buff.append(selection.getDisplayLabel());
+				if (first) {
+					first = false;
+				}
+			}
+		}
+		return buff.toString();
 	}
 
 	private void populateSelectedValues(String valueStr) {
@@ -84,13 +106,15 @@ class MultiEnumEditDialog extends JPanel {
 		for (int i = 0; i < enumValues.size(); i++) {
 			int index = -1;
 			for (int j = 0; j < listModel.size(); j++) {
-				EnumValue ev = (EnumValue) listModel.get(j);
+				EnumValue ev = listModel.get(j);
 				if (ev.getDisplayLabel().equals(enumValues.get(i)) || ev.getDeployID().toString().equals(enumValues.get(i))) {
 					index = j;
 					break;
 				}
 			}
-			if (index >= 0) indexList.add(new Integer(index));
+			if (index >= 0) {
+				indexList.add(new Integer(index));
+			}
 		}
 
 		int[] indices = new int[indexList.size()];
@@ -99,29 +123,4 @@ class MultiEnumEditDialog extends JPanel {
 		}
 		jlist.setSelectedIndices(indices);
 	}
-
-	private String extractSelectedValues() {
-		StringBuilder buff = new StringBuilder();
-		Object[] objects = jlist.getSelectedValues();
-		if (objects == null || objects.length == 0) {
-			return "";
-		}
-		else {
-			if (excludeCheckBox.isSelected()) {
-				buff.append("Not ");
-			}
-			buff.append((objects[0] instanceof EnumValue ? ((EnumValue) objects[0]).getDisplayLabel() : objects[0].toString()));
-			for (int i = 1; i < objects.length; i++) {
-				buff.append(",");
-				if (objects[i] instanceof EnumValue) {
-					buff.append(((EnumValue) objects[i]).getDisplayLabel());
-				}
-				else {
-					buff.append(objects[i].toString());
-				}
-			}
-		}
-		return buff.toString();
-	}
-
 }

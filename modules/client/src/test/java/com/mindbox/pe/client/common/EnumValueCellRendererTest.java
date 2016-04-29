@@ -22,7 +22,7 @@ public class EnumValueCellRendererTest extends AbstractTestBase {
 	private List<EnumValue> enumVals;
 	private EnumValue anEnumVal;
 	private EnumValueCellRenderer renderer;
-	private JList list;
+	private JList<EnumValue> list;
 	private JLabel label;
 
 	@Before
@@ -30,23 +30,35 @@ public class EnumValueCellRendererTest extends AbstractTestBase {
 		enumVals = Arrays.asList(createEnumValues(3));
 		anEnumVal = enumVals.get(0);
 		renderer = new EnumValueCellRenderer(enumVals);
-		list = new JList();
+		list = new JList<EnumValue>();
 		label = (JLabel) renderer.getListCellRendererComponent(list, null, 0, false, false);
 	}
 
 	@Test
-	public void testGetDisplayLabelNull() throws Exception {
-		assertEquals("", EnumValueCellRenderer.getDisplayLabel(null));
+	public void testGetCellRendererComponentWithDisplayLabel() throws Exception {
+		for (Iterator<EnumValue> iter = enumVals.iterator(); iter.hasNext();) {
+			EnumValue enumVal = iter.next();
+			renderer.getListCellRendererComponent(list, enumVal.getDisplayLabel(), 0, false, false);
+			assertEquals(enumVal.getDisplayLabel(), label.getText());
+		}
 	}
 
 	@Test
-	public void testGetDisplayLabelEnumValue() throws Exception {
-		assertEquals(anEnumVal.getDisplayLabel(), EnumValueCellRenderer.getDisplayLabel(anEnumVal));
+	public void testGetCellRendererComponentWithEnum() throws Exception {
+		for (Iterator<EnumValue> iter = enumVals.iterator(); iter.hasNext();) {
+			EnumValue enumVal = iter.next();
+			renderer.getListCellRendererComponent(list, enumVal, 0, false, false);
+			assertEquals(enumVal.getDisplayLabel(), label.getText());
+		}
 	}
 
 	@Test
-	public void testGetDisplayLabelString() throws Exception {
-		assertEquals("foobar", EnumValueCellRenderer.getDisplayLabel("foobar"));
+	public void testGetCellRendererComponentWithId() throws Exception {
+		for (Iterator<EnumValue> iter = enumVals.iterator(); iter.hasNext();) {
+			EnumValue enumVal = iter.next();
+			renderer.getListCellRendererComponent(list, enumVal.getDeployID().toString(), 0, false, false);
+			assertEquals(enumVal.getDisplayLabel(), label.getText());
+		}
 	}
 
 	@Test
@@ -62,6 +74,11 @@ public class EnumValueCellRendererTest extends AbstractTestBase {
 	}
 
 	@Test
+	public void testGetDisplayLabelEnumValue() throws Exception {
+		assertEquals(anEnumVal.getDisplayLabel(), EnumValueCellRenderer.getDisplayLabel(anEnumVal));
+	}
+
+	@Test
 	public void testGetDisplayLabelIdToDisplayLabel() throws Exception {
 		String expectedDisplayLabel = anEnumVal.getDisplayLabel();
 		String idStr = anEnumVal.getDeployID().toString();
@@ -70,29 +87,12 @@ public class EnumValueCellRendererTest extends AbstractTestBase {
 	}
 
 	@Test
-	public void testGetCellRendererComponentWithDisplayLabel() throws Exception {
-		for (Iterator<EnumValue> iter = enumVals.iterator(); iter.hasNext();) {
-			EnumValue enumVal = iter.next();
-			renderer.getListCellRendererComponent(list, enumVal.getDisplayLabel(), 0, false, false);
-			assertEquals(enumVal.getDisplayLabel(), label.getText());
-		}
+	public void testGetDisplayLabelNull() throws Exception {
+		assertEquals("", EnumValueCellRenderer.getDisplayLabel(null));
 	}
 
 	@Test
-	public void testGetCellRendererComponentWithId() throws Exception {
-		for (Iterator<EnumValue> iter = enumVals.iterator(); iter.hasNext();) {
-			EnumValue enumVal = iter.next();
-			renderer.getListCellRendererComponent(list, enumVal.getDeployID().toString(), 0, false, false);
-			assertEquals(enumVal.getDisplayLabel(), label.getText());
-		}
-	}
-
-	@Test
-	public void testGetCellRendererComponentWithEnum() throws Exception {
-		for (Iterator<EnumValue> iter = enumVals.iterator(); iter.hasNext();) {
-			EnumValue enumVal = iter.next();
-			renderer.getListCellRendererComponent(list, enumVal, 0, false, false);
-			assertEquals(enumVal.getDisplayLabel(), label.getText());
-		}
+	public void testGetDisplayLabelString() throws Exception {
+		assertEquals("foobar", EnumValueCellRenderer.getDisplayLabel("foobar"));
 	}
 }

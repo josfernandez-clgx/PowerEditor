@@ -9,32 +9,21 @@ import com.mindbox.pe.model.GenericEntityType;
  * @author Geneho Kim
  * @see com.mindbox.pe.client.common.CheckList
  */
-public class GenericEntityCheckList extends CheckList {
-	/**
-	 * 
-	 */
+public class GenericEntityCheckList extends CheckList<GenericEntity> {
+
 	private static final long serialVersionUID = -3951228734910107454L;
 
 	public GenericEntityCheckList(GenericEntityType entityType) {
 		setModel(EntityModelCacheFactory.getInstance().getGenericEntityListModel(entityType, false));
 	}
 
-	protected String getListText(Object obj) {
-		if (obj instanceof GenericEntity) {
-			return ((GenericEntity) obj).getName();
-		}
-		else {
-			return super.getListText(obj);
-		}
+	@Override
+	protected String getListText(GenericEntity obj) {
+		return obj.getName();
 	}
 
 	public GenericEntity[] getSelectedGenericEntities() {
-		Object[] objs = getSelectedValues();
-		GenericEntity[] entities = new GenericEntity[objs.length];
-		for (int i = 0; i < entities.length; i++) {
-			entities[i] = (GenericEntity) objs[i];
-		}
-		return entities;
+		return getSelectedValuesList().toArray(new GenericEntity[0]);
 	}
 
 	/**

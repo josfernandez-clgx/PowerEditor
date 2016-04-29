@@ -11,10 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.sf.oval.constraint.AssertValid;
-import net.sf.oval.constraint.NotBlank;
-import net.sf.oval.constraint.NotNull;
-
 import com.mindbox.pe.common.UtilBase;
 import com.mindbox.pe.common.validate.oval.HasRequiredProperties;
 import com.mindbox.pe.common.validate.oval.HasValidValuesForProperties;
@@ -25,6 +21,10 @@ import com.mindbox.pe.model.assckey.DefaultChildAssociationKeySet;
 import com.mindbox.pe.model.assckey.InvalidAssociationKeyException;
 import com.mindbox.pe.model.assckey.MutableTimedAssociationKey;
 
+import net.sf.oval.constraint.AssertValid;
+import net.sf.oval.constraint.NotBlank;
+import net.sf.oval.constraint.NotNull;
+
 /**
  * Generic entity. Note that type-specific property getter methods cast values
  * into appropriate objects directly. Use corresponding type-specific setter
@@ -34,11 +34,13 @@ import com.mindbox.pe.model.assckey.MutableTimedAssociationKey;
  * @author MindBox
  * @since PowerEditor 3.0.0
  */
-public final class GenericEntity extends AbstractIDObject implements CloneableEntity, IDNameObject, Auditable {
+public final class GenericEntity extends AbstractIDObject implements GenericContextElement, CloneableEntity, IDNameObject, Auditable {
 
 	private static final String MULTI_ENUM_DELIMITER = "|";
 	private static final String MULTI_ENUM_DELIMITER_REGEX = "\\|";
 	private static final String MULTI_ENUM_DELIMITER_ESCAPE = "&vb;";
+
+	private static final long serialVersionUID = 2007051500004L;
 
 	public static String toMultiEnumPropertyValue(List<String> values) {
 		if (values == null || values.isEmpty()) return "";
@@ -59,35 +61,26 @@ public final class GenericEntity extends AbstractIDObject implements CloneableEn
 		return Arrays.asList(strs);
 	}
 
-	private static final long serialVersionUID = 2007051500004L;
-
 	@PositiveOrUnassigned
 	private int parentID = -1;
 
 	@NotNull
 	private final GenericEntityType type;
-	
+
 	@HasRequiredProperties
 	@HasValidValuesForProperties
-	private final Map<String,Object> propertyMap;
-	
+	private final Map<String, Object> propertyMap;
+
 	@AssertValid
 	private final ChildAssociationKeySet categoryAssociations;
-	
+
 	private boolean forClone = false;
 	private boolean copyPolicies = false;
-	
+
 	@NotNull
 	@NotBlank
 	@UniqueName
 	private String name;
-	
-	/**
-	 * @param name
-	 */
-	public GenericEntity(int id, GenericEntityType type, String name) {
-		this(id, type, name, new DefaultChildAssociationKeySet());
-	}
 
 	/**
 	 * Make a deep copy of this.
@@ -101,53 +94,70 @@ public final class GenericEntity extends AbstractIDObject implements CloneableEn
 		this.propertyMap.putAll(source.propertyMap);
 	}
 
+	/**
+	 * @param name
+	 */
+	public GenericEntity(int id, GenericEntityType type, String name) {
+		this(id, type, name, new DefaultChildAssociationKeySet());
+	}
+
 	private GenericEntity(int id, GenericEntityType type, String name, ChildAssociationKeySet childAssociationKeySet) {
 		super(id);
 		this.name = name;
 		this.type = type;
-		this.propertyMap = new HashMap<String,Object>();
+		this.propertyMap = new HashMap<String, Object>();
 		this.categoryAssociations = childAssociationKeySet;
 	}
 
-	public String getAuditName() {
-		return getName();
-	}
-	
-	public String getName() {
-		return name;
+	/**
+	 * Adds the specified category relationship to this.
+	 * @param categoryKey category association to add
+	 * @throws InvalidAssociationKeyException if <code>childKey</code> is invalid
+	 * @throws NullPointerException if <code>childKey</code> is <code>null</code>
+	 * @since 5.1.0
+	 */
+	public void addCategoryAssociation(MutableTimedAssociationKey categoryKey) {
+		categoryAssociations.add(categoryKey);
 	}
 
+	public void clearProperty(String key) {
+		if (key == null) throw new NullPointerException("key cannot be null");
+		propertyMap.remove(key);
+	}
+
+	public void copyFrom(GenericEntity entity) {
+		if (this == entity) return;
+		if (getID() != entity.getID()) {
+			throw new IllegalArgumentException("id mismatch: expected " + getID() + " but was " + entity.getID());
+		}
+		synchronized (this) {
+			setName(entity.getName());
+			this.parentID = entity.parentID;
+			this.propertyMap.clear();
+			this.propertyMap.putAll(entity.propertyMap);
+			this.setCategoryAssociations(entity);
+		}
+	}
+
+	@Override
 	public Auditable deepCopy() {
 		return new GenericEntity(this);
 	}
 
+	@Override
 	public String getAuditDescription() {
 		return type.getDisplayName() + " '" + getName() + "'";
 	}
-	
-	public boolean isForClone() {
-		return forClone;
+
+	@Override
+	public String getAuditName() {
+		return getName();
 	}
 
-	public void setForClone(boolean forClone) {
-		this.forClone = forClone;
-	}
-
-	/**
-	 * Tests if this has the same category associations as the specified entity.
-	 * @param entity the entity to check against
-	 * @throws NullPointerException if <code>entity</code> is <code>null</code>
-	 * @since 5.1.0
-	 */
-	public boolean hasSameCategoryAssociations(GenericEntity entity) {
-		if (this.categoryAssociations.size() == entity.categoryAssociations.size()) {
-			for (Iterator<MutableTimedAssociationKey> iter = this.categoryAssociations.iterator(); iter.hasNext();) {
-				MutableTimedAssociationKey key = iter.next();
-				if (!entity.categoryAssociations.contains(key)) {
-					return false;
-				}
-			}
-			return true;
+	public boolean getBooleanProperty(String key) {
+		if (key == null) throw new NullPointerException("key cannot be null");
+		if (propertyMap.containsKey(key)) {
+			return ((Boolean) getProperty(key)).booleanValue();
 		}
 		else {
 			return false;
@@ -155,14 +165,13 @@ public final class GenericEntity extends AbstractIDObject implements CloneableEn
 	}
 
 	/**
-	 * Makes sure this has the same category associations as the specified source entity.
-	 * @param source the source entity to copy category associations from
-	 * @throws NullPointerException if <code>category</code> is <code>null</code>
+	 * Gets all category relationships for the specified child id. 
+	 * @param categoryID the category id
+	 * @return list of {@link MutableTimedAssociationKey} instances, if found; an empty list, otherwise
 	 * @since 5.1.0
 	 */
-	public void setCategoryAssociations(GenericEntity source) {
-		this.categoryAssociations.clear();
-		this.categoryAssociations.addAll(source.categoryAssociations);
+	public List<MutableTimedAssociationKey> getCategoryAssociations(int categoryID) {
+		return categoryAssociations.getAssociationsForChild(categoryID);
 	}
 
 	/**
@@ -177,22 +186,17 @@ public final class GenericEntity extends AbstractIDObject implements CloneableEn
 	}
 
 	/**
-	 * Gets all category relationships for the specified child id. 
-	 * @param categoryID the category id
-	 * @return list of {@link MutableTimedAssociationKey} instances, if found; an empty list, otherwise
-	 * @since 5.1.0
-	 */
-	public List<MutableTimedAssociationKey> getCategoryAssociations(int categoryID) {
-		return categoryAssociations.getAssociationsForChild(categoryID);
-	}
-
-	/**
 	 * Returns iterator for category associations
 	 * @return category association iterator
 	 * @since 5.1.0
 	 */
 	public Iterator<MutableTimedAssociationKey> getCategoryIterator() {
 		return categoryAssociations.iterator();
+	}
+
+	public Date getDateProperty(String key) {
+		if (key == null) throw new NullPointerException("key cannot be null");
+		return (Date) getProperty(key);
 	}
 
 	/**
@@ -207,6 +211,80 @@ public final class GenericEntity extends AbstractIDObject implements CloneableEn
 			if (element.getExpirationDate() != null) set.add(element.getExpirationDate());
 		}
 		return set;
+	}
+
+	public double getDoubleProperty(String key) {
+		if (key == null) throw new NullPointerException("key cannot be null");
+		if (propertyMap.containsKey(key)) {
+			return ((Double) getProperty(key)).doubleValue();
+		}
+		else {
+			return 0.0;
+		}
+	}
+
+	public float getFloatProperty(String key) {
+		if (key == null) throw new NullPointerException("key cannot be null");
+		if (propertyMap.containsKey(key)) {
+			return ((Float) getProperty(key)).floatValue();
+		}
+		else {
+			return 0.0f;
+		}
+	}
+
+	public int getIntProperty(String key) {
+		if (key == null) throw new NullPointerException("key cannot be null");
+		if (propertyMap.containsKey(key)) {
+			return ((Integer) getProperty(key)).intValue();
+		}
+		else {
+			return 0;
+		}
+	}
+
+	public long getLongProperty(String key) {
+		if (key == null) throw new NullPointerException("key cannot be null");
+		if (propertyMap.containsKey(key)) {
+			return ((Long) getProperty(key)).longValue();
+		}
+		else {
+			return 0L;
+		}
+	}
+
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	public int getParentID() {
+		return parentID;
+	}
+
+	public String[] getProperties() {
+		return propertyMap.keySet().toArray(new String[0]);
+	}
+
+	public Object getProperty(String key) {
+		return propertyMap.get(key);
+	}
+
+	public Map<String, Object> getPropertyMap() {
+		return Collections.unmodifiableMap(propertyMap);
+	}
+
+	public String getStringProperty(String key) {
+		if (key == null) throw new NullPointerException("key cannot be null");
+		Object value = getProperty(key);
+		return (value == null ? null : value.toString());
+	}
+
+	/**
+	 * @return generic entity type of this
+	 */
+	public GenericEntityType getType() {
+		return type;
 	}
 
 	/**
@@ -235,25 +313,44 @@ public final class GenericEntity extends AbstractIDObject implements CloneableEn
 		return results;
 	}
 
-	/**
-	 * Adds the specified category relationship to this.
-	 * @param categoryKey category association to add
-	 * @throws InvalidAssociationKeyException if <code>childKey</code> is invalid
-	 * @throws NullPointerException if <code>childKey</code> is <code>null</code>
-	 * @since 5.1.0
-	 */
-	public void addCategoryAssociation(MutableTimedAssociationKey categoryKey) {
-		categoryAssociations.add(categoryKey);
+	public boolean hasProperty(String key) {
+		if (key == null) throw new NullPointerException("key cannot be null");
+		return propertyMap.containsKey(key) && propertyMap.get(key) != null;
 	}
 
 	/**
-	 * Removes the specified category relationship from this.
-	 * @param categoryKey the category relationship to remove
-	 * @throws NullPointerException if <code>childKey</code> is <code>null</code>
+	 * Tests if this has the same category associations as the specified entity.
+	 * @param entity the entity to check against
+	 * @throws NullPointerException if <code>entity</code> is <code>null</code>
 	 * @since 5.1.0
 	 */
-	public void removeCategoryAssociation(MutableTimedAssociationKey categoryKey) {
-		categoryAssociations.remove(categoryKey);
+	public boolean hasSameCategoryAssociations(GenericEntity entity) {
+		if (this.categoryAssociations.size() == entity.categoryAssociations.size()) {
+			for (Iterator<MutableTimedAssociationKey> iter = this.categoryAssociations.iterator(); iter.hasNext();) {
+				MutableTimedAssociationKey key = iter.next();
+				if (!entity.categoryAssociations.contains(key)) {
+					return false;
+				}
+			}
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	@Override
+	public boolean isForClone() {
+		return forClone;
+	}
+
+	/**
+	 * Removes all category relationships.
+	 * If no such relationships are found, this is a no-op.
+	 * @since 5.1.0
+	 */
+	public void removeAllCategoryAssociations() {
+		categoryAssociations.clear();
 	}
 
 	/**
@@ -267,92 +364,62 @@ public final class GenericEntity extends AbstractIDObject implements CloneableEn
 	}
 
 	/**
-	 * Removes all category relationships.
-	 * If no such relationships are found, this is a no-op.
+	 * Removes the specified category relationship from this.
+	 * @param categoryKey the category relationship to remove
+	 * @throws NullPointerException if <code>childKey</code> is <code>null</code>
 	 * @since 5.1.0
 	 */
-	public void removeAllCategoryAssociations() {
-		categoryAssociations.clear();
+	public void removeCategoryAssociation(MutableTimedAssociationKey categoryKey) {
+		categoryAssociations.remove(categoryKey);
 	}
 
-	public Object getProperty(String key) {
-		return propertyMap.get(key);
+	/**
+	 * Makes sure this has the same category associations as the specified source entity.
+	 * @param source the source entity to copy category associations from
+	 * @throws NullPointerException if <code>category</code> is <code>null</code>
+	 * @since 5.1.0
+	 */
+	public void setCategoryAssociations(GenericEntity source) {
+		this.categoryAssociations.clear();
+		this.categoryAssociations.addAll(source.categoryAssociations);
 	}
 
-	public boolean hasProperty(String key) {
-		if (key == null) throw new NullPointerException("key cannot be null");
-		return propertyMap.containsKey(key) && propertyMap.get(key) != null;
+	@Override
+	public void setCopyPolicies(boolean copyPolicies) {
+		this.copyPolicies = copyPolicies;
 	}
 
-	public boolean getBooleanProperty(String key) {
-		if (key == null) throw new NullPointerException("key cannot be null");
-		if (propertyMap.containsKey(key)) {
-			return ((Boolean) getProperty(key)).booleanValue();
-		}
-		else {
-			return false;
-		}
+	@Override
+	public void setForClone(boolean forClone) {
+		this.forClone = forClone;
 	}
 
-	public int getIntProperty(String key) {
-		if (key == null) throw new NullPointerException("key cannot be null");
-		if (propertyMap.containsKey(key)) {
-			return ((Integer) getProperty(key)).intValue();
-		}
-		else {
-			return 0;
-		}
+	public void setName(String name) {
+		this.name = name;
 	}
 
-	public long getLongProperty(String key) {
-		if (key == null) throw new NullPointerException("key cannot be null");
-		if (propertyMap.containsKey(key)) {
-			return ((Long) getProperty(key)).longValue();
-		}
-		else {
-			return 0L;
-		}
-	}
-
-	public float getFloatProperty(String key) {
-		if (key == null) throw new NullPointerException("key cannot be null");
-		if (propertyMap.containsKey(key)) {
-			return ((Float) getProperty(key)).floatValue();
-		}
-		else {
-			return 0.0f;
-		}
-	}
-
-	public double getDoubleProperty(String key) {
-		if (key == null) throw new NullPointerException("key cannot be null");
-		if (propertyMap.containsKey(key)) {
-			return ((Double) getProperty(key)).doubleValue();
-		}
-		else {
-			return 0.0;
-		}
-	}
-
-	public Date getDateProperty(String key) {
-		if (key == null) throw new NullPointerException("key cannot be null");
-		return (Date) getProperty(key);
-	}
-
-	public String getStringProperty(String key) {
-		if (key == null) throw new NullPointerException("key cannot be null");
-		Object value = getProperty(key);
-		return (value == null ? null : value.toString());
-	}
-
-	public void setProperty(String key, Object value) {
-		if (key == null) throw new NullPointerException("key cannot be null");
-		propertyMap.put(key, value);
+	public void setParentID(int i) {
+		parentID = i;
 	}
 
 	public void setProperty(String key, boolean value) {
 		if (key == null) throw new NullPointerException("key cannot be null");
 		propertyMap.put(key, Boolean.valueOf(value));
+	}
+
+	public void setProperty(String key, Date value) {
+		if (key == null) throw new NullPointerException("key cannot be null");
+		propertyMap.put(key, value);
+	}
+
+	public void setProperty(String key, double value) {
+		if (key == null) throw new NullPointerException("key cannot be null");
+		propertyMap.put(key, new Double(value));
+	}
+
+	public void setProperty(String key, float value) {
+		if (key == null) throw new NullPointerException("key cannot be null");
+		propertyMap.put(key, new Float(value));
 	}
 
 	public void setProperty(String key, int value) {
@@ -365,85 +432,27 @@ public final class GenericEntity extends AbstractIDObject implements CloneableEn
 		propertyMap.put(key, new Long(value));
 	}
 
-	public void setProperty(String key, float value) {
-		if (key == null) throw new NullPointerException("key cannot be null");
-		propertyMap.put(key, new Float(value));
-	}
-
-	public void setProperty(String key, double value) {
-		if (key == null) throw new NullPointerException("key cannot be null");
-		propertyMap.put(key, new Double(value));
-	}
-
-	public void setProperty(String key, Date value) {
+	public void setProperty(String key, Object value) {
 		if (key == null) throw new NullPointerException("key cannot be null");
 		propertyMap.put(key, value);
 	}
 
-	public void clearProperty(String key) {
-		if (key == null) throw new NullPointerException("key cannot be null");
-		propertyMap.remove(key);
-	}
-
-	public String[] getProperties() {
-		return propertyMap.keySet().toArray(new String[0]);
-	}
-
-	public Map<String, Object> getPropertyMap() {
-		return Collections.unmodifiableMap(propertyMap);
-	}
-
-	/**
-	 * @return generic entity type of this
-	 */
-	public GenericEntityType getType() {
-		return type;
-	}
-
-	public int getParentID() {
-		return parentID;
-	}
-
-	public void setParentID(int i) {
-		parentID = i;
-	}
-
-	public void copyFrom(GenericEntity entity) {
-		if (this == entity) return;
-		if (getID() != entity.getID()) {
-			throw new IllegalArgumentException("id mismatch: expected " + getID() + " but was " + entity.getID());
-		}
-		synchronized (this) {
-			setName(entity.getName());
-			this.parentID = entity.parentID;
-			this.propertyMap.clear();
-			this.propertyMap.putAll(entity.propertyMap);
-			this.setCategoryAssociations(entity);
-		}
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String toString() {
-		return "GenericEntity" + "[name=" + name + ",parent=" + parentID + ",clone?=" + forClone + "]" + super.toString();
-	}
-
+	@Override
 	public boolean shouldCopyPolicies() {
 		return copyPolicies;
 	}
 
-	public void setCopyPolicies(boolean copyPolicies) {
-		this.copyPolicies = copyPolicies;
+	@Override
+	public String toString() {
+		return "GenericEntity" + "[name=" + name + ",parent=" + parentID + ",clone?=" + forClone + "]" + super.toString();
 	}
 
-    // TT 2029 update association date
-	public void updateAssociationDates(DateSynonym ds) {		
+	// TT 2029 update association date
+	public void updateAssociationDates(DateSynonym ds) {
 		synchronized (categoryAssociations) {
 			for (Iterator<MutableTimedAssociationKey> i = categoryAssociations.iterator(); i.hasNext();) {
-	            MutableTimedAssociationKey key = i.next();
-	            key.updateEffExpDates(ds);
+				MutableTimedAssociationKey key = i.next();
+				key.updateEffExpDates(ds);
 			}
 		}
 	}

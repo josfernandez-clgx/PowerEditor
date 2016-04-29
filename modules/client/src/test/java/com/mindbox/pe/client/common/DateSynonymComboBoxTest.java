@@ -13,8 +13,20 @@ import org.junit.Test;
 import com.mindbox.pe.client.AbstractClientTestBase;
 import com.mindbox.pe.model.DateSynonym;
 
-
 public class DateSynonymComboBoxTest extends AbstractClientTestBase {
+
+	@Override
+	@Before
+	public void setUp() throws Exception {
+		super.setUp();
+
+	}
+
+	@Override
+	@After
+	public void tearDown() throws Exception {
+		super.tearDown();
+	}
 
 	/**
 	* Test to make sure the drop-down is not editable and that the toString() method contains
@@ -30,7 +42,7 @@ public class DateSynonymComboBoxTest extends AbstractClientTestBase {
 		DateSynonym ds3 = new DateSynonym(3, "ds3", "ds3", getDate(2006, 10, 10));
 		DateSynonym ds4 = new DateSynonym(4, "ds4", "ds4", getDate(2006, 10, 10));
 
-		DefaultComboBoxModel model = new DefaultComboBoxModel();
+		DefaultComboBoxModel<DateSynonym> model = new DefaultComboBoxModel<DateSynonym>();
 		model.addElement(ds1);
 		model.addElement(ds2);
 		model.addElement(ds3);
@@ -41,16 +53,5 @@ public class DateSynonymComboBoxTest extends AbstractClientTestBase {
 		assertTrue(dsCombo.getSelectedIndex() == 3);
 		assertTrue(dsCombo.getSelectedItem().equals(ds4));
 		assertFalse(dsCombo.isEditable());
-	}
-
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-
-	}
-
-	@After
-	public void tearDown() throws Exception {
-		super.tearDown();
 	}
 }

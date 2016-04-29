@@ -10,13 +10,10 @@ import com.mindbox.pe.model.TypeEnumValue;
  * @author Gene Kim
  * @since PowerEditor 4.3.1
  */
-public final class TypeEnumValueComboBox extends JComboBox {
-	/**
-	 * 
-	 */
+public final class TypeEnumValueComboBox extends JComboBox<TypeEnumValue> {
 	private static final long serialVersionUID = -3951228734910107454L;
 
-	public TypeEnumValueComboBox(ComboBoxModel model) {
+	public TypeEnumValueComboBox(ComboBoxModel<TypeEnumValue> model) {
 		super();
 		UIFactory.setLookAndFeel(this);
 		setRenderer(new TypeEnumValueCellRenderer(null));
@@ -55,29 +52,29 @@ public final class TypeEnumValueComboBox extends JComboBox {
 	}
 
 	public final void selectTypeEnumValue(int enumValueID) {
-		if (enumValueID == -1) return;
-		ComboBoxModel model = getModel();
+		if (enumValueID == -1) {
+			return;
+		}
+		ComboBoxModel<TypeEnumValue> model = getModel();
 		for (int i = 0; i < model.getSize(); i++) {
-			Object item = model.getElementAt(i);
-			if (item instanceof TypeEnumValue) {
-				if (((TypeEnumValue) item).getID() == enumValueID) {
-					setSelectedIndex(i);
-					return;
-				}
+			TypeEnumValue item = model.getElementAt(i);
+			if (item.getID() == enumValueID) {
+				setSelectedIndex(i);
+				return;
 			}
 		}
 	}
 
 	public final void selectTypeEnumValue(String value) {
-		if (value == null) setSelectedIndex(-1);
-		ComboBoxModel model = getModel();
+		if (value == null) {
+			setSelectedIndex(-1);
+		}
+		ComboBoxModel<TypeEnumValue> model = getModel();
 		for (int i = 0; i < model.getSize(); i++) {
-			Object item = model.getElementAt(i);
-			if (item instanceof TypeEnumValue) {
-				if (((TypeEnumValue) item).getValue().equals(value)) {
-					setSelectedIndex(i);
-					return;
-				}
+			TypeEnumValue item = model.getElementAt(i);
+			if (item.getValue().equals(value)) {
+				setSelectedIndex(i);
+				return;
 			}
 		}
 	}

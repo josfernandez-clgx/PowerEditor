@@ -50,50 +50,10 @@ import com.mindbox.pe.model.template.TemplateMessageDigest;
  * @since PowerEditor 
  */
 class TemplateRuleMessagePanel extends PanelBase {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3951228734910107454L;
-
-	private static final MessageFormat validateMessageFormat = new MessageFormat("* Validataion Failed *" + System.getProperty("line.separator") + System.getProperty("line.separator")
-			+ "Error Type   : {0}" + System.getProperty("line.separator") + "Error Message: {1}" + System.getProperty("line.separator") + System.getProperty("line.separator"));
-
-	private class ValidateRuleL implements ActionListener, WarningConsumer {
-
-		final List<String> warningList;
-		final JTextArea textArea;
-
-		public ValidateRuleL() {
-			warningList = new LinkedList<String>();
-			textArea = new JTextArea();
-			textArea.setAutoscrolls(true);
-			textArea.setEditable(false);
-			textArea.setBackground(new Color(255, 162, 162));
-			textArea.setOpaque(true);
-		}
-
-		public void addWarning(int level, String message) {
-			warningList.add(WarningInfo.toString(level) + ": " + message);
-		}
-
-		public void addWarning(int level, String message, String resource) {
-			warningList.add(WarningInfo.toString(level) + ": " + message + " at " + resource);
-		}
-
-		@SuppressWarnings("unused")
-		String toErrorMessage(Throwable ex) {
-			String errorName = ex.getClass().getName().substring(ex.getClass().getName().lastIndexOf(".") + 1);
-			return validateMessageFormat.format(new Object[] { errorName, ex.getMessage() });
-		}
-
-		public void actionPerformed(ActionEvent e) {
-			// TBD: no need to validate rule syntax
-			//      validate column and parameter references
-		}
-	}
 
 	private class MessageActionL extends Action3Adapter {
 
+		@Override
 		public void deletePerformed(ActionEvent e) {
 			if (getSelectedMessage() != null) {
 				if (ClientUtil.getInstance().showConfirmation("msg.question.delete.message")) {
@@ -103,6 +63,7 @@ class TemplateRuleMessagePanel extends PanelBase {
 			}
 		}
 
+		@Override
 		public void editPerformed(ActionEvent e) {
 			TemplateMessageDigest digest = getSelectedMessage();
 			if (digest != null) {
@@ -118,6 +79,7 @@ class TemplateRuleMessagePanel extends PanelBase {
 			}
 		}
 
+		@Override
 		public void newPerformed(ActionEvent e) {
 			TemplateMessageDigest digest = MessageEditDialog.createTemplateMessageDigest(
 					JOptionPane.getFrameForComponent(ClientUtil.getApplet()),
@@ -133,6 +95,7 @@ class TemplateRuleMessagePanel extends PanelBase {
 
 	private class RuleForColumnComboL implements ActionListener {
 
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			updateAll();
 
@@ -147,6 +110,7 @@ class TemplateRuleMessagePanel extends PanelBase {
 
 	private class RuleForColumnRadioL implements ActionListener {
 
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			logger.debug("forColumnRadio: >>> actionPerformed");
 			if (ruleForColumnRadio.isSelected()) {
@@ -162,6 +126,7 @@ class TemplateRuleMessagePanel extends PanelBase {
 
 	private class RuleForTemplateRadioL implements ActionListener {
 
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (ruleForTemplateRadio.isSelected()) {
 				updateAll();
@@ -172,11 +137,52 @@ class TemplateRuleMessagePanel extends PanelBase {
 		}
 	}
 
+	private class ValidateRuleL implements ActionListener, WarningConsumer {
+		private final List<String> warningList;
+		private final JTextArea textArea;
+
+		public ValidateRuleL() {
+			warningList = new LinkedList<String>();
+			textArea = new JTextArea();
+			textArea.setAutoscrolls(true);
+			textArea.setEditable(false);
+			textArea.setBackground(new Color(255, 162, 162));
+			textArea.setOpaque(true);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TBD: no need to validate rule syntax
+			//      validate column and parameter references
+		}
+
+		@Override
+		public void addWarning(int level, String message) {
+			warningList.add(WarningInfo.toString(level) + ": " + message);
+		}
+
+		@Override
+		public void addWarning(int level, String message, String resource) {
+			warningList.add(WarningInfo.toString(level) + ": " + message + " at " + resource);
+		}
+
+		@SuppressWarnings("unused")
+		String toErrorMessage(Throwable ex) {
+			String errorName = ex.getClass().getName().substring(ex.getClass().getName().lastIndexOf(".") + 1);
+			return validateMessageFormat.format(new Object[] { errorName, ex.getMessage() });
+		}
+	}
+
+	private static final long serialVersionUID = -3951228734910107454L;
+
+	private static final MessageFormat validateMessageFormat = new MessageFormat(
+			"* Validataion Failed *" + System.getProperty("line.separator") + System.getProperty("line.separator") + "Error Type   : {0}" + System.getProperty("line.separator")
+					+ "Error Message: {1}" + System.getProperty("line.separator") + System.getProperty("line.separator"));
+
 	private final JRadioButton ruleForTemplateRadio, ruleForColumnRadio;
-	private final JComboBox columnCombo;
+	private final JComboBox<String> columnCombo;
 	private final JButton validateRuleButton;
 	private final ButtonPanel messageButtonPanel;
-
 	private boolean editable = false;
 	private RuleMessageContainer currentScope = null;
 	private GridTemplate template = null;
@@ -205,7 +211,7 @@ class TemplateRuleMessagePanel extends PanelBase {
 		ruleForTemplateRadio = new JRadioButton("Template");
 		ruleForTemplateRadio.setSelected(true);
 		ruleForColumnRadio = new JRadioButton("Column: ");
-		columnCombo = new JComboBox(new String[] { " 1 - Column Name" });
+		columnCombo = new JComboBox<String>(new String[] { " 1 - Column Name" });
 		columnCombo.setEnabled(false);
 
 		ButtonGroup ruleForGroup = new ButtonGroup();
@@ -227,6 +233,7 @@ class TemplateRuleMessagePanel extends PanelBase {
 
 		messageTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
+			@Override
 			public void valueChanged(ListSelectionEvent arg0) {
 				messageButtonPanel.setEnabledSelectionAwareButtons(messageTable.getSelectedRow() > -1);
 			}
@@ -238,9 +245,30 @@ class TemplateRuleMessagePanel extends PanelBase {
 		powerEditPanel.addRuleChangeListener(changeListener);
 	}
 
-	private void removeDocumentListener(TemplateDetailPanel.FieldChangeListener changeListener) {
-		messageTableModel.removeTableModelListener(changeListener);
-		powerEditPanel.removeRuleChangeListener(changeListener);
+	public void clearFields() {
+		powerEditPanel.clearFields();
+		messageTableModel.removeAllRows();
+		setEditable(false);
+	}
+
+	private GridTemplateColumn getSelectedColumn() {
+		String str = (String) columnCombo.getSelectedItem();
+		if (str == null || str.length() == 0) {
+			return null;
+		}
+		else {
+			int colIndex = Integer.parseInt(str.substring(0, str.indexOf(" ")));
+			return template.getColumn(colIndex);
+		}
+	}
+
+	private TemplateMessageDigest getSelectedMessage() {
+		if (messageTable.getSelectedRow() >= 0) {
+			return (TemplateMessageDigest) messageTableModel.getValueAt(messageTable.getSelectedRow(), -1);
+		}
+		else {
+			return null;
+		}
 	}
 
 	private void initPanel() {
@@ -271,32 +299,6 @@ class TemplateRuleMessagePanel extends PanelBase {
 		setLayout(new BorderLayout(0, 0));
 		add(ruleMsgNorthPanel, BorderLayout.NORTH);
 		add(ruleMsgSplitPane, BorderLayout.CENTER);
-	}
-
-	private TemplateMessageDigest getSelectedMessage() {
-		if (messageTable.getSelectedRow() >= 0) {
-			return (TemplateMessageDigest) messageTableModel.getValueAt(messageTable.getSelectedRow(), -1);
-		}
-		else {
-			return null;
-		}
-	}
-
-	private GridTemplateColumn getSelectedColumn() {
-		String str = (String) columnCombo.getSelectedItem();
-		if (str == null || str.length() == 0) {
-			return null;
-		}
-		else {
-			int colIndex = Integer.parseInt(str.substring(0, str.indexOf(" ")));
-			return template.getColumn(colIndex);
-		}
-	}
-
-	public void clearFields() {
-		powerEditPanel.clearFields();
-		messageTableModel.removeAllRows();
-		setEditable(false);
 	}
 
 	/**
@@ -332,7 +334,6 @@ class TemplateRuleMessagePanel extends PanelBase {
 
 		setCurrentScope(template);
 
-
 		if (template.getRuleDefinition() == null && hasColumnRule) {
 			// set template rule
 			ruleForColumnRadio.setSelected(true);
@@ -351,20 +352,13 @@ class TemplateRuleMessagePanel extends PanelBase {
 		}
 	}
 
-	void setEditable(boolean editable) {
-		this.editable = editable;
-		messageButtonPanel.setEnabled(editable);
-		if (editable) {
-			messageButtonPanel.setEnabledSelectionAwareButtons(messageTable.getSelectedRow() >= 0);
-		}
-		if (editable && !ClientUtil.checkViewOrEditAnyTemplatePermission()) return;
-
-		powerEditPanel.setEnabled(editable);
-		validateRuleButton.setEnabled(editable);
-	}
-
 	public synchronized void refreshColumns() {
 		populateFields_internal(this.template);
+	}
+
+	private void removeDocumentListener(TemplateDetailPanel.FieldChangeListener changeListener) {
+		messageTableModel.removeTableModelListener(changeListener);
+		powerEditPanel.removeRuleChangeListener(changeListener);
 	}
 
 	private synchronized void setCurrentScope(RuleMessageContainer entity) {
@@ -386,18 +380,32 @@ class TemplateRuleMessagePanel extends PanelBase {
 
 	}
 
-	private final void setRule(RuleDefinition ruleDef) {
-		powerEditPanel.setRule(template, ruleDef);
+	void setEditable(boolean editable) {
+		this.editable = editable;
+		messageButtonPanel.setEnabled(editable);
+		if (editable) {
+			messageButtonPanel.setEnabledSelectionAwareButtons(messageTable.getSelectedRow() >= 0);
+		}
+		if (editable && !ClientUtil.checkViewOrEditAnyTemplatePermission()) {
+			return;
+		}
+
+		powerEditPanel.setEnabled(editable);
+		validateRuleButton.setEnabled(editable);
 	}
 
-	public void updateFromFields() throws ValidationException {
-		updateAll();
+	private final void setRule(RuleDefinition ruleDef) {
+		powerEditPanel.setRule(template, ruleDef);
 	}
 
 	private synchronized void updateAll() {
 		logger.debug(">>> updateAll");
 		updateRule();
 		logger.debug("<<< updateAll");
+	}
+
+	public void updateFromFields() throws ValidationException {
+		updateAll();
 	}
 
 	private void updateRule() {

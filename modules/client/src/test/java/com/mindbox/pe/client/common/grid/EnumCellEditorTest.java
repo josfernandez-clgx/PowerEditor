@@ -23,10 +23,10 @@ import org.junit.Test;
 import com.mindbox.pe.client.applet.validate.DomainModel;
 import com.mindbox.pe.client.applet.validate.DomainRetrieverProxy;
 import com.mindbox.pe.common.ReflectionUtil;
+import com.mindbox.pe.model.EnumValue;
 import com.mindbox.pe.model.domain.DomainClass;
 import com.mindbox.pe.model.template.ColumnDataSpecDigest;
 import com.mindbox.pe.model.template.ColumnDataSpecDigest.EnumSourceType;
-import com.mindbox.pe.model.EnumValue;
 import com.mindbox.pe.unittest.AbstractTestBase;
 
 public class EnumCellEditorTest extends AbstractTestBase {
@@ -35,7 +35,7 @@ public class EnumCellEditorTest extends AbstractTestBase {
 
 	private EnumValue[] enumVals;
 	private ColumnDataSpecDigest columnDataSpecDigest;
-	private JComboBox combo;
+	private JComboBox<EnumValue> combo;
 	private EnumCellEditor editor;
 	protected DomainRetrieverProxy domainRetrieverProxyMock;
 	private DomainClass dc;
@@ -55,33 +55,25 @@ public class EnumCellEditorTest extends AbstractTestBase {
 		setUpEditor(BLANK_NOT_ALLOWED);
 	}
 
+	@SuppressWarnings("unchecked")
+	private void setUpEditor(boolean allowsBlank) {
+		columnDataSpecDigest = createColumnDataSpecDigest();
+		columnDataSpecDigest.setType(ColumnDataSpecDigest.TYPE_ENUM_LIST);
+		columnDataSpecDigest.setEnumSourceType(EnumSourceType.DOMAIN_ATTRIBUTE);
+		columnDataSpecDigest.setAttributeMap(dc.getName() + "." + dc.getDomainAttributes().get(0).getName());
+		columnDataSpecDigest.setIsBlankAllowed(allowsBlank);
+		columnDataSpecDigest.setIsEnumValueNeedSorted(false);
+
+		GridTableModel tableModel = new GridTableModel();
+		tableModel.setTemplate(attachGridTemplateColumns(createGridTemplate(createUsageType()), 1));
+		tableModel.getTemplate().getColumn(1).setDataSpecDigest(columnDataSpecDigest);
+		editor = new EnumCellEditor(columnDataSpecDigest, tableModel.getTemplate().getColumn(1).getName(), false, tableModel);
+		combo = (JComboBox<EnumValue>) editor.getComponent();
+	}
+
 	@After
 	public void tearDown() throws Exception {
 		ReflectionUtil.setPrivate(DomainModel.class, "instance", null);
-	}
-
-	@Test
-	public void testInit() throws Exception {
-		assertEquals(1, editor.getClickCountToStart());
-		assertEquals(enumVals.length, combo.getItemCount());
-		for (int i = 0; i < enumVals.length; i++) {
-			assertEquals(enumVals[i], combo.getItemAt(i));
-		}
-	}
-
-	@Test
-	public void testInitPopulatesComboWithEnumValueObjects() throws Exception {
-		for (int i = 0; i < enumVals.length; i++) {
-			assertTrue(combo.getItemAt(i) instanceof EnumValue);
-		}
-	}
-
-	@Test
-	public void testGetCellEditorComponentWithEnumValues() throws Exception {
-		for (int i = 0; i < enumVals.length; i++) {
-			editor.getTableCellEditorComponent(null, enumVals[i], false, 0, 0);
-			assertEquals(enumVals[i], combo.getSelectedItem());
-		}
 	}
 
 	@Test
@@ -100,18 +92,27 @@ public class EnumCellEditorTest extends AbstractTestBase {
 		assertEquals(EnumValue.BLANK, combo.getSelectedItem());
 	}
 
-	private void setUpEditor(boolean allowsBlank) {
-		columnDataSpecDigest = createColumnDataSpecDigest();
-		columnDataSpecDigest.setType(ColumnDataSpecDigest.TYPE_ENUM_LIST);
-		columnDataSpecDigest.setEnumSourceType(EnumSourceType.DOMAIN_ATTRIBUTE);
-		columnDataSpecDigest.setAttributeMap(dc.getName() + "." + dc.getDomainAttributes().get(0).getName());
-		columnDataSpecDigest.setIsBlankAllowed(allowsBlank);
-		columnDataSpecDigest.setIsEnumValueNeedSorted(false);
+	@Test
+	public void testGetCellEditorComponentWithEnumValues() throws Exception {
+		for (int i = 0; i < enumVals.length; i++) {
+			editor.getTableCellEditorComponent(null, enumVals[i], false, 0, 0);
+			assertEquals(enumVals[i], combo.getSelectedItem());
+		}
+	}
 
-		GridTableModel tableModel = new GridTableModel();
-		tableModel.setTemplate(attachGridTemplateColumns(createGridTemplate(createUsageType()), 1));
-		tableModel.getTemplate().getColumn(1).setDataSpecDigest(columnDataSpecDigest);
-		editor = new EnumCellEditor(columnDataSpecDigest, tableModel.getTemplate().getColumn(1).getName(), false, tableModel);
-		combo = (JComboBox) editor.getComponent();
+	@Test
+	public void testInit() throws Exception {
+		assertEquals(1, editor.getClickCountToStart());
+		assertEquals(enumVals.length, combo.getItemCount());
+		for (int i = 0; i < enumVals.length; i++) {
+			assertEquals(enumVals[i], combo.getItemAt(i));
+		}
+	}
+
+	@Test
+	public void testInitPopulatesComboWithEnumValueObjects() throws Exception {
+		for (int i = 0; i < enumVals.length; i++) {
+			assertTrue(combo.getItemAt(i) instanceof EnumValue);
+		}
 	}
 }

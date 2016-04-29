@@ -23,12 +23,8 @@ import com.mindbox.pe.model.template.GridTemplate;
  * @author MindBox, Inc
  * @since PowerEditor 1.10.0
  */
-public class GuidelineTemplateListCellRenderer extends JLabel implements ListCellRenderer {
-	/**
-	 * 
-	 */
+public class GuidelineTemplateListCellRenderer extends JLabel implements ListCellRenderer<GridTemplate> {
 	private static final long serialVersionUID = -3951228734910107454L;
-
 
 	public GuidelineTemplateListCellRenderer(String imageKey) {
 		if (imageKey != null) {
@@ -37,15 +33,13 @@ public class GuidelineTemplateListCellRenderer extends JLabel implements ListCel
 		setOpaque(true);
 	}
 
-	public Component getListCellRendererComponent(JList arg0, Object value, int index, boolean isSelected, boolean arg4) {
+	@Override
+	public Component getListCellRendererComponent(JList<? extends GridTemplate> arg0, GridTemplate value, int index, boolean isSelected, boolean arg4) {
 		if (value == null) {
 			setText("");
 		}
-		else if (value instanceof GridTemplate) {
-			this.setText(((GridTemplate) value).getName() + " (" + ((GridTemplate) value).getVersion() + ")");
-		}
 		else {
-			this.setText(value.toString());
+			this.setText(value.getName() + " (" + value.getVersion() + ")");
 		}
 		setBackground(isSelected ? PowerEditorSwingTheme.primary3 : Color.white);
 		return this;

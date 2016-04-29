@@ -25,16 +25,9 @@ import com.mindbox.pe.model.cbr.CBRCaseAction;
  * @author MindBox, Inc
  * @since PowerEditor 1.10.0
  */
-public final class CBRCaseActionComboBox extends JComboBox {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3951228734910107454L;
+public final class CBRCaseActionComboBox extends JComboBox<CBRCaseAction> {
 
-	private static class CBRCaseActionCellRenderer extends JLabel implements ListCellRenderer {
-		/**
-		 * 
-		 */
+	private static class CBRCaseActionCellRenderer extends JLabel implements ListCellRenderer<CBRCaseAction> {
 		private static final long serialVersionUID = -3951228734910107454L;
 
 		public CBRCaseActionCellRenderer(String imageKey) {
@@ -44,20 +37,20 @@ public final class CBRCaseActionComboBox extends JComboBox {
 			setOpaque(true);
 		}
 
-		public Component getListCellRendererComponent(JList arg0, Object value, int index, boolean isSelected, boolean arg4) {
+		@Override
+		public Component getListCellRendererComponent(JList<? extends CBRCaseAction> arg0, CBRCaseAction value, int index, boolean isSelected, boolean arg4) {
 			if (value == null) {
-				setText("");
-			}
-			else if (value instanceof CBRCaseAction) {
-				this.setText(((CBRCaseAction) value).getName());
+				setText("Any");
 			}
 			else {
-				this.setText(value.toString());
+				this.setText(value.getName());
 			}
 			setBackground(isSelected ? PowerEditorSwingTheme.primary3 : Color.white);
 			return this;
 		}
 	}
+
+	private static final long serialVersionUID = -3951228734910107454L;
 
 	public static CBRCaseActionComboBox createInstance() throws ServerException {
 		return new CBRCaseActionComboBox(ClientUtil.fetchAllCBRCaseActions());
@@ -69,6 +62,9 @@ public final class CBRCaseActionComboBox extends JComboBox {
 		setRenderer(new CBRCaseActionCellRenderer(null));
 	}
 
+	public void clearSelection() {
+		setSelectedIndex(0);
+	}
 
 	public CBRCaseAction getSelectedCBRCaseAction() {
 		Object obj = super.getSelectedItem();
@@ -78,10 +74,6 @@ public final class CBRCaseActionComboBox extends JComboBox {
 		else {
 			return null;
 		}
-	}
-
-	public void clearSelection() {
-		setSelectedIndex(0);
 	}
 
 	public void selectCBRCaseAction(CBRCaseAction caseAction) {

@@ -12,9 +12,6 @@ import com.mindbox.pe.model.DeployType;
 import com.mindbox.pe.model.rule.FunctionParameterDefinition;
 
 public final class FunctionParameterTable extends AbstractSortableTable<FunctionParameterTableModel, FunctionParameterDefinition> {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -3951228734910107454L;
 
 	public FunctionParameterTable(FunctionParameterTableModel tableModel) {
@@ -28,20 +25,21 @@ public final class FunctionParameterTable extends AbstractSortableTable<Function
 		String[] deployTypeStrings = new String[DeployType.VALID_VALUES.length];
 		for (int i = 0; i < deployTypeStrings.length; i++)
 			deployTypeStrings[i] = DeployType.VALID_VALUES[i].getName();
-		JComboBox deployTypeCombo = new JComboBox(deployTypeStrings);
+		JComboBox<String> deployTypeCombo = new JComboBox<String>(deployTypeStrings);
 		TableColumn valueColumn = this.getColumnModel().getColumn(2);
 		valueColumn.setCellEditor(new DefaultCellEditor(deployTypeCombo));
+	}
+
+	protected void displaySelectedRowDetails() {
+		getSelectedRow();
 	}
 
 	public FunctionParameterDefinition getFunctionParameterDefinitionAt(int row) {
 		return getDateObjectAt(row);
 	}
 
+	@Override
 	public Insets getInsets() {
 		return new Insets(1, 2, 1, 1);
-	}
-
-	protected void displaySelectedRowDetails() {
-		getSelectedRow();
 	}
 }

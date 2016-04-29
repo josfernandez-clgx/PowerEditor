@@ -7,6 +7,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -36,32 +37,9 @@ import com.mindbox.pe.model.ImportSpec;
  * @since PowerEditor 2.5.0
  */
 public class ImportPanel extends PanelBase {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3951228734910107454L;
-
-	private static class XMLFileFilter extends FileFilter {
-
-		public boolean accept(File file) {
-			if (file.isFile()) {
-				String[] strs = file.getName().split("\\.");
-				return strs != null && strs.length > 1 && strs[strs.length - 1] != null && strs[strs.length - 1].equalsIgnoreCase("XML");
-			}
-			else {
-				return true;
-			}
-		}
-
-		public String getDescription() {
-			return "PowerEditor Data File (.xml)";
-		}
-	}
-
-	private final XMLFileFilter xmlFilter = new XMLFileFilter();
-
 	private class AddFileL extends AbstractThreadedActionAdapter {
 
+		@Override
 		public void performAction(ActionEvent event) {
 			String filename = getFilename(ClientUtil.getInstance().getLabel("d.title.select.file.import"));
 			if (filename != null) {
@@ -70,30 +48,9 @@ public class ImportPanel extends PanelBase {
 		}
 	}
 
-	private class RemoveFileL extends AbstractThreadedActionAdapter {
-
-		public void performAction(ActionEvent event) {
-			if (removeFileButton.isEnabled()) {
-				Object[] selections = filenameList.getSelectedValues();
-				if (selections != null) {
-					for (int i = 0; i < selections.length; i++) {
-						listModel.removeElement(selections[i]);
-					}
-				}
-			}
-		}
-	}
-
-	private class SelectionL implements ListSelectionListener {
-
-		public void valueChanged(ListSelectionEvent arg0) {
-			Object[] selections = filenameList.getSelectedValues();
-			removeFileButton.setEnabled(selections != null && selections.length > 0);
-		}
-	}
-
 	private class ImportL extends AbstractThreadedActionAdapter {
 
+		@Override
 		public void performAction(ActionEvent event) throws Exception {
 			importButton.setEnabled(false);
 			try {
@@ -121,11 +78,58 @@ public class ImportPanel extends PanelBase {
 		}
 	}
 
+	private class RemoveFileL extends AbstractThreadedActionAdapter {
+
+		@Override
+		public void performAction(ActionEvent event) {
+			if (removeFileButton.isEnabled()) {
+				List<String> selections = filenameList.getSelectedValuesList();
+				if (selections != null) {
+					for (int i = 0; i < selections.size(); i++) {
+						listModel.removeElement(selections.get(i));
+					}
+				}
+			}
+		}
+	}
+
+	private class SelectionL implements ListSelectionListener {
+
+		@Override
+		public void valueChanged(ListSelectionEvent arg0) {
+			List<String> selections = filenameList.getSelectedValuesList();
+			removeFileButton.setEnabled(selections != null && !selections.isEmpty());
+		}
+	}
+
+	private static class XMLFileFilter extends FileFilter {
+
+		@Override
+		public boolean accept(File file) {
+			if (file.isFile()) {
+				String[] strs = file.getName().split("\\.");
+				return strs != null && strs.length > 1 && strs[strs.length - 1] != null && strs[strs.length - 1].equalsIgnoreCase("XML");
+			}
+			else {
+				return true;
+			}
+		}
+
+		@Override
+		public String getDescription() {
+			return "PowerEditor Data File (.xml)";
+		}
+	}
+
+	private static final long serialVersionUID = -3951228734910107454L;
+
+	private final XMLFileFilter xmlFilter = new XMLFileFilter();
+
 	private final JButton importButton;
 	private final JButton addFileButton, removeFileButton;
 	private final JLabel instructionLabel;
-	private final JList filenameList;
-	private final DefaultListModel listModel;
+	private final JList<String> filenameList;
+	private final DefaultListModel<String> listModel;
 	private final JCheckBox mergeTemplateCheckbox;
 
 	public ImportPanel() {
@@ -137,14 +141,26 @@ public class ImportPanel extends PanelBase {
 		mergeTemplateCheckbox = UIFactory.createCheckBox("checkbox.merge.template");
 		mergeTemplateCheckbox.setSelected(false);
 
-		listModel = new DefaultListModel();
-		filenameList = new JList(listModel);
+		listModel = new DefaultListModel<String>();
+		filenameList = new JList<String>(listModel);
 		filenameList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		filenameList.addListSelectionListener(new SelectionL());
 
 		removeFileButton.setEnabled(false);
 
 		initPanel();
+	}
+
+	private String getFilename(String title) {
+		String filename = null;
+		JFileChooser chooser = new JFileChooser();
+		chooser.setFileFilter(xmlFilter);
+		chooser.setDialogTitle(title);
+		int returnVal = chooser.showOpenDialog(ImportPanel.this);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			filename = chooser.getSelectedFile().getAbsolutePath();
+		}
+		return filename;
 	}
 
 	private void initPanel() {
@@ -177,22 +193,10 @@ public class ImportPanel extends PanelBase {
 		addComponent(panel, bag, c, mergeTemplateCheckbox);
 		addComponent(panel, bag, c, new JSeparator());
 
-		addComponent(panel, bag, c, importButton); //buttonPanel);
+		addComponent(panel, bag, c, importButton);
 
 		setLayout(new FlowLayout(FlowLayout.LEFT, 20, 20));
 		add(panel);
-	}
-
-	private String getFilename(String title) {
-		String filename = null;
-		JFileChooser chooser = new JFileChooser();
-		chooser.setFileFilter(xmlFilter);
-		chooser.setDialogTitle(title);
-		int returnVal = chooser.showOpenDialog(ImportPanel.this);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			filename = chooser.getSelectedFile().getAbsolutePath();
-		}
-		return filename;
 	}
 
 }

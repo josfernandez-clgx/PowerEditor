@@ -40,12 +40,12 @@ import com.mindbox.pe.communication.ServerException;
 import com.mindbox.pe.model.Constants;
 import com.mindbox.pe.model.admin.Role;
 import com.mindbox.pe.model.admin.UserData;
-import com.mindbox.pe.model.admin.UserPassword;
 import com.mindbox.pe.model.exceptions.CanceledException;
 
 public final class UserDetailsPanel extends PanelBase implements IClientConstants, PowerEditorTabPanel, ListSelectionListener {
 
 	class UserDetailsAdapter extends AbstractThreadedActionAdapter {
+		@Override
 		public void performAction(java.awt.event.ActionEvent actionevent) {
 			Object obj = actionevent.getSource();
 			if (obj == saveUserButton) {
@@ -60,10 +60,8 @@ public final class UserDetailsPanel extends PanelBase implements IClientConstant
 		}
 	}
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 3587038626188307428L;
+
 	protected static String ID_FORM_LBL = "label.userid";
 	protected static String PASSWORD_FORM_LBL = "label.password";
 	protected static String NAME_FORM_LBL = "label.name";
@@ -71,7 +69,6 @@ public final class UserDetailsPanel extends PanelBase implements IClientConstant
 	private static String ROLES_FORM_LBL = "label.roles";
 	protected static String DETAILS_TITLE_LBL = "label.title.user.details";
 	protected static String DAYS_SINCE_PWD_CHANGE_LBL = "label.title.days.since.pwd.change";
-
 	protected static String FAILED_LOGIN_ATTEMPTS_LBL = "label.title.user.failed.login.attempts";
 
 	private boolean isUpdateAllowed = false;
@@ -80,8 +77,8 @@ public final class UserDetailsPanel extends PanelBase implements IClientConstant
 	private JTextField passwordField;
 	private JTextField daysPasswordChangeField;
 	private JTextField failedLoginAttemptsField;
-	private JComboBox statusField;
-	private final CheckList roleListField;
+	private JComboBox<String> statusField;
+	private final CheckList<Role> roleListField;
 	private JButton saveUserButton;
 	protected UserData userInstance;
 	protected boolean viewOnly;
@@ -95,7 +92,7 @@ public final class UserDetailsPanel extends PanelBase implements IClientConstant
 		daysPasswordChangeField = new JTextField(10);
 		failedLoginAttemptsField = new JTextField(10);
 		statusField = UIFactory.createComboBox();
-		roleListField = new CheckList();
+		roleListField = new CheckList<Role>();
 
 		final UserDetailsAdapter userdetailsadapter = new UserDetailsAdapter();
 		saveUserButton = UIFactory.createButton(ClientUtil.getInstance().getLabel("button.save"), "image.btn.small.save", userdetailsadapter, null);
@@ -278,7 +275,11 @@ public final class UserDetailsPanel extends PanelBase implements IClientConstant
 			setEnabled(!forViewOnly);
 		}
 		else {
-			JOptionPane.showMessageDialog(ClientUtil.getApplet(), ClientUtil.getInstance().getMessage("SelectItemFirstMsg"), ClientUtil.getInstance().getMessage("WarningMsgTitle"), 2);
+			JOptionPane.showMessageDialog(
+					ClientUtil.getApplet(),
+					ClientUtil.getInstance().getMessage("SelectItemFirstMsg"),
+					ClientUtil.getInstance().getMessage("WarningMsgTitle"),
+					2);
 			clearForm();
 		}
 	}
@@ -323,18 +324,17 @@ public final class UserDetailsPanel extends PanelBase implements IClientConstant
 
 	private boolean isRolesDirty() {
 		boolean flag = false;
-		final Object[] selectedValues = roleListField.getSelectedValues();
+		final List<Role> selectedValues = roleListField.getSelectedValuesList();
 		final List<Role> list = userInstance.getRoles();
-		logInfo(ClientUtil.getLogger(), "isRolesDirty: selected=%s, fromUser=%s", (selectedValues == null ? 0 : selectedValues.length), list);
+		logInfo(ClientUtil.getLogger(), "isRolesDirty: selected=%s, fromUser=%s", (selectedValues == null ? 0 : selectedValues.size()), list);
 		if (list == null || list.size() == 0) {
-			flag = (selectedValues != null && selectedValues.length > 0);
+			flag = (selectedValues != null && selectedValues.size() > 0);
 		}
-		else if (selectedValues.length != list.size()) {
+		else if (selectedValues.size() != list.size()) {
 			flag = true;
 		}
 		else {
-			for (int i = 0; i < selectedValues.length; i++) {
-				Role role = Role.class.cast(selectedValues[i]);
+			for (Role role : selectedValues) {
 				if (!list.contains(role)) {
 					flag = true;
 					break;
@@ -374,7 +374,7 @@ public final class UserDetailsPanel extends PanelBase implements IClientConstant
 		int daysSinceChange = 0;
 		// check against empty password history
 		if (!isNew && !userdata.getPasswordHistory().isEmpty()) {
-			final Date passwordChangeDate = ((UserPassword) userdata.getPasswordHistory().get(0)).getPasswordChangeDate();
+			final Date passwordChangeDate = userdata.getPasswordHistory().get(0).getPasswordChangeDate();
 			if (passwordChangeDate != null) {
 				daysSinceChange = DateUtil.daysSince(passwordChangeDate);
 			}
@@ -448,11 +448,9 @@ public final class UserDetailsPanel extends PanelBase implements IClientConstant
 		setEnabled(false);
 	}
 
-
 	private List<Role> searchRolesToKeepForValueChanged() {
 		final List<Role> list = new ArrayList<Role>();
-		for (final Object selectedValue : roleListField.getSelectedValues()) {
-			final Role role = Role.class.cast(selectedValue);
+		for (final Role role : roleListField.getSelectedValuesList()) {
 			if (role.hasPrivilege(PrivilegeConstants.PRIV_MANAGE_ROLES) || role.hasPrivilege(PrivilegeConstants.PRIV_MANAGE_USERS)) {
 				list.add(role);
 			}
@@ -501,10 +499,8 @@ public final class UserDetailsPanel extends PanelBase implements IClientConstant
 			userInstance.setStatus(s);
 		}
 
-		Object[] selections = roleListField.getSelectedValues();
 		LinkedList<Role> linkedlist = new LinkedList<Role>();
-		for (int i = 0; i < selections.length; i++) {
-			Role role = (Role) selections[i];
+		for (final Role role : roleListField.getSelectedValuesList()) {
 			linkedlist.add(role);
 		}
 		userInstance.setRoles(linkedlist);

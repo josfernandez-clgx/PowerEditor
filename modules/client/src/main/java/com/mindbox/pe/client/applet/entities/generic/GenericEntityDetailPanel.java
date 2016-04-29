@@ -23,9 +23,6 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.JTextComponent;
 
-import mseries.ui.MChangeEvent;
-import mseries.ui.MChangeListener;
-
 import com.mindbox.pe.client.ClientUtil;
 import com.mindbox.pe.client.applet.UIFactory;
 import com.mindbox.pe.client.applet.entities.EntityManagementButtonPanel;
@@ -45,6 +42,9 @@ import com.mindbox.pe.xsd.config.EntityProperty;
 import com.mindbox.pe.xsd.config.EntityTab;
 import com.mindbox.pe.xsd.config.EntityTab.EntityPropertyTab;
 
+import mseries.ui.MChangeEvent;
+import mseries.ui.MChangeListener;
+
 /**
  * Generic entity detail panel.
  * @author Gene Kim
@@ -54,6 +54,7 @@ import com.mindbox.pe.xsd.config.EntityTab.EntityPropertyTab;
 public class GenericEntityDetailPanel extends AbstractDetailPanel<GenericEntity, EntityManagementButtonPanel<GenericEntity>> implements ValueChangeListener {
 	private class FieldChangeL implements ActionListener, MChangeListener {
 
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			fireDetailChanged();
 		}
@@ -63,14 +64,12 @@ public class GenericEntityDetailPanel extends AbstractDetailPanel<GenericEntity,
 			fireDetailChanged();
 		}
 
+		@Override
 		public void valueChanged(MChangeEvent arg0) {
 			fireDetailChanged();
 		}
 	}
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -3951228734910107454L;
 
 	private JTextField nameField;
@@ -89,6 +88,7 @@ public class GenericEntityDetailPanel extends AbstractDetailPanel<GenericEntity,
 		super(entityType);
 	}
 
+	@Override
 	protected void addComponents(GridBagLayout bag, GridBagConstraints c) {
 		initComponents();
 
@@ -155,7 +155,9 @@ public class GenericEntityDetailPanel extends AbstractDetailPanel<GenericEntity,
 			GridBagLayout propBag = new GridBagLayout();
 			JPanel detailPanel = UIFactory.createJPanel(propBag);
 			detailPanel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
-			tab.addTab(ClientUtil.getInstance().getLabel("tab." + genericEntityType.toString() + ".details", genericEntityType.getDisplayName() + " Details"), new JScrollPane(detailPanel));
+			tab.addTab(
+					ClientUtil.getInstance().getLabel("tab." + genericEntityType.toString() + ".details", genericEntityType.getDisplayName() + " Details"),
+					new JScrollPane(detailPanel));
 
 			for (final EntityProperty entityProperty : propDefs) {
 				addFieldForProperty(entityProperty, detailPanel, propBag, c);
@@ -194,7 +196,7 @@ public class GenericEntityDetailPanel extends AbstractDetailPanel<GenericEntity,
 				((JTextComponent) element).getDocument().addDocumentListener(documentListener);
 			}
 			else if (element instanceof JComboBox) {
-				((JComboBox) element).addActionListener(getFieldChangeListener());
+				((JComboBox<?>) element).addActionListener(getFieldChangeListener());
 			}
 			else if (element instanceof AbstractButton) {
 				((AbstractButton) element).addActionListener(getFieldChangeListener());
@@ -220,7 +222,10 @@ public class GenericEntityDetailPanel extends AbstractDetailPanel<GenericEntity,
 					panel,
 					bag,
 					c,
-					UIFactory.createFormLabel("label." + entityPropertyDef.getName(), entityPropertyDef.getDisplayName(), UtilBase.asBoolean(entityPropertyDef.isIsRequired(), false)));
+					UIFactory.createFormLabel(
+							"label." + entityPropertyDef.getName(),
+							entityPropertyDef.getDisplayName(),
+							UtilBase.asBoolean(entityPropertyDef.isIsRequired(), false)));
 
 			c.gridwidth = GridBagConstraints.REMAINDER;
 			c.weightx = 1.0;
@@ -228,6 +233,7 @@ public class GenericEntityDetailPanel extends AbstractDetailPanel<GenericEntity,
 		}
 	}
 
+	@Override
 	public void clearFields() {
 		setForViewOnly(true);
 		nameField.setText("");
@@ -244,7 +250,7 @@ public class GenericEntityDetailPanel extends AbstractDetailPanel<GenericEntity,
 				((JTextComponent) element).setText("");
 			}
 			else if (element instanceof JComboBox) {
-				((JComboBox) element).setSelectedIndex(-1);
+				((JComboBox<?>) element).setSelectedIndex(-1);
 			}
 			else if (element instanceof AbstractButton) {
 				((AbstractButton) element).setSelected(false);
@@ -300,11 +306,13 @@ public class GenericEntityDetailPanel extends AbstractDetailPanel<GenericEntity,
 		}
 	}
 
+	@Override
 	protected void populateDetails(GenericEntity object) {
-		this.nameField.setText(((GenericEntity) object).getName());
-		populatePropertyFields((GenericEntity) object);
+		this.nameField.setText(object.getName());
+		populatePropertyFields(object);
 	}
 
+	@Override
 	public void populateForClone(GenericEntity object) {
 		this.nameField.setText(object.getName() + " - Copy");
 		populatePropertyFields(object);
@@ -325,6 +333,7 @@ public class GenericEntityDetailPanel extends AbstractDetailPanel<GenericEntity,
 		}
 	}
 
+	@Override
 	protected void removeDocumentListener(final DocumentListener documentListener, final MChangeListener mchangeListener) {
 		nameField.getDocument().removeDocumentListener(documentListener);
 		for (JComponent element : propFieldMap.values()) {
@@ -332,7 +341,7 @@ public class GenericEntityDetailPanel extends AbstractDetailPanel<GenericEntity,
 				((JTextComponent) element).getDocument().removeDocumentListener(documentListener);
 			}
 			else if (element instanceof JComboBox) {
-				((JComboBox) element).removeActionListener(getFieldChangeListener());
+				((JComboBox<?>) element).removeActionListener(getFieldChangeListener());
 			}
 			else if (element instanceof AbstractButton) {
 				((AbstractButton) element).removeActionListener(getFieldChangeListener());
@@ -368,6 +377,7 @@ public class GenericEntityDetailPanel extends AbstractDetailPanel<GenericEntity,
 		}
 	}
 
+	@Override
 	protected void setCurrentObjectFromFields() {
 		if (currentObject == null) {
 			currentObject = new GenericEntity(-1, super.genericEntityType, getNameFieldText());
@@ -391,6 +401,7 @@ public class GenericEntityDetailPanel extends AbstractDetailPanel<GenericEntity,
 		}
 	}
 
+	@Override
 	protected void setEnabledFields(boolean enabled) {
 		nameField.setEnabled(enabled);
 		for (Iterator<JComponent> iter = propFieldMap.values().iterator(); iter.hasNext();) {
@@ -405,8 +416,8 @@ public class GenericEntityDetailPanel extends AbstractDetailPanel<GenericEntity,
 
 	}
 
+	@Override
 	public void valueChanged(ValueChangeEvent e) {
 		fireDetailChanged();
 	}
-
 }

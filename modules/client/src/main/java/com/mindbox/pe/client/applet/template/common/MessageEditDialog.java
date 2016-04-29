@@ -47,14 +47,228 @@ import com.mindbox.pe.model.template.TemplateMessageDigest;
  * @since PowerEditor
  */
 public class MessageEditDialog extends JPanel {
+	private class AcceptL implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (updateMessage()) {
+				dialog.dispose();
+			}
+		}
+	}
+
+	private class BrowseAttributeL implements ActionListener {
+		final JTextArea textArea;
+		private final boolean forMessage;
+
+		public BrowseAttributeL(JTextArea textArea) {
+			this(textArea, false);
+		}
+
+		public BrowseAttributeL(JTextArea textArea, boolean forMessage) {
+			this.textArea = textArea;
+			this.forMessage = forMessage;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			pasteValue(DialogFactory.showAttributeSelector(null));
+		}
+
+		void pasteValue(String val) {
+			if ((val != null) && (val.length() > 0)) {
+				String prevText = textArea.getText();
+				int pos = textArea.getCaretPosition();
+
+				if (forMessage) {
+					textArea.setText(prevText.substring(0, pos) + "|" + val + "|" + prevText.substring(pos));
+					textArea.setCaretPosition(pos + val.length() + 2);
+				}
+				else {
+					textArea.setText(prevText.substring(0, pos) + val + prevText.substring(pos));
+					textArea.setCaretPosition(pos + val.length());
+				}
+
+				textArea.requestFocus();
+			}
+		}
+	}
+
+	private class BrowseColumnL extends BrowseAttributeL {
+		public BrowseColumnL(JTextArea textArea) {
+			super(textArea);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			String[] columnValues = new String[template.getNumColumns()];
+
+			for (int i = 1; i <= columnValues.length; i++) {
+				columnValues[i - 1] = i + " " + template.getColumn(i).getTitle();
+			}
+
+			String value = (String) JOptionPane.showInputDialog(ClientUtil.getApplet(), null, "Select Column", JOptionPane.PLAIN_MESSAGE, null, columnValues, null);
+
+			if (value != null) {
+				int colIndex = Integer.parseInt(value.substring(0, value.indexOf(" ")));
+				pasteValue("%column " + colIndex + "%");
+			}
+		}
+	}
+
+	private class CancelL implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			digest = null;
+			dialog.dispose();
+		}
+	}
+
+	private class InsertColMessagesL extends BrowseAttributeL {
+		public InsertColMessagesL(JTextArea textArea) {
+			super(textArea);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			String[] columnValues = new String[template.getNumColumns()];
+			for (int i = 1; i <= columnValues.length; i++) {
+				columnValues[i - 1] = i + " " + template.getColumn(i).getTitle();
+			}
+
+			JList<String> jlist = new JList<String>(columnValues);
+			JPanel selectionPanel = createListSelectionPanel(jlist);
+
+			StringBuilder buf = new StringBuilder();
+			int option = JOptionPane.showConfirmDialog(ClientUtil.getApplet(), selectionPanel, "Select Column", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null);
+
+			if (option == JOptionPane.OK_OPTION) {
+				List<String> selections = jlist.getSelectedValuesList();
+				if (!selections.isEmpty()) {
+					buf.append("%columnMessages(");
+
+					boolean first = true;
+					for (String str : selections) {
+						int colIndex = Integer.parseInt(str.substring(0, str.indexOf(" ")));
+						buf.append(colIndex);
+
+						if (!first) {
+							buf.append(",");
+						}
+						if (first) {
+							first = false;
+						}
+					}
+
+					buf.append(")%");
+					pasteValue(buf.toString());
+				}
+			}
+		}
+
+		private JPanel createListSelectionPanel(JList<String> jlist) {
+			JPanel selectionPanel = new JPanel(new BorderLayout(4, 4));
+			jlist.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+			selectionPanel.add(new JScrollPane(jlist), BorderLayout.CENTER);
+			return selectionPanel;
+		}
+	}
+
+	private class ValidateMessageL extends ValidateRuleL {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if ((messageText.getText() != null) && (messageText.getText().length() > 0)) {
+				warningList.clear();
+
+				if (Validator.validateMessage(messageText.getText(), !forTemplate, columnSize, this)) {
+					JOptionPane.showMessageDialog(ClientUtil.getApplet(), "The message is valid.", "Validation Result", JOptionPane.INFORMATION_MESSAGE);
+				}
+				else {
+					StringBuilder buff = new StringBuilder();
+					buff.append("There are " + warningList.size() + " error(s).");
+					buff.append(System.getProperty("line.separator"));
+
+					for (Iterator<String> iter = warningList.iterator(); iter.hasNext();) {
+						buff.append(iter.next());
+						buff.append(System.getProperty("line.separator"));
+					}
+
+					textArea.setText(buff.toString());
+					textArea.setCaretPosition(0);
+					JOptionPane.showMessageDialog(ClientUtil.getApplet(), new JScrollPane(textArea), "Validation Failed", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		}
+	}
+
+	private class ValidateRuleL implements ActionListener, WarningConsumer {
+		final List<String> warningList;
+		final JTextArea textArea;
+
+		public ValidateRuleL() {
+			warningList = new LinkedList<String>();
+			textArea = new JTextArea();
+			textArea.setAutoscrolls(true);
+			textArea.setEditable(false);
+			textArea.setBackground(new Color(255, 162, 162));
+			textArea.setOpaque(true);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+		}
+
+		@Override
+		public void addWarning(int level, String message) {
+			warningList.add(WarningInfo.toString(level) + ": " + message);
+		}
+
+		@Override
+		public void addWarning(int level, String message, String resource) {
+			warningList.add(WarningInfo.toString(level) + ": " + message + " at " + resource);
+		}
+
+		@SuppressWarnings("unused")
+		String toErrorMessage(Throwable ex) {
+			String errorName = ex.getClass().getName().substring(ex.getClass().getName().lastIndexOf(".") + 1);
+
+			return validateMessageFormat.format(new Object[] { errorName, ex.getMessage() });
+		}
+	}
+
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -3951228734910107454L;
-	private static final MessageFormat validateMessageFormat = new MessageFormat("* Validation Failed *" + System.getProperty("line.separator") + System.getProperty("line.separator")
-			+ "Error Type   : {0}" + System.getProperty("line.separator") + "Error Message: {1}" + System.getProperty("line.separator") + System.getProperty("line.separator"));
-	private TemplateMessageDigest digest = null;
+	private static final MessageFormat validateMessageFormat = new MessageFormat(
+			"* Validation Failed *" + System.getProperty("line.separator") + System.getProperty("line.separator") + "Error Type   : {0}" + System.getProperty("line.separator")
+					+ "Error Message: {1}" + System.getProperty("line.separator") + System.getProperty("line.separator"));
 
+	public static TemplateMessageDigest createTemplateMessageDigest(Frame owner, boolean forTemplate, GridTemplate template, boolean displayConditionalDelims) {
+		JDialog dialog = new JDialog(owner, true);
+		dialog.setTitle("New Message");
+
+		MessageEditDialog panel = new MessageEditDialog(dialog, forTemplate, template, null, displayConditionalDelims);
+		UIFactory.addToDialog(dialog, panel);
+
+		dialog.setVisible(true);
+
+		return panel.digest;
+	}
+
+	public static TemplateMessageDigest editTemplateMessageDigest(Frame owner, boolean forTemplate, GridTemplate template, TemplateMessageDigest digest,
+			boolean displayConditionalDelims) {
+		JDialog dialog = new JDialog(owner, true);
+		dialog.setTitle("Edit Message");
+
+		MessageEditDialog panel = new MessageEditDialog(dialog, forTemplate, template, digest, displayConditionalDelims);
+		UIFactory.addToDialog(dialog, panel);
+
+		dialog.setVisible(true);
+
+		return panel.digest;
+	}
+
+	private TemplateMessageDigest digest = null;
 	private final GenericEntityComboBox entityCombo;
 	private final JTextField condDelimField;
 	private final JTextField condFinalDelimField;
@@ -64,7 +278,7 @@ public class MessageEditDialog extends JPanel {
 	private final JButton browseMessageElemButton;
 	private final JButton browseMessageColButton;
 	private final JButton insertColMessagesButton;
-	private final JComboBox columnCombo;
+	private final JComboBox<String> columnCombo;
 	private final int columnSize;
 	private final boolean forTemplate;
 	private final GridTemplate template;
@@ -83,7 +297,7 @@ public class MessageEditDialog extends JPanel {
 		condDelimField = new JTextField();
 		condFinalDelimField = new JTextField();
 
-		columnCombo = new JComboBox(new String[] { " 1 - Column Name" });
+		columnCombo = new JComboBox<String>(new String[] { " 1 - Column Name" });
 		columnCombo.setEnabled(false);
 
 		validateMessageButton = UIFactory.createButton("", "image.btn.small.validate", new ValidateMessageL(), null);
@@ -102,30 +316,6 @@ public class MessageEditDialog extends JPanel {
 		populateFields();
 
 		setSize(440, 320);
-	}
-
-	public static TemplateMessageDigest editTemplateMessageDigest(Frame owner, boolean forTemplate, GridTemplate template, TemplateMessageDigest digest, boolean displayConditionalDelims) {
-		JDialog dialog = new JDialog(owner, true);
-		dialog.setTitle("Edit Message");
-
-		MessageEditDialog panel = new MessageEditDialog(dialog, forTemplate, template, digest, displayConditionalDelims);
-		UIFactory.addToDialog(dialog, panel);
-
-		dialog.setVisible(true);
-
-		return panel.digest;
-	}
-
-	public static TemplateMessageDigest createTemplateMessageDigest(Frame owner, boolean forTemplate, GridTemplate template, boolean displayConditionalDelims) {
-		JDialog dialog = new JDialog(owner, true);
-		dialog.setTitle("New Message");
-
-		MessageEditDialog panel = new MessageEditDialog(dialog, forTemplate, template, null, displayConditionalDelims);
-		UIFactory.addToDialog(dialog, panel);
-
-		dialog.setVisible(true);
-
-		return panel.digest;
 	}
 
 	private void initPanel() {
@@ -228,204 +418,19 @@ public class MessageEditDialog extends JPanel {
 	private boolean updateMessage() {
 		if ((messageText.getText() == null) || (messageText.getText().length() == 0)) {
 			ClientUtil.getInstance().showWarning("msg.warning.empty.field", new Object[] { "message text" });
-
 			return false;
 		}
 
 		if (digest == null) {
 			digest = new TemplateMessageDigest();
 		}
-
 		digest.setText(messageText.getText());
 
 		if (entityCombo != null) {
 			digest.setEntityID(entityCombo.getSelectedGenericEntityID());
 		}
-
 		digest.setConditionalDelimiter(condDelimField.getText());
 		digest.setConditionalFinalDelimiter(condFinalDelimField.getText());
-
 		return true;
-	}
-
-	private class BrowseAttributeL implements ActionListener {
-		final JTextArea textArea;
-		private final boolean forMessage;
-
-		public BrowseAttributeL(JTextArea textArea) {
-			this(textArea, false);
-		}
-
-		public BrowseAttributeL(JTextArea textArea, boolean forMessage) {
-			this.textArea = textArea;
-			this.forMessage = forMessage;
-		}
-
-		void pasteValue(String val) {
-			if ((val != null) && (val.length() > 0)) {
-				String prevText = textArea.getText();
-				int pos = textArea.getCaretPosition();
-
-				if (forMessage) {
-					textArea.setText(prevText.substring(0, pos) + "|" + val + "|" + prevText.substring(pos));
-					textArea.setCaretPosition(pos + val.length() + 2);
-				}
-				else {
-					textArea.setText(prevText.substring(0, pos) + val + prevText.substring(pos));
-					textArea.setCaretPosition(pos + val.length());
-				}
-
-				textArea.requestFocus();
-			}
-		}
-
-		public void actionPerformed(ActionEvent e) {
-			pasteValue(DialogFactory.showAttributeSelector(null));
-		}
-	}
-
-	private class BrowseColumnL extends BrowseAttributeL {
-		public BrowseColumnL(JTextArea textArea) {
-			super(textArea);
-		}
-
-		public void actionPerformed(ActionEvent e) {
-			String[] columnValues = new String[template.getNumColumns()];
-
-			for (int i = 1; i <= columnValues.length; i++) {
-				columnValues[i - 1] = i + " " + template.getColumn(i).getTitle();
-			}
-
-			String value = (String) JOptionPane.showInputDialog(ClientUtil.getApplet(), null, "Select Column", JOptionPane.PLAIN_MESSAGE, null, columnValues, null);
-
-			if (value != null) {
-				int colIndex = Integer.parseInt(value.substring(0, value.indexOf(" ")));
-				pasteValue("%column " + colIndex + "%");
-			}
-		}
-	}
-
-	private class InsertColMessagesL extends BrowseAttributeL {
-		public InsertColMessagesL(JTextArea textArea) {
-			super(textArea);
-		}
-
-		public void actionPerformed(ActionEvent e) {
-			String[] columnValues = new String[template.getNumColumns()];
-
-			for (int i = 1; i <= columnValues.length; i++) {
-				columnValues[i - 1] = i + " " + template.getColumn(i).getTitle();
-			}
-
-			JList jlist = new JList(columnValues);
-			JPanel selectionPanel = createListSelectionPanel(jlist);
-
-			StringBuilder buf = new StringBuilder();
-			int option = JOptionPane.showConfirmDialog(ClientUtil.getApplet(), selectionPanel, "Select Column", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null);
-
-			if (option == JOptionPane.OK_OPTION) {
-				Object[] objects = jlist.getSelectedValues();
-
-				if ((objects != null) && (objects.length > 0)) {
-					buf.append("%columnMessages(");
-
-					for (int idx = 0; idx < objects.length; idx++) {
-						String str = objects[idx].toString();
-						int colIndex = Integer.parseInt(str.substring(0, str.indexOf(" ")));
-						buf.append(colIndex);
-
-						if (idx < (objects.length - 1)) {
-							buf.append(",");
-						}
-					}
-
-					buf.append(")%");
-					pasteValue(buf.toString());
-				}
-			}
-		}
-
-		private JPanel createListSelectionPanel(JList jlist) {
-			JPanel selectionPanel = new JPanel(new BorderLayout(4, 4));
-
-			jlist.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-
-			selectionPanel.add(new JScrollPane(jlist), BorderLayout.CENTER);
-
-			return selectionPanel;
-		}
-	}
-
-	private class ValidateRuleL implements ActionListener, WarningConsumer {
-		final List<String> warningList;
-		final JTextArea textArea;
-
-		public ValidateRuleL() {
-			warningList = new LinkedList<String>();
-			textArea = new JTextArea();
-			textArea.setAutoscrolls(true);
-			textArea.setEditable(false);
-			textArea.setBackground(new Color(255, 162, 162));
-			textArea.setOpaque(true);
-		}
-
-		public void addWarning(int level, String message) {
-			warningList.add(WarningInfo.toString(level) + ": " + message);
-		}
-
-		public void addWarning(int level, String message, String resource) {
-			warningList.add(WarningInfo.toString(level) + ": " + message + " at " + resource);
-		}
-
-		@SuppressWarnings("unused")
-		String toErrorMessage(Throwable ex) {
-			String errorName = ex.getClass().getName().substring(ex.getClass().getName().lastIndexOf(".") + 1);
-
-			return validateMessageFormat.format(new Object[] { errorName, ex.getMessage() });
-		}
-
-		public void actionPerformed(ActionEvent e) {
-		}
-	}
-
-	private class ValidateMessageL extends ValidateRuleL {
-		public void actionPerformed(ActionEvent e) {
-			if ((messageText.getText() != null) && (messageText.getText().length() > 0)) {
-				warningList.clear();
-
-				if (Validator.validateMessage(messageText.getText(), !forTemplate, columnSize, this)) {
-					JOptionPane.showMessageDialog(ClientUtil.getApplet(), "The message is valid.", "Validation Result", JOptionPane.INFORMATION_MESSAGE);
-				}
-				else {
-					StringBuilder buff = new StringBuilder();
-					buff.append("There are " + warningList.size() + " error(s).");
-					buff.append(System.getProperty("line.separator"));
-
-					for (Iterator<String> iter = warningList.iterator(); iter.hasNext();) {
-						buff.append(iter.next());
-						buff.append(System.getProperty("line.separator"));
-					}
-
-					textArea.setText(buff.toString());
-					textArea.setCaretPosition(0);
-					JOptionPane.showMessageDialog(ClientUtil.getApplet(), new JScrollPane(textArea), "Validation Failed", JOptionPane.ERROR_MESSAGE);
-				}
-			}
-		}
-	}
-
-	private class AcceptL implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			if (updateMessage()) {
-				dialog.dispose();
-			}
-		}
-	}
-
-	private class CancelL implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			digest = null;
-			dialog.dispose();
-		}
 	}
 }

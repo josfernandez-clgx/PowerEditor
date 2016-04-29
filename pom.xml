@@ -342,6 +342,7 @@ Filename...: pom.xml Description: POM for PowerEditor Project.
 					<version>2.18.1</version>
 					<configuration>
 						<excludes>
+							<exclude>**/Abstract*</exclude>
 							<exclude>**/All*</exclude>
 							<exclude>**/*ObjectMother*</exclude>
 							<exclude>**/*Assert.java</exclude>

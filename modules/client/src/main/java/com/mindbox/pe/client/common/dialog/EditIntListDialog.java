@@ -32,35 +32,9 @@ import com.mindbox.pe.common.ui.NumberTextField;
  * @since PowerEditor 1.0
  */
 public class EditIntListDialog extends JPanel {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3951228734910107454L;
-
-	/**
-	 * Displays Edit int array list with the specified title and initial list.
-	 * @param title
-	 * @param input
-	 * @return int array after dialog has disposed
-	 */
-	public static int[] editIntArray(String title, int[] input) {
-		EditIntListDialog dialog = null;
-		dialog = new EditIntListDialog(input);
-		int option = JOptionPane.showConfirmDialog(ClientUtil.getApplet(), dialog, title, JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-
-		if (option == JOptionPane.CANCEL_OPTION) {
-			return input;
-		}
-		else {
-			int[] intArray = new int[dialog.listModel.getSize()];
-			for (int i = 0; i < intArray.length; i++) {
-				intArray[i] = ((Integer) dialog.listModel.get(i)).intValue();
-			}
-			return intArray;
-		}
-	}
 
 	private class AddL implements ActionListener {
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			Integer value = valueField.getValue();
 			if (value != null && listModel.contains(value)) {
@@ -78,7 +52,31 @@ public class EditIntListDialog extends JPanel {
 		}
 	}
 
+	private class DeleteL implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			int index = valueList.getSelectedIndex();
+			if (index != -1) {
+				listModel.removeElementAt(index);
+				valueList.clearSelection();
+				setEnabledSelectionAwares(false);
+			}
+		}
+	}
+
+	private class SelectionL implements ListSelectionListener {
+		@Override
+		public void valueChanged(ListSelectionEvent arg0) {
+			int index = valueList.getSelectedIndex();
+			setEnabledSelectionAwares(index > -1);
+			if (index > -1) {
+				valueField.setValue(listModel.getElementAt(index).intValue());
+			}
+		}
+	}
+
 	private class UpdateL implements ActionListener {
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			int index = valueList.getSelectedIndex();
 			if (index != -1) {
@@ -98,26 +96,36 @@ public class EditIntListDialog extends JPanel {
 		}
 	}
 
-	private class DeleteL implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			int index = valueList.getSelectedIndex();
-			if (index != -1) {
-				listModel.removeElementAt(index);
-				valueList.clearSelection();
-				setEnabledSelectionAwares(false);
+	private static final long serialVersionUID = -3951228734910107454L;
+
+	/**
+	 * Displays Edit int array list with the specified title and initial list.
+	 * @param title
+	 * @param input
+	 * @return int array after dialog has disposed
+	 */
+	public static int[] editIntArray(String title, int[] input) {
+		EditIntListDialog dialog = null;
+		dialog = new EditIntListDialog(input);
+		int option = JOptionPane.showConfirmDialog(ClientUtil.getApplet(), dialog, title, JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+		if (option == JOptionPane.CANCEL_OPTION) {
+			return input;
+		}
+		else {
+			int[] intArray = new int[dialog.listModel.getSize()];
+			for (int i = 0; i < intArray.length; i++) {
+				intArray[i] = dialog.listModel.get(i).intValue();
 			}
+			return intArray;
 		}
 	}
 
-	private class SelectionL implements ListSelectionListener {
-		public void valueChanged(ListSelectionEvent arg0) {
-			int index = valueList.getSelectedIndex();
-			setEnabledSelectionAwares(index > -1);
-			if (index > -1) {
-				valueField.setValue(((Integer) listModel.getElementAt(index)).intValue());
-			}
-		}
-	}
+	//private final String title;
+	private final JButton addButton, editButton, deleteButton;
+	private final NumberTextField valueField;
+	private final JList<Integer> valueList;
+	private final DefaultListModel<Integer> listModel;
 
 	private EditIntListDialog(int[] input) {
 		super();
@@ -126,7 +134,7 @@ public class EditIntListDialog extends JPanel {
 		this.addButton = UIFactory.createButton("Add", "image.btn.small.add", new AddL(), null);
 		this.editButton = UIFactory.createButton("Update", "image.btn.small.update", new UpdateL(), null);
 		this.deleteButton = UIFactory.createButton("Delete", "image.btn.small.delete", new DeleteL(), null);
-		this.listModel = new DefaultListModel();
+		this.listModel = new DefaultListModel<Integer>();
 		this.valueList = UIFactory.createList();
 		this.valueList.setModel(listModel);
 		this.valueList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -140,15 +148,6 @@ public class EditIntListDialog extends JPanel {
 
 		layoutComponents();
 		setEnabledSelectionAwares(false);
-	}
-
-	private void sortValues() {
-		Object[] values = listModel.toArray();
-		Arrays.sort(values);
-		listModel.clear();
-		for (int i = 0; i < values.length; i++) {
-			listModel.addElement(values[i]);
-		}
 	}
 
 	private void layoutComponents() {
@@ -175,9 +174,12 @@ public class EditIntListDialog extends JPanel {
 		deleteButton.setEnabled(flag);
 	}
 
-	//private final String title;
-	private final JButton addButton, editButton, deleteButton;
-	private final NumberTextField valueField;
-	private final JList valueList;
-	private final DefaultListModel listModel;
+	private void sortValues() {
+		Integer[] values = (Integer[]) listModel.toArray();
+		Arrays.sort(values);
+		listModel.clear();
+		for (int i = 0; i < values.length; i++) {
+			listModel.addElement(values[i]);
+		}
+	}
 }

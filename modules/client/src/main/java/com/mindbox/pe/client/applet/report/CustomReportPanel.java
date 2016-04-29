@@ -31,28 +31,14 @@ import com.mindbox.pe.model.report.CustomReportSpec;
  * @since PowerEditor 4.4.0
  */
 public class CustomReportPanel extends PanelBase {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3951228734910107454L;
-
-	private class ViewL extends AbstractThreadedActionAdapter {
-
-		public void performAction(ActionEvent event) throws Exception {
-			String name = (String) reportList.getSelectedValue();
-			if (name != null) {
-				ClientUtil.showInWebBrowser(ClientUtil.getCommunicator().generateReportURL(new CustomReportSpec(name), null));
-			}
-		}
-	}
 
 	private class RefreshL extends AbstractThreadedActionAdapter {
-
+		@Override
 		public void performAction(ActionEvent event) throws Exception {
 			List<String> reportNameList = ClientUtil.getCommunicator().fetchCustomReportNames();
 			Collections.sort(reportNameList);
 			reportList.clearSelection();
-			DefaultListModel model = (DefaultListModel) reportList.getModel();
+			DefaultListModel<String> model = (DefaultListModel<String>) reportList.getModel();
 			model.removeAllElements();
 			for (Iterator<String> iter = reportNameList.iterator(); iter.hasNext();) {
 				String element = iter.next();
@@ -61,17 +47,30 @@ public class CustomReportPanel extends PanelBase {
 		}
 	}
 
+	private class ViewL extends AbstractThreadedActionAdapter {
+		@Override
+		public void performAction(ActionEvent event) throws Exception {
+			String name = reportList.getSelectedValue();
+			if (name != null) {
+				ClientUtil.showInWebBrowser(ClientUtil.getCommunicator().generateReportURL(new CustomReportSpec(name), null));
+			}
+		}
+	}
+
+	private static final long serialVersionUID = -3951228734910107454L;
+
 	private final JButton loadButton, viewButton;
-	private final JList reportList;
+	private final JList<String> reportList;
 
 	public CustomReportPanel() {
 		loadButton = UIFactory.createJButton("button.refresh", null, new RefreshL(), null);
 		viewButton = UIFactory.createJButton("button.view", null, new ViewL(), null);
 		viewButton.setEnabled(false);
-		reportList = new JList(new DefaultListModel());
+		reportList = new JList<String>(new DefaultListModel<String>());
 		reportList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		reportList.addListSelectionListener(new ListSelectionListener() {
 
+			@Override
 			public void valueChanged(ListSelectionEvent arg0) {
 				viewButton.setEnabled(reportList.getSelectedIndex() >= 0);
 			}

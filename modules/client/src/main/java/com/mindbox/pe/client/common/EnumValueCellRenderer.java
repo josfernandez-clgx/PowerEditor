@@ -14,10 +14,12 @@ import com.mindbox.pe.model.EnumValue;
  * @since PowerEditor 4.5.2
  */
 public class EnumValueCellRenderer extends DefaultListCellRenderer {
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = -3951228734910107454L;
+
+	public static String getDisplayLabel(EnumValue enumValue) {
+		return enumValue == null ? "" : enumValue.getDisplayLabel();
+	}
 
 	/**
 	 * @param value Either an EnumValue object (b/c the table model holds EnumValue objects)
@@ -25,12 +27,10 @@ public class EnumValueCellRenderer extends DefaultListCellRenderer {
 	 * In either case we want to display the displayLabel.
 	 */
 	public static String getDisplayLabel(Object value) {
-		if (value == null) return "";
+		if (value == null) {
+			return "";
+		}
 		return value instanceof EnumValue ? ((EnumValue) value).getDisplayLabel() : (String) value;
-	}
-
-	public static String getDisplayLabel(EnumValue enumValue) {
-		return enumValue == null ? "" : enumValue.getDisplayLabel();
 	}
 
 	/** 
@@ -65,6 +65,11 @@ public class EnumValueCellRenderer extends DefaultListCellRenderer {
 		setOpaque(true);
 	}
 
+	public EnumValueCellRenderer(List<EnumValue> enumValues) {
+		this();
+		this.enumValues = enumValues;
+	}
+
 	public EnumValueCellRenderer(String imageKey) {
 		this();
 		if (imageKey != null) {
@@ -72,12 +77,8 @@ public class EnumValueCellRenderer extends DefaultListCellRenderer {
 		}
 	}
 
-	public EnumValueCellRenderer(List<EnumValue> enumValues) {
-		this();
-		this.enumValues = enumValues;
-	}
-
-	public Component getListCellRendererComponent(JList arg0, Object value, int index, boolean isSelected, boolean arg4) {
+	@Override
+	public Component getListCellRendererComponent(JList<? extends Object> arg0, Object value, int index, boolean isSelected, boolean arg4) {
 		return super.getListCellRendererComponent(arg0, getDisplayLabel(value, enumValues), index, isSelected, arg4);
 	}
 }

@@ -26,7 +26,6 @@ import com.mindbox.pe.common.UtilBase;
 import com.mindbox.pe.common.ui.NumberTextField;
 import com.mindbox.pe.communication.ServerException;
 import com.mindbox.pe.model.TemplateUsageType;
-import com.mindbox.pe.model.template.AbstractTemplateColumn;
 import com.mindbox.pe.model.template.GridTemplate;
 import com.mindbox.pe.model.template.GridTemplateColumn;
 
@@ -38,9 +37,7 @@ import com.mindbox.pe.model.template.GridTemplateColumn;
  * @since PowerEditor 4.0
  */
 class TemplateDescriptionPanel extends PanelBase {
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = -3951228734910107454L;
 
 	private final JTextField nameField;
@@ -48,10 +45,10 @@ class TemplateDescriptionPanel extends PanelBase {
 	private final UsageTypeComboBox usageTypeField;
 	private final NumberTextField maxRowField;
 	private final TypeEnumValueComboBox statusCombo;
-	private final CheckList completeColumnsCheckList;
-	private final CheckList consistColumnsCheckList;
-	private final DefaultListModel completeColumnsModel;
-	private final DefaultListModel consistColumnsModel;
+	private final CheckList<GridTemplateColumn> completeColumnsCheckList;
+	private final CheckList<GridTemplateColumn> consistColumnsCheckList;
+	private final DefaultListModel<GridTemplateColumn> completeColumnsModel;
+	private final DefaultListModel<GridTemplateColumn> consistColumnsModel;
 	private final JTextArea commentField;
 	private final JCheckBox fitToScreenCheckBox;
 	private final JTextField versionField;
@@ -75,10 +72,10 @@ class TemplateDescriptionPanel extends PanelBase {
 		templateIDField = new JTextField();
 		templateIDField.setEditable(false);
 
-		completeColumnsModel = new DefaultListModel();
-		consistColumnsModel = new DefaultListModel();
-		completeColumnsCheckList = new CheckList();
-		consistColumnsCheckList = new CheckList();
+		completeColumnsModel = new DefaultListModel<GridTemplateColumn>();
+		consistColumnsModel = new DefaultListModel<GridTemplateColumn>();
+		completeColumnsCheckList = new CheckList<GridTemplateColumn>();
+		consistColumnsCheckList = new CheckList<GridTemplateColumn>();
 		completeColumnsCheckList.setModel(completeColumnsModel);
 		consistColumnsCheckList.setModel(consistColumnsModel);
 
@@ -99,11 +96,32 @@ class TemplateDescriptionPanel extends PanelBase {
 		consistColumnsCheckList.addListSelectionListener(changeListener);
 	}
 
+	public final void clearFields() {
+		nameField.setText("");
+		descField.setText("");
+		maxRowField.setValue(0);
+		statusCombo.setSelectedIndex(-1);
+		usageTypeField.setSelectedIndex(-1);
+		versionField.setText("");
+		completeColumnsCheckList.clearSelection();
+		consistColumnsCheckList.clearSelection();
+		commentField.setText("");
+		fitToScreenCheckBox.setSelected(false);
+
+		setEditable(false);
+	}
+
+	void columnAdded(GridTemplate template) {
+		populateCompleteAndConsistencyColumns(template);
+	}
+
+	void columnDeleted(GridTemplate template) {
+		populateCompleteAndConsistencyColumns(template);
+	}
+
 	private void initPanel() {
-		// completeColumnsCheckList.setPreferredSize(new Dimension(260, 200));
 		completeColumnsCheckList.setSelectionMode(2);
 		completeColumnsCheckList.setVisibleRowCount(8);
-		// consistColumnsCheckList.setPreferredSize(new Dimension(260, 200));
 		consistColumnsCheckList.setSelectionMode(2);
 		consistColumnsCheckList.setVisibleRowCount(8);
 
@@ -216,45 +234,12 @@ class TemplateDescriptionPanel extends PanelBase {
 		addComponent(this, bag, c, Box.createVerticalGlue());
 	}
 
-	final void selectNameField() {
-		nameField.selectAll();
-		nameField.requestFocusInWindow();
-	}
-
-	public final void clearFields() {
-		nameField.setText("");
-		descField.setText("");
-		maxRowField.setValue(0);
-		statusCombo.setSelectedIndex(-1);
-		usageTypeField.setSelectedIndex(-1);
-		versionField.setText("");
-		completeColumnsCheckList.clearSelection();
-		consistColumnsCheckList.clearSelection();
-		commentField.setText("");
-		fitToScreenCheckBox.setSelected(false);
-
-		setEditable(false);
-	}
-
-	public final void populateDefaults(TemplateUsageType usageType) {
-		versionField.setText(GridTemplate.DEFAULT_VERSION);
-		statusCombo.setSelectedIndex(0);
-		maxRowField.setValue(99);
-		if (usageType == null) {
-			usageTypeField.setSelectedIndex(-1);
-		}
-		else {
-			usageTypeField.setSelectedItem(usageType);
-		}
-		fitToScreenCheckBox.setSelected(true);
-	}
-
 	private void populateCompleteAndConsistencyColumns(GridTemplate template) {
 		// set completeness and consistency columns
 		completeColumnsModel.clear();
 		consistColumnsModel.clear();
 		for (int c = 1; c <= template.getNumColumns(); c++) {
-			AbstractTemplateColumn element = template.getColumn(c);
+			GridTemplateColumn element = template.getColumn(c);
 			if (element != null) {
 				completeColumnsModel.addElement(element);
 				consistColumnsModel.addElement(element);
@@ -282,6 +267,19 @@ class TemplateDescriptionPanel extends PanelBase {
 		}
 	}
 
+	public final void populateDefaults(TemplateUsageType usageType) {
+		versionField.setText(GridTemplate.DEFAULT_VERSION);
+		statusCombo.setSelectedIndex(0);
+		maxRowField.setValue(99);
+		if (usageType == null) {
+			usageTypeField.setSelectedIndex(-1);
+		}
+		else {
+			usageTypeField.setSelectedItem(usageType);
+		}
+		fitToScreenCheckBox.setSelected(true);
+	}
+
 	public final void populateFields(GridTemplate template) {
 		templateIDField.setText(String.valueOf(template.getID()));
 		nameField.setText(template.getName());
@@ -301,6 +299,15 @@ class TemplateDescriptionPanel extends PanelBase {
 		setEditable(true);
 	}
 
+	void refreshColumns(GridTemplate template) {
+		populateCompleteAndConsistencyColumns(template);
+	}
+
+	final void selectNameField() {
+		nameField.selectAll();
+		nameField.requestFocusInWindow();
+	}
+
 	public final void setEditable(boolean editable) {
 		if (editable && !ClientUtil.checkViewOrEditAnyTemplatePermission()) return;
 		usageTypeField.setEnabled(editable);
@@ -314,18 +321,6 @@ class TemplateDescriptionPanel extends PanelBase {
 		fitToScreenCheckBox.setEnabled(editable);
 		consistColumnsCheckList.setEnabled(editable);
 		completeColumnsCheckList.setEnabled(editable);
-	}
-
-	void columnAdded(GridTemplate template) {
-		populateCompleteAndConsistencyColumns(template);
-	}
-
-	void columnDeleted(GridTemplate template) {
-		populateCompleteAndConsistencyColumns(template);
-	}
-
-	void refreshColumns(GridTemplate template) {
-		populateCompleteAndConsistencyColumns(template);
 	}
 
 	public final void updateFromFields(GridTemplate td) throws ValidationException {
@@ -344,21 +339,15 @@ class TemplateDescriptionPanel extends PanelBase {
 		td.setFitToScreen(fitToScreenCheckBox.isSelected());
 		td.setVersion(versionField.getText());
 
-		Object[] selections = completeColumnsCheckList.getSelectedValues();
-		List<Integer> intList = new ArrayList<Integer>();
-		if (selections != null) {
-			for (int i = 0; i < selections.length; i++) {
-				intList.add(new Integer(((GridTemplateColumn) selections[i]).getColumnNumber()));
-			}
+		final List<Integer> intList = new ArrayList<Integer>();
+		for (GridTemplateColumn column : completeColumnsCheckList.getSelectedValuesList()) {
+			intList.add(column.getColumnNumber());
 		}
 		td.setCompletenessColumns(UtilBase.toIntArray(intList));
 
 		intList.clear();
-		selections = consistColumnsCheckList.getSelectedValues();
-		if (selections != null) {
-			for (int i = 0; i < selections.length; i++) {
-				intList.add(new Integer(((GridTemplateColumn) selections[i]).getColumnNumber()));
-			}
+		for (GridTemplateColumn column : consistColumnsCheckList.getSelectedValuesList()) {
+			intList.add(column.getColumnNumber());
 		}
 		td.setConsistencyColumns(UtilBase.toIntArray(intList));
 
@@ -367,5 +356,4 @@ class TemplateDescriptionPanel extends PanelBase {
 			td.setUsageType(usageTypeField.getSelectedUsage());
 		}
 	}
-
 }

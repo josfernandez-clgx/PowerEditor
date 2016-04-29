@@ -9,6 +9,7 @@ import javax.swing.DefaultListModel;
 
 import com.mindbox.pe.common.config.EntityConfigHelper;
 import com.mindbox.pe.model.GenericCategory;
+import com.mindbox.pe.model.GenericContextElement;
 import com.mindbox.pe.model.GenericEntity;
 import com.mindbox.pe.model.GenericEntityType;
 import com.mindbox.pe.model.GuidelineContext;
@@ -27,10 +28,10 @@ import com.mindbox.pe.model.GuidelineContext;
  */
 public abstract class AbstractGuidelineContextHolder implements GuidelineContextHolder, GuidelineContextProvider {
 
-	private final Map<GenericEntityType, DefaultListModel<Object>> genericEntityListModelMap;
+	private final Map<GenericEntityType, DefaultListModel<GenericContextElement>> genericEntityListModelMap;
 
 	protected AbstractGuidelineContextHolder() {
-		genericEntityListModelMap = new HashMap<GenericEntityType, DefaultListModel<Object>>();
+		genericEntityListModelMap = new HashMap<GenericEntityType, DefaultListModel<GenericContextElement>>();
 	}
 
 	@Override
@@ -40,7 +41,7 @@ public abstract class AbstractGuidelineContextHolder implements GuidelineContext
 			if (type == null) {
 				throw new IllegalArgumentException("Cannot add categories: invalid type " + categories[0].getID());
 			}
-			DefaultListModel<Object> model = getGenenricEntityListModel(type);
+			DefaultListModel<GenericContextElement> model = getGenenricEntityListModel(type);
 
 			if (model.isEmpty() || hasGenericCategoryContext(type)) {
 				for (int i = 0; i < categories.length; i++) {
@@ -58,7 +59,7 @@ public abstract class AbstractGuidelineContextHolder implements GuidelineContext
 	@Override
 	public void addContext(final GenericEntity[] entities) {
 		if (entities.length > 0) {
-			DefaultListModel<Object> model = getGenenricEntityListModel(entities[0].getType());
+			DefaultListModel<GenericContextElement> model = getGenenricEntityListModel(entities[0].getType());
 			if (model.isEmpty() || !hasGenericCategoryContext(entities[0].getType())) {
 				for (int i = 0; i < entities.length; i++) {
 					if (!model.contains(entities[i])) {
@@ -75,19 +76,19 @@ public abstract class AbstractGuidelineContextHolder implements GuidelineContext
 	@Override
 	public synchronized void clearContext() {
 		// clear generic entity lists
-		for (DefaultListModel<Object> element : genericEntityListModelMap.values()) {
+		for (DefaultListModel<GenericContextElement> element : genericEntityListModelMap.values()) {
 			element.clear();
 		}
 	}
 
 	protected abstract EntityConfigHelper getEntityConfiguration();
 
-	protected final DefaultListModel<Object> getGenenricEntityListModel(final GenericEntityType type) {
+	protected final DefaultListModel<GenericContextElement> getGenenricEntityListModel(final GenericEntityType type) {
 		if (genericEntityListModelMap.containsKey(type)) {
 			return genericEntityListModelMap.get(type);
 		}
 		else {
-			DefaultListModel<Object> model = new DefaultListModel<Object>();
+			DefaultListModel<GenericContextElement> model = new DefaultListModel<GenericContextElement>();
 			genericEntityListModelMap.put(type, model);
 			return model;
 		}
@@ -102,9 +103,9 @@ public abstract class AbstractGuidelineContextHolder implements GuidelineContext
 		List<GuidelineContext> list = new ArrayList<GuidelineContext>();
 		GuidelineContext context = null;
 		// handle generic entity context
-		for (Map.Entry<GenericEntityType, DefaultListModel<Object>> element : genericEntityListModelMap.entrySet()) {
+		for (Map.Entry<GenericEntityType, DefaultListModel<GenericContextElement>> element : genericEntityListModelMap.entrySet()) {
 			GenericEntityType type = element.getKey();
-			DefaultListModel<Object> model = element.getValue();
+			DefaultListModel<GenericContextElement> model = element.getValue();
 			if (!model.isEmpty()) {
 				int[] ids = new int[model.size()];
 				if (hasGenericCategoryContext(type)) {
@@ -127,7 +128,7 @@ public abstract class AbstractGuidelineContextHolder implements GuidelineContext
 	}
 
 	protected final boolean hasGenericCategoryContext(final GenericEntityType type) {
-		DefaultListModel<Object> model = getGenenricEntityListModel(type);
+		DefaultListModel<GenericContextElement> model = getGenenricEntityListModel(type);
 		return model.get(0) instanceof GenericCategory;
 	}
 
@@ -138,7 +139,7 @@ public abstract class AbstractGuidelineContextHolder implements GuidelineContext
 			if (type == null) {
 				throw new IllegalArgumentException("Cannot add categories: invalid type " + categories[0].getID());
 			}
-			DefaultListModel<Object> model = getGenenricEntityListModel(type);
+			DefaultListModel<GenericContextElement> model = getGenenricEntityListModel(type);
 
 			for (int i = 0; i < categories.length; i++) {
 				if (model.contains(categories[i])) {
@@ -151,7 +152,7 @@ public abstract class AbstractGuidelineContextHolder implements GuidelineContext
 	@Override
 	public void removeContext(final GenericEntity[] entities) {
 		for (int i = 0; i < entities.length; i++) {
-			DefaultListModel<Object> model = getGenenricEntityListModel(entities[i].getType());
+			DefaultListModel<GenericContextElement> model = getGenenricEntityListModel(entities[i].getType());
 			if (model.contains(entities[i])) {
 				model.removeElement(entities[i]);
 			}
@@ -179,7 +180,6 @@ public abstract class AbstractGuidelineContextHolder implements GuidelineContext
 				}
 				addContext(categories);
 			}
-
 		}
 	}
 }

@@ -17,17 +17,17 @@ import org.junit.Test;
 import com.mindbox.pe.client.applet.validate.DomainModel;
 import com.mindbox.pe.client.applet.validate.DomainRetrieverProxy;
 import com.mindbox.pe.common.ReflectionUtil;
+import com.mindbox.pe.model.EnumValue;
 import com.mindbox.pe.model.domain.DomainClass;
 import com.mindbox.pe.model.template.ColumnDataSpecDigest;
 import com.mindbox.pe.model.template.ColumnDataSpecDigest.EnumSourceType;
-import com.mindbox.pe.model.EnumValue;
 import com.mindbox.pe.unittest.AbstractTestBase;
 
 public class MultiSelectEnumCellEditorTest extends AbstractTestBase {
 
 	private EnumValue[] enumVals;
 	private ColumnDataSpecDigest columnDataSpecDigest;
-	private ListModel listModel;
+	private ListModel<EnumValue> listModel;
 	private MultiSelectEnumCellEditor editor;
 	private DomainRetrieverProxy domainRetrieverProxyMock;
 
@@ -37,6 +37,7 @@ public class MultiSelectEnumCellEditorTest extends AbstractTestBase {
 		setUpEditor(false);
 	}
 
+	@SuppressWarnings("unchecked")
 	private void setUpEditor(boolean allowsBlank) throws Exception {
 		domainRetrieverProxyMock = createMock(DomainRetrieverProxy.class);
 		expect(domainRetrieverProxyMock.fetchAllDomainClasses()).andReturn(new DomainClass[0]);
@@ -52,7 +53,7 @@ public class MultiSelectEnumCellEditorTest extends AbstractTestBase {
 		}
 
 		editor = new MultiSelectEnumCellEditor("Column", columnDataSpecDigest, false, new GridTableModel());
-		listModel = (ListModel) ReflectionUtil.getPrivate(editor, "listModel");
+		listModel = (ListModel<EnumValue>) ReflectionUtil.getPrivate(editor, "listModel");
 	}
 
 	@After

@@ -25,16 +25,10 @@ import com.mindbox.pe.model.cbr.CBRValueRange;
  * @author MindBox, Inc
  * @since PowerEditor 1.10.0
  */
-public final class CBRValueRangeComboBox extends JComboBox {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3951228734910107454L;
+public final class CBRValueRangeComboBox extends JComboBox<CBRValueRange> {
 
-	private static class CBRValueRangeCellRenderer extends JLabel implements ListCellRenderer {
-		/**
-		 * 
-		 */
+	private static class CBRValueRangeCellRenderer extends JLabel implements ListCellRenderer<CBRValueRange> {
+
 		private static final long serialVersionUID = -3951228734910107454L;
 
 		public CBRValueRangeCellRenderer(String imageKey) {
@@ -44,20 +38,20 @@ public final class CBRValueRangeComboBox extends JComboBox {
 			setOpaque(true);
 		}
 
-		public Component getListCellRendererComponent(JList arg0, Object value, int index, boolean isSelected, boolean arg4) {
+		@Override
+		public Component getListCellRendererComponent(JList<? extends CBRValueRange> arg0, CBRValueRange value, int index, boolean isSelected, boolean arg4) {
 			if (value == null) {
-				setText("");
-			}
-			else if (value instanceof CBRValueRange) {
-				this.setText(((CBRValueRange) value).getName());
+				setText("Any");
 			}
 			else {
-				this.setText(value.toString());
+				this.setText(value.getName());
 			}
 			setBackground(isSelected ? PowerEditorSwingTheme.primary3 : Color.white);
 			return this;
 		}
 	}
+
+	private static final long serialVersionUID = -3951228734910107454L;
 
 	public static CBRValueRangeComboBox createInstance() throws ServerException {
 		return new CBRValueRangeComboBox(ClientUtil.fetchAllCBRValueRanges());
@@ -69,6 +63,9 @@ public final class CBRValueRangeComboBox extends JComboBox {
 		setRenderer(new CBRValueRangeCellRenderer(null));
 	}
 
+	public void clearSelection() {
+		setSelectedIndex(0);
+	}
 
 	public CBRValueRange getSelectedCBRValueRange() {
 		Object obj = super.getSelectedItem();
@@ -78,10 +75,6 @@ public final class CBRValueRangeComboBox extends JComboBox {
 		else {
 			return null;
 		}
-	}
-
-	public void clearSelection() {
-		setSelectedIndex(0);
 	}
 
 	public void selectCBRValueRange(CBRValueRange valueRange) {

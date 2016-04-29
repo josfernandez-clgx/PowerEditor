@@ -28,16 +28,9 @@ import com.mindbox.pe.model.comparator.UsageTypeComparator;
  * @author MindBox, Inc
  * @since PowerEditor 1.10.0
  */
-public final class UsageTypeComboBox extends JComboBox {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3951228734910107454L;
+public final class UsageTypeComboBox extends JComboBox<TemplateUsageType> {
 
-	public static class UsageTypeCellRenderer extends JLabel implements ListCellRenderer {
-		/**
-		 * 
-		 */
+	public static class UsageTypeCellRenderer extends JLabel implements ListCellRenderer<TemplateUsageType> {
 		private static final long serialVersionUID = -3951228734910107454L;
 
 		public UsageTypeCellRenderer(String imageKey) {
@@ -47,20 +40,20 @@ public final class UsageTypeComboBox extends JComboBox {
 			setOpaque(true);
 		}
 
-		public Component getListCellRendererComponent(JList arg0, Object value, int index, boolean isSelected, boolean arg4) {
+		@Override
+		public Component getListCellRendererComponent(JList<? extends TemplateUsageType> arg0, TemplateUsageType value, int index, boolean isSelected, boolean arg4) {
 			if (value == null) {
 				setText("");
 			}
-			else if (value instanceof TemplateUsageType) {
-				this.setText(((TemplateUsageType) value).getDisplayName());
-			}
 			else {
-				this.setText(value.toString());
+				this.setText(value.getDisplayName());
 			}
 			setBackground(isSelected ? PowerEditorSwingTheme.primary3 : Color.white);
 			return this;
 		}
 	}
+
+	private static final long serialVersionUID = -3951228734910107454L;
 
 	/**
 	 * Creates an instance of UsageTypeCombo box and contains only those UsageType's on whose privilege, 
@@ -96,6 +89,9 @@ public final class UsageTypeComboBox extends JComboBox {
 		setRenderer(new UsageTypeCellRenderer(null));
 	}
 
+	public void clearSelection() {
+		setSelectedIndex(0);
+	}
 
 	public TemplateUsageType getSelectedUsage() {
 		Object obj = super.getSelectedItem();
@@ -105,10 +101,6 @@ public final class UsageTypeComboBox extends JComboBox {
 		else {
 			return null;
 		}
-	}
-
-	public void clearSelection() {
-		setSelectedIndex(0);
 	}
 
 	public void selectUsage(TemplateUsageType usage) {

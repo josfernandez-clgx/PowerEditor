@@ -26,16 +26,10 @@ import com.mindbox.pe.model.cbr.CBRAttributeType;
  * @author MindBox, LLC
  * @since PowerEditor 4.1.0
  */
-public final class CBRAttributeTypeComboBox extends JComboBox {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3951228734910107454L;
+public final class CBRAttributeTypeComboBox extends JComboBox<CBRAttributeType> {
 
-	private static class CBRAttributeTypeCellRenderer extends JLabel implements ListCellRenderer {
-		/**
-		 * 
-		 */
+	private static class CBRAttributeTypeCellRenderer extends JLabel implements ListCellRenderer<CBRAttributeType> {
+
 		private static final long serialVersionUID = -3951228734910107454L;
 
 		public CBRAttributeTypeCellRenderer(String imageKey) {
@@ -45,42 +39,49 @@ public final class CBRAttributeTypeComboBox extends JComboBox {
 			setOpaque(true);
 		}
 
-		public Component getListCellRendererComponent(JList arg0, Object value, int index, boolean isSelected, boolean arg4) {
+		@Override
+		public Component getListCellRendererComponent(JList<? extends CBRAttributeType> arg0, CBRAttributeType value, int index, boolean isSelected, boolean arg4) {
 			if (value == null) {
-				setText("");
-			}
-			else if (value instanceof CBRAttributeType) {
-				this.setText(((CBRAttributeType) value).getName());
+				setText("Any");
 			}
 			else {
-				this.setText(value.toString());
+				this.setText(value.getName());
 			}
 			setBackground(isSelected ? PowerEditorSwingTheme.primary3 : Color.white);
 			return this;
 		}
 	}
 
+	private static final long serialVersionUID = -3951228734910107454L;
+
 	public static CBRAttributeTypeComboBox createInstance() throws ServerException {
 		return new CBRAttributeTypeComboBox(ClientUtil.fetchAllCBRAttributeTypes());
 	}
 
 	public static CBRAttributeTypeComboBox createInstance(boolean allowNull) throws ServerException {
-		if (!allowNull) return createInstance();
+		if (!allowNull) {
+			return createInstance();
+		}
 		CBRAttributeType[] ats = ClientUtil.fetchAllCBRAttributeTypes();
-		Object[] newats = new Object[ats.length + 1];
-		newats[0] = "Any";
-		for (int i = 0; i < ats.length; i++)
+		CBRAttributeType[] newats = new CBRAttributeType[ats.length + 1];
+		newats[0] = null;
+		for (int i = 0; i < ats.length; i++) {
 			newats[i + 1] = ats[i];
+		}
 		return new CBRAttributeTypeComboBox(newats);
 	}
 
 
-	private CBRAttributeTypeComboBox(Object[] attributeTypes) {
+	private CBRAttributeTypeComboBox(CBRAttributeType[] attributeTypes) {
 		super(attributeTypes);
 		UIFactory.setLookAndFeel(this);
 		setRenderer(new CBRAttributeTypeCellRenderer(null));
 	}
 
+
+	public void clearSelection() {
+		setSelectedIndex(0);
+	}
 
 	public CBRAttributeType getSelectedCBRAttributeType() {
 		Object obj = super.getSelectedItem();
@@ -97,21 +98,20 @@ public final class CBRAttributeTypeComboBox extends JComboBox {
 		return at == null ? Persistent.UNASSIGNED_ID : at.getId();
 	}
 
-	public void clearSelection() {
-		setSelectedIndex(0);
-	}
-
 	public void selectCBRAttributeType(CBRAttributeType attributeType) {
-		if (attributeType == null) this.setSelectedIndex(0);
+		if (attributeType == null) {
+			this.setSelectedIndex(0);
+		}
 		setSelectedItem(attributeType);
 	}
 
 	public void selectCBRAttributeTypeFromID(int id) {
-		if (id == Persistent.UNASSIGNED_ID)
+		if (id == Persistent.UNASSIGNED_ID) {
 			setSelectedIndex(0);
+		}
 		else {
 			for (int i = 1; i < this.getItemCount(); i++) {
-				CBRAttributeType at = (CBRAttributeType) this.getItemAt(i);
+				CBRAttributeType at = this.getItemAt(i);
 				if (at.getID() == id) {
 					setSelectedItem(at);
 					return;

@@ -14,47 +14,40 @@ import com.mindbox.pe.model.TypeEnumValue;
  * @author Geneho Kim
  * @see com.mindbox.pe.client.common.CheckList
  */
-public class TypeEnumCheckList extends CheckList {
-	/**
-	 * 
-	 */
+public class TypeEnumCheckList extends CheckList<TypeEnumValue> {
 	private static final long serialVersionUID = -3951228734910107454L;
+
+	public TypeEnumCheckList(ComboBoxModel<TypeEnumValue> model) {
+		setModel(model);
+	}
 
 	public TypeEnumCheckList(String typeKey, boolean sortValues) {
 		this(EntityModelCacheFactory.getInstance().getTypeEnumComboModel(typeKey, false, sortValues));
 	}
 
-	public TypeEnumCheckList(ComboBoxModel model) {
-		setModel(model);
-	}
-
-	protected String getListText(Object obj) {
-		if (obj instanceof TypeEnumValue) {
-			return ((TypeEnumValue) obj).getDisplayLabel();
-		}
-		else {
-			return super.getListText(obj);
-		}
+	@Override
+	protected String getListText(TypeEnumValue obj) {
+		return obj.getDisplayLabel();
 	}
 
 	public List<TypeEnumValue> getSelectedTypeEnumValues() {
 		List<TypeEnumValue> selectedValues = new ArrayList<TypeEnumValue>();
-		for (Object obj : getSelectedValues()) {
-			selectedValues.add((TypeEnumValue) obj);
+		for (TypeEnumValue obj : getSelectedValuesList()) {
+			selectedValues.add(obj);
 		}
 		return selectedValues;
 	}
 
 	public void selectTypeEnumValues(List<String> values) {
 		clearSelection();
-		if (values == null) return;
-		ListModel model = getModel();
+		if (values == null) {
+			return;
+		}
+		ListModel<TypeEnumValue> model = getModel();
 		for (int i = 0; i < model.getSize(); i++) {
-			Object item = model.getElementAt(i);
-			if (item instanceof TypeEnumValue) {
-				if (values.contains(((TypeEnumValue) item).getValue())) {
-					setSelectedValue(item, true);
-				}
+			TypeEnumValue item = model.getElementAt(i);
+			if (values.contains(item.getValue())) {
+				setSelectedValue(item, true);
 			}
 		}
 	}

@@ -15,28 +15,25 @@ import com.mindbox.pe.model.IDNameObject;
  * @author MindBox, Inc
  * @since PowerEditor 1.10.0
  */
-public class IDNameObjectComboBox extends JComboBox<IDNameObject> {
+public class IDNameObjectComboBox<T extends IDNameObject> extends JComboBox<T> {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -3951228734910107454L;
 
-	// TODO use an instance with the name of 'Any'
-	private static final IDNameObject ANY_INSTANCE = null;
-
-	public IDNameObjectComboBox(boolean hasEmptyItem, ListCellRenderer<IDNameObject> renderer) {
+	public IDNameObjectComboBox(boolean hasEmptyItem, ListCellRenderer<T> renderer) {
 		super();
 		if (renderer == null) throw new NullPointerException("renderer cannot be null");
 		UIFactory.setLookAndFeel(this);
 		if (hasEmptyItem) {
-			addItem(ANY_INSTANCE);
+			addItem(null);
 		}
 		setRenderer(renderer);
 		setFocusable(true);
 	}
 
 	public IDNameObjectComboBox(boolean hasEmptyItem, String iconKey) {
-		this(hasEmptyItem, new IDNameObjectCellRenderer(iconKey));
+		this(hasEmptyItem, new IDNameObjectCellRenderer<T>(iconKey));
 	}
 
 	public IDNameObject getSelectedIDNameObject() {
@@ -60,38 +57,36 @@ public class IDNameObjectComboBox extends JComboBox<IDNameObject> {
 	}
 
 	public final void selectObject(int objectID) {
-		if (objectID == -1) return;
-		ComboBoxModel<IDNameObject> model = getModel();
+		if (objectID == -1) {
+			return;
+		}
+		ComboBoxModel<T> model = getModel();
 		for (int i = 0; i < model.getSize(); i++) {
-			Object item = model.getElementAt(i);
-			if (item instanceof IDNameObject) {
-				if (((IDNameObject) item).getID() == objectID) {
-					setSelectedIndex(i);
-					return;
-				}
+			T item = model.getElementAt(i);
+			if (item.getID() == objectID) {
+				setSelectedIndex(i);
+				return;
 			}
 		}
 	}
 
 	public final void selectObject(String name) {
-		if (name == null) return;
-		ComboBoxModel<IDNameObject> model = getModel();
+		if (name == null) {
+			return;
+		}
+		ComboBoxModel<T> model = getModel();
 		for (int i = 0; i < model.getSize(); i++) {
-			Object item = model.getElementAt(i);
-			if (item instanceof IDNameObject) {
-				if (((IDNameObject) item).getName().equals(name)) {
-					setSelectedIndex(i);
-					return;
-				}
+			T item = model.getElementAt(i);
+			if (item.getName().equals(name)) {
+				setSelectedIndex(i);
+				return;
 			}
 		}
 	}
 
-	public void setValueList(List<? extends IDNameObject> objectList) {
-		for (IDNameObject object : objectList) {
+	public void setValueList(List<T> objectList) {
+		for (T object : objectList) {
 			addItem(object);
 		}
 	}
-
-
 }

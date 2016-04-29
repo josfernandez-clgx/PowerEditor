@@ -14,21 +14,20 @@ import com.mindbox.pe.client.ClientUtil;
  * @since PowerEditor 
  */
 class Util {
-	
+
+	static void checkEmpty(JComboBox<?> comp, String labelKey) throws ValidationException {
+		if (comp.getSelectedIndex() < 0) {
+			throw new ValidationException("msg.errors.required", ClientUtil.getInstance().getLabel(labelKey));
+		}
+	}
+
 	static void checkEmpty(JTextComponent comp, String labelKey) throws ValidationException {
 		if (comp.getText() == null || comp.getText().trim().length() == 0) {
-			throw new ValidationException("msg.errors.required",ClientUtil.getInstance().getLabel(labelKey));
+			throw new ValidationException("msg.errors.required", ClientUtil.getInstance().getLabel(labelKey));
 		}
 	}
-	
-	static void checkEmpty(JComboBox comp, String labelKey) throws ValidationException {
-		if (comp.getSelectedIndex() < 0) {
-			throw new ValidationException("msg.errors.required",ClientUtil.getInstance().getLabel(labelKey));
-		}
-	}
-	
+
 
 	private Util() {
-		
 	}
 }

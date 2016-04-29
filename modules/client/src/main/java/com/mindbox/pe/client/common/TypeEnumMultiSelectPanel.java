@@ -24,9 +24,6 @@ import com.mindbox.pe.common.UtilBase;
 import com.mindbox.pe.model.TypeEnumValue;
 
 public class TypeEnumMultiSelectPanel extends JPanel {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -3951228734910107454L;
 
 	private final TypeEnumCheckList checkList;
@@ -37,7 +34,7 @@ public class TypeEnumMultiSelectPanel extends JPanel {
 	private final String propertyName;
 	private JDialog dialog;
 
-	public TypeEnumMultiSelectPanel(String propertyName, ComboBoxModel model, boolean required) {
+	public TypeEnumMultiSelectPanel(String propertyName, ComboBoxModel<TypeEnumValue> model, boolean required) {
 		this.required = required;
 		this.propertyName = propertyName;
 		selectedValues = new ArrayList<String>();
@@ -55,46 +52,6 @@ public class TypeEnumMultiSelectPanel extends JPanel {
 
 	public void addDocumentListener(DocumentListener listener) {
 		valueField.getDocument().addDocumentListener(listener);
-	}
-
-	public void removeDocumentListener(DocumentListener listener) {
-		valueField.getDocument().removeDocumentListener(listener);
-	}
-
-	public synchronized List<String> getSelectedValues() {
-		return Collections.unmodifiableList(selectedValues);
-	}
-
-	public synchronized void setSelectedValues(List<String> values) {
-		resetSelectedValues(values);
-	}
-
-	public synchronized boolean hasSelectedValue() {
-		return !selectedValues.isEmpty();
-	}
-
-	@Override
-	public void setEnabled(boolean enabled) {
-		super.setEnabled(enabled);
-		button.setEnabled(enabled);
-		valueField.setEnabled(enabled);
-	}
-
-	private void initPanel() {
-		setLayout(new BorderLayout(1, 1));
-		add(valueField, BorderLayout.CENTER);
-		add(button, BorderLayout.EAST);
-		refreshValueField();
-	}
-
-	private void resetSelectedValues(List<String> values) {
-		selectedValues.clear();
-		if (values != null) selectedValues.addAll(values);
-		refreshValueField();
-	}
-
-	private void refreshValueField() {
-		valueField.setText(UtilBase.toString(selectedValues));
 	}
 
 	private synchronized void editValue() {
@@ -144,5 +101,45 @@ public class TypeEnumMultiSelectPanel extends JPanel {
 			UIFactory.centerize(dialog);
 		}
 		return dialog;
+	}
+
+	public synchronized List<String> getSelectedValues() {
+		return Collections.unmodifiableList(selectedValues);
+	}
+
+	public synchronized boolean hasSelectedValue() {
+		return !selectedValues.isEmpty();
+	}
+
+	private void initPanel() {
+		setLayout(new BorderLayout(1, 1));
+		add(valueField, BorderLayout.CENTER);
+		add(button, BorderLayout.EAST);
+		refreshValueField();
+	}
+
+	private void refreshValueField() {
+		valueField.setText(UtilBase.toString(selectedValues));
+	}
+
+	public void removeDocumentListener(DocumentListener listener) {
+		valueField.getDocument().removeDocumentListener(listener);
+	}
+
+	private void resetSelectedValues(List<String> values) {
+		selectedValues.clear();
+		if (values != null) selectedValues.addAll(values);
+		refreshValueField();
+	}
+
+	@Override
+	public void setEnabled(boolean enabled) {
+		super.setEnabled(enabled);
+		button.setEnabled(enabled);
+		valueField.setEnabled(enabled);
+	}
+
+	public synchronized void setSelectedValues(List<String> values) {
+		resetSelectedValues(values);
 	}
 }

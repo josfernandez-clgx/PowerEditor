@@ -49,31 +49,68 @@ import com.mindbox.pe.model.filter.GenericEntityFilterSpec;
  * @since PowerEditor 5.1.0
  */
 public class GenericEntitySearchDialog extends JPanel {
+
+	private class CancelL implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			resultsList.clearSelection();
+			resultsList.setSelectedIndex(-1);
+			dialog.dispose();
+		}
+	}
+
+	private class SearchL extends AbstractThreadedActionAdapter {
+		@Override
+		public void performAction(ActionEvent event) {
+			Date date = null;
+
+			try {
+				date = noParentAsOf.getValue();
+			}
+			catch (ParseException e) {
+				ClientUtil.getInstance().showErrorDialog("msg.warning.invalid.date", new Object[] { Constants.FORMAT_STR_DATE_TIME_SEC.toString() });
+
+				return;
+			}
+
+			GenericEntityFilterSpec searchSpec = new GenericEntityFilterSpec(genericEntityType, null);
+			searchSpec.setNameCriterion(nameField.getText());
+
+			try {
+				setCursor(UIFactory.getWaitCursor());
+				List<GenericEntity> list = ClientUtil.getCommunicator().search(searchSpec);
+				if ((list != null) && (date != null)) {
+					for (Iterator<GenericEntity> i = list.iterator(); i.hasNext();) {
+						GenericEntity entity = i.next();
+						List<Integer> parents = entity.getCategoryIDList(date);
+						if ((parents != null) && (parents.size() > 0)) {
+							i.remove();
+						}
+					}
+				}
+				Collections.sort(list, new IDNameObjectComparator<GenericEntity>());
+				resultsList.setListData(list.toArray(new GenericEntity[0]));
+			}
+			catch (ServerException ex) {
+				ClientUtil.getInstance().showErrorDialog("msg.error.generic.service", new Object[] { ClientUtil.getInstance().getErrorMessage(ex) });
+			}
+			finally {
+				setCursor(UIFactory.getDefaultCursor());
+			}
+		}
+	}
+
+	private class SelectL implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			dialog.dispose();
+		}
+	}
+
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -3951228734910107454L;
-	private final MDateDateField noParentAsOf;
-	private final JTextField nameField;
-	private final boolean forMultiSelect;
-	private final GenericEntityType genericEntityType;
-	private final JButton searchButton;
-	private final JList resultsList;
-	private final JDialog dialog;
-
-	private GenericEntitySearchDialog(JDialog dialog, boolean forMultiSelect, GenericEntityType genericEntityType) {
-		super();
-		this.dialog = dialog;
-		this.forMultiSelect = forMultiSelect;
-		this.genericEntityType = genericEntityType;
-		nameField = new JTextField(10);
-		searchButton = UIFactory.createButton(ClientUtil.getInstance().getLabel("button.search"), "image.btn.small.new", new SearchL(), null);
-
-		resultsList = new JList();
-		noParentAsOf = new MDateDateField(true, true, true);
-		noParentAsOf.setValue(null);
-		initDialog();
-	}
 
 	/**
 	 * Displays dialog for searching for generic entities 
@@ -90,6 +127,37 @@ public class GenericEntitySearchDialog extends JPanel {
 		dialog.setVisible(true);
 
 		return panel.getSelectedGenericEntities();
+	}
+
+	private final MDateDateField noParentAsOf;
+	private final JTextField nameField;
+	private final boolean forMultiSelect;
+	private final GenericEntityType genericEntityType;
+	private final JButton searchButton;
+	private final JList<GenericEntity> resultsList;
+	private final JDialog dialog;
+
+	private GenericEntitySearchDialog(JDialog dialog, boolean forMultiSelect, GenericEntityType genericEntityType) {
+		super();
+		this.dialog = dialog;
+		this.forMultiSelect = forMultiSelect;
+		this.genericEntityType = genericEntityType;
+		nameField = new JTextField(10);
+		searchButton = UIFactory.createButton(ClientUtil.getInstance().getLabel("button.search"), "image.btn.small.new", new SearchL(), null);
+
+		resultsList = new JList<GenericEntity>();
+		noParentAsOf = new MDateDateField(true, true, true);
+		noParentAsOf.setValue(null);
+		initDialog();
+	}
+
+	private GenericEntity[] getSelectedGenericEntities() {
+		if (forMultiSelect) {
+			return resultsList.getSelectedValuesList().toArray(new GenericEntity[0]);
+		}
+		else {
+			return (resultsList.getSelectedValue() == null) ? null : new GenericEntity[] { resultsList.getSelectedValue() };
+		}
 	}
 
 	private void initDialog() {
@@ -148,9 +216,10 @@ public class GenericEntitySearchDialog extends JPanel {
 		resultsList.setAutoscrolls(true);
 		resultsList.setSelectionMode(forMultiSelect ? ListSelectionModel.MULTIPLE_INTERVAL_SELECTION : ListSelectionModel.SINGLE_SELECTION);
 
-		resultsList.setCellRenderer(new IDNameObjectCellRenderer("image.node.entity"));
+		resultsList.setCellRenderer(new IDNameObjectCellRenderer<GenericEntity>("image.node.entity"));
 
 		resultsList.addListSelectionListener(new ListSelectionListener() {
+			@Override
 			public void valueChanged(ListSelectionEvent e) {
 				if (resultsList.getSelectedValue() != null) {
 					okButton.setEnabled(true);
@@ -162,76 +231,5 @@ public class GenericEntitySearchDialog extends JPanel {
 		});
 
 		setSize(620, 220);
-	}
-
-	private GenericEntity[] getSelectedGenericEntities() {
-		if (forMultiSelect) {
-			GenericEntity[] entities = null;
-			Object[] selectedItems = resultsList.getSelectedValues();
-			if (selectedItems != null && selectedItems.length > 0) {
-				entities = new GenericEntity[selectedItems.length];
-				for (int i = 0; i < selectedItems.length; i++) {
-					entities[i] = (GenericEntity) selectedItems[i];
-				}
-			}
-			return entities;
-		}
-		else {
-			return (resultsList.getSelectedValue() == null) ? null : new GenericEntity[] { (GenericEntity) resultsList.getSelectedValue() };
-		}
-	}
-
-	private class SearchL extends AbstractThreadedActionAdapter {
-		public void performAction(ActionEvent event) {
-			Date date = null;
-
-			try {
-				date = noParentAsOf.getValue();
-			}
-			catch (ParseException e) {
-				ClientUtil.getInstance().showErrorDialog("msg.warning.invalid.date", new Object[] { Constants.FORMAT_STR_DATE_TIME_SEC.toString() });
-
-				return;
-			}
-
-			GenericEntityFilterSpec searchSpec = new GenericEntityFilterSpec(genericEntityType, null);
-			searchSpec.setNameCriterion(nameField.getText());
-
-			try {
-				setCursor(UIFactory.getWaitCursor());
-				List<GenericEntity> list = ClientUtil.getCommunicator().search(searchSpec);
-				if ((list != null) && (date != null)) {
-					for (Iterator<GenericEntity> i = list.iterator(); i.hasNext();) {
-						GenericEntity entity = i.next();
-						List<Integer> parents = entity.getCategoryIDList(date);
-						if ((parents != null) && (parents.size() > 0)) {
-							i.remove();
-						}
-					}
-				}
-				Collections.sort(list, new IDNameObjectComparator<GenericEntity>());
-				resultsList.setListData(list.toArray(new GenericEntity[0]));
-			}
-			catch (ServerException ex) {
-				ClientUtil.getInstance().showErrorDialog("msg.error.generic.service", new Object[] { ClientUtil.getInstance().getErrorMessage(ex) });
-			}
-			finally {
-				setCursor(UIFactory.getDefaultCursor());
-			}
-		}
-	}
-
-	private class CancelL implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			resultsList.clearSelection();
-			resultsList.setSelectedIndex(-1);
-			dialog.dispose();
-		}
-	}
-
-	private class SelectL implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			dialog.dispose();
-		}
 	}
 }

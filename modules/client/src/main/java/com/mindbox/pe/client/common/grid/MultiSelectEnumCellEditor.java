@@ -35,13 +35,13 @@ public class MultiSelectEnumCellEditor extends AbstractCellEditor {
 	private JButton button = new JButton("");
 	private final boolean viewOnly;
 	private final ColumnDataSpecDigest columnDataSpecDigest;
-	private final DefaultListModel listModel;
+	private final DefaultListModel<EnumValue> listModel;
 	private final String title, instruction;
 	private EnumValues<EnumValue> enumValues = null; // the currently selected value(s), we should allow the super class to keep track of this
 	private final AbstractGridTableModel<?> tableModel; // work around described in TT 1494, remove instance variable when fixed
 
 	public MultiSelectEnumCellEditor(String columnName, ColumnDataSpecDigest columnDataSpecDigest, boolean viewOnly, AbstractGridTableModel<?> tableModel) {
-		this.listModel = new DefaultListModel();
+		this.listModel = new DefaultListModel<EnumValue>();
 		this.columnDataSpecDigest = columnDataSpecDigest;
 		this.viewOnly = viewOnly;
 		this.title = columnName.toUpperCase() + ' ' + ClientUtil.getInstance().getLabel("label.title.enum.chooser");
@@ -51,27 +51,7 @@ public class MultiSelectEnumCellEditor extends AbstractCellEditor {
 		setClickCountToStart(2);
 	}
 
-	private void init() {
-		button.addMouseListener(new EditingStoppingSingleMouseClickListener(this));
-		button.setFocusPainted(false);
-		button.setHorizontalAlignment(SwingConstants.LEFT);
-
-		List<EnumValue> list = EnumCellEditor.fetchSortedEnumValueListIfConfigured(columnDataSpecDigest);
-		resetListModel(list);
-	}
-
-	private final void resetListModel(List<EnumValue> list) {
-		listModel.clear();
-		if (list != null && list.size() > 0) {
-			for (EnumValue ev : list) {
-				if (ev.isActive()) {
-					listModel.addElement(ev);
-				}
-			}
-		}
-	}
-
-	private JPanel createListSelectionPanel(JList jlist) {
+	private JPanel createListSelectionPanel(JList<EnumValue> jlist) {
 		JPanel selectionPanel = new JPanel(new BorderLayout(4, 4));
 
 		jlist.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -85,20 +65,9 @@ public class MultiSelectEnumCellEditor extends AbstractCellEditor {
 		return selectionPanel;
 	}
 
-	private void resetListModelForSelectionIfNeeded(int row) {
-		// reset listModel if columnDataSpecDigest has a selector
-		if (columnDataSpecDigest.getEnumSourceType() == EnumSourceType.EXTERNAL && columnDataSpecDigest.isEnumSelectorColumnSet()) {
-			Object cellValue = tableModel.getCellValueAt(row, columnDataSpecDigest.getEnumSelectorColumnName());
-			String selectorValue = (cellValue == null ? null : (cellValue instanceof EnumValue ? ((EnumValue) cellValue).getDeployValue() : cellValue.toString()));
-
-			List<EnumValue> list = EnumCellEditor.fetchSortedApplicableEnumValueListIfConfigured(columnDataSpecDigest, selectorValue);
-			resetListModel(list);
-		}
-	}
-
 	private void editValueSelection() {
 		ClientUtil.getLogger().debug("---> editValueSelection");
-		JList jlist = new JList();
+		JList<EnumValue> jlist = new JList<EnumValue>();
 		JPanel selectionPanel = createListSelectionPanel(jlist);
 
 		populateSelectedValues(jlist);
@@ -112,39 +81,34 @@ public class MultiSelectEnumCellEditor extends AbstractCellEditor {
 		ClientUtil.getLogger().debug("<--- editValueSelection");
 	}
 
-	private void updateEnumValueFromList(JList jlist) {
-		ClientUtil.getLogger().debug("---> updateEnumValueFromList");
-		String previousValues = enumValues == null ? "" : enumValues.toString(); // work around described in TT 1494
-
-		ClientUtil.getLogger().debug("Previous Values = " + previousValues);
-		ClientUtil.getLogger().debug("EnumValues = " + enumValues);
-
-		if (enumValues == null) {
-			enumValues = new EnumValues<EnumValue>();
-		}
-		else {
-			enumValues.clear();
-		}
-		Object[] objects = jlist.getSelectedValues();
-		if (objects == null || objects.length == 0) {
-			enumValues.setSelectionExclusion(false);
-		}
-		else {
-			enumValues.setSelectionExclusion(notCheckbox.isSelected());
-			for (int i = 0; i < objects.length; i++) {
-				enumValues.add((EnumValue) objects[i]);
-			}
-		}
-		refreshInternals();
-
-		// work around described in TT 1494
-		if (!previousValues.equals(enumValues.toString())) {
-			tableModel.setDirty(true);
-		}
-		ClientUtil.getLogger().debug("<--- updateEnumValueFromList");
+	@Override
+	public Object getCellEditorValue() {
+		return enumValues;
 	}
 
-	private void populateSelectedValues(JList jlist) {
+	@Override
+	public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+		setValue_internal(value);
+		button.setEnabled(!this.viewOnly);
+		resetListModelForSelectionIfNeeded(row);
+		return button;
+	}
+
+	private void init() {
+		button.addMouseListener(new EditingStoppingSingleMouseClickListener(this));
+		button.setFocusPainted(false);
+		button.setHorizontalAlignment(SwingConstants.LEFT);
+
+		List<EnumValue> list = EnumCellEditor.fetchSortedEnumValueListIfConfigured(columnDataSpecDigest);
+		resetListModel(list);
+	}
+
+	@Override
+	public boolean isCellEditable(EventObject eventobject) {
+		return !viewOnly;
+	}
+
+	private void populateSelectedValues(JList<EnumValue> jlist) {
 		if (enumValues == null) {
 			notCheckbox.setSelected(false);
 			jlist.clearSelection();
@@ -161,41 +125,39 @@ public class MultiSelectEnumCellEditor extends AbstractCellEditor {
 		}
 	}
 
-	public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-		setValue_internal(value);
-		button.setEnabled(!this.viewOnly);
-		resetListModelForSelectionIfNeeded(row);
-		return button;
+	private final void refreshInternals() {
+		ClientUtil.getLogger().debug("---> refreshInternals");
+		ClientUtil.getLogger().debug("EnumValues = " + enumValues);
+		notCheckbox.setSelected(enumValues != null && enumValues.isSelectionExclusion());
+		button.setText(MultiSelectEnumCellRenderer.toDisplayString(enumValues));
+		ClientUtil.getLogger().debug("<--- refreshInternals");
 	}
 
-	public boolean shouldSelectCell(EventObject eventobject) {
-		if (eventobject instanceof MouseEvent) {
-			MouseEvent mouseevent = (MouseEvent) eventobject;
-			if (mouseevent.getClickCount() >= getClickCountToStart()) {
-				// check if list model is empty
-				if (listModel.isEmpty() && columnDataSpecDigest.isEnumSelectorColumnSet()) {
-					String columnName = this.tableModel.getColumnName(tableModel.getColumnIndex(columnDataSpecDigest.getEnumSelectorColumnName()));
-					ClientUtil.getInstance().showWarning("msg.warning.select.column.selector", new Object[] { columnName });
-				}
-				else {
-					editValueSelection();
+	private final void resetListModel(List<EnumValue> list) {
+		listModel.clear();
+		if (list != null && list.size() > 0) {
+			for (EnumValue ev : list) {
+				if (ev.isActive()) {
+					listModel.addElement(ev);
 				}
 			}
-			return true;
 		}
-		return super.shouldSelectCell(eventobject);
 	}
 
-	public Object getCellEditorValue() {
-		return enumValues;
+	private void resetListModelForSelectionIfNeeded(int row) {
+		// reset listModel if columnDataSpecDigest has a selector
+		if (columnDataSpecDigest.getEnumSourceType() == EnumSourceType.EXTERNAL && columnDataSpecDigest.isEnumSelectorColumnSet()) {
+			Object cellValue = tableModel.getCellValueAt(row, columnDataSpecDigest.getEnumSelectorColumnName());
+			String selectorValue = (cellValue == null ? null : (cellValue instanceof EnumValue ? ((EnumValue) cellValue).getDeployValue() : cellValue.toString()));
+
+			List<EnumValue> list = EnumCellEditor.fetchSortedApplicableEnumValueListIfConfigured(columnDataSpecDigest, selectorValue);
+			resetListModel(list);
+		}
 	}
 
+	@Override
 	public void setCellEditorValue(Object value) {
 		setValue_internal(value);
-	}
-
-	public boolean isCellEditable(EventObject eventobject) {
-		return !viewOnly;
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -214,15 +176,55 @@ public class MultiSelectEnumCellEditor extends AbstractCellEditor {
 		refreshInternals();
 	}
 
-	private final void refreshInternals() {
-		ClientUtil.getLogger().debug("---> refreshInternals");
+	@Override
+	public boolean shouldSelectCell(EventObject eventobject) {
+		if (eventobject instanceof MouseEvent) {
+			MouseEvent mouseevent = (MouseEvent) eventobject;
+			if (mouseevent.getClickCount() >= getClickCountToStart()) {
+				// check if list model is empty
+				if (listModel.isEmpty() && columnDataSpecDigest.isEnumSelectorColumnSet()) {
+					String columnName = this.tableModel.getColumnName(tableModel.getColumnIndex(columnDataSpecDigest.getEnumSelectorColumnName()));
+					ClientUtil.getInstance().showWarning("msg.warning.select.column.selector", new Object[] { columnName });
+				}
+				else {
+					editValueSelection();
+				}
+			}
+			return true;
+		}
+		return super.shouldSelectCell(eventobject);
+	}
 
+	private void updateEnumValueFromList(JList<EnumValue> jlist) {
+		ClientUtil.getLogger().debug("---> updateEnumValueFromList");
+		String previousValues = enumValues == null ? "" : enumValues.toString(); // work around described in TT 1494
+
+		ClientUtil.getLogger().debug("Previous Values = " + previousValues);
 		ClientUtil.getLogger().debug("EnumValues = " + enumValues);
 
-		notCheckbox.setSelected(enumValues != null && enumValues.isSelectionExclusion());
-		button.setText(MultiSelectEnumCellRenderer.toDisplayString(enumValues));
+		if (enumValues == null) {
+			enumValues = new EnumValues<EnumValue>();
+		}
+		else {
+			enumValues.clear();
+		}
+		List<EnumValue> objects = jlist.getSelectedValuesList();
+		if (objects == null || objects.isEmpty()) {
+			enumValues.setSelectionExclusion(false);
+		}
+		else {
+			enumValues.setSelectionExclusion(notCheckbox.isSelected());
+			for (int i = 0; i < objects.size(); i++) {
+				enumValues.add(objects.get(i));
+			}
+		}
+		refreshInternals();
 
-		ClientUtil.getLogger().debug("<--- refreshInternals");
+		// work around described in TT 1494
+		if (!previousValues.equals(enumValues.toString())) {
+			tableModel.setDirty(true);
+		}
+		ClientUtil.getLogger().debug("<--- updateEnumValueFromList");
 	}
 
 }

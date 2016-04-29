@@ -23,63 +23,10 @@ import com.mindbox.pe.model.cbr.CBRAttribute;
 /**
  * @author deklerk
  * @since PowerEditor 4.1.0
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
-public class PerfectNumberComboBox extends JComboBox {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3951228734910107454L;
+public class PerfectNumberComboBox extends JComboBox<Integer> {
 
-	static Integer blankChoice = new Integer(Constants.CBR_NULL_DATA_EQUIVALENT_VALUE);
-	static Integer perfectChoice = new Integer(CBRAttribute.PERFECT_VALUE);
-	static Integer[] choices = { blankChoice, perfectChoice };
-
-	class PerfectNumberComboBoxEditor extends BasicComboBoxEditor {
-		private Object oldValue;
-
-		public void setItem(Object item) {
-			if (item != null) {
-				if (item instanceof Integer) {
-					if (item.equals(blankChoice))
-						this.editor.setText("");
-					else if (item.equals(perfectChoice))
-						this.editor.setText("Perfect");
-					else
-						this.editor.setText(item.toString());
-				}
-				else
-					this.editor.setText(item.toString());
-			}
-			else
-				this.editor.setText("");
-			oldValue = item;
-		}
-
-		public Object getItem() {
-			String input = editor.getText();
-			if (input.toLowerCase().indexOf("p") != -1)
-				return perfectChoice;
-			else if (UtilBase.trim(input).length() == 0)
-				return blankChoice;
-			else {
-				try {
-					int intVal = Integer.parseInt(input);
-					if (intVal > Constants.CBR_NULL_DATA_EQUIVALENT_VALUE)
-						return new Integer(intVal);
-					else
-						return oldValue;
-				}
-				catch (Exception x) {
-					return oldValue;
-				}
-			}
-		}
-	}
-
-	class ComboBoxRenderer extends JLabel implements ListCellRenderer {
+	class ComboBoxRenderer extends JLabel implements ListCellRenderer<Integer> {
 		/**
 		 * 
 		 */
@@ -87,7 +34,6 @@ public class PerfectNumberComboBox extends JComboBox {
 
 		public ComboBoxRenderer() {
 			setOpaque(true);
-			//setHorizontalAlignment(CENTER);
 			setVerticalAlignment(CENTER);
 		}
 
@@ -96,8 +42,8 @@ public class PerfectNumberComboBox extends JComboBox {
 		 * to the selected value and returns the label, set up
 		 * to display the text and image.
 		 */
-		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-
+		@Override
+		public Component getListCellRendererComponent(JList<? extends Integer> list, Integer value, int index, boolean isSelected, boolean cellHasFocus) {
 			if (isSelected) {
 				setBackground(list.getSelectionBackground());
 				setForeground(list.getSelectionForeground());
@@ -107,18 +53,75 @@ public class PerfectNumberComboBox extends JComboBox {
 				setForeground(list.getForeground());
 			}
 			if (index > -1) {
-				Integer choice = choices[index];
-				if (choice != null) setText(choice.intValue() == CBRAttribute.PERFECT_VALUE ? "Perfect" : "<blank>");
+				Integer choice = CHOICES[index];
+				if (choice != null) {
+					setText(choice.intValue() == CBRAttribute.PERFECT_VALUE ? "Perfect" : "<blank>");
+				}
 			}
 			return this;
 		}
 	}
 
-	/**
-	 * 
-	 */
+	class PerfectNumberComboBoxEditor extends BasicComboBoxEditor {
+		private Object oldValue;
+
+		@Override
+		public Object getItem() {
+			String input = editor.getText();
+			if (input.toLowerCase().indexOf("p") != -1) {
+				return PERFECT_CHOICE;
+			}
+			else if (UtilBase.trim(input).length() == 0) {
+				return BLACNK_CHOICE;
+			}
+			else {
+				try {
+					int intVal = Integer.parseInt(input);
+					if (intVal > Constants.CBR_NULL_DATA_EQUIVALENT_VALUE) {
+						return new Integer(intVal);
+					}
+					else {
+						return oldValue;
+					}
+				}
+				catch (Exception x) {
+					return oldValue;
+				}
+			}
+		}
+
+		@Override
+		public void setItem(Object item) {
+			if (item != null) {
+				if (item instanceof Integer) {
+					if (item.equals(BLACNK_CHOICE)) {
+						this.editor.setText("");
+					}
+					else if (item.equals(PERFECT_CHOICE)) {
+						this.editor.setText("Perfect");
+					}
+					else {
+						this.editor.setText(item.toString());
+					}
+				}
+				else {
+					this.editor.setText(item.toString());
+				}
+			}
+			else {
+				this.editor.setText("");
+			}
+			oldValue = item;
+		}
+	}
+
+	private static final long serialVersionUID = -3951228734910107454L;
+	private static final Integer BLACNK_CHOICE = new Integer(Constants.CBR_NULL_DATA_EQUIVALENT_VALUE);
+	private static final Integer PERFECT_CHOICE = new Integer(CBRAttribute.PERFECT_VALUE);
+	private static final Integer[] CHOICES = { BLACNK_CHOICE, PERFECT_CHOICE };
+
 	public PerfectNumberComboBox() {
-		super(choices);
+		super(CHOICES);
 		this.setEditable(true);
 		this.setRenderer(new ComboBoxRenderer());
 		this.setEditor(new PerfectNumberComboBoxEditor());
@@ -126,5 +129,4 @@ public class PerfectNumberComboBox extends JComboBox {
 		// this is a hack to put the correct border on this widget.  There's probably a better way.
 		this.setBorder((new JTextField()).getBorder());
 	}
-
 }

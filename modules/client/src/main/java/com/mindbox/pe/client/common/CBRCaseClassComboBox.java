@@ -25,16 +25,9 @@ import com.mindbox.pe.model.cbr.CBRCaseClass;
  * @author MindBox, Inc
  * @since PowerEditor 1.10.0
  */
-public final class CBRCaseClassComboBox extends JComboBox {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3951228734910107454L;
+public final class CBRCaseClassComboBox extends JComboBox<CBRCaseClass> {
 
-	private static class CBRCaseClassCellRenderer extends JLabel implements ListCellRenderer {
-		/**
-		 * 
-		 */
+	private static class CBRCaseClassCellRenderer extends JLabel implements ListCellRenderer<CBRCaseClass> {
 		private static final long serialVersionUID = -3951228734910107454L;
 
 		public CBRCaseClassCellRenderer(String imageKey) {
@@ -44,20 +37,20 @@ public final class CBRCaseClassComboBox extends JComboBox {
 			setOpaque(true);
 		}
 
-		public Component getListCellRendererComponent(JList arg0, Object value, int index, boolean isSelected, boolean arg4) {
+		@Override
+		public Component getListCellRendererComponent(JList<? extends CBRCaseClass> arg0, CBRCaseClass value, int index, boolean isSelected, boolean arg4) {
 			if (value == null) {
-				setText("");
-			}
-			else if (value instanceof CBRCaseClass) {
-				this.setText(((CBRCaseClass) value).getName());
+				setText("Any");
 			}
 			else {
-				this.setText(value.toString());
+				this.setText(value.getName());
 			}
 			setBackground(isSelected ? PowerEditorSwingTheme.primary3 : Color.white);
 			return this;
 		}
 	}
+
+	private static final long serialVersionUID = -3951228734910107454L;
 
 	public static CBRCaseClassComboBox createInstance() throws ServerException {
 		return new CBRCaseClassComboBox(ClientUtil.fetchAllCBRCaseClasses());
@@ -69,6 +62,9 @@ public final class CBRCaseClassComboBox extends JComboBox {
 		setRenderer(new CBRCaseClassCellRenderer(null));
 	}
 
+	public void clearSelection() {
+		setSelectedIndex(0);
+	}
 
 	public CBRCaseClass getSelectedCBRCaseClass() {
 		Object obj = super.getSelectedItem();
@@ -80,12 +76,10 @@ public final class CBRCaseClassComboBox extends JComboBox {
 		}
 	}
 
-	public void clearSelection() {
-		setSelectedIndex(0);
-	}
-
 	public void selectCBRCaseClass(CBRCaseClass caseClass) {
-		if (caseClass == null) return;
+		if (caseClass == null) {
+			return;
+		}
 		setSelectedItem(caseClass);
 	}
 }

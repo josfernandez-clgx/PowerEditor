@@ -7,13 +7,10 @@ import javax.swing.JList;
 
 import com.mindbox.pe.client.ClientUtil;
 import com.mindbox.pe.model.GenericCategory;
+import com.mindbox.pe.model.GenericContextElement;
 import com.mindbox.pe.model.GenericEntity;
-import com.mindbox.pe.model.IDNameObject;
 
-public class CategoryOrEntityCellRenderer extends IDNameObjectCellRenderer {
-	/**
-	 * 
-	 */
+public class CategoryOrEntityCellRenderer extends IDNameObjectCellRenderer<GenericContextElement> {
 	private static final long serialVersionUID = -3951228734910107454L;
 
 	private final ImageIcon catIcon, entityIcon;
@@ -24,7 +21,8 @@ public class CategoryOrEntityCellRenderer extends IDNameObjectCellRenderer {
 		entityIcon = ClientUtil.getInstance().makeImageIcon("image.node.entity");
 	}
 
-	public Component getListCellRendererComponent(JList<? extends IDNameObject> arg0, IDNameObject value, int index, boolean isSelected, boolean arg4) {
+	@Override
+	public Component getListCellRendererComponent(JList<? extends GenericContextElement> arg0, GenericContextElement value, int index, boolean isSelected, boolean arg4) {
 		if (value != null) {
 			if (value instanceof GenericEntity) {
 				setIcon(entityIcon);

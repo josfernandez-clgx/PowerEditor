@@ -47,11 +47,32 @@ import com.mindbox.pe.model.template.GridTemplate;
  * @since PowerEditor 2.3.0
  */
 class ParameterEditDialog extends JPanel {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3951228734910107454L;
 
+	private class AcceptL implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (updateFunctionParameter()) {
+				dialog.dispose();
+			}
+		}
+	}
+
+	private class CancelL implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			parameter = null;
+			dialog.dispose();
+		}
+	}
+
+	private final class RadioButtonL implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			refreshValueCard();
+		}
+	}
+
+	private static final long serialVersionUID = -3951228734910107454L;
 	private static final String VALUE_KEY_BOOLEAN = "BOOLEAN";
 	private static final String VALUE_KEY_CURRENCY = "CURRENCY";
 	private static final String VALUE_KEY_DATE = "DATE";
@@ -60,6 +81,9 @@ class ParameterEditDialog extends JPanel {
 	private static final String VALUE_KEY_STRING = "STRING";
 	private static final String VALUE_KEY_SYMBOL = "SYMBOL";
 
+	public static FunctionParameter editFunctionParameter(GridTemplate template, FunctionParameterDefinition paramDef, FunctionParameter action) {
+		return editFunctionParameter(template, paramDef, action, false);
+	}
 
 	public static FunctionParameter editFunctionParameter(GridTemplate template, FunctionParameterDefinition paramDef, FunctionParameter action, boolean allowValueChangeOnly) {
 		JDialog dialog = new JDialog(JOptionPane.getFrameForComponent(ClientUtil.getApplet()), true);
@@ -69,14 +93,8 @@ class ParameterEditDialog extends JPanel {
 		if (allowValueChangeOnly) {
 			panel.disallowValueChange();
 		}
-
 		dialog.setVisible(true);
-
 		return panel.parameter;
-	}
-
-	public static FunctionParameter editFunctionParameter(GridTemplate template, FunctionParameterDefinition paramDef, FunctionParameter action) {
-		return editFunctionParameter(template, paramDef, action, false);
 	}
 
 	public static FunctionParameter newFunctionParameter(GridTemplate template, FunctionParameterDefinition paramDef) {
@@ -84,31 +102,8 @@ class ParameterEditDialog extends JPanel {
 		dialog.setTitle("New Action Parameter");
 		ParameterEditDialog panel = new ParameterEditDialog(template, dialog, paramDef, null);
 		UIFactory.addToDialog(dialog, panel);
-
 		dialog.setVisible(true);
-
 		return panel.parameter;
-	}
-
-	private final class RadioButtonL implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			refreshValueCard();
-		}
-	}
-
-	private class AcceptL implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			if (updateFunctionParameter()) {
-				dialog.dispose();
-			}
-		}
-	}
-
-	private class CancelL implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			parameter = null;
-			dialog.dispose();
-		}
 	}
 
 	private FunctionParameter parameter = null;
@@ -120,7 +115,7 @@ class ParameterEditDialog extends JPanel {
 	private final FloatTextField currencyField;
 	private final DateSelectorComboField dateField;
 	private final JFormattedTextField symbolField;
-	private final JComboBox booleanCombo;
+	private final JComboBox<String> booleanCombo;
 	private final CardLayout card;
 	private final JPanel vCardPanel;
 	private final FunctionParameterDefinition paramDef;
@@ -165,7 +160,7 @@ class ParameterEditDialog extends JPanel {
 		currencyField = new FloatTextField(10, true);
 		dateField = new DateSelectorComboField(true, false, true);
 		symbolField = new JFormattedTextField(FormatterFactory.getSymbolFormatter());
-		booleanCombo = new JComboBox();
+		booleanCombo = new JComboBox<String>();
 		booleanCombo.addItem("TRUE");
 		booleanCombo.addItem("FALSE");
 
@@ -226,50 +221,34 @@ class ParameterEditDialog extends JPanel {
 		refreshValueCard();
 	}
 
-	private void refreshValueCard() {
-		if (valueRadioButton.isSelected()) {
-			valueCard.show(valueDetailPanel, "VALUE");
-			refreshValuePanel();
+	private String getValueString() {
+		DeployType deployType = paramDef.getDeployType();
+		if (deployType == null) {
+			return stringField.getText();
 		}
-		else if (columnRefRadioButton.isSelected()) {
-			valueCard.show(valueDetailPanel, "COLUMN");
+		else if (deployType == DeployType.BOOLEAN) {
+			return booleanCombo.getSelectedItem().toString();
 		}
-		else if (attrRefRadioButton.isSelected()) {
-			valueCard.show(valueDetailPanel, "ATTRIBUTE");
+		else if (deployType == DeployType.CODE || deployType == DeployType.SYMBOL) {
+			return symbolField.getText();
 		}
-	}
-
-	private boolean updateFunctionParameter() {
-		if ((valueRadioButton.isSelected() && (getValueString() == null || getValueString().length() == 0)) || (columnRefRadioButton.isSelected() && columnRefField.getValue() == null)
-				|| (this.attrRefRadioButton.isSelected() && attrRefField.getAttributeName() == null)) {
-			ClientUtil.getInstance().showWarning("msg.warning.empty.field", new Object[] { "parameter value" });
-			return false;
+		else if (deployType == DeployType.STRING) {
+			return stringField.getText();
 		}
-
-		if (parameter == null) {
-			if (valueRadioButton.isSelected()) {
-				parameter = RuleElementFactory.getInstance().createFunctionParameter(paramDef.getID(), paramDef.getName(), getValueString());
-			}
-			else if (columnRefRadioButton.isSelected()) {
-				parameter = RuleElementFactory.getInstance().createFunctionParameter(paramDef.getID(), paramDef.getName(), columnRefField.getValue());
-			}
-			else if (attrRefRadioButton.isSelected()) {
-				parameter = RuleElementFactory.getInstance().createAttributeRefParameter(paramDef.getID(), paramDef.getName(), attrRefField.getAttributeName(), attrRefField.getClassName());
-			}
+		else if (deployType == DeployType.CURRENCY) {
+			return currencyField.getText();
 		}
-		else {
-			if (valueRadioButton.isSelected()) {
-				parameter = RuleElementFactory.getInstance().updateFunctionParameter(parameter, getValueString());
-			}
-			else if (columnRefRadioButton.isSelected()) {
-				parameter = RuleElementFactory.getInstance().updateFunctionParameter(parameter, columnRefField.getValue());
-			}
-			else if (attrRefRadioButton.isSelected()) {
-				parameter = RuleElementFactory.getInstance().updateAttributeRefParameter(parameter, attrRefField.getAttributeName(), attrRefField.getClassName());
-			}
+		else if (deployType == DeployType.FLOAT || deployType == DeployType.PERCENT) {
+			return floatField.getText();
+		}
+		else if (deployType == DeployType.DATE) {
+			return (dateField.getDate() == null ? "" : Constants.THREADLOCAL_FORMAT_DATE.get().format(dateField.getDate()));
+		}
+		else if (deployType == DeployType.INTEGER) {
+			return integerField.getText();
 		}
 
-		return true;
+		return stringField.getText();
 	}
 
 	private void initPanel() {
@@ -348,34 +327,48 @@ class ParameterEditDialog extends JPanel {
 		PanelBase.addComponent(this, bag, c, buttonPanel);
 	}
 
-	private String getValueString() {
+	private void refreshValueCard() {
+		if (valueRadioButton.isSelected()) {
+			valueCard.show(valueDetailPanel, "VALUE");
+			refreshValuePanel();
+		}
+		else if (columnRefRadioButton.isSelected()) {
+			valueCard.show(valueDetailPanel, "COLUMN");
+		}
+		else if (attrRefRadioButton.isSelected()) {
+			valueCard.show(valueDetailPanel, "ATTRIBUTE");
+		}
+	}
+
+	private void refreshValuePanel() {
 		DeployType deployType = paramDef.getDeployType();
 		if (deployType == null) {
-			return stringField.getText();
+			card.show(vCardPanel, VALUE_KEY_STRING);
 		}
 		else if (deployType == DeployType.BOOLEAN) {
-			return booleanCombo.getSelectedItem().toString();
+			card.show(vCardPanel, VALUE_KEY_BOOLEAN);
 		}
 		else if (deployType == DeployType.CODE || deployType == DeployType.SYMBOL) {
-			return symbolField.getText();
+			card.show(vCardPanel, VALUE_KEY_SYMBOL);
 		}
 		else if (deployType == DeployType.STRING) {
-			return stringField.getText();
+			card.show(vCardPanel, VALUE_KEY_STRING);
 		}
 		else if (deployType == DeployType.CURRENCY) {
-			return currencyField.getText();
+			card.show(vCardPanel, VALUE_KEY_CURRENCY);
 		}
 		else if (deployType == DeployType.FLOAT || deployType == DeployType.PERCENT) {
-			return floatField.getText();
+			card.show(vCardPanel, VALUE_KEY_FLOAT);
 		}
 		else if (deployType == DeployType.DATE) {
-			return (dateField.getDate() == null ? "" : Constants.THREADLOCAL_FORMAT_DATE.get().format(dateField.getDate()));
+			card.show(vCardPanel, VALUE_KEY_DATE);
 		}
 		else if (deployType == DeployType.INTEGER) {
-			return integerField.getText();
+			card.show(vCardPanel, VALUE_KEY_INTEGER);
 		}
-
-		return stringField.getText();
+		else {
+			card.show(vCardPanel, VALUE_KEY_STRING);
+		}
 	}
 
 	private void setValueString(String value) {
@@ -429,35 +422,39 @@ class ParameterEditDialog extends JPanel {
 		}
 	}
 
-	private void refreshValuePanel() {
-		DeployType deployType = paramDef.getDeployType();
-		if (deployType == null) {
-			card.show(vCardPanel, VALUE_KEY_STRING);
+	private boolean updateFunctionParameter() {
+		if ((valueRadioButton.isSelected() && (getValueString() == null || getValueString().length() == 0))
+				|| (columnRefRadioButton.isSelected() && columnRefField.getValue() == null) || (this.attrRefRadioButton.isSelected() && attrRefField.getAttributeName() == null)) {
+			ClientUtil.getInstance().showWarning("msg.warning.empty.field", new Object[] { "parameter value" });
+			return false;
 		}
-		else if (deployType == DeployType.BOOLEAN) {
-			card.show(vCardPanel, VALUE_KEY_BOOLEAN);
-		}
-		else if (deployType == DeployType.CODE || deployType == DeployType.SYMBOL) {
-			card.show(vCardPanel, VALUE_KEY_SYMBOL);
-		}
-		else if (deployType == DeployType.STRING) {
-			card.show(vCardPanel, VALUE_KEY_STRING);
-		}
-		else if (deployType == DeployType.CURRENCY) {
-			card.show(vCardPanel, VALUE_KEY_CURRENCY);
-		}
-		else if (deployType == DeployType.FLOAT || deployType == DeployType.PERCENT) {
-			card.show(vCardPanel, VALUE_KEY_FLOAT);
-		}
-		else if (deployType == DeployType.DATE) {
-			card.show(vCardPanel, VALUE_KEY_DATE);
-		}
-		else if (deployType == DeployType.INTEGER) {
-			card.show(vCardPanel, VALUE_KEY_INTEGER);
+
+		if (parameter == null) {
+			if (valueRadioButton.isSelected()) {
+				parameter = RuleElementFactory.getInstance().createFunctionParameter(paramDef.getID(), paramDef.getName(), getValueString());
+			}
+			else if (columnRefRadioButton.isSelected()) {
+				parameter = RuleElementFactory.getInstance().createFunctionParameter(paramDef.getID(), paramDef.getName(), columnRefField.getValue());
+			}
+			else if (attrRefRadioButton.isSelected()) {
+				parameter = RuleElementFactory.getInstance().createAttributeRefParameter(
+						paramDef.getID(),
+						paramDef.getName(),
+						attrRefField.getAttributeName(),
+						attrRefField.getClassName());
+			}
 		}
 		else {
-			card.show(vCardPanel, VALUE_KEY_STRING);
+			if (valueRadioButton.isSelected()) {
+				parameter = RuleElementFactory.getInstance().updateFunctionParameter(parameter, getValueString());
+			}
+			else if (columnRefRadioButton.isSelected()) {
+				parameter = RuleElementFactory.getInstance().updateFunctionParameter(parameter, columnRefField.getValue());
+			}
+			else if (attrRefRadioButton.isSelected()) {
+				parameter = RuleElementFactory.getInstance().updateAttributeRefParameter(parameter, attrRefField.getAttributeName(), attrRefField.getClassName());
+			}
 		}
+		return true;
 	}
-
 }

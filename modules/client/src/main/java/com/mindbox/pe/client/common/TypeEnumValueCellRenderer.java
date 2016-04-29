@@ -16,10 +16,7 @@ import com.mindbox.pe.model.TypeEnumValue;
  * @author Gene Kim
  * @since PowerEditor 4.3.1
  */
-public class TypeEnumValueCellRenderer extends JLabel implements ListCellRenderer {
-	/**
-	 * 
-	 */
+public class TypeEnumValueCellRenderer extends JLabel implements ListCellRenderer<TypeEnumValue> {
 	private static final long serialVersionUID = -3951228734910107454L;
 
 
@@ -30,18 +27,15 @@ public class TypeEnumValueCellRenderer extends JLabel implements ListCellRendere
 		setOpaque(true);
 	}
 
-	public Component getListCellRendererComponent(JList arg0, Object value, int index, boolean isSelected, boolean arg4) {
+	@Override
+	public Component getListCellRendererComponent(JList<? extends TypeEnumValue> arg0, TypeEnumValue value, int index, boolean isSelected, boolean arg4) {
 		if (value == null) {
 			setText("");
 		}
-		else if (value instanceof TypeEnumValue) {
-			this.setText(((TypeEnumValue) value).getDisplayLabel());
-		}
 		else {
-			this.setText(value.toString());
+			this.setText(value.getDisplayLabel());
 		}
 		setBackground(isSelected ? PowerEditorSwingTheme.primary3 : Color.white);
 		return this;
 	}
-
 }

@@ -34,8 +34,8 @@ public class PhaseSelectField extends AbstractDropSelectField {
 	private static final long serialVersionUID = -3951228734910107454L;
 
 	private Phase phase = null;
-	private JList phaseList = null;
-	private LinkedList<Object> selectedPhaseList = null;
+	private JList<Phase> phaseList = null;
+	private LinkedList<Phase> selectedPhaseList = null;
 	private final boolean allowRootOnly;
 
 	public PhaseSelectField(boolean allowRootOnly) {
@@ -45,9 +45,24 @@ public class PhaseSelectField extends AbstractDropSelectField {
 	public PhaseSelectField(boolean allowRootOnly, boolean forMultiSelect) {
 		super(forMultiSelect);
 		if (forMultiSelect) {
-			selectedPhaseList = new LinkedList<Object>();
+			selectedPhaseList = new LinkedList<Phase>();
 		}
 		this.allowRootOnly = allowRootOnly;
+	}
+
+	@Override
+	protected JComponent createSelectorComponent() {
+		initPhaseCombo();
+		return new JScrollPane(phaseList);
+	}
+
+	private int findPhaseIndex(int phaseID) {
+		for (int i = 0; i < phaseList.getModel().getSize(); i++) {
+			if (phaseID == phaseList.getModel().getElementAt(i).getID()) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	/**
@@ -56,7 +71,9 @@ public class PhaseSelectField extends AbstractDropSelectField {
 	 * @throws IllegalStateException if this is for multiple selection. Use {@link #getValues} instead
 	 */
 	public final Phase getValue() {
-		if (forMultiSelect) throw new IllegalStateException("Not legal for multi-selection field");
+		if (forMultiSelect) {
+			throw new IllegalStateException("Not legal for multi-selection field");
+		}
 		return phase;
 	}
 
@@ -66,88 +83,27 @@ public class PhaseSelectField extends AbstractDropSelectField {
 	 * @throws IllegalStateException if this is not for multiple selection. Use {@link #getValue} instead
 	 */
 	public final Phase[] getValues() {
-		if (!forMultiSelect) throw new IllegalStateException("Not legal for single-selection field");
+		if (!forMultiSelect) {
+			throw new IllegalStateException("Not legal for single-selection field");
+		}
 		return selectedPhaseList.toArray(new Phase[0]);
 	}
 
+	@Override
 	public final boolean hasValue() {
 		return (forMultiSelect ? !selectedPhaseList.isEmpty() : phase != null);
 	}
 
-	/**
-	 * 
-	 * @param phase
-	 * @throws IllegalStateException if this is for multiple selection. Use {@link #setValues} instead
-	 */
-	public final void setValue(Phase phase) {
-		if (forMultiSelect) throw new IllegalStateException("Not legal for multi-selection field");
-		this.phase = phase;
-		resetPhaseText();
-	}
-
-	/**
-	 * 
-	 * @param phases
-	 * @throws IllegalStateException if this is not for multiple selection. Use {@link #setValue} instead
-	 */
-	public final void setValues(Phase[] phases) {
-		if (!forMultiSelect) throw new IllegalStateException("Not legal for single-selection field");
-		setValues_internal(phases);
-	}
-
-	private void setValues_internal(Object[] phases) {
-		selectedPhaseList.clear();
-		if (phases != null) {
-			for (int i = 0; i < phases.length; i++) {
-				selectedPhaseList.add(phases[i]);
-			}
-		}
-		resetPhaseText();
-	}
-
-	private void resetPhaseText() {
-		if (forMultiSelect) {
-			StringBuilder buff = new StringBuilder();
-			for (Iterator<Object> iter = selectedPhaseList.iterator(); iter.hasNext();) {
-				Phase element = (Phase) iter.next();
-				buff.append(element.getDisplayName());
-				if (iter.hasNext()) buff.append(", ");
-			}
-			textField.setText(buff.toString());
-		}
-		else {
-			textField.setText((phase == null ? "" : phase.getDisplayName()));
-		}
-	}
-
-	private void updateFields() {
-		if (forMultiSelect) {
-			setValues_internal(phaseList.getSelectedValues());
-		}
-		else {
-			if (phaseList.getSelectedIndex() > -1) {
-				phase = (Phase) phaseList.getSelectedValue();
-			}
-			else {
-				phase = null;
-			}
-		}
-		resetPhaseText();
-	}
-
 	private void initPhaseCombo() {
 		if (phaseList == null) {
-			DefaultListModel model = new DefaultListModel();
-			phaseList = new JList(model);
-			//phaseList.setCellRenderer(new Renderer());
+			DefaultListModel<Phase> model = new DefaultListModel<Phase>();
+			phaseList = new JList<Phase>(model);
 			phaseList.setSelectionMode((forMultiSelect ? ListSelectionModel.MULTIPLE_INTERVAL_SELECTION : ListSelectionModel.SINGLE_SELECTION));
 
 			// populate phase
 			try {
 				List<Phase> phases = ClientUtil.getCommunicator().search(new AllSearchFilter<Phase>(PeDataType.PROCESS_PHASE));
-
 				Collections.sort(phases, PhaseComparator.getInstance());
-
 				for (Iterator<Phase> iter = phases.iterator(); iter.hasNext();) {
 					Phase phase = iter.next();
 					if (!allowRootOnly || phase.isRoot()) {
@@ -161,10 +117,10 @@ public class PhaseSelectField extends AbstractDropSelectField {
 
 			if (!forMultiSelect) {
 				phaseList.addListSelectionListener(new ListSelectionListener() {
-
+					@Override
 					public void valueChanged(ListSelectionEvent arg0) {
 						try {
-							Thread.sleep(250);
+							Thread.sleep(200);
 						}
 						catch (InterruptedException e) {
 						}
@@ -175,18 +131,44 @@ public class PhaseSelectField extends AbstractDropSelectField {
 		}
 	}
 
-	protected JComponent createSelectorComponent() {
-		initPhaseCombo();
-		return new JScrollPane(phaseList);
+	private void resetPhaseText() {
+		if (forMultiSelect) {
+			StringBuilder buff = new StringBuilder();
+			for (Iterator<Phase> iter = selectedPhaseList.iterator(); iter.hasNext();) {
+				Phase element = iter.next();
+				buff.append(element.getDisplayName());
+				if (iter.hasNext()) {
+					buff.append(", ");
+				}
+			}
+			textField.setText(buff.toString());
+		}
+		else {
+			textField.setText((phase == null ? "" : phase.getDisplayName()));
+		}
 	}
 
+	@Override
+	protected void selectorClosed() {
+		updateFields();
+	}
+
+	private void selectPhase(int phaseID) {
+		int index = findPhaseIndex(phaseID);
+		if (index != -1) {
+			phaseList.setSelectedIndex(index);
+		}
+		resetPhaseText();
+	}
+
+	@Override
 	protected void selectSelectedValues() {
 		if (forMultiSelect) {
 			phaseList.clearSelection();
 			if (!selectedPhaseList.isEmpty()) {
 				List<Integer> intList = new ArrayList<Integer>();
-				for (Iterator<Object> iter = selectedPhaseList.iterator(); iter.hasNext();) {
-					Phase element = (Phase) iter.next();
+				for (Iterator<Phase> iter = selectedPhaseList.iterator(); iter.hasNext();) {
+					Phase element = iter.next();
 					int index = findPhaseIndex(element.getID());
 					if (index >= 0) {
 						intList.add(new Integer(index));
@@ -203,27 +185,55 @@ public class PhaseSelectField extends AbstractDropSelectField {
 		}
 	}
 
-	private int findPhaseIndex(int phaseID) {
-		for (int i = 0; i < phaseList.getModel().getSize(); i++) {
-			if (phaseID == ((Phase) phaseList.getModel().getElementAt(i)).getID()) {
-				return i;
-			}
+	/**
+	 * 
+	 * @param phase
+	 * @throws IllegalStateException if this is for multiple selection. Use {@link #setValues} instead
+	 */
+	public final void setValue(Phase phase) {
+		if (forMultiSelect) {
+			throw new IllegalStateException("Not legal for multi-selection field");
 		}
-		return -1;
+		this.phase = phase;
+		resetPhaseText();
 	}
 
-	private void selectPhase(int phaseID) {
-		int index = findPhaseIndex(phaseID);
-		if (index != -1) {
-			phaseList.setSelectedIndex(index);
+	/**
+	 * 
+	 * @param phases
+	 * @throws IllegalStateException if this is not for multiple selection. Use {@link #setValue} instead
+	 */
+	public final void setValues(Phase[] phases) {
+		if (!forMultiSelect) throw new IllegalStateException("Not legal for single-selection field");
+		setValues_internal(phases);
+	}
+
+	private void setValues_internal(Phase[] phases) {
+		selectedPhaseList.clear();
+		if (phases != null) {
+			for (int i = 0; i < phases.length; i++) {
+				selectedPhaseList.add(phases[i]);
+			}
 		}
 		resetPhaseText();
 	}
 
-	protected void selectorClosed() {
-		updateFields();
+	private void updateFields() {
+		if (forMultiSelect) {
+			setValues_internal(phaseList.getSelectedValuesList().toArray(new Phase[0]));
+		}
+		else {
+			if (phaseList.getSelectedIndex() > -1) {
+				phase = phaseList.getSelectedValue();
+			}
+			else {
+				phase = null;
+			}
+		}
+		resetPhaseText();
 	}
 
+	@Override
 	protected void valueDeleted() {
 		phase = null;
 		selectedPhaseList.clear();

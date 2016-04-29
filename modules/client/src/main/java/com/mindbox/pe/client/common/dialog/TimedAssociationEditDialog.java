@@ -14,6 +14,7 @@ import com.mindbox.pe.client.ClientUtil;
 import com.mindbox.pe.client.applet.UIFactory;
 import com.mindbox.pe.client.common.DateSelectorComboField;
 import com.mindbox.pe.client.common.IDNameObjectComboBox;
+import com.mindbox.pe.model.DateSynonym;
 import com.mindbox.pe.model.assckey.TimedAssociationKey;
 import com.mindbox.pe.model.assckey.TimedAssociationKeyFactory;
 
@@ -36,7 +37,7 @@ public class TimedAssociationEditDialog extends JPanel {
 	 * @param takFactory factory for creating a new entity
 	 * @return new timed association key
 	 */
-	public static TimedAssociationKey newAssociation(String entityName, IDNameObjectComboBox combo, TimedAssociationKeyFactory takFactory) {
+	public static TimedAssociationKey newAssociation(String entityName, IDNameObjectComboBox<DateSynonym> combo, TimedAssociationKeyFactory takFactory) {
 
 		TimedAssociationEditDialog dialog = null;
 		dialog = new TimedAssociationEditDialog(entityName, combo);
@@ -51,24 +52,25 @@ public class TimedAssociationEditDialog extends JPanel {
 			return newAssociation(entityName, combo, takFactory);
 		}
 		else {
-			return takFactory.createInstance(combo.getSelectedObjectID(), dialog.effDateEntryField.getDate(), (dialog.expDateEntryField.getDate() == null ? null : dialog.expDateEntryField.getDate()));
+			return takFactory.createInstance(
+					combo.getSelectedObjectID(),
+					dialog.effDateEntryField.getDate(),
+					(dialog.expDateEntryField.getDate() == null ? null : dialog.expDateEntryField.getDate()));
 		}
 	}
 
 	private final DateSelectorComboField effDateEntryField;
 	private final DateSelectorComboField expDateEntryField;
 
-	private TimedAssociationEditDialog(String entityName, IDNameObjectComboBox combo) {
+	private TimedAssociationEditDialog(String entityName, IDNameObjectComboBox<DateSynonym> combo) {
 		super();
-
 		effDateEntryField = new DateSelectorComboField();
 		expDateEntryField = new DateSelectorComboField();
 		expDateEntryField.setValue(null);
 		layoutComponents(entityName, combo);
 	}
 
-
-	private void layoutComponents(String entityName, IDNameObjectComboBox combo) {
+	private void layoutComponents(String entityName, IDNameObjectComboBox<DateSynonym> combo) {
 		JPanel bPanel = UIFactory.createJPanel(new GridLayout(6, 1, 4, 4));
 		bPanel.add(new JLabel("Select " + entityName + ":"));
 		bPanel.add(combo);
@@ -82,5 +84,4 @@ public class TimedAssociationEditDialog extends JPanel {
 		setLayout(new BorderLayout(4, 4));
 		add(bPanel, BorderLayout.CENTER);
 	}
-
 }

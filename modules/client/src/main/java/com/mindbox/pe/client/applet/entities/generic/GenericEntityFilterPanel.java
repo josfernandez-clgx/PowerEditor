@@ -36,9 +36,6 @@ import com.mindbox.pe.xsd.config.EntityType;
  * @since PowerEditor 3.0.0
  */
 public final class GenericEntityFilterPanel extends AbstractPersistedFilterPanel<GenericEntity, EntityManagementButtonPanel<GenericEntity>> {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -3951228734910107454L;
 
 	private JTextField nameField;
@@ -52,6 +49,7 @@ public final class GenericEntityFilterPanel extends AbstractPersistedFilterPanel
 		super(selectionPanel, type, false);
 	}
 
+	@Override
 	protected void addComponents(GridBagLayout bag, GridBagConstraints c) {
 		this.propFieldMap = new HashMap<String, JComponent>();
 		this.nameField = new JTextField(10);
@@ -83,6 +81,7 @@ public final class GenericEntityFilterPanel extends AbstractPersistedFilterPanel
 		}
 	}
 
+	@Override
 	protected void clearSearchFields() {
 		nameField.setText("");
 		for (Iterator<JComponent> iter = propFieldMap.values().iterator(); iter.hasNext();) {
@@ -96,10 +95,12 @@ public final class GenericEntityFilterPanel extends AbstractPersistedFilterPanel
 				}
 			}
 			else if (element instanceof JComboBox) {
-				if (((JComboBox) element).getItemCount() <= 0)
-					((JComboBox) element).setSelectedIndex(-1);
-				else
-					((JComboBox) element).setSelectedIndex(0);
+				if (((JComboBox<?>) element).getItemCount() <= 0) {
+					((JComboBox<?>) element).setSelectedIndex(-1);
+				}
+				else {
+					((JComboBox<?>) element).setSelectedIndex(0);
+				}
 			}
 			else if (element instanceof AbstractButton) {
 				((AbstractButton) element).setSelected(false);
@@ -124,6 +125,7 @@ public final class GenericEntityFilterPanel extends AbstractPersistedFilterPanel
 		return spec;
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	protected SearchFilter<GenericEntity> getSearchFilterFromFields() {
 		return (SearchFilter<GenericEntity>) createFilterSpecFromFields(null);
@@ -143,5 +145,4 @@ public final class GenericEntityFilterPanel extends AbstractPersistedFilterPanel
 			}
 		}
 	}
-
 }

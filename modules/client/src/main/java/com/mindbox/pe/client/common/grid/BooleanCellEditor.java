@@ -10,21 +10,18 @@ import javax.swing.JTable;
 import com.mindbox.pe.model.table.BooleanDataHelper;
 
 class BooleanCellEditor extends DefaultCellEditor {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -3951228734910107454L;
 
 	public static BooleanCellEditor newInstance(boolean blankAllowed, boolean viewOnly) {
-		JComboBox combo = new JComboBox();
+		JComboBox<String> combo = new JComboBox<String>();
 		return new BooleanCellEditor(combo, blankAllowed, viewOnly);
 	}
 
-	private JComboBox combo;
+	private JComboBox<String> combo;
 	private boolean viewOnly;
 	private final boolean blankAllowed;
 
-	private BooleanCellEditor(JComboBox jcombobox, boolean blankAllowed, boolean viewOnly) {
+	private BooleanCellEditor(JComboBox<String> jcombobox, boolean blankAllowed, boolean viewOnly) {
 		super(jcombobox);
 		this.combo = jcombobox;
 		this.blankAllowed = blankAllowed;
@@ -33,12 +30,16 @@ class BooleanCellEditor extends DefaultCellEditor {
 		setClickCountToStart(2);
 	}
 
+	@Override
 	public Object getCellEditorValue() {
 		return combo.getSelectedItem();
 	}
 
-	public boolean isCellEditable(EventObject eventobject) {
-		return !viewOnly;
+	@Override
+	public Component getTableCellEditorComponent(JTable arg0, Object arg1, boolean arg2, int arg3, int arg4) {
+		Object object = (arg1 instanceof String ? BooleanDataHelper.toStringValue((String) arg1) : arg1);
+		Component component = super.getTableCellEditorComponent(arg0, object, arg2, arg3, arg4);
+		return component;
 	}
 
 	private void initEditor() {
@@ -49,9 +50,8 @@ class BooleanCellEditor extends DefaultCellEditor {
 		}
 	}
 
-	public Component getTableCellEditorComponent(JTable arg0, Object arg1, boolean arg2, int arg3, int arg4) {
-		Object object = (arg1 instanceof String ? BooleanDataHelper.toStringValue((String) arg1) : arg1);
-		Component component = super.getTableCellEditorComponent(arg0, object, arg2, arg3, arg4);
-		return component;
+	@Override
+	public boolean isCellEditable(EventObject eventobject) {
+		return !viewOnly;
 	}
 }

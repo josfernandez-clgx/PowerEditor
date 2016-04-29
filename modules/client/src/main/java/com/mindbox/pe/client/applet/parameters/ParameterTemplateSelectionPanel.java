@@ -28,17 +28,14 @@ import com.mindbox.pe.model.template.ParameterTemplate;
  * @author MindBox
  */
 public class ParameterTemplateSelectionPanel extends PanelBase {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3951228734910107454L;
 
 	private class TemplateListListener implements ListSelectionListener {
+		@Override
 		public void valueChanged(ListSelectionEvent arg0) {
 			ClientUtil.getParent().setCursor(UIFactory.getWaitCursor());
 			try {
 				if (templateList.getSelectedIndex() != -1) {
-					setSelection((ParameterTemplate) templateList.getModel().getElementAt(templateList.getSelectedIndex()));
+					setSelection(templateList.getModel().getElementAt(templateList.getSelectedIndex()));
 				}
 				else {
 					clearSelection();
@@ -53,18 +50,19 @@ public class ParameterTemplateSelectionPanel extends PanelBase {
 		}
 	}
 
+	private static final long serialVersionUID = -3951228734910107454L;
+
 	private final ParameterDetailPanel detailPanel;
 	private final Logger logger;
 	private final JPanel viewPanel;
-
-	private final JList templateList;
+	private final JList<ParameterTemplate> templateList;
 
 	protected ParameterTemplateSelectionPanel(ParameterDetailPanel detailPanel) {
 		this.detailPanel = detailPanel;
 		this.logger = Logger.getLogger(getClass());
 
-		this.templateList = new JList(EntityModelCacheFactory.getInstance().getParameterTemplateComboModel(false));
-		templateList.setCellRenderer(new IDNameObjectCellRenderer("image.node.template"));
+		this.templateList = new JList<ParameterTemplate>(EntityModelCacheFactory.getInstance().getParameterTemplateComboModel(false));
+		templateList.setCellRenderer(new IDNameObjectCellRenderer<ParameterTemplate>("image.node.template"));
 
 		viewPanel = new JPanel(new BorderLayout(0, 0));
 		initPanel();
@@ -89,6 +87,12 @@ public class ParameterTemplateSelectionPanel extends PanelBase {
 		add(viewPanel, BorderLayout.CENTER);
 	}
 
+	@Override
+	public void setEnabled(boolean enabled) {
+		super.setEnabled(enabled);
+		this.templateList.setEnabled(enabled);
+	}
+
 	private void setSelection(ParameterTemplate td) {
 		try {
 			detailPanel.setTemplate(td);
@@ -97,11 +101,6 @@ public class ParameterTemplateSelectionPanel extends PanelBase {
 			logger.error("Failed to check rule existence for columns in " + td, ex);
 			ClientUtil.handleRuntimeException(ex);
 		}
-	}
-
-	public void setEnabled(boolean enabled) {
-		super.setEnabled(enabled);
-		this.templateList.setEnabled(enabled);
 	}
 
 }
