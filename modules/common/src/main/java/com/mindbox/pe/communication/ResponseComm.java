@@ -1,31 +1,30 @@
 package com.mindbox.pe.communication;
 
-
 public abstract class ResponseComm extends SapphireComm<ResponseComm> {
 
 	private static final long serialVersionUID = 2003051917439000L;
 
-	public ResponseComm() {
-		mWarningFlag = false;
-		mWarning = null;
-	}
+	private boolean warningFlag;
+	private String warning;
 
-	public void setWarning(String s) {
-		mWarning = s;
+	public ResponseComm() {
+		warningFlag = false;
+		warning = null;
 	}
 
 	public String getWarning() {
-		return mWarning;
-	}
-
-	public void setWarningFlag(boolean flag) {
-		mWarningFlag = flag;
+		return warning;
 	}
 
 	public boolean getWarningFlag() {
-		return mWarningFlag;
+		return warningFlag;
 	}
 
-	private boolean mWarningFlag;
-	private String mWarning;
+	public void setWarning(String s) {
+		warning = s;
+	}
+
+	public void setWarningFlag(boolean flag) {
+		warningFlag = flag;
+	}
 }

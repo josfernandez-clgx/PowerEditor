@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -74,6 +75,7 @@ import com.mindbox.pe.communication.StringResponse;
 import com.mindbox.pe.communication.TemplateHasGuidelineRequest;
 import com.mindbox.pe.communication.UpdateGridContextRequest;
 import com.mindbox.pe.communication.UpdateGridDataRequest;
+import com.mindbox.pe.communication.UpdateGridDataResponse;
 import com.mindbox.pe.communication.ValidateDateSynonymDateChangeRequest;
 import com.mindbox.pe.communication.ValidateDateSynonymDateChangeResponse;
 import com.mindbox.pe.model.DateSynonym;
@@ -85,6 +87,7 @@ import com.mindbox.pe.model.GridSummary;
 import com.mindbox.pe.model.GuidelineContext;
 import com.mindbox.pe.model.GuidelineReportData;
 import com.mindbox.pe.model.ImportSpec;
+import com.mindbox.pe.model.IntegerPair;
 import com.mindbox.pe.model.PeDataType;
 import com.mindbox.pe.model.Persistent;
 import com.mindbox.pe.model.TemplateUsageType;
@@ -196,7 +199,12 @@ public final class DefaultCommunicator implements Communicator {
 
 	@Override
 	public void deleteGenericCategory(int categoryType, int categoryID) throws ServerException {
-		GenericCategoryResponselessActionRequest request = new GenericCategoryResponselessActionRequest(userID, sessionID, categoryID, categoryType, SessionRequest.ACTION_TYPE_DELETE);
+		GenericCategoryResponselessActionRequest request = new GenericCategoryResponselessActionRequest(
+				userID,
+				sessionID,
+				categoryID,
+				categoryType,
+				SessionRequest.ACTION_TYPE_DELETE);
 		request.sendRequest(getTimeoutController());
 	}
 
@@ -210,7 +218,12 @@ public final class DefaultCommunicator implements Communicator {
 
 	@Override
 	public void deleteUser(UserData user) throws ServerException {
-		NamedEntityResponselessActionRequest request = new NamedEntityResponselessActionRequest(userID, sessionID, user.getUserID(), PeDataType.USER_DATA, SessionRequest.ACTION_TYPE_DELETE);
+		NamedEntityResponselessActionRequest request = new NamedEntityResponselessActionRequest(
+				userID,
+				sessionID,
+				user.getUserID(),
+				PeDataType.USER_DATA,
+				SessionRequest.ACTION_TYPE_DELETE);
 		request.sendRequest(getTimeoutController());
 	}
 
@@ -446,7 +459,12 @@ public final class DefaultCommunicator implements Communicator {
 
 	@Override
 	public void lockUser(final String userIDToLock) throws ServerException {
-		final NamedEntityResponselessActionRequest request = new NamedEntityResponselessActionRequest(this.userID, sessionID, userIDToLock, PeDataType.USER_DATA, SessionRequest.ACTION_TYPE_LOCK);
+		final NamedEntityResponselessActionRequest request = new NamedEntityResponselessActionRequest(
+				this.userID,
+				sessionID,
+				userIDToLock,
+				PeDataType.USER_DATA,
+				SessionRequest.ACTION_TYPE_LOCK);
 		request.sendRequest(getTimeoutController());
 	}
 
@@ -458,9 +476,16 @@ public final class DefaultCommunicator implements Communicator {
 	}
 
 	@Override
-	public int makeNewVersion(final int oldTemplateID, final GridTemplate newVersion, final DateSynonym cutoverDate, final List<GuidelineReportData> guidelinesToCutOver) throws ServerException {
+	public int makeNewVersion(final int oldTemplateID, final GridTemplate newVersion, final DateSynonym cutoverDate, final List<GuidelineReportData> guidelinesToCutOver)
+			throws ServerException {
 		logger.debug(">>> makeNewVersion for " + oldTemplateID + ", " + newVersion.getVersion() + ", " + cutoverDate);
-		final NewTemplateVersionRequest<SaveResponse> request = NewTemplateVersionRequest.createCommitInstance(userID, sessionID, oldTemplateID, newVersion, cutoverDate, guidelinesToCutOver);
+		final NewTemplateVersionRequest<SaveResponse> request = NewTemplateVersionRequest.createCommitInstance(
+				userID,
+				sessionID,
+				oldTemplateID,
+				newVersion,
+				cutoverDate,
+				guidelinesToCutOver);
 		final SaveResponse response = request.sendRequest(getTimeoutController());
 		return response.getPersistentID();
 	}
@@ -510,13 +535,14 @@ public final class DefaultCommunicator implements Communicator {
 	}
 
 	@Override
-	public void saveGridData(int templateID, List<ProductGrid> grids, List<ProductGrid> removedGrids) throws ServerException {
+	public Map<IntegerPair, Integer> saveGridData(int templateID, List<ProductGrid> grids, List<ProductGrid> removedGrids) throws ServerException {
 		logger.debug(">>> saveGridData with " + templateID + ", " + grids);
 		logger.debug("... saveGridData: grid.size=" + (grids == null ? 0 : grids.size()));
 		logger.debug("... saveGridData: removedGrids.size=" + (removedGrids == null ? 0 : removedGrids.size()));
-		UpdateGridDataRequest request = new UpdateGridDataRequest(userID, sessionID, templateID, grids, removedGrids);
-		request.sendRequest(getTimeoutController());
-		logger.debug("<<< saveGridData");
+		final UpdateGridDataRequest request = new UpdateGridDataRequest(userID, sessionID, templateID, grids, removedGrids);
+		final UpdateGridDataResponse response = request.sendRequest(getTimeoutController());
+		logDebug(logger, "<<< saveGridData: %s", response.getDateSynonymPairGridIdMap());
+		return response.getDateSynonymPairGridIdMap();
 	}
 
 	@Override
@@ -546,7 +572,12 @@ public final class DefaultCommunicator implements Communicator {
 
 	@Override
 	public void unlockUser(String userIDToUnlock) throws ServerException {
-		NamedEntityResponselessActionRequest request = new NamedEntityResponselessActionRequest(this.userID, sessionID, userIDToUnlock, PeDataType.USER_DATA, SessionRequest.ACTION_TYPE_UNLOCK);
+		NamedEntityResponselessActionRequest request = new NamedEntityResponselessActionRequest(
+				this.userID,
+				sessionID,
+				userIDToUnlock,
+				PeDataType.USER_DATA,
+				SessionRequest.ACTION_TYPE_UNLOCK);
 		request.sendRequest(getTimeoutController());
 	}
 

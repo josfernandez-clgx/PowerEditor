@@ -15,6 +15,7 @@ import com.mindbox.pe.model.ContextContainer;
 import com.mindbox.pe.model.DateSynonym;
 import com.mindbox.pe.model.GenericEntityType;
 import com.mindbox.pe.model.GuidelineContext;
+import com.mindbox.pe.model.IntegerPair;
 import com.mindbox.pe.model.Persistent;
 import com.mindbox.pe.model.template.AbstractTemplateColumn;
 import com.mindbox.pe.model.template.AbstractTemplateCore;
@@ -30,11 +31,8 @@ import com.mindbox.pe.model.template.ColumnDataSpecDigest;
 public abstract class AbstractGrid<C extends AbstractTemplateColumn> extends AbstractIDObject implements GridValueContainable, ContextContainer, Auditable {
 
 	private static final long serialVersionUID = 2003052400370000L;
-
 	public static final String COLUMN_DELIM = "|";
-
 	public static final String ROW_DELIM = "~";
-
 	public static final String DRAFT_STATUS = Constants.DRAFT_STATUS;
 
 	public static final boolean isSame(Object obj, Object obj1) {
@@ -323,7 +321,7 @@ public abstract class AbstractGrid<C extends AbstractTemplateColumn> extends Abs
 				contextList.add(context);
 			}
 		}
-		return (GuidelineContext[]) contextList.toArray(new GuidelineContext[0]);
+		return contextList.toArray(new GuidelineContext[0]);
 	}
 
 	@Override
@@ -336,6 +334,7 @@ public abstract class AbstractGrid<C extends AbstractTemplateColumn> extends Abs
 		return buff.toString();
 	}
 
+	@Override
 	public String getAuditName() {
 		StringBuilder buff = new StringBuilder();
 		buff.append(getTemplate().getName());
@@ -382,6 +381,10 @@ public abstract class AbstractGrid<C extends AbstractTemplateColumn> extends Abs
 
 	public final Date getCreationDate() {
 		return creationDate;
+	}
+
+	public final IntegerPair getEffDateExpDateAsIntegerPair() {
+		return new IntegerPair(effDate == null ? -1 : effDate.getId(), expDate == null ? -1 : expDate.getId());
 	}
 
 	public final DateSynonym getEffectiveDate() {

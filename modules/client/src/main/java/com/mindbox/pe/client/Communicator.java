@@ -3,6 +3,7 @@ package com.mindbox.pe.client;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.mindbox.pe.communication.DeployResponse;
 import com.mindbox.pe.communication.GridDataResponse;
@@ -17,6 +18,7 @@ import com.mindbox.pe.model.GridSummary;
 import com.mindbox.pe.model.GuidelineContext;
 import com.mindbox.pe.model.GuidelineReportData;
 import com.mindbox.pe.model.ImportSpec;
+import com.mindbox.pe.model.IntegerPair;
 import com.mindbox.pe.model.PeDataType;
 import com.mindbox.pe.model.Persistent;
 import com.mindbox.pe.model.TemplateUsageType;
@@ -289,7 +291,7 @@ public interface Communicator {
 
 	int save(Persistent object, boolean lock, boolean validate) throws ServerException;
 
-	void saveGridData(int templateID, List<ProductGrid> grids, List<ProductGrid> removedGrids) throws ServerException;
+	Map<IntegerPair, Integer> saveGridData(int templateID, List<ProductGrid> grids, List<ProductGrid> removedGrids) throws ServerException;
 
 	<T extends Persistent> List<T> search(SearchFilter<T> searchFilter) throws ServerException;
 

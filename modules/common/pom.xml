@@ -23,6 +23,10 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
+			<groupId>com.mindbox.util</groupId>
+			<artifactId>mb-java-util</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>net.sf.oval</groupId>
 			<artifactId>oval</artifactId>
 		</dependency>

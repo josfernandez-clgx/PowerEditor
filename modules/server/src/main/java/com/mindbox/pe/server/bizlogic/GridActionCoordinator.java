@@ -23,6 +23,7 @@ import com.mindbox.pe.model.GenericEntityType;
 import com.mindbox.pe.model.GridSummary;
 import com.mindbox.pe.model.GuidelineContext;
 import com.mindbox.pe.model.GuidelineReportData;
+import com.mindbox.pe.model.IntegerPair;
 import com.mindbox.pe.model.PeDataType;
 import com.mindbox.pe.model.TemplateUsageType;
 import com.mindbox.pe.model.exceptions.InvalidDataException;
@@ -82,8 +83,11 @@ public final class GridActionCoordinator {
 			this.hashCode = (gridID + ":" + activation.getTemplateID() + ":" + activation.getEffectiveDate() + "-" + activation.getExpirationDate()).hashCode();
 		}
 
+		@Override
 		public boolean equals(Object obj) {
-			if (this == obj) return true;
+			if (this == obj) {
+				return true;
+			}
 			if (obj instanceof GridIDKey) {
 				return this.gridID == ((GridIDKey) obj).gridID;
 			}
@@ -92,10 +96,12 @@ public final class GridActionCoordinator {
 			}
 		}
 
+		@Override
 		public int hashCode() {
 			return hashCode;
 		}
 
+		@Override
 		public String toString() {
 			return "GridIDKey[" + gridID + ":" + activation + ",hash=" + hashCode + "]";
 		}
@@ -103,8 +109,17 @@ public final class GridActionCoordinator {
 
 	private static final GridActionCoordinator INSTANCE = new GridActionCoordinator();
 
-	private static void fillCutoverGuidelinesForTemplate(int templateID, DateSynonym cutoverDate, String username, List<GuidelineReportData> cutoverList, List<GuidelineReportData> nonCutoverList)
-			throws ServerException {
+	private static Map<IntegerPair, Integer> asDateSynonymPairGridIdMap(final Map<GridIDKey, Integer> gridIDMap) {
+		assert gridIDMap != null;
+		final Map<IntegerPair, Integer> dateSynonymPairGridIdMap = new HashMap<IntegerPair, Integer>();
+		for (Map.Entry<GridIDKey, Integer> entry : gridIDMap.entrySet()) {
+			dateSynonymPairGridIdMap.put(entry.getKey().activation.getEffDateExpDateAsIntegerPair(), entry.getValue());
+		}
+		return dateSynonymPairGridIdMap;
+	}
+
+	private static void fillCutoverGuidelinesForTemplate(int templateID, DateSynonym cutoverDate, String username, List<GuidelineReportData> cutoverList,
+			List<GuidelineReportData> nonCutoverList) throws ServerException {
 		GuidelineReportFilter filter = new GuidelineReportFilter();
 		filter.addGuidelineTemplateID(new Integer(templateID));
 		List<AbstractIDObject> guidelineList = SearchCooridinator.getInstance().process(filter, username);
@@ -151,16 +166,22 @@ public final class GridActionCoordinator {
 		StringBuilder buff = new StringBuilder();
 
 		String[] rowValues = cellValueStr.split("~");
-		logger.debug("repairCellValues: row values count = " + rowValues.length);
+		if (logger.isDebugEnabled()) {
+			logger.debug("repairCellValues: row values count = " + rowValues.length);
+		}
 		for (int i = 0; i < rowValues.length; i++) {
-			logger.debug("repairCellValues: processing row " + i);
+			if (logger.isDebugEnabled()) {
+				logger.debug("repairCellValues: processing row " + i);
+			}
 
 			if (i != 0) {
 				buff.append("~");
 			}
 
 			String[] columnValues = rowValues[i].split("\\|", -1);
-			logger.debug("repairCellValues: col values count = " + columnValues.length);
+			if (logger.isDebugEnabled()) {
+				logger.debug("repairCellValues: col values count = " + columnValues.length);
+			}
 
 			List<String> colValueList = new LinkedList<String>(); // to preserve order
 			for (int j = 0; j < columnValues.length; ++j) {
@@ -174,15 +195,21 @@ public final class GridActionCoordinator {
 				}
 				colValueList.add(addedCols[c], "");
 			}
-			logger.debug("repairCellValues: col values count after inserts: " + colValueList.size());
+			if (logger.isDebugEnabled()) {
+				logger.debug("repairCellValues: col values count after inserts: " + colValueList.size());
+			}
 
 			// process deleted columns
 			for (int c = deletedCols.length - 1; c >= 0; c--) {
 				int index = deletedCols[c] - 1;
-				logger.debug("repairCellValues: deleting " + index);
+				if (logger.isDebugEnabled()) {
+					logger.debug("repairCellValues: deleting " + index);
+				}
 				colValueList.remove(index);
 			}
-			logger.debug("repairCellValues: col values count after deletes: " + colValueList.size());
+			if (logger.isDebugEnabled()) {
+				logger.debug("repairCellValues: col values count after deletes: " + colValueList.size());
+			}
 
 			for (Iterator<String> iter = colValueList.iterator(); iter.hasNext();) {
 				buff.append(iter.next());
@@ -229,8 +256,12 @@ public final class GridActionCoordinator {
 			}
 
 			boolean flag = false;
-			if (as.length - 1 == i) flag = true;
-			if (!flag) buff.append("~");
+			if (as.length - 1 == i) {
+				flag = true;
+			}
+			if (!flag) {
+				buff.append("~");
+			}
 		}
 		parameterGrid.setCellValues(buff.toString());
 		parameterGrid.setNumRows(as.length);
@@ -252,7 +283,10 @@ public final class GridActionCoordinator {
 		if (as != null && parameterGrid.getTemplate() != null) {
 			for (int i = 0; i < as.length; i++) {
 				for (int j = 0; j < as[i].length; j++) {
-					parameterGrid.getTemplate().getColumn(j + 1).convertToCellValue(as[i][j], DomainManager.getInstance(), ConfigurationManager.getInstance().getEnumerationSourceConfigHelper());
+					parameterGrid.getTemplate().getColumn(j + 1).convertToCellValue(
+							as[i][j],
+							DomainManager.getInstance(),
+							ConfigurationManager.getInstance().getEnumerationSourceConfigHelper());
 				}
 			}
 		}
@@ -334,7 +368,10 @@ public final class GridActionCoordinator {
 					new Date(),
 					productGrid.extractGuidelineContext());
 			newGrid.addGenericEntityID(entityType, newEntityID);
-			gridUpdater.updateGridContext(productGrid.getID(), ServerContextUtil.extractGenericEntityIdentities(newGrid), ServerContextUtil.extractGenericCategoryIdentities(newGrid));
+			gridUpdater.updateGridContext(
+					productGrid.getID(),
+					ServerContextUtil.extractGenericEntityIdentities(newGrid),
+					ServerContextUtil.extractGenericCategoryIdentities(newGrid));
 
 			gridList.add(newGrid);
 		}
@@ -347,14 +384,18 @@ public final class GridActionCoordinator {
 			throw new ServletActionException("msg.error", "No template of " + newTemplateID + " exists");
 		}
 
-		logger.debug(">>> cloneGuidelines: " + oldTemplateID + "->" + newTemplateID);
+		if (logger.isDebugEnabled()) {
+			logger.debug(">>> cloneGuidelines: " + oldTemplateID + "->" + newTemplateID);
+		}
 		Connection conn = null;
 		try {
 			conn = DBConnectionManager.getInstance().getConnection();
 			conn.setAutoCommit(false);
 
 			List<ProductGrid> gridList = GridManager.getInstance().getAllGridsForTemplate(oldTemplateID);
-			logger.debug("Cloning " + gridList.size() + " grids");
+			if (logger.isDebugEnabled()) {
+				logger.debug("Cloning " + gridList.size() + " grids");
+			}
 
 			for (Iterator<ProductGrid> iter = gridList.iterator(); iter.hasNext();) {
 				ProductGrid element = iter.next();
@@ -362,7 +403,9 @@ public final class GridActionCoordinator {
 				ProductGrid clonedGrid = ProductGrid.copyOf(element, newTemplate, element.getEffectiveDate(), element.getExpirationDate());
 
 				int gridID = DBIdGenerator.getInstance().nextGridID();
-				logger.debug("    inserting: new grid-id = " + gridID);
+				if (logger.isDebugEnabled()) {
+					logger.debug("    inserting: new grid-id = " + gridID);
+				}
 
 				// insert new activation into DB
 
@@ -437,15 +480,18 @@ public final class GridActionCoordinator {
 					new Date(),
 					parameterGrid.extractGuidelineContext());
 			newGrid.addGenericEntityID(entityType, newEntityID);
-			parameterUpdater.updateGridContext(parameterGrid.getID(), ServerContextUtil.extractGenericEntityIdentities(newGrid), ServerContextUtil.extractGenericCategoryIdentities(newGrid));
+			parameterUpdater.updateGridContext(
+					parameterGrid.getID(),
+					ServerContextUtil.extractGenericEntityIdentities(newGrid),
+					ServerContextUtil.extractGenericCategoryIdentities(newGrid));
 
 			gridList.add(newGrid);
 		}
 		return gridList;
 	}
 
-	private ParameterGrid createParameterGridWithoutCellValues(int gridID, int templateID, String comments, String status, Date statusChangeDate, DateSynonym effDate, DateSynonym expDate,
-			int numRows, int cloneOf, Date creationDate, GuidelineContext[] context) {
+	private ParameterGrid createParameterGridWithoutCellValues(int gridID, int templateID, String comments, String status, Date statusChangeDate, DateSynonym effDate,
+			DateSynonym expDate, int numRows, int cloneOf, Date creationDate, GuidelineContext[] context) {
 		ParameterGrid parameterGrid = new ParameterGrid(gridID, templateID, effDate, expDate);
 		parameterGrid.setComments(comments);
 		parameterGrid.setNumRows(numRows);
@@ -458,8 +504,8 @@ public final class GridActionCoordinator {
 		return parameterGrid;
 	}
 
-	private ProductGrid createProductGridWithoutCellValues(int gridID, int templateID, String comments, String status, Date statusChangeDate, DateSynonym effDate, DateSynonym expDate, int numRows,
-			int cloneOf, Date creationDate, GuidelineContext[] context) {
+	private ProductGrid createProductGridWithoutCellValues(int gridID, int templateID, String comments, String status, Date statusChangeDate, DateSynonym effDate,
+			DateSynonym expDate, int numRows, int cloneOf, Date creationDate, GuidelineContext[] context) {
 		ProductGrid productgrid = new ProductGrid(gridID, GuidelineTemplateManager.getInstance().getTemplate(templateID), effDate, expDate);
 		productgrid.setComments(comments);
 		productgrid.setNumRows(numRows);
@@ -487,16 +533,25 @@ public final class GridActionCoordinator {
 	 * @throws ServletActionException
 	 *             on error
 	 */
-	public int cutoverForAndStoreTemplate(final int sourceTemplateID, final GridTemplate templateToSave, final DateSynonym cutoverDate, final List<GuidelineReportData> guidelinesToCutOver,
-			final User user) throws ServerException {
+	public int cutoverForAndStoreTemplate(final int sourceTemplateID, final GridTemplate templateToSave, final DateSynonym cutoverDate,
+			final List<GuidelineReportData> guidelinesToCutOver, final User user) throws ServerException {
 		if (sourceTemplateID < 1) throw new IllegalArgumentException("Invalid sourceTemplateID: " + sourceTemplateID);
 		if (templateToSave == null) throw new NullPointerException("templateToSave cannot be null");
 		if (cutoverDate == null || cutoverDate.getDate() == null) throw new IllegalArgumentException("Invalid cutover date: " + cutoverDate);
 
-		logDebug(logger, "---> cutOverForAndStoreTemplate: %s, %s, %s, cutOverSize=%d for %s", sourceTemplateID, templateToSave, cutoverDate, guidelinesToCutOver.size(), user.getUserID());
+		logDebug(
+				logger,
+				"---> cutOverForAndStoreTemplate: %s, %s, %s, cutOverSize=%d for %s",
+				sourceTemplateID,
+				templateToSave,
+				cutoverDate,
+				guidelinesToCutOver.size(),
+				user.getUserID());
 
 		synchronized (this) { // to synchronize db update and cache update
-			logger.debug("    cutoverForAndStoreTemplate: to-cutovers = " + guidelinesToCutOver.size());
+			if (logger.isDebugEnabled()) {
+				logger.debug("    cutoverForAndStoreTemplate: to-cutovers = " + guidelinesToCutOver.size());
+			}
 
 			final int id = BizActionCoordinator.getInstance().save(templateToSave, user);
 			templateToSave.setID(id);
@@ -515,7 +570,8 @@ public final class GridActionCoordinator {
 
 				for (final GuidelineReportData guidelineReportData : guidelinesToCutOver) {
 					// [A] if effective date is not set pr before the cutover date
-					if (guidelineReportData.getActivationDate() == null || guidelineReportData.getActivationDate().getDate() == null || guidelineReportData.getActivationDate().before(cutoverDate)) {
+					if (guidelineReportData.getActivationDate() == null || guidelineReportData.getActivationDate().getDate() == null
+							|| guidelineReportData.getActivationDate().before(cutoverDate)) {
 
 						// 1 modify current one (set expiration date to the cutover date
 						updateExpirationDatesOfGridsFor(guidelineReportData, cutoverDate, updater);
@@ -770,8 +826,8 @@ public final class GridActionCoordinator {
 		logger.debug("<<< importGridData");
 	}
 
-	private void insertGridsFor(GuidelineReportData oldData, DateSynonym effDate, DateSynonym expDate, GridTemplate newTemplate, User user) throws ServletActionException, SapphireException,
-			SQLException {
+	private void insertGridsFor(GuidelineReportData oldData, DateSynonym effDate, DateSynonym expDate, GridTemplate newTemplate, User user)
+			throws ServletActionException, SapphireException, SQLException {
 		List<AbstractGuidelineGrid> oldList = getGuidelineGrids(oldData);
 		List<ProductGrid> saveList = new ArrayList<ProductGrid>();
 		if (!oldList.isEmpty()) {
@@ -795,8 +851,8 @@ public final class GridActionCoordinator {
 
 	// This is only used for importing ad-hoc rules
 	// TBD: Remove this when ad-hoc rule is no longer supported
-	public ProductGrid produceGrid(GridTemplate template, List<String> valueStrList, RuleSet ruleSet, GuidelineContext[] context, User user) throws ServletActionException, ImportException,
-			DataValidationFailedException {
+	public ProductGrid produceGrid(GridTemplate template, List<String> valueStrList, RuleSet ruleSet, GuidelineContext[] context, User user)
+			throws ServletActionException, ImportException, DataValidationFailedException {
 		ProductGrid grid = new ProductGrid(
 				-1,
 				template,
@@ -939,14 +995,15 @@ public final class GridActionCoordinator {
 		syncGridData(templateID, grids, null, updateEvenIfIdentical, user);
 	}
 
-	public void syncGridData(int templateID, List<ProductGrid> grids, List<ProductGrid> removedGrids, boolean updateEvenIfIdentical, User user) throws ServletActionException, LockException {
-		if (grids == null) return;
+	public Map<IntegerPair, Integer> syncGridData(int templateID, List<ProductGrid> grids, List<ProductGrid> removedGrids, boolean updateEvenIfIdentical, User user)
+			throws ServletActionException, LockException {
+		if (grids == null) return null;
 
 		synchronized (this) {
 			// check locks --
 			checkGridLocked(templateID, grids, user);
 			// save grid data
-			syncGridData_internal(templateID, grids, removedGrids, user, true, updateEvenIfIdentical);
+			return syncGridData_internal(templateID, grids, removedGrids, user, true, updateEvenIfIdentical);
 		}
 	}
 
@@ -961,9 +1018,11 @@ public final class GridActionCoordinator {
 	 * @param user
 	 * @throws ServletActionException
 	 */
-	private void syncGridData_internal(int templateID, List<ProductGrid> grids, List<ProductGrid> removedGrids, User user, boolean generateGridID, boolean updateEvenIfIdentical)
-			throws ServletActionException {
-		logger.debug(">>> saveGridData_internal with " + templateID + ", " + grids.size() + " grids");
+	private Map<IntegerPair, Integer> syncGridData_internal(int templateID, List<ProductGrid> grids, List<ProductGrid> removedGrids, User user, boolean generateGridID,
+			boolean updateEvenIfIdentical) throws ServletActionException {
+		if (logger.isDebugEnabled()) {
+			logger.debug(">>> saveGridData_internal with " + templateID + ", " + grids.size() + " grids");
+		}
 		DBConnectionManager dbconnectionmanager = DBConnectionManager.getInstance();
 		Connection connection = null;
 		try {
@@ -977,7 +1036,9 @@ public final class GridActionCoordinator {
 
 			syncGridList(GridManager.getInstance(), updater, templateID, grids, removedGrids, gridIDMap, generateGridID, updateEvenIfIdentical);
 
-			if (logger.isDebugEnabled()) logger.debug("saveGridData: idMap is " + toDebugString(gridIDMap));
+			if (logger.isDebugEnabled()) {
+				logger.debug("saveGridData: idMap is " + toDebugString(gridIDMap));
+			}
 
 			connection.commit();
 
@@ -987,9 +1048,9 @@ public final class GridActionCoordinator {
 
 			// audit removed activations
 			AuditLogger.getInstance().logDeleteGrids(removedGrids, user.getUserID());
+			return asDateSynonymPairGridIdMap(gridIDMap);
 		}
 		catch (SQLException ex) {
-
 			DBUtil.rollBackLocallyManagedConnection(connection);
 			logger.error("Failed to save grid data", ex);
 			throw new ServletActionException("ServerError", ex.getMessage());
@@ -1021,19 +1082,25 @@ public final class GridActionCoordinator {
 	 * @throws SQLException
 	 * @throws SapphireException
 	 */
-	private void syncGridList(GridManager gridManager, GridUpdater updater, int templateID, List<ProductGrid> gridList, List<ProductGrid> removedGrids, Map<GridIDKey, Integer> gridIDMap,
-			boolean generateGridID, boolean updateEvenIfIdentical) throws SQLException, SapphireException {
-		logger.debug(">>> saveGridList with " + templateID + ",grids=" + gridList.size() + ",generateGridID=?" + generateGridID);
+	private void syncGridList(GridManager gridManager, GridUpdater updater, int templateID, List<ProductGrid> gridList, List<ProductGrid> removedGrids,
+			Map<GridIDKey, Integer> gridIDMap, boolean generateGridID, boolean updateEvenIfIdentical) throws SQLException, SapphireException {
+		if (logger.isDebugEnabled()) {
+			logger.debug(">>> saveGridList with " + templateID + ",grids=" + gridList.size() + ",generateGridID=?" + generateGridID);
+		}
 		assert (gridList != null);
 		// update if exists and insert if new
 		for (Iterator<ProductGrid> iter = gridList.iterator(); iter.hasNext();) {
 			ProductGrid grid = iter.next();
 			ProductGrid cachedGrid = gridManager.getProductGrid(grid.getID());
-			logger.debug("    gridToSave: " + grid);
-			logger.debug("    cachedGrid: " + cachedGrid);
+			if (logger.isDebugEnabled()) {
+				logger.debug("    gridToSave: " + grid);
+				logger.debug("    cachedGrid: " + cachedGrid);
+			}
 			if (cachedGrid == null) {
 				int newGridID = ((generateGridID) ? DBIdGenerator.getInstance().nextGridID() : grid.getID());
-				logger.debug("    inserting: new grid-id = " + newGridID);
+				if (logger.isDebugEnabled()) {
+					logger.debug("    inserting: new grid-id = " + newGridID);
+				}
 
 				// insert new activation
 				updater.insertProductGrid(
@@ -1051,12 +1118,22 @@ public final class GridActionCoordinator {
 						ServerContextUtil.extractGenericEntityIdentities(grid),
 						ServerContextUtil.extractGenericCategoryIdentities(grid));
 
-				gridIDMap.put(new GridIDKey(grid.getID(), grid), new Integer(newGridID));
+				gridIDMap.put(new GridIDKey(grid.getID(), grid), newGridID);
 			}
 			else {
 				if (updateEvenIfIdentical || !cachedGrid.identical(grid)) {
-					logger.debug("    updating " + cachedGrid);
-					updater.updateGrid(cachedGrid.getID(), grid.getComments(), grid, grid.getStatus(), grid.getStatusChangeDate(), grid.getEffectiveDate(), grid.getExpirationDate(), grid.getCloneOf());
+					if (logger.isDebugEnabled()) {
+						logger.debug("    updating " + cachedGrid);
+					}
+					updater.updateGrid(
+							cachedGrid.getID(),
+							grid.getComments(),
+							grid,
+							grid.getStatus(),
+							grid.getStatusChangeDate(),
+							grid.getEffectiveDate(),
+							grid.getExpirationDate(),
+							grid.getCloneOf());
 				}
 			}
 		}
@@ -1079,7 +1156,9 @@ public final class GridActionCoordinator {
 	}
 
 	private void updateCache(int templateID, List<ProductGrid> gridList, User user, Map<GridIDKey, Integer> gridIDMap) throws SapphireException, SQLException {
-		logger.debug(">>> updateCache with " + templateID + ",grid.size=" + gridList.size() + ",user=" + user);
+		if (logger.isDebugEnabled()) {
+			logger.debug(">>> updateCache with " + templateID + ",grid.size=" + gridList.size() + ",user=" + user);
+		}
 		// update if exists and insert if new
 		for (Iterator<ProductGrid> iter = gridList.iterator(); iter.hasNext();) {
 			ProductGrid grid = iter.next();
@@ -1089,7 +1168,9 @@ public final class GridActionCoordinator {
 	}
 
 	private void updateCache(int templateID, ProductGrid grid, User user, Map<GridIDKey, Integer> gridIDMap) throws SapphireException, SQLException {
-		logger.debug("updateCache: processing " + grid);
+		if (logger.isDebugEnabled()) {
+			logger.debug("updateCache: processing " + grid);
+		}
 		ProductGrid cachedGrid = GridManager.getInstance().getProductGrid(grid.getID());
 		if (cachedGrid != null) {
 			if (!cachedGrid.identical(grid)) {
@@ -1106,7 +1187,6 @@ public final class GridActionCoordinator {
 
 			DateSynonym cachedEffDate = (grid.getEffectiveDate() == null ? null : DateSynonymManager.getInstance().getDateSynonym(grid.getEffectiveDate().getID()));
 			DateSynonym cachedExpDate = (grid.getExpirationDate() == null ? null : DateSynonymManager.getInstance().getDateSynonym(grid.getExpirationDate().getID()));
-
 
 			if (gridIDObject != null) {
 				// insert new activation
@@ -1134,18 +1214,22 @@ public final class GridActionCoordinator {
 
 	private void updateCacheForExpirationDateOfGrids(GuidelineReportData data, DateSynonym cutoverDate) throws ServletActionException {
 		DateSynonym cachedCutoverDate = (cutoverDate == null ? null : DateSynonymManager.getInstance().getDateSynonym(cutoverDate.getID()));
-		logger.debug(">>> updateCacheForExpirationDateOfGrids: " + data + " at " + cachedCutoverDate);
+		if (logger.isDebugEnabled()) {
+			logger.debug(">>> updateCacheForExpirationDateOfGrids: " + data + " at " + cachedCutoverDate);
+		}
 		List<AbstractGuidelineGrid> list = getGuidelineGrids(data);
 		for (Iterator<AbstractGuidelineGrid> iter = list.iterator(); iter.hasNext();) {
 			AbstractGuidelineGrid grid = iter.next();
-			logger.debug("    updateCacheForExpirationDateOfGrids: updating cache expiration date of " + grid);
+			if (logger.isDebugEnabled()) {
+				logger.debug("    updateCacheForExpirationDateOfGrids: updating cache expiration date of " + grid);
+			}
 			GridManager.getInstance().updateExpirationDate(grid, cachedCutoverDate);
 		}
 		logger.debug("<<< updateCacheForExpirationDateOfGrids");
 	}
 
-	private void updateCacheForInsertedGrids(GuidelineReportData oldData, DateSynonym effDate, DateSynonym expDate, GridTemplate newTemplate, User user, Map<GridIDKey, Integer> gridIDMap)
-			throws ServletActionException, SapphireException, SQLException {
+	private void updateCacheForInsertedGrids(GuidelineReportData oldData, DateSynonym effDate, DateSynonym expDate, GridTemplate newTemplate, User user,
+			Map<GridIDKey, Integer> gridIDMap) throws ServletActionException, SapphireException, SQLException {
 		List<AbstractGuidelineGrid> oldList = getGuidelineGrids(oldData);
 		if (!oldList.isEmpty()) {
 			for (Iterator<AbstractGuidelineGrid> iter = oldList.iterator(); iter.hasNext();) {
@@ -1157,7 +1241,9 @@ public final class GridActionCoordinator {
 	}
 
 	private void updateCacheForTemplateOfGrids(GuidelineReportData data, GridTemplate newTemplate) throws ServletActionException {
-		logger.debug(">>> updateCacheForTemplateOfGrids: " + data + " to " + newTemplate);
+		if (logger.isDebugEnabled()) {
+			logger.debug(">>> updateCacheForTemplateOfGrids: " + data + " to " + newTemplate);
+		}
 		List<AbstractGuidelineGrid> list = getGuidelineGrids(data);
 		for (Iterator<AbstractGuidelineGrid> iter = list.iterator(); iter.hasNext();) {
 			AbstractGuidelineGrid grid = iter.next();
@@ -1167,7 +1253,8 @@ public final class GridActionCoordinator {
 	}
 
 	// TT-19
-	public void updateCellValuesForRearrangedColumns(final int templateID, final Map<Integer, Integer> rearrangedColumnMap, final User user) throws ServletActionException, LockException {
+	public void updateCellValuesForRearrangedColumns(final int templateID, final Map<Integer, Integer> rearrangedColumnMap, final User user)
+			throws ServletActionException, LockException {
 		logDebug(logger, "---> updateCellValuesForRearrangedColumns: %s, %s, %s", templateID, rearrangedColumnMap, user);
 		final List<ProductGrid> gridsToUpdate = new ArrayList<ProductGrid>();
 		for (ProductGrid grid : GridManager.getInstance().getAllGridsForTemplate(templateID)) {
@@ -1184,11 +1271,15 @@ public final class GridActionCoordinator {
 	}
 
 	private void updateExpirationDatesOfGridsFor(GuidelineReportData data, DateSynonym cutoverDate, GridUpdater updater) throws SQLException, ServletActionException {
-		logger.debug(">>> updateExpirationDatesOfGridsFor: " + data + " at " + cutoverDate);
+		if (logger.isDebugEnabled()) {
+			logger.debug(">>> updateExpirationDatesOfGridsFor: " + data + " at " + cutoverDate);
+		}
 		List<AbstractGuidelineGrid> list = getGuidelineGrids(data);
 		for (Iterator<AbstractGuidelineGrid> iter = list.iterator(); iter.hasNext();) {
 			AbstractGuidelineGrid grid = iter.next();
-			logger.debug("    updateExpirationDatesOfGridsFor: updating expiration date of " + grid);
+			if (logger.isDebugEnabled()) {
+				logger.debug("    updateExpirationDatesOfGridsFor: updating expiration date of " + grid);
+			}
 			updater.setExpirationDateOfGrid(grid.getID(), cutoverDate.getID());
 		}
 		logger.debug("<<< updateExpirationDatesOfGridsFor");
@@ -1214,8 +1305,8 @@ public final class GridActionCoordinator {
 	 * @since PowerEditor 4.2.0
 	 */
 	public void updateGridContext(int templateID, List<ProductGrid> grids, GuidelineContext[] newContexts, User user) throws ServletActionException, LockException {
-		logger.debug("--> updateGridContext: " + templateID);
 		if (logger.isDebugEnabled()) {
+			logger.debug("--> updateGridContext: " + templateID);
 			logger.debug("    updateGridContext: grid.size=" + (grids == null ? 0 : grids.size()));
 			logger.debug("    updateGridContext: newContext = " + Util.toString(newContexts));
 		}
@@ -1231,7 +1322,9 @@ public final class GridActionCoordinator {
 	}
 
 	private void updateGridContext_internal2(int templateID, List<ProductGrid> grids, GuidelineContext[] newContexts, User user) throws ServletActionException {
-		logger.debug(">>> updateGridContext_internal2 with " + templateID + ", " + ", " + newContexts.length + " new-contexts");
+		if (logger.isDebugEnabled()) {
+			logger.debug(">>> updateGridContext_internal2 with " + templateID + ", " + ", " + newContexts.length + " new-contexts");
+		}
 		DBConnectionManager dbconnectionmanager = DBConnectionManager.getInstance();
 		Connection connection = null;
 
@@ -1245,7 +1338,10 @@ public final class GridActionCoordinator {
 			Map<ProductGrid, GuidelineContext[]> oldContextMap = new HashMap<ProductGrid, GuidelineContext[]>();
 			for (Iterator<ProductGrid> iter = grids.iterator(); iter.hasNext();) {
 				ProductGrid element = iter.next();
-				updater.updateGridContext(element.getID(), ServerContextUtil.extractGenericEntityIdentities(newContexts), ServerContextUtil.extractGenericCategoryIdentities(newContexts));
+				updater.updateGridContext(
+						element.getID(),
+						ServerContextUtil.extractGenericEntityIdentities(newContexts),
+						ServerContextUtil.extractGenericCategoryIdentities(newContexts));
 
 				GuidelineContext[] oldContexts = GridManager.getInstance().getProductGrid(element.getID()).extractGuidelineContext();
 				oldContextMap.put(element, oldContexts);
@@ -1269,11 +1365,15 @@ public final class GridActionCoordinator {
 	}
 
 	private void updateTemplateOfGridsFor(GuidelineReportData data, int newTemplateID, GridUpdater updater) throws SQLException, ServletActionException {
-		logger.debug(">>> updateTemplateOfGridsFor: " + data + " to " + newTemplateID);
+		if (logger.isDebugEnabled()) {
+			logger.debug(">>> updateTemplateOfGridsFor: " + data + " to " + newTemplateID);
+		}
 		List<AbstractGuidelineGrid> list = getGuidelineGrids(data);
 		for (Iterator<AbstractGuidelineGrid> iter = list.iterator(); iter.hasNext();) {
 			AbstractGuidelineGrid grid = iter.next();
-			logger.debug("    updateExpirationDatesOfGridsFor: updating template of " + grid);
+			if (logger.isDebugEnabled()) {
+				logger.debug("    updateExpirationDatesOfGridsFor: updating template of " + grid);
+			}
 			updater.setTemplateOfGrid(grid.getID(), newTemplateID);
 		}
 		logger.debug("<<< updateTemplateOfGridsFor");

@@ -31,6 +31,7 @@ public class ResourceUtil {
 			}
 		}
 
+		@Override
 		protected URL findResource(String arg0) {
 			String[] strs = arg0.split("\\/");
 			if (strs.length == 0) return null;
@@ -53,14 +54,15 @@ public class ResourceUtil {
 			}
 		}
 
+		@Override
 		public URL getResource(String arg0) {
 			return super.getResource(arg0);
 		}
 
+		@Override
 		public InputStream getResourceAsStream(String arg0) {
 			return super.getResourceAsStream(arg0);
 		}
-
 	}
 
 
@@ -123,11 +125,11 @@ public class ResourceUtil {
 
 	private synchronized void loadPropertyFiles(String serverBaseDir, String[] propFiles) throws IOException {
 		assert (propFiles != null);
-		logger.info(">>> loadPropertyFiles: " + serverBaseDir + ", " + propFiles.length + " files");
+		logger.debug(">>> loadPropertyFiles: " + serverBaseDir + ", " + propFiles.length + " files");
 		ResourceClassLoader classLoader = new ResourceClassLoader(serverBaseDir);
 		for (int i = 0; i < propFiles.length; i++) {
 			loadLocale(classLoader, propFiles[i]);
 		}
-		logger.info("<<< loadPropertyFiles");
+		logger.debug("<<< loadPropertyFiles");
 	}
 }

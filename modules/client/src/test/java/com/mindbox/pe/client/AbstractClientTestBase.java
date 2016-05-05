@@ -40,6 +40,7 @@ import com.mindbox.pe.model.GridSummary;
 import com.mindbox.pe.model.GuidelineContext;
 import com.mindbox.pe.model.GuidelineReportData;
 import com.mindbox.pe.model.ImportSpec;
+import com.mindbox.pe.model.IntegerPair;
 import com.mindbox.pe.model.PeDataType;
 import com.mindbox.pe.model.Persistent;
 import com.mindbox.pe.model.TemplateUsageType;
@@ -78,9 +79,11 @@ public abstract class AbstractClientTestBase extends AbstractTestBase {
 
 	private final static class CommunicatorImpl implements Communicator {
 
+		@Override
 		public void bulkSaveGridData(List<GuidelineReportData> data, String status, DateSynonym eff, DateSynonym exp) throws ServerException {
 		}
 
+		@Override
 		public boolean checkNameForUniqueness(PeDataType entityType, String name) throws ServerException {
 			return false;
 		}
@@ -89,35 +92,45 @@ public abstract class AbstractClientTestBase extends AbstractTestBase {
 		public void clearFailedLoginCounter(String userID) throws ServerException {
 		}
 
+		@Override
 		public int clone(GenericEntity object, boolean copyPolicies, boolean lock) throws ServerException {
 			return 0;
 		}
 
+		@Override
 		public int cloneCaseBases(int oldCaseBaseID, String newCaseBaseName) throws ServerException {
 			return 0;
 		}
 
+		@Override
 		public void cloneGuidelines(int oldTemplateID, int newTemplateID) throws ServerException {
 		}
 
+		@Override
 		public void delete(GenericEntityCompatibilityData data) throws ServerException {
 		}
 
+		@Override
 		public void delete(int entityID, GenericEntityType type) throws ServerException {
 		}
 
+		@Override
 		public void delete(int entityID, PeDataType entityType) throws ServerException {
 		}
 
+		@Override
 		public void deleteGenericCategory(int categoryType, int categoryID) throws ServerException {
 		}
 
+		@Override
 		public void deleteTemplate(int templateID, boolean deleteGuidelines) throws ServerException {
 		}
 
+		@Override
 		public void deleteUser(UserData user) throws ServerException {
 		}
 
+		@Override
 		public DeployResponse deploy(GuidelineReportFilter filter, boolean exportPolicies) throws ServerException {
 			return null;
 		}
@@ -126,54 +139,67 @@ public abstract class AbstractClientTestBase extends AbstractTestBase {
 		public void enableUser(String userID) throws ServerException {
 		}
 
+		@Override
 		public byte[] exportDataToClient(GuidelineReportFilter filter) throws ServerException {
 			return null;
 		}
 
+		@Override
 		public int exportDataToServer(GuidelineReportFilter filter, String filename) throws ServerException {
 			return 0;
 		}
 
+		@Override
 		public Persistent fetch(int entityID, PeDataType entityType, boolean lockEntity) throws ServerException {
 			return null;
 		}
 
+		@Override
 		public List<GenericEntityCompatibilityData> fetchCompatibilityData(GenericEntityType entityType1, GenericEntityType entityType2) throws ServerException {
 			return null;
 		}
 
+		@Override
 		public List<String> fetchCustomReportNames() throws ServerException {
 			return null;
 		}
 
+		@Override
 		public GuidelineContext[] fetchFullContext(int templateID, GuidelineContext[] subContext) throws ServerException {
 			return null;
 		}
 
+		@Override
 		public GridDataResponse fetchGridData(int templateID, GuidelineContext[] contexts) throws ServerException {
 			return null;
 		}
 
+		@Override
 		public List<GridSummary> fetchGridSummaries(TemplateUsageType usageType, GuidelineContext[] contexts) throws ServerException {
 			return null;
 		}
 
+		@Override
 		public List<ParameterGrid> fetchParameters(int templateID) throws ServerException {
 			return null;
 		}
 
+		@Override
 		public List<GridTemplate> fetchTemplateSummaries(TemplateUsageType s) throws ServerException {
 			return null;
 		}
 
+		@Override
 		public List<List<GuidelineReportData>> findCutoverGuidelines(int templateID, DateSynonym cutoverDate) throws ServerException {
 			return null;
 		}
 
+		@Override
 		public byte[] generatePolicySummaryReport(AbstractReportSpec reportSpec, List<GuidelineReportData> guidelines) throws ServerException {
 			return null;
 		}
 
+		@Override
 		public String generateReportURL(AbstractReportSpec reportSpec, List<GuidelineReportData> guidelines) throws ServerException {
 			return null;
 		}
@@ -188,10 +214,12 @@ public abstract class AbstractClientTestBase extends AbstractTestBase {
 			return null;
 		}
 
+		@Override
 		public String getDeployErrorString(int runID) throws ServerException {
 			return null;
 		}
 
+		@Override
 		public byte[] getDomainDefintionXML() throws ServerException {
 			return null;
 		}
@@ -201,60 +229,76 @@ public abstract class AbstractClientTestBase extends AbstractTestBase {
 			return null;
 		}
 
+		@Override
 		public long getNextRuleID() throws ServerException {
 			return 0;
 		}
 
+		@Override
 		public boolean hasDeployRule(int templateID, int columnID) throws ServerException {
 			return false;
 		}
 
+		@Override
 		public boolean hasGuidelines(int templateID) throws ServerException {
 			return false;
 		}
 
+		@Override
 		public ImportResult importData(ImportSpec importSpec) throws ServerException, IOException {
 			return null;
 		}
 
+		@Override
 		public boolean isExistingCompatibility(GenericEntityType type1, int id1, GenericEntityType type2, int id2) throws ServerException {
 			return false;
 		}
 
+		@Override
 		public boolean isInUse(DateSynonym dateSynonym) throws ServerException {
 			return false;
 		}
 
+		@Override
 		public void lock(int entityID, GenericEntityType type) throws ServerException {
 		}
 
+		@Override
 		public void lock(int entityID, PeDataType entityType) throws ServerException {
 		}
 
+		@Override
 		public void lockGrid(int templateID, GuidelineContext[] contexts) throws ServerException {
 		}
 
+		@Override
 		public void lockUser(String userID) throws ServerException {
 		}
 
+		@Override
 		public void logout() throws ServerException {
 		}
 
+		@Override
 		public int makeNewVersion(int oldTemplateID, GridTemplate newVersion, DateSynonym cutoverDate, List<GuidelineReportData> guidelinesToCutOver) throws ServerException {
 			return 0;
 		}
 
+		@Override
 		public String reloadConfiguration() throws ServerException {
 			return null;
 		}
 
+		@Override
 		public List<UserData> reloadUserData() throws ServerException {
 			return null;
 		}
 
+		@Override
 		public void replace(DateSynonym[] toBeReplaced, DateSynonym replacement) throws ServerException {
 		}
 
+		@Override
 		public GenerateStats retrieveDeployStats(int i) throws ServerException {
 			return null;
 		}
@@ -269,25 +313,33 @@ public abstract class AbstractClientTestBase extends AbstractTestBase {
 			return 0;
 		}
 
-		public void saveGridData(int templateID, List<ProductGrid> grids, List<ProductGrid> removedGrids) throws ServerException {
+		@Override
+		public Map<IntegerPair, Integer> saveGridData(int templateID, List<ProductGrid> grids, List<ProductGrid> removedGrids) throws ServerException {
+			return null;
 		}
 
+		@Override
 		public <T extends Persistent> List<T> search(SearchFilter<T> searchFilter) throws ServerException {
 			return null;
 		}
 
+		@Override
 		public void unlock(int entityID, GenericEntityType entityType) throws ServerException {
 		}
 
+		@Override
 		public void unlock(int entityID, PeDataType entityType) throws ServerException {
 		}
 
+		@Override
 		public void unlockGrid(int templateID, GuidelineContext[] contexts) throws ServerException {
 		}
 
+		@Override
 		public void unlockUser(String userID) throws ServerException {
 		}
 
+		@Override
 		public void updateGridContext(int templateID, List<ProductGrid> grids, GuidelineContext[] newContexts) throws ServerException {
 		}
 
@@ -313,33 +365,41 @@ public abstract class AbstractClientTestBase extends AbstractTestBase {
 			communicator = new CommunicatorImpl();
 		}
 
+		@Override
 		public boolean checkPermissionByPrivilegeName(String s) {
 			return true;
 		}
 
+		@Override
 		public boolean checkViewOrEditGuidelinePermission(GuidelineTab gtConfig) {
 			return true;
 		}
 
+		@Override
 		public boolean checkViewOrEditGuidelinePermissionOnUsageType(TemplateUsageType usageType) {
 			return true;
 		}
 
+		@Override
 		public boolean checkViewOrEditTemplatePermission(GuidelineTab gtConfig) {
 			return true;
 		}
 
+		@Override
 		public boolean checkViewOrEditTemplatePermissionOnUsageType(TemplateUsageType usageType) {
 			return true;
 		}
 
+		@Override
 		public boolean confirmExit() {
 			return false;
 		}
 
+		@Override
 		public void dispose() {
 		}
 
+		@Override
 		public Communicator getCommunicator() {
 			return communicator;
 		}
@@ -348,18 +408,22 @@ public abstract class AbstractClientTestBase extends AbstractTestBase {
 			return entityConfig;
 		}
 
+		@Override
 		public String getSessionID() {
 			return sessionID;
 		}
 
+		@Override
 		public String getUserID() {
 			return userID;
 		}
 
+		@Override
 		public UserProfile getUserSession() {
 			return userProfile;
 		}
 
+		@Override
 		public void handleRuntimeException(Exception ex) {
 			if (ex instanceof RuntimeException) {
 				throw (RuntimeException) ex;
@@ -369,15 +433,19 @@ public abstract class AbstractClientTestBase extends AbstractTestBase {
 			}
 		}
 
+		@Override
 		public void reloadTemplates() throws ServerException {
 		}
 
+		@Override
 		public void setCursor(Cursor cursor) {
 		}
 
+		@Override
 		public void setStatusMsg(String msg) {
 		}
 
+		@Override
 		public void showTemplateEditPanel(GridTemplate template) throws CanceledException {
 		}
 	}

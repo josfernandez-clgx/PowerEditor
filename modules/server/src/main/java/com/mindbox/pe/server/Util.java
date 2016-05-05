@@ -1,6 +1,8 @@
 package com.mindbox.pe.server;
 
-import java.util.Hashtable;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServletRequest;
@@ -18,9 +20,9 @@ public class Util extends UtilBase {
 
 	public static final String APPLICATION_USERNAME = "PowerEditor";
 
-	private static Util m_instance = null;
+	private static Util instance = null;
 
-	private static Hashtable<String, Util> m_moduleInstances = new Hashtable<String, Util>();
+	private static final Map<String, Util> moduleInstances = Collections.synchronizedMap(new HashMap<String, Util>());
 
 	public static int booleanValue(boolean flag) {
 		if (flag == true) {
@@ -57,15 +59,15 @@ public class Util extends UtilBase {
 	}
 
 	public static Util getUtilInstance() {
-		if (m_instance == null) m_instance = new Util();
-		return m_instance;
+		if (instance == null) instance = new Util();
+		return instance;
 	}
 
 	public static Util getUtilInstance(String s) {
-		Util util = m_moduleInstances.get(s);
+		Util util = moduleInstances.get(s);
 		if (util == null) {
 			util = new Util();
-			m_moduleInstances.put(s, util);
+			moduleInstances.put(s, util);
 		}
 		return util;
 	}

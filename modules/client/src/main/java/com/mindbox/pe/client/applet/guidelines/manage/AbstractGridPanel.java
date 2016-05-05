@@ -1,5 +1,7 @@
 package com.mindbox.pe.client.applet.guidelines.manage;
 
+import static com.mindbox.shared.util.LoggingUtil.warn;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -16,8 +18,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -62,11 +64,12 @@ import com.mindbox.pe.client.common.tab.PowerEditorTabPanel;
 import com.mindbox.pe.common.GuidelineContextHolder;
 import com.mindbox.pe.common.PrivilegeConstants;
 import com.mindbox.pe.common.UtilBase;
-import com.mindbox.pe.communication.GridDataResponse;
 import com.mindbox.pe.communication.ServerException;
 import com.mindbox.pe.model.Constants;
 import com.mindbox.pe.model.DateSynonym;
 import com.mindbox.pe.model.GuidelineContext;
+import com.mindbox.pe.model.IntegerPair;
+import com.mindbox.pe.model.Persistent;
 import com.mindbox.pe.model.comparator.ActivationsComparator;
 import com.mindbox.pe.model.exceptions.CanceledException;
 import com.mindbox.pe.model.exceptions.InvalidDataException;
@@ -276,6 +279,20 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 		setContext(gridData, context);
 		return gridData;
 	}
+
+	// TODO remove when done testing
+	/*
+	private static boolean isSame(ProductGrid serverGrid, ProductGrid selectedGrid) {
+		if (UtilBase.isSame(serverGrid.getEffectiveDate(), selectedGrid.getEffectiveDate()) && UtilBase.isSame(serverGrid.getExpirationDate(), selectedGrid.getExpirationDate())
+				&& UtilBase.isSame(serverGrid.getCreationDate(), selectedGrid.getCreationDate()) && serverGrid.getStatus().equals(selectedGrid.getStatus())
+				&& serverGrid.getNumRows() == selectedGrid.getNumRows()) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	*/
 
 	private static void setContext(ProductGrid productGrid, GuidelineContext[] context) {
 		productGrid.clearAllContext();
@@ -608,7 +625,6 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 			populate(gridList, gridList.indexOf(newGrid));
 			setActivation(newGrid);
 			selectActivation();
-			//setSelectedStatus(newGrid.getStatus());
 		}
 	}
 
@@ -774,11 +790,12 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 		activationPanel.add(dateNameCheckbox);
 
 		JButton ajbutton[] = { editActivationBtn, addActivationBtn, cloneActivationBtn, removeActivationBtn };
-		for (int i = 0; i < ajbutton.length; i++)
+		for (int i = 0; i < ajbutton.length; i++) {
 			if (ajbutton[i] != null) {
 				activationPanel.add(ajbutton[i]);
 				ajbutton[i].addActionListener(buttonListener);
 			}
+		}
 
 		activationsCombo.setRenderer(new ActivationRenderer());
 		activationsCombo.setPreferredSize(new Dimension(380, 26));
@@ -801,7 +818,6 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 
 		JButton validateButton = UIFactory.createButton(ClientUtil.getInstance().getLabel("button.validate"), "image.btn.small.validate", null, "button.tooltip.validate");
 		validateButton.addMouseListener(new MouseAdapter() {
-
 			@Override
 			public void mousePressed(MouseEvent e) {
 				popup.show(e.getComponent(), e.getX(), e.getY());
@@ -811,14 +827,17 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 		JPanel jpanel = UIFactory.createJPanel(new FlowLayout(FlowLayout.CENTER, 10, 3));
 		jpanel.setBackground(PowerEditorSwingTheme.primary3);
 
-		if (backButton != null) jpanel.add(backButton);
-		if (saveGridButton != null) jpanel.add(saveGridButton);
+		if (backButton != null) {
+			jpanel.add(backButton);
+		}
+		if (saveGridButton != null) {
+			jpanel.add(saveGridButton);
+		}
 
 		jpanel.add(validateButton);
 
 		final JButton toggleButton = UIFactory.createButton(ClientUtil.getInstance().getLabel("button.hide.context"), null, null, null);
 		toggleButton.addActionListener(new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				topPanel.setVisible(!topPanel.isVisible());
@@ -846,7 +865,6 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 		final String showLabel = ClientUtil.getInstance().getLabel("button.show.rule.id");
 		ruleIDToggleButton = UIFactory.createButton(showLabel, null, null, null);
 		ruleIDToggleButton.addActionListener(new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				toggleRuleIDColumns();
@@ -943,38 +961,45 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 						expDate = null;
 					}
 				}
-				if (effDate == null || effDate.before(date)) effDate = date;
+				if (effDate == null || effDate.before(date)) {
+					effDate = date;
+				}
 				if (expDate == null || expDate.getDate() == null
-						|| (effDate != null && effDate.getDate() != null && expDate.getDate().getTime() - effDate.getDate().getTime() > 0x5265c00L))
+						|| (effDate != null && effDate.getDate() != null && expDate.getDate().getTime() - effDate.getDate().getTime() > 0x5265c00L)) {
 					break;
+				}
 			}
 
 		}
 
 		source.setEffectiveDate(effDate);
-		if (expDate != null)
+		if (expDate != null) {
 			source.setExpirationDate(expDate);
-		else
+		}
+		else {
 			source.setExpirationDate(expDate);
+		}
 	}
 
 	private void initTimer() {
 		updateStateTimer = new Timer(500, new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent actionevent) {
 				if (!isDirty() && gridCardPanel.getSelectedCard().isDirty()) {
 					setDirty(true);
 				}
 			}
-
 		});
 	}
 
 	public boolean isDirty() {
-		if (isDirty) return isDirty;
-		AbstractGuidelineGrid abstractgrid = getSelectedGrid();
-		if (abstractgrid == null) return false;
+		if (isDirty) {
+			return true;
+		}
+		final AbstractGuidelineGrid abstractgrid = getSelectedGrid();
+		if (abstractgrid == null) {
+			return false;
+		}
 		String s = commentsField.getText();
 		if (!s.equals(abstractgrid.getComments())) {
 			setDirty(true);
@@ -996,17 +1021,6 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 
 	private boolean isRuleIDButtonShowButton() {
 		return ruleIDToggleButton.getText().equals(ClientUtil.getInstance().getLabel("button.show.rule.id"));
-	}
-
-	private boolean isSame(ProductGrid serverGrid, ProductGrid selectedGrid) {
-		if (UtilBase.isSame(serverGrid.getEffectiveDate(), selectedGrid.getEffectiveDate()) && UtilBase.isSame(serverGrid.getExpirationDate(), selectedGrid.getExpirationDate())
-				&& UtilBase.isSame(serverGrid.getCreationDate(), selectedGrid.getCreationDate()) && serverGrid.getStatus().equals(selectedGrid.getStatus())
-				&& serverGrid.getNumRows() == selectedGrid.getNumRows()) {
-			return true;
-		}
-		else {
-			return false;
-		}
 	}
 
 	public boolean isViewOnly() {
@@ -1122,8 +1136,7 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 		storeColumnWidthsIfPossible();
 
 		if (validateGridDataForBlanks()) {
-			saveGridsOnServer();
-			updateNewGridIDs();
+			updateNewGridIDs(saveGridsOnServer());
 			removedGrids.clear();
 			if (contextMayHaveChanged) {
 				GuidelineContext[] newContexts = contextHolder.getGuidelineContexts();
@@ -1145,8 +1158,8 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 		ClientUtil.getCommunicator().updateGridContext(template.getID(), gridList, newContexts);
 	}
 
-	private void saveGridsOnServer() throws ServerException {
-		ClientUtil.getCommunicator().saveGridData(template.getID(), gridList, removedGrids);
+	private Map<IntegerPair, Integer> saveGridsOnServer() throws ServerException {
+		return ClientUtil.getCommunicator().saveGridData(template.getID(), gridList, removedGrids);
 	}
 
 	private void selectActivation() {
@@ -1351,12 +1364,35 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 		return flag;
 	}
 
-	/**
+	/*
 	 * TT 1674: If a new grid has been saved, this updates the grid ID on the client from -1 to 
 	 * the grid ID assigned by the server. If this is not done the grid ID will remain
 	 * -1, causing numerous problems (i.e. when the context is saved a NPE is thrown). 
 	 */
-	private void updateNewGridIDs() {
+	// artf386904: Need to update all activations, not just the selected item
+	//             as user might have added more than one activation.
+	//             Also, use the old context in case currentContext has changed.
+	private void updateNewGridIDs(final Map<IntegerPair, Integer> dateSynonymPairGridIdMap) {
+		boolean idNotFound = false;
+		for (int i = 0; i < activationsCombo.getModel().getSize(); i++) {
+			ProductGrid productGrid = activationsCombo.getModel().getElementAt(i);
+			if (productGrid != null && productGrid.getId() == Persistent.UNASSIGNED_ID) {
+				final IntegerPair dateSynonymPair = productGrid.getEffDateExpDateAsIntegerPair();
+				if (dateSynonymPairGridIdMap.containsKey(dateSynonymPair)) {
+					productGrid.setID(dateSynonymPairGridIdMap.get(dateSynonymPair));
+				}
+				else {
+					warn(ClientUtil.getLogger(), "Failed to find new id for %s!");
+					if (!idNotFound) {
+						idNotFound = true;
+					}
+				}
+			}
+		}
+		if (idNotFound) {
+			ClientUtil.getInstance().showErrorDialog("msg.warning.grid.idNotFound");
+		}
+		/* OLD CODE
 		ProductGrid selectedGrid = (ProductGrid) activationsCombo.getSelectedItem();
 		if (selectedGrid != null && selectedGrid.getID() == -1) {
 			//need to go to the server and get the new grid ID            
@@ -1372,10 +1408,10 @@ public abstract class AbstractGridPanel extends JPanel implements PowerEditorTab
 				}
 			}
 			catch (ServerException e) {
-				e.printStackTrace();
+				ClientUtil.getLogger().error("Failed to update new grid ids.", e);
+				ClientUtil.getInstance().showErrorDialog(e);
 			}
-		}
-
+		}*/
 	}
 
 	private boolean validateCurrentGrid(boolean flag) {

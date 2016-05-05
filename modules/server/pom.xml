@@ -116,6 +116,13 @@ Filename...: pom.xml Description: POM for PE Server Module.
 			<artifactId>webreporting</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.crystalreports</groupId>
+			<artifactId>xmlserialization</artifactId>
+			<version>1.0</version>
+		</dependency>
+			
+		<!-- Test dependencies -->
+		<dependency>
 			<groupId>com.mindbox.pe</groupId>
 			<artifactId>pe-unit-test-support</artifactId>
 			<scope>test</scope>

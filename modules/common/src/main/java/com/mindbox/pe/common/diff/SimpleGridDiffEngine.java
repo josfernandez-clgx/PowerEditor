@@ -98,7 +98,7 @@ public final class SimpleGridDiffEngine implements GridDiffEngine {
 	private static Map<Integer, Integer> getRowMappingForDeletion(String[] columnNames, GridValueContainable grid1, GridValueContainable grid2) {
 		int delta = grid1.getNumRows() - grid2.getNumRows();
 		assert (delta > 0);
-		Map<Integer, Integer> map = new HashMap<Integer, Integer>();
+		final Map<Integer, Integer> map = new HashMap<Integer, Integer>();
 		// find matching rows
 		for (int row1 = 1; row1 <= grid1.getNumRows(); row1++) {
 			int matchingRow = getMatchingRowForDeletion(columnNames, grid1, row1, grid2, delta);
@@ -148,6 +148,7 @@ public final class SimpleGridDiffEngine implements GridDiffEngine {
 		}
 	}
 
+	@Override
 	public <G extends AbstractGrid<?>> GridDiffResult diff(G grid1, G grid2) {
 		final DefaultGridDiffResult gridDiffResult = new DefaultGridDiffResult();
 		final GridCellValueChangeDetailSet changeDetailSet = gridDiffResult.getGridCellValueChangeDetailSet();
@@ -163,7 +164,7 @@ public final class SimpleGridDiffEngine implements GridDiffEngine {
 		else {
 			String[] columnNames = grid1.getColumnNames();
 			if (grid1RowCount < grid2RowCount) {
-				Map<Integer, Integer> rowMapping = getRowMappingForInsertion(columnNames, grid1, grid2);
+				final Map<Integer, Integer> rowMapping = getRowMappingForInsertion(columnNames, grid1, grid2); // this will never be null
 				// find inserted rows
 				final int[] insertedRows = extractInsertedRows(grid2RowCount, rowMapping);
 				for (final int insertedRow : insertedRows) {
@@ -171,7 +172,9 @@ public final class SimpleGridDiffEngine implements GridDiffEngine {
 				}
 				// find cell value changes
 				for (int row = 1; row <= grid1RowCount; row++) {
-					findCellValueChanges(columnNames, grid1, row, grid2, rowMapping.get(new Integer(row)).intValue(), gridDiffResult.getGridCellValueChangeDetailSet());
+					if (rowMapping.containsKey(row)) {
+						findCellValueChanges(columnNames, grid1, row, grid2, rowMapping.get(row), gridDiffResult.getGridCellValueChangeDetailSet());
+					}
 				}
 			}
 			else if (grid1RowCount > grid2RowCount) {
@@ -183,8 +186,8 @@ public final class SimpleGridDiffEngine implements GridDiffEngine {
 				}
 				// find cell value changes
 				for (int row = 1; row <= grid1RowCount; row++) {
-					if (rowMapping.containsKey(new Integer(row))) {
-						findCellValueChanges(columnNames, grid1, row, grid2, rowMapping.get(new Integer(row)).intValue(), gridDiffResult.getGridCellValueChangeDetailSet());
+					if (rowMapping.containsKey(row)) {
+						findCellValueChanges(columnNames, grid1, row, grid2, rowMapping.get(row), gridDiffResult.getGridCellValueChangeDetailSet());
 					}
 				}
 			}
@@ -197,5 +200,4 @@ public final class SimpleGridDiffEngine implements GridDiffEngine {
 		}
 		return gridDiffResult;
 	}
-
 }

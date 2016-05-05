@@ -24,7 +24,7 @@ Filename...: pom.xml Description: POM for PowerEditor Project.
 
 	<properties>
 		<!-- Application build number; set by Jenkins build -->
-		<applicationBuild>${env:BUILD_NUMBER} ${maven.build.timestamp}</applicationBuild>
+		<applicationBuild>B:${BUILD_NUMBER} SVN:${SVN_REVISION} ${maven.build.timestamp}</applicationBuild>
 
 		<!-- Subversion path -->
 		<coreLogicSvnPath>https://svn.corelogic.net/svn/repos/apps</coreLogicSvnPath>
@@ -68,6 +68,11 @@ Filename...: pom.xml Description: POM for PowerEditor Project.
 				<groupId>com.mindbox.pe</groupId>
 				<artifactId>pe-unit-test-support</artifactId>
 				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.mindbox.util</groupId>
+				<artifactId>mb-java-util</artifactId>
+				<version>1.6</version>
 			</dependency>
 			<dependency>
 				<groupId>com.mseries</groupId>
@@ -212,6 +217,11 @@ Filename...: pom.xml Description: POM for PowerEditor Project.
 			<dependency>
 				<groupId>com.crystalreports</groupId>
 				<artifactId>webreporting</artifactId>
+				<version>1.0</version>
+			</dependency>
+			<dependency>
+				<groupId>com.crystalreports</groupId>
+				<artifactId>xmlserialization</artifactId>
 				<version>1.0</version>
 			</dependency>
 

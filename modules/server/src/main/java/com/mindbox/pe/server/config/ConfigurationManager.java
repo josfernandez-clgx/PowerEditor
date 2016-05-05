@@ -2,7 +2,6 @@ package com.mindbox.pe.server.config;
 
 import static com.mindbox.pe.common.LogUtil.logDebug;
 import static com.mindbox.pe.common.LogUtil.logFatal;
-import static com.mindbox.pe.common.LogUtil.logInfo;
 import static com.mindbox.pe.common.UtilBase.asBoolean;
 import static com.mindbox.pe.common.UtilBase.isEmpty;
 import static com.mindbox.pe.common.UtilBase.isEmptyAfterTrim;
@@ -107,8 +106,8 @@ public final class ConfigurationManager {
 	private final String filename;
 	private UserAuthenticationProvider userAuthenticationProviderClass = null;
 
-	private ConfigurationManager(final String version, final String build, final PowerEditorConfiguration powerEditorConfiguration, final String filename) throws JAXBException, IOException,
-			SQLException {
+	private ConfigurationManager(final String version, final String build, final PowerEditorConfiguration powerEditorConfiguration, final String filename)
+			throws JAXBException, IOException, SQLException {
 		if (version == null) {
 			throw new ConfigurationException("version cannot be null");
 		}
@@ -150,7 +149,7 @@ public final class ConfigurationManager {
 		final KnowledgeBaseFilter knowledgeBaseFilter = powerEditorConfiguration.getKnowledgeBaseFilter();
 		if (knowledgeBaseFilter != null && knowledgeBaseFilter.getDateFilter() != null) {
 			dateFilterConfigHelper = new DateFilterConfigHelper(knowledgeBaseFilter.getDateFilter());
-			logInfo(LOG, "DateFilterConfig = [from=%s,to=%s]", knowledgeBaseFilter.getDateFilter().getBeginDate(), knowledgeBaseFilter.getDateFilter().getEndDate());
+			logDebug(LOG, "DateFilterConfig = [from=%s,to=%s]", knowledgeBaseFilter.getDateFilter().getBeginDate(), knowledgeBaseFilter.getDateFilter().getEndDate());
 		}
 		else {
 			dateFilterConfigHelper = null;
@@ -171,7 +170,10 @@ public final class ConfigurationManager {
 
 		logDebug(LOG, "Generating template usage types....");
 		for (final UsageType usageType : powerEditorConfiguration.getUserInterface().getUsageTypeList().getUsageType()) {
-			TemplateUsageType.createInstance(usageType.getName(), (usageType.getDisplayName() == null ? usageType.getName() : usageType.getDisplayName()), usageType.getPrivilege());
+			TemplateUsageType.createInstance(
+					usageType.getName(),
+					(usageType.getDisplayName() == null ? usageType.getName() : usageType.getDisplayName()),
+					usageType.getPrivilege());
 		}
 
 		// Load Entity confurations
@@ -186,7 +188,8 @@ public final class ConfigurationManager {
 
 		logDebug(LOG, "loading session configuration...");
 		resetUserAuthenticationProviderClass(serverConfig.getSession().getUserAuthenticationProviderClass(), serverConfig.getDatabase().getUserManagementProviderClass());
-		if (powerEditorConfiguration.getServer().getSession().getMaxUserSessions() == null || powerEditorConfiguration.getServer().getSession().getMaxUserSessions().intValue() < 1) {
+		if (powerEditorConfiguration.getServer().getSession().getMaxUserSessions() == null
+				|| powerEditorConfiguration.getServer().getSession().getMaxUserSessions().intValue() < 1) {
 			powerEditorConfiguration.getServer().getSession().setMaxUserSessions(DEFAULT_MAX_USER_SESSIONS);
 		}
 		if (powerEditorConfiguration.getServer().getUserPasswordPolicies() == null) {
@@ -216,21 +219,25 @@ public final class ConfigurationManager {
 
 		for (final RuleGenerationOverride ruleGenerationOverride : powerEditorConfiguration.getRuleGeneration().getRuleGenerationOverride()) {
 			final TemplateUsageType usageType = TemplateUsageType.valueOf(ruleGenerationOverride.getUsageType());
-			overrideRuleGenerationConfigHelperMap.put(usageType, RuleGenerationConfigHelper.newOverride(defaultRuleGenerationConfigHelper, usageType, null, ruleGenerationOverride));
+			overrideRuleGenerationConfigHelperMap.put(
+					usageType,
+					RuleGenerationConfigHelper.newOverride(defaultRuleGenerationConfigHelper, usageType, null, ruleGenerationOverride));
 		}
 
 		enumerationSourceConfigHelper = new EnumerationSourceConfigHelper(serverConfig.getEnumerationSources());
 
 		serverConfigHelper = new ServerConfigHelper(serverConfig);
 
-		parameterContextConfigHelper = new ParameterContextConfigHelper(powerEditorConfiguration.getRuleGeneration().getObjectGenerationDefault() == null
+		parameterContextConfigHelper = new ParameterContextConfigHelper(
+				powerEditorConfiguration.getRuleGeneration().getObjectGenerationDefault() == null
+						? null
+						: powerEditorConfiguration.getRuleGeneration().getObjectGenerationDefault().getParameterContext());
+
+		userPasswordPoliciesConfigHelper = (powerEditorConfiguration.getServer().getUserPasswordPolicies() == null
 				? null
-				: powerEditorConfiguration.getRuleGeneration().getObjectGenerationDefault().getParameterContext());
+				: new UserPasswordPoliciesConfigHelper(powerEditorConfiguration.getServer().getUserPasswordPolicies()));
 
-		userPasswordPoliciesConfigHelper = (powerEditorConfiguration.getServer().getUserPasswordPolicies() == null ? null : new UserPasswordPoliciesConfigHelper(
-				powerEditorConfiguration.getServer().getUserPasswordPolicies()));
-
-		logInfo(LOG, "Configuration loaded successfully");
+		logDebug(LOG, "Configuration loaded successfully");
 	}
 
 	private void checkFileExists(String filename, String description) {
@@ -405,7 +412,8 @@ public final class ConfigurationManager {
 		}
 
 		final boolean anonymous = ldapConfig.getAuthenticationScheme().equals(AUTH_NONE);
-		if (!anonymous && isEmpty(ldapConfig.getPrincipal())) throw new IllegalArgumentException("<Server><LDAP><Principal> is required in PowerEditorConfiguration.xml for non-anonyous connection");
+		if (!anonymous && isEmpty(ldapConfig.getPrincipal()))
+			throw new IllegalArgumentException("<Server><LDAP><Principal> is required in PowerEditorConfiguration.xml for non-anonyous connection");
 		if (!anonymous && (ldapConfig.getCredentials() == null || isEmpty(ldapConfig.getCredentials()))) {
 			throw new IllegalArgumentException("<Server><LDAP><Credentials> is required in PowerEditorConfiguration.xml for non-anonyous connection");
 		}
@@ -483,12 +491,14 @@ public final class ConfigurationManager {
 				// check attribute element contains a valid attribute name
 				DomainClass dc = domainClassProvider.getDomainClass(pattern.getClazz());
 				if (dc == null) {
-					throw new ConfigurationException("<Pattern type='control'> for " + usageTypeStr + " contains invalid value; No domain class named '" + pattern.getClazz() + "' found");
+					throw new ConfigurationException(
+							"<Pattern type='control'> for " + usageTypeStr + " contains invalid value; No domain class named '" + pattern.getClazz() + "' found");
 				}
 				DomainAttribute da = dc.getDomainAttribute(attributes.get(genericEntityType.getName()));
 				if (da == null) {
-					throw new ConfigurationException("<Attribute> element of type '" + genericEntityType + " for " + usageTypeStr + "  contains invalid value; Domain attribute of name "
-							+ attributes.get(genericEntityType.getName()) + " not found for " + dc);
+					throw new ConfigurationException(
+							"<Attribute> element of type '" + genericEntityType + " for " + usageTypeStr + "  contains invalid value; Domain attribute of name "
+									+ attributes.get(genericEntityType.getName()) + " not found for " + dc);
 				}
 			}
 		}

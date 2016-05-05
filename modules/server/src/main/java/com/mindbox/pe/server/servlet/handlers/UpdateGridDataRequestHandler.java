@@ -1,10 +1,13 @@
 package com.mindbox.pe.server.servlet.handlers;
 
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 
 import com.mindbox.pe.communication.ResponseComm;
-import com.mindbox.pe.communication.SuccessResponse;
 import com.mindbox.pe.communication.UpdateGridDataRequest;
+import com.mindbox.pe.communication.UpdateGridDataResponse;
+import com.mindbox.pe.model.IntegerPair;
 import com.mindbox.pe.server.bizlogic.GridActionCoordinator;
 import com.mindbox.pe.server.cache.GuidelineTemplateManager;
 import com.mindbox.pe.server.model.LockException;
@@ -23,15 +26,16 @@ public class UpdateGridDataRequestHandler extends AbstractSessionRequestHandler<
 		return GuidelineTemplateManager.getInstance().getTemplatePermission(request.getTemplateID(), false);
 	}
 
+	@Override
 	public ResponseComm handleRequest(UpdateGridDataRequest request, HttpServletRequest httpservletrequest) throws ServletActionException, LockException {
 		User user = getUser(request.getUserID());
-		GridActionCoordinator.getInstance().syncGridData(
+		final Map<IntegerPair, Integer> dateSynonymPairGridIdMap = GridActionCoordinator.getInstance().syncGridData(
 				request.getTemplateID(),
 				request.getGridList(),
 				request.getRemovedGrids(),
 				false,
 				user);
-		return new SuccessResponse();
+		return new UpdateGridDataResponse(dateSynonymPairGridIdMap);
 	}
 
 }
