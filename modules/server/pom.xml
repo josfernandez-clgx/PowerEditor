@@ -383,10 +383,9 @@ Filename...: pom.xml Description: POM for PE Server Module.
 			<plugin>
 				<groupId>org.wildfly.plugins</groupId>
 				<artifactId>wildfly-maven-plugin</artifactId>
-				<version>1.0.1.Final</version>
 				<configuration>
-					<name>${project.name}.${project.packaging}</name>
-					<port>${mb.pe.wildfly.port}</port>
+					<name>PowerEditor.war</name>
+					<skip>false</skip>
 				</configuration>
 			</plugin>
 		</plugins>

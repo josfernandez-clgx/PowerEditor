@@ -393,6 +393,15 @@ Filename...: pom.xml Description: POM for PowerEditor Project.
 						</vmArgs>
 					</configuration>
 				</plugin>
+				<plugin>
+					<groupId>org.wildfly.plugins</groupId>
+					<artifactId>wildfly-maven-plugin</artifactId>
+					<version>1.1.0.Alpha8</version>
+					<configuration>
+						<port>${wildfly.local.deploy.port}</port>
+						<skip>true</skip>
+					</configuration>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
