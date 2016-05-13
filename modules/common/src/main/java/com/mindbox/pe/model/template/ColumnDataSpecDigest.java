@@ -78,7 +78,7 @@ public final class ColumnDataSpecDigest implements Serializable {
 	/**
 	 * Create a new instance of this that is an exact copy of the source.
 	 * This performs deep-copy.
-	 * @param source
+	 * @param source source
 	 * @since PowerEditor 4.3.2
 	 */
 	public ColumnDataSpecDigest(ColumnDataSpecDigest source) {
@@ -490,7 +490,11 @@ public final class ColumnDataSpecDigest implements Serializable {
 		}
 	}
 
-	/** backward compatibility for importing precision values either in the old "<precision>.<width>" format, or the new "<precision>" format */
+	/** 
+	 * backward compatibility for importing precision values either in the old "&lt;precision&gt;.&lt;width&gt;" format, 
+	 * or the new "&lt;precision&gt;" format.
+	 * @param precision precision
+	 */
 	public void setPrecisionImport(String precision) {
 		if (precision != null && precision.trim().length() > 0) {
 			String[] parts = precision.split("\\.");

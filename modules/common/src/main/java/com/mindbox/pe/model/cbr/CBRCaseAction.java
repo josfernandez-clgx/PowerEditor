@@ -16,23 +16,26 @@ package com.mindbox.pe.model.cbr;
 public class CBRCaseAction extends AbstractCBRConfigClass {
 
 	private static final long serialVersionUID = 20041005125700L;
-	
+
 	public CBRCaseAction() {
 		super(UNASSIGNED_ID, "", "");
-	}	
+	}
+
 	/**
 	 * Constructor
-	 * @param symbol
-	 * @param displayName
+	 * @param id id
+	 * @param symbol symbol
+	 * @param displayName displayName
 	 */
 	public CBRCaseAction(int id, String symbol, String displayName) {
 		super(id, symbol, displayName);
 	}
-	
+
 	public synchronized void copyFrom(CBRCaseAction caseAction) {
 		super.copyFrom(caseAction);
 	}
 
+	@Override
 	public String toString() {
 		return this.getName();
 	}

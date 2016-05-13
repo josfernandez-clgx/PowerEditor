@@ -23,16 +23,16 @@ public interface GridValueContainable {
 	 * 
 	 * @param i row
 	 * @param j column
-	 * @param defaultValue
+	 * @param defaultValue defaultValue
 	 * @return the cell value object
-	 * @throws InvalidDataException
+	 * @throws InvalidDataException on error
 	 * @since PowerEditor 4.1.1 if i or j is invalid
 	 */
 	Object getCellValueObject(int i, int j, Object defaultValue) throws InvalidDataException;
 
-	String getColumnTitle(String columnName);
-
 	String[] getColumnNames();
+
+	String getColumnTitle(String columnName);
 
 	Object[][] getDataObjects();
 

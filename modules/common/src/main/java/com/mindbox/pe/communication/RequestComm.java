@@ -55,8 +55,9 @@ public abstract class RequestComm<T extends ResponseComm> extends SapphireComm<T
 	/**
 	 * Sends this request to the server and returns a response.
 	 * Note: This must not be invoked from the server.
+	 * @param timeOutController timeout controller
 	 * @return the response from the server. Never <code>null</code>
-	 * @throws CommunicationException
+	 * @throws ServerException on error
 	 */
 	@SuppressWarnings("unchecked")
 	public synchronized T sendRequest(final TimeOutController timeOutController) throws ServerException {

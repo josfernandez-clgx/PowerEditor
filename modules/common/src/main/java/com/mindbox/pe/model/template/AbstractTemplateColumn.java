@@ -40,7 +40,7 @@ public abstract class AbstractTemplateColumn extends AbstractIDNameDescriptionOb
 	protected TemplateUsageType usageType;
 	private ColumnDataSpecDigest dataSpecDigest;
 	private String title;
-	/** To support attributeMap on column element for backward-compatibility. */
+	/* To support attributeMap on column element for backward-compatibility. */
 	private String attributeMapOldStr = null;
 
 	protected AbstractTemplateColumn(AbstractTemplateColumn source) {
@@ -57,15 +57,12 @@ public abstract class AbstractTemplateColumn extends AbstractIDNameDescriptionOb
 
 	/**
 	 * Gets the value of specified cell as a cell value object.
-	 * This is used by {@link com.mindbox.pe.server.db.loaders.GridLoader} and
-	 * {@link com.mindbox.pe.server.imexport.ObjectConverter} to convert string into value objects.
-	 * @param strValue
-	 *            string
-	 * @param colIndex
-	 *            zero-based index
+	 * This is to convert string into value objects.
+	 * @param strValue string
+	 * @param domainClassProvider domainClassProvider
+	 * @param enumerationSourceProxy enumerationSourceProxy
 	 * @return the cell value object
-	 * @throws InvalidDataException
-	 *             if the cell contains an invalid vaue
+	 * @throws InvalidDataException if the cell contains an invalid vaue
 	 */
 	public final Object convertToCellValue(String strValue, DomainClassProvider domainClassProvider, EnumerationSourceProxy enumerationSourceProxy) throws InvalidDataException {
 		if (UtilBase.isEmpty(strValue)) return null;
@@ -84,7 +81,8 @@ public abstract class AbstractTemplateColumn extends AbstractIDNameDescriptionOb
 				obj = BooleanDataHelper.mapToBooleanValue(strValue, columnDataSpecDigest.isBlankAllowed());
 
 			}
-			else if (columnDataSpecDigest.getType().equals(ColumnDataSpecDigest.TYPE_CURRENCY_RANGE) || columnDataSpecDigest.getType().equals(ColumnDataSpecDigest.TYPE_FLOAT_RANGE)) {
+			else if (columnDataSpecDigest.getType().equals(ColumnDataSpecDigest.TYPE_CURRENCY_RANGE)
+					|| columnDataSpecDigest.getType().equals(ColumnDataSpecDigest.TYPE_FLOAT_RANGE)) {
 				obj = FloatRange.parseValue(strValue);
 			}
 			else if (columnDataSpecDigest.getType().equals(ColumnDataSpecDigest.TYPE_DATE)) {
@@ -121,7 +119,11 @@ public abstract class AbstractTemplateColumn extends AbstractIDNameDescriptionOb
 							columnDataSpecDigest.isCategoryAllowed());
 				}
 				else {
-					obj = CategoryOrEntityValue.valueOf(strValue, columnDataSpecDigest.getEntityType(), columnDataSpecDigest.isEntityAllowed(), columnDataSpecDigest.isCategoryAllowed());
+					obj = CategoryOrEntityValue.valueOf(
+							strValue,
+							columnDataSpecDigest.getEntityType(),
+							columnDataSpecDigest.isEntityAllowed(),
+							columnDataSpecDigest.isCategoryAllowed());
 				}
 			}
 			else if (columnDataSpecDigest.getType().equals(ColumnDataSpecDigest.TYPE_ENUM_LIST)) {
@@ -226,7 +228,7 @@ public abstract class AbstractTemplateColumn extends AbstractIDNameDescriptionOb
 
 	/**
 	 * Sets presentation details from the specified presentation digest object.
-	 * @param digest
+	 * @param digest digest
 	 * @since PowerEditor 3.2.0
 	 */
 	public void setDataSpecDigest(ColumnDataSpecDigest digest) {
@@ -245,7 +247,7 @@ public abstract class AbstractTemplateColumn extends AbstractIDNameDescriptionOb
 
 	/**
 	 * Sets presentation details from the specified presentation digest object.
-	 * @param digest
+	 * @param digest digest
 	 * @since PowerEditor 3.2.0
 	 */
 	public void setPresentation(ColumnPresentationDigest digest) {
@@ -263,6 +265,7 @@ public abstract class AbstractTemplateColumn extends AbstractIDNameDescriptionOb
 		this.usageType = usageType;
 	}
 
+	@Override
 	public String toString() {
 		return "Column[" + getColumnNumber() + ",title=" + getTitle() + ",ds = " + getColumnDataSpecDigest() + "]";
 	}

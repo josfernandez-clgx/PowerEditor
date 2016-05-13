@@ -16,9 +16,6 @@ import javax.swing.JSeparator;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import mseries.ui.MChangeEvent;
-import mseries.ui.MChangeListener;
-
 import com.mindbox.pe.client.ClientUtil;
 import com.mindbox.pe.client.InputValidationException;
 import com.mindbox.pe.client.applet.UIFactory;
@@ -37,6 +34,9 @@ import com.mindbox.pe.model.IDNameObject;
 import com.mindbox.pe.model.PeDataType;
 import com.mindbox.pe.model.exceptions.CanceledException;
 
+import mseries.ui.MChangeEvent;
+import mseries.ui.MChangeListener;
+
 /**
  * 
  * @author Gene Kim
@@ -46,10 +46,12 @@ import com.mindbox.pe.model.exceptions.CanceledException;
 public abstract class AbstractDetailPanel<T extends IDNameObject, B extends ButtonPanel> extends PanelBase implements DocumentListener, PowerEditorTabPanel, MChangeListener {
 	private class DetailChangeL implements DetailChangeListener {
 
+		@Override
 		public void detailChanged() {
 			setHasChangesStatus(true);
 		}
 
+		@Override
 		public void detailSaved() {
 			setHasChangesStatus(false);
 		}
@@ -57,6 +59,7 @@ public abstract class AbstractDetailPanel<T extends IDNameObject, B extends Butt
 
 	private final class SaveL extends AbstractThreadedActionAdapter {
 
+		@Override
 		public void performAction(ActionEvent event) {
 			saveEntity_internal();
 		}
@@ -83,7 +86,7 @@ public abstract class AbstractDetailPanel<T extends IDNameObject, B extends Butt
 
 	/**
 	 * 
-	 * @param genericEntityType
+	 * @param genericEntityType genericEntityType
 	 * @since 3.0.0
 	 */
 	protected AbstractDetailPanel(GenericEntityType genericEntityType) {
@@ -92,8 +95,8 @@ public abstract class AbstractDetailPanel<T extends IDNameObject, B extends Butt
 
 	/**
 	 * 
-	 * @param genericEntityType
-	 * @param entityType
+	 * @param genericEntityType genericEntityType
+	 * @param entityType entityType
 	 * @since 3.0.0
 	 */
 	protected AbstractDetailPanel(GenericEntityType genericEntityType, PeDataType entityType) {
@@ -118,6 +121,8 @@ public abstract class AbstractDetailPanel<T extends IDNameObject, B extends Butt
 	 * Adds additional UI components, if necessary.
 	 * This should be overriden by sub-classes.
 	 * This method implementation does nothing.
+	 * @param bag bag
+	 * @param c c
 	 */
 	protected abstract void addComponents(GridBagLayout bag, GridBagConstraints c);
 
@@ -165,6 +170,7 @@ public abstract class AbstractDetailPanel<T extends IDNameObject, B extends Butt
 		return (currentObject == null ? -1 : currentObject.getID());
 	}
 
+	@Override
 	public synchronized boolean hasUnsavedChanges() {
 		return hasChanges;
 	}
@@ -294,10 +300,9 @@ public abstract class AbstractDetailPanel<T extends IDNameObject, B extends Butt
 
 		int newID;
 		if (currentObject instanceof CloneableEntity) {
-			newID = CloneableEntity.class.cast(currentObject).isForClone() ? ClientUtil.getCommunicator().clone(
-					(GenericEntity) currentObject,
-					((CloneableEntity) currentObject).shouldCopyPolicies(),
-					false) : ClientUtil.getCommunicator().save(currentObject, false);
+			newID = CloneableEntity.class.cast(currentObject).isForClone()
+					? ClientUtil.getCommunicator().clone((GenericEntity) currentObject, ((CloneableEntity) currentObject).shouldCopyPolicies(), false)
+					: ClientUtil.getCommunicator().save(currentObject, false);
 		}
 		else {
 			newID = ClientUtil.getCommunicator().save(currentObject, false);

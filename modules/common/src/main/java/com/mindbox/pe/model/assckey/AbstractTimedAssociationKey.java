@@ -2,11 +2,11 @@ package com.mindbox.pe.model.assckey;
 
 import java.util.Date;
 
-import net.sf.oval.constraint.AssertValid;
-import net.sf.oval.constraint.NotNull;
-
 import com.mindbox.pe.common.validate.oval.EffectiveDateBeforeExpirationDate;
 import com.mindbox.pe.model.DateSynonym;
+
+import net.sf.oval.constraint.AssertValid;
+import net.sf.oval.constraint.NotNull;
 
 /**
  * A immutable relationship key with a time period.
@@ -30,16 +30,23 @@ public abstract class AbstractTimedAssociationKey extends AbstractAssociationKey
 	@AssertValid
 	@EffectiveDateBeforeExpirationDate
 	private DateSynonym activationDate;
-	
+
 	@AssertValid
 	private DateSynonym expirationDate;
-	
+
 	private int hashCode;
+
+	protected AbstractTimedAssociationKey(AbstractTimedAssociationKey source) {
+		super(source.getAssociableID());
+		this.activationDate = source.activationDate;
+		this.expirationDate = source.expirationDate;
+		this.hashCode = source.hashCode;
+	}
 
 	/**
 	 * Constructor with associable id, effective date, and expiration date.
 	 * This accepts <code>null</code> for both <code>effDate</code> and <code>expDate</code>.
-	 * @param associableID
+	 * @param associableID associableID
 	 * @param effDate effective date; can be <code>null</code>
 	 * @param expDate expiration date; can be <code>null</code>
 	 */
@@ -50,36 +57,7 @@ public abstract class AbstractTimedAssociationKey extends AbstractAssociationKey
 		resetHashCode();
 	}
 
-	protected AbstractTimedAssociationKey(AbstractTimedAssociationKey source) {
-		super(source.getAssociableID());
-		this.activationDate = source.activationDate;
-		this.expirationDate = source.expirationDate;
-		this.hashCode = source.hashCode;
-	}
-
-	public final DateSynonym getEffectiveDate() {
-		return activationDate;
-	}
-
-	public final DateSynonym getExpirationDate() {
-		return expirationDate;
-	}
-
-	void setAssociableID(int id) {
-		super.setAssociableID(id);
-		resetHashCode();
-	}
-
-	void setEffectiveDate(DateSynonym effectiveDate) {
-		this.activationDate = effectiveDate;
-		resetHashCode();
-	}
-
-	void setExpirationDate(DateSynonym expirationDate) {
-		this.expirationDate = expirationDate;
-		resetHashCode();
-	}
-
+	@Override
 	public boolean equals(Object obj) {
 		if (super.equals(obj) && obj instanceof TimedAssociationKey) {
 			TimedAssociationKey key = (TimedAssociationKey) obj;
@@ -89,25 +67,33 @@ public abstract class AbstractTimedAssociationKey extends AbstractAssociationKey
 			return false;
 	}
 
-	private synchronized final void resetHashCode() {
-		this.hashCode = (super.hashCode() + ":" + activationDate + ":" + expirationDate).hashCode();
+	@Override
+	public final DateSynonym getEffectiveDate() {
+		return activationDate;
 	}
 
+	@Override
+	public final DateSynonym getExpirationDate() {
+		return expirationDate;
+	}
+
+	@Override
 	public int hashCode() {
 		return hashCode;
 	}
 
+	@Override
 	public boolean isEffectiveAt(Date date) {
 		if (date == null) throw new NullPointerException("date cannot be null");
 		if (activationDate == null && expirationDate == null) {
 			return true;
 		}
 		else {
-			return (activationDate == null || activationDate.getDate().compareTo(date) <= 0)
-					&& (expirationDate == null || expirationDate.getDate().compareTo(date) > 0);
+			return (activationDate == null || activationDate.getDate().compareTo(date) <= 0) && (expirationDate == null || expirationDate.getDate().compareTo(date) > 0);
 		}
 	}
 
+	@Override
 	public boolean overlapsWith(TimedAssociationKey key) {
 		if (key == null)
 			throw new NullPointerException("key cannot be null");
@@ -123,10 +109,31 @@ public abstract class AbstractTimedAssociationKey extends AbstractAssociationKey
 		}
 	}
 
+	private synchronized final void resetHashCode() {
+		this.hashCode = (super.hashCode() + ":" + activationDate + ":" + expirationDate).hashCode();
+	}
+
+	@Override
+	void setAssociableID(int id) {
+		super.setAssociableID(id);
+		resetHashCode();
+	}
+
+	void setEffectiveDate(DateSynonym effectiveDate) {
+		this.activationDate = effectiveDate;
+		resetHashCode();
+	}
+
+	void setExpirationDate(DateSynonym expirationDate) {
+		this.expirationDate = expirationDate;
+		resetHashCode();
+	}
+
+	@Override
 	public String toString() {
 		return super.toString() + "[act=" + activationDate + ",exp=" + expirationDate + ']';
 	}
-	
+
 	// TT 2029 
 	public void updateEffExpDates(DateSynonym ds) {
 		if (activationDate != null && activationDate.equals(ds)) {
@@ -135,7 +142,7 @@ public abstract class AbstractTimedAssociationKey extends AbstractAssociationKey
 		if (expirationDate != null && expirationDate.equals(ds)) {
 			expirationDate = ds;
 		}
-		
+
 	}
 
 }

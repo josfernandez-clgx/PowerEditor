@@ -50,8 +50,8 @@ public interface Communicator {
 
 	/**
 	 * Clone a case base and its sub-objects
-	 * @param oldCaseBaseID
-	 * @param newCaseBaseName
+	 * @param oldCaseBaseID oldCaseBaseID
+	 * @param newCaseBaseName newCaseBaseName
 	 * @return The new case base id.
 	 * @throws ServerException
 	 * @since 4.1.0
@@ -60,8 +60,8 @@ public interface Communicator {
 
 	/**
 	 * Clones all guideline activations for the specified template for the new template id.
-	 * @param oldTemplateID
-	 * @param newTemplateID
+	 * @param oldTemplateID oldTemplateID
+	 * @param newTemplateID newTemplateID
 	 * @throws ServerException
 	 * @since 4.0.0
 	 */
@@ -69,7 +69,7 @@ public interface Communicator {
 
 	/**
 	 * 
-	 * @param data
+	 * @param data data
 	 * @throws ServerException
 	 * @since 3.0.0
 	 */
@@ -84,8 +84,8 @@ public interface Communicator {
 
 	/**
 	 * 
-	 * @param categoryType
-	 * @param categoryID
+	 * @param categoryType categoryType
+	 * @param categoryID categoryID
 	 * @throws ServerException
 	 * @since 3.1.0
 	 */
@@ -94,8 +94,8 @@ public interface Communicator {
 	/**
 	 * Removes the specified template.
 	 * It <code>deleteGuidelines</code> is <code>true</code>, this delete all guidelines for the template as well.
-	 * @param templateID
-	 * @param deleteGuidelines
+	 * @param templateID templateID
+	 * @param deleteGuidelines deleteGuidelines
 	 * @throws ServerException on error
 	 * @since 4.3.7
 	 */
@@ -109,7 +109,7 @@ public interface Communicator {
 
 	/**
 	 * This is called when export data is to be written on client machine
-	 * @param filter
+	 * @param filter filter
 	 * @return byte array which contains the file to be written
 	 * @throws ServerException
 	 */
@@ -117,7 +117,7 @@ public interface Communicator {
 
 	/**
 	 * This is called when export data is to be written on server machine
-	 * @param filter
+	 * @param filter filter
 	 * @param filename the filename to save
 	 * @return int
 	 * @throws ServerException
@@ -129,8 +129,8 @@ public interface Communicator {
 
 	/**
 	 * 
-	 * @param entityType1
-	 * @param entityType2
+	 * @param entityType1 entityType1
+	 * @param entityType2 entityType2
 	 * @return list of the specified compatibility data
 	 * @throws ServerException
 	 * @since 3.0.0
@@ -170,8 +170,8 @@ public interface Communicator {
 
 	/**
 	 * Gets 
-	 * @param templateID
-	 * @param cutoverDate
+	 * @param templateID templateID
+	 * @param cutoverDate cutoverDate
 	 * @return list of two lists of instances of {@link com.mindbox.pe.model.GuidelineReportData}; 
 	 *         first list contains guidelines to cut over; second those to remain as is
 	 * @throws ServerException
@@ -181,8 +181,8 @@ public interface Communicator {
 
 	/**
 	 * Generates policy summary report.
-	 * @param reportSpec
-	 * @param guidelines
+	 * @param reportSpec reportSpec
+	 * @param guidelines guidelines
 	 * @return generate report content as byte array
 	 * @throws ServerException
 	 */
@@ -191,7 +191,7 @@ public interface Communicator {
 	/**
 	 * Generates reports of the specified guidelines and returns the URL of the report to display.
 	 * @param reportSpec report specification
-	 * @param guidelines
+	 * @param guidelines guidelines
 	 * @return report URL
 	 * @throws ServerException on error generating the report
 	 */
@@ -213,7 +213,7 @@ public interface Communicator {
 
 	/**
 	 * Tests if the specified template has any guidelines.
-	 * @param templateID
+	 * @param templateID templateID
 	 * @return <code>true</code> if template with the specified id has at least one guideline; <code>false</code>, otherwise
 	 * @throws ServerException on error
 	 * @since 4.3.7
@@ -282,9 +282,9 @@ public interface Communicator {
 
 	/**
 	 * Equivalent to <code>save(object, lock, true)</code>.
-	 * @param object
-	 * @param lock
-	 * @return
+	 * @param object object
+	 * @param lock lock
+	 * @return id
 	 * @throws ServerException
 	 */
 	int save(Persistent object, boolean lock) throws ServerException;
@@ -295,9 +295,6 @@ public interface Communicator {
 
 	<T extends Persistent> List<T> search(SearchFilter<T> searchFilter) throws ServerException;
 
-	/**
-	 * @since 3.0.0
-	 */
 	void unlock(int entityID, GenericEntityType entityType) throws ServerException;
 
 	void unlock(int entityID, PeDataType entityType) throws ServerException;

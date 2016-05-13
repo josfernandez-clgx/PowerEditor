@@ -13,13 +13,13 @@ import java.util.List;
 public interface ChildAssociationKeySet extends MutableTimedAssociationKeySet {
 
 	/**
-	 * Tests if this has any child as of the specified date.
-	 * @param date the date to check
-	 * @return <code>true</code> if this has any child at <code>date</code>; <code>false</code>, otherwise
-	 * @throws NullPointerException if <code>date</code> is <code>null</code>
+	 * Gets a list of timed association keys for the specified child id.
+	 * This returns an empty list of no association for the specified id is found.
+	 * @param childID child id
+	 * @return list of {@link MutableTimedAssociationKey} instances, if found; never <code>null</code>
 	 */
-	boolean hasAnyChildAsOf(Date date);
-	
+	List<MutableTimedAssociationKey> getAssociationsForChild(int childID);
+
 	/**
 	 * Gets a list of ids of children as of the specified date.
 	 * @param date the date
@@ -27,11 +27,12 @@ public interface ChildAssociationKeySet extends MutableTimedAssociationKeySet {
 	 * @throws NullPointerException if <code>date</code> is <code>null</code>
 	 */
 	List<Integer> getChildrendAsOf(Date date);
-	
+
 	/**
-	 * Gets a list of timed association keys for the specified child id.
-	 * This returns an empty list of no association for the specified id is found.
-	 * @return list of {@link MutableTimedAssociationKey} instances, if found; never <code>null</code>
+	 * Tests if this has any child as of the specified date.
+	 * @param date the date to check
+	 * @return <code>true</code> if this has any child at <code>date</code>; <code>false</code>, otherwise
+	 * @throws NullPointerException if <code>date</code> is <code>null</code>
 	 */
-	List<MutableTimedAssociationKey> getAssociationsForChild(int childID);
+	boolean hasAnyChildAsOf(Date date);
 }

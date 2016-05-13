@@ -37,7 +37,7 @@ public abstract class AbstractGuidelineGrid extends AbstractGrid<GridTemplateCol
 	 * </ol>
 	 * This replaces old clone() method.
 	 * 
-	 * @param sourceGrid
+	 * @param sourceGrid sourceGrid
 	 *            source grid
 	 * @since PowerEditor 4.2.0
 	 */
@@ -57,10 +57,10 @@ public abstract class AbstractGuidelineGrid extends AbstractGrid<GridTemplateCol
 	 * Constructs a new instance copying the specified grid, differing in effective dating and the
 	 * template.
 	 * 
-	 * @param grid
-	 * @param template
-	 * @param effDate
-	 * @param expDate
+	 * @param grid grid
+	 * @param template template
+	 * @param effDate effDate
+	 * @param expDate expDate
 	 * @since PowerEditor 4.2.0
 	 */
 	protected AbstractGuidelineGrid(AbstractGuidelineGrid grid, GridTemplate template, DateSynonym effDate, DateSynonym expDate) {

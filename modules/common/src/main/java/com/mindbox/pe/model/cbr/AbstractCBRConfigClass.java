@@ -14,7 +14,7 @@ public abstract class AbstractCBRConfigClass extends AbstractIDNameDescriptionOb
 
 	private static final long serialVersionUID = 20041005151900L;
 
-    private String symbol = null;
+	private String symbol = null;
 
 	/**
 	 * Default constructor.
@@ -22,13 +22,13 @@ public abstract class AbstractCBRConfigClass extends AbstractIDNameDescriptionOb
 	 */
 	public AbstractCBRConfigClass() {
 		super(UNASSIGNED_ID, "", "");
-	}	
+	}
 
 	/**
 	 * 
-	 * @param id
-	 * @param symbol
-	 * @param name
+	 * @param id id
+	 * @param symbol symbol
+	 * @param name name
 	 */
 	public AbstractCBRConfigClass(int id, String symbol, String name) {
 		super(id, name, null);
@@ -37,15 +37,35 @@ public abstract class AbstractCBRConfigClass extends AbstractIDNameDescriptionOb
 
 	/**
 	 * 
-	 * @param id
-	 * @param symbol
-	 * @param name
-	 * @param description
+	 * @param id id
+	 * @param symbol symbol
+	 * @param name name
+	 * @param description description
 	 */
 	public AbstractCBRConfigClass(int id, String symbol, String name, String description) {
 		super(id, name, description);
 		this.symbol = symbol;
 	}
+
+	/**
+	 * Comparable's compareTo method that compares name.
+	 */
+	@Override
+	public int compareTo(AbstractIDNameObject arg0) {
+		if (this == arg0) {
+			return 0;
+		}
+		else {
+			AbstractCBRConfigClass target = (AbstractCBRConfigClass) arg0;
+			if (this.getID() == target.getID()) {
+				return 0;
+			}
+			else {
+				return this.getName().compareTo(target.getName());
+			}
+		}
+	}
+
 
 	public synchronized void copyFrom(AbstractCBRConfigClass in) {
 		setID(in.getID());
@@ -54,24 +74,7 @@ public abstract class AbstractCBRConfigClass extends AbstractIDNameDescriptionOb
 		setDescription(in.getDescription());
 	}
 
-
-	/**
-	 * @return Returns the symbol.
-	 */
-	public String getSymbol() {
-		return symbol;
-	}
-	/**
-	 * @param symbol The symbol to set.
-	 */
-	public void setSymbol(String symbol) {
-		this.symbol = symbol;
-	}
-
-	public String toString() {
-		return "AbstractCBRConfigClass[symbol=" + getSymbol() +
-				",display name=" + getName() + "]";
-	}
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
 		if (obj instanceof AbstractCBRConfigClass) {
@@ -81,21 +84,24 @@ public abstract class AbstractCBRConfigClass extends AbstractIDNameDescriptionOb
 			return false;
 		}
 	}
+
 	/**
-	 * Comparable's compareTo method that compares name.
+	 * @return Returns the symbol.
 	 */
-	public int compareTo(AbstractIDNameObject arg0) {
-		if (this == arg0) {
-			return 0;}
-		else {
-			AbstractCBRConfigClass target = (AbstractCBRConfigClass)arg0;
-			if (this.getID() == target.getID()) {
-				return 0;
-			}
-			else {
-				return this.getName().compareTo(target.getName());
-			}
-		}
+	public String getSymbol() {
+		return symbol;
+	}
+
+	/**
+	 * @param symbol The symbol to set.
+	 */
+	public void setSymbol(String symbol) {
+		this.symbol = symbol;
+	}
+
+	@Override
+	public String toString() {
+		return "AbstractCBRConfigClass[symbol=" + getSymbol() + ",display name=" + getName() + "]";
 	}
 
 

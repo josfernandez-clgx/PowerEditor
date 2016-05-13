@@ -12,51 +12,54 @@ import com.mindbox.pe.model.grid.GridCellCoordinates.GridCellCoordinatesComparat
  * A set of {@link com.mindbox.pe.model.grid.GridCellCoordinates}.
  */
 public class GridCellSet implements Serializable {
-	
+
 	private static final long serialVersionUID = 7967246080462023553L;
 
 	private final SortedSet<GridCellCoordinates> cells;
-	
+
 	public GridCellSet(GridCellCoordinatesComparator comparator) {
 		cells = new TreeSet<GridCellCoordinates>(comparator);
 	}
-	
-	public Iterator<GridCellCoordinates> iterator() {
-		return cells.iterator();
-	}
-	
-	public int size() {
-		return cells.size();
-	}
-	
-	public boolean isEmpty() {
-		return cells.isEmpty();
-	}
-	
+
 	public boolean add(GridCellCoordinates cellCoordinates) {
 		return cellCoordinates != null && cells.add(cellCoordinates);
 	}
 
-	public boolean remove(GridCellCoordinates cellCoordinates) {
-		return cellCoordinates == null ? false : cells.remove(cellCoordinates);
-	}
-	
 	public void clear() {
 		cells.clear();
 	}
-	
+
 	public boolean contains(GridCellCoordinates cellCoordinates) {
 		return cellCoordinates == null ? false : cells.contains(cellCoordinates);
 	}
-	
-	/** @return null if this set doesn't contain row, col */
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null) {
+			return false;
+		}
+		if (o.getClass().getName().equals(GridCellSet.class.getName())) {
+			GridCellSet that = (GridCellSet) o;
+			return this.cells.equals(that.cells);
+		}
+		return false;
+	}
+
+	/** 
+	 * @param row row
+	 * @param col col
+	 * @return null if this set doesn't contain row, col 
+	 */
 	public GridCellCoordinates get(int row, int col) {
 		GridCellCoordinates searchCoordinates = new GridCellCoordinates(row, col);
-		
+
 		if (!contains(searchCoordinates)) { // optimization using TreeSet to avoid cell by cell search when not in the set
 			return null;
 		}
-		
+
 		for (GridCellCoordinates actualCoordinates : cells) {
 			if (searchCoordinates.equals(actualCoordinates)) {
 				return actualCoordinates;
@@ -92,22 +95,25 @@ public class GridCellSet implements Serializable {
 		}
 		return Collections.unmodifiableSortedSet(result);
 	}
-	
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null) {
-			return false;
-		}
-		if (o.getClass().getName().equals(GridCellSet.class.getName())) {
-			GridCellSet that = (GridCellSet) o;
-			return this.cells.equals(that.cells);
-		}
-		return false;
-	}
-	
+
+	@Override
 	public int hashCode() {
 		return cells.hashCode();
+	}
+
+	public boolean isEmpty() {
+		return cells.isEmpty();
+	}
+
+	public Iterator<GridCellCoordinates> iterator() {
+		return cells.iterator();
+	}
+
+	public boolean remove(GridCellCoordinates cellCoordinates) {
+		return cellCoordinates == null ? false : cells.remove(cellCoordinates);
+	}
+
+	public int size() {
+		return cells.size();
 	}
 }

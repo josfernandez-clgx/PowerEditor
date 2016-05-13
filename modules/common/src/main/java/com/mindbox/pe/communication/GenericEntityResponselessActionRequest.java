@@ -19,18 +19,13 @@ public class GenericEntityResponselessActionRequest extends AbstractGenericEntit
 
 	/**
 	 * 
-	 * @param userID
-	 * @param sessionID
-	 * @param entityID
-	 * @param type
-	 * @param actionType
+	 * @param userID userID
+	 * @param sessionID sessionID
+	 * @param entityID entityID
+	 * @param type type
+	 * @param actionType actionType
 	 */
-	public GenericEntityResponselessActionRequest(
-		String userID,
-		String sessionID,
-		int entityID,
-		GenericEntityType type,
-		int actionType) {
+	public GenericEntityResponselessActionRequest(String userID, String sessionID, int entityID, GenericEntityType type, int actionType) {
 		super(userID, sessionID, entityID, type);
 		this.actionType = actionType;
 	}

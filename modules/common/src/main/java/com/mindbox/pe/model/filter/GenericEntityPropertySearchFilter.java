@@ -17,10 +17,10 @@ public class GenericEntityPropertySearchFilter extends GenericEntityBasicSearchF
 
 	private static final long serialVersionUID = -904011948054646853L;
 
-	protected final Map<String,Object> propCriteriaMap = Collections.synchronizedMap(new HashMap<String,Object>());
+	protected final Map<String, Object> propCriteriaMap = Collections.synchronizedMap(new HashMap<String, Object>());
 
 	/**
-	 * @param entityType
+	 * @param entityType entityType
 	 */
 	public GenericEntityPropertySearchFilter(GenericEntityType entityType) {
 		super(entityType);
@@ -30,45 +30,17 @@ public class GenericEntityPropertySearchFilter extends GenericEntityBasicSearchF
 		return propCriteriaMap.get(prop);
 	}
 
-	public final void setPropertyCriterion(String prop, String value) {
-		propCriteriaMap.put(prop, value);
-	}
-
-	public final void setPropertyCriterion(String prop, boolean value) {
-		propCriteriaMap.put(prop, (value ? Boolean.TRUE : Boolean.FALSE));
-	}
-
-	public final void setPropertyCriterion(String prop, int value) {
-		propCriteriaMap.put(prop, new Integer(value));
-	}
-
-	public final void setPropertyCriterion(String prop, long value) {
-		propCriteriaMap.put(prop, new Long(value));
-	}
-
-	public final void setPropertyCriterion(String prop, float value) {
-		propCriteriaMap.put(prop, new Float(value));
-	}
-
-	public final void setPropertyCriterion(String prop, double value) {
-		propCriteriaMap.put(prop, new Double(value));
-	}
-
-	public final void setPropertyCriterion(String prop, Date value) {
-		propCriteriaMap.put(prop, value);
-	}
-
+	@Override
 	public boolean isAcceptable(GenericEntity object) {
 		if (!super.isAcceptable(object)) {
 			return false;
 		}
 
-		for (Map.Entry<String,Object> entry : propCriteriaMap.entrySet()) {
+		for (Map.Entry<String, Object> entry : propCriteriaMap.entrySet()) {
 			String key = entry.getKey();
 			Object value = entry.getValue();
 			if (value != null) {
-				if (!object.hasProperty(key))
-					return false;
+				if (!object.hasProperty(key)) return false;
 				if (value instanceof Boolean) {
 					if (object.getBooleanProperty(key) != ((Boolean) value).booleanValue()) {
 						return false;
@@ -115,5 +87,33 @@ public class GenericEntityPropertySearchFilter extends GenericEntityBasicSearchF
 			}
 		}
 		return true;
+	}
+
+	public final void setPropertyCriterion(String prop, boolean value) {
+		propCriteriaMap.put(prop, (value ? Boolean.TRUE : Boolean.FALSE));
+	}
+
+	public final void setPropertyCriterion(String prop, Date value) {
+		propCriteriaMap.put(prop, value);
+	}
+
+	public final void setPropertyCriterion(String prop, double value) {
+		propCriteriaMap.put(prop, new Double(value));
+	}
+
+	public final void setPropertyCriterion(String prop, float value) {
+		propCriteriaMap.put(prop, new Float(value));
+	}
+
+	public final void setPropertyCriterion(String prop, int value) {
+		propCriteriaMap.put(prop, new Integer(value));
+	}
+
+	public final void setPropertyCriterion(String prop, long value) {
+		propCriteriaMap.put(prop, new Long(value));
+	}
+
+	public final void setPropertyCriterion(String prop, String value) {
+		propCriteriaMap.put(prop, value);
 	}
 }

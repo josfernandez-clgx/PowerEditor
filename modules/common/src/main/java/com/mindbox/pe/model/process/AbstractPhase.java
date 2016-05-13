@@ -23,48 +23,41 @@ public abstract class AbstractPhase extends AbstractIDNameObject implements Phas
 	private Phase parent = null;
 	private boolean disjunctivePrereqs;
 
+	protected AbstractPhase(AbstractPhase source) {
+		super(source);
+		copyFrom(source);
+	}
+
 	/**
 	 * 
-	 * @param phaseType
-	 * @param id
-	 * @param name
+	 * @param phaseType phaseType
+	 * @param id id
+	 * @param name name
 	 */
 	protected AbstractPhase(int phaseType, int id, String name) {
 		super(id, name);
 		this.phaseType = phaseType;
 	}
 
-	protected AbstractPhase(AbstractPhase source) {
-		super(source);
-		copyFrom(source);
+	@Override
+	public final void addPrerequisite(Phase phase) {
+		synchronized (prerequisiteList) {
+			if (!prerequisiteList.contains(phase)) {
+				prerequisiteList.add(phase);
+			}
+		}
 	}
 
-	public String getAuditDescription() {
-		return toString();
-	}
-	
-	/**
-	 * @return the disjunctivePrereqs
-	 */
-	public boolean isDisjunctivePrereqs() {
-		return disjunctivePrereqs;
+	@Override
+	public final void addSubPhase(Phase phase) {
+		synchronized (phaseList) {
+			if (!phaseList.contains(phase)) {
+				phaseList.addLast(phase);
+			}
+		}
 	}
 
-	/**
-	 * @param disjunctivePrereqs The disjunctivePrereqs to set.
-	 */
-	public void setDisjunctivePrereqs(boolean disjunctivePrereqs) {
-		this.disjunctivePrereqs = disjunctivePrereqs;
-	}
-
-	public final boolean isRoot() {
-		return parent == null;
-	}
-
-	public final boolean hasSubPhases() {
-		return !phaseList.isEmpty();
-	}
-
+	@Override
 	public final void copyFrom(Phase phase) {
 		setName(phase.getName());
 		this.displayName = phase.getDisplayName();
@@ -86,94 +79,76 @@ public abstract class AbstractPhase extends AbstractIDNameObject implements Phas
 		}
 	}
 
-	/**
-	 * @return the phaseTask
-	 */
-	public final PhaseTask getPhaseTask() {
-		return phaseTask;
-	}
-
-	public final int getPhaseType() {
-		return phaseType;
-	}
-
-	/**
-	 * @param phaseTask The phaseTask to set.
-	 */
-	public final void setPhaseTask(PhaseTask phaseTask) {
-		this.phaseTask = phaseTask;
-	}
-
-	public final boolean hasPhaseTask() {
-		return phaseTask != null;
-	}
-
-	public final Phase getParent() {
-		return parent;
-	}
-
-	public final void setParent(Phase parent) {
-		this.parent = parent;
-	}
-
-	public final void addSubPhase(Phase phase) {
-		synchronized (phaseList) {
-			if (!phaseList.contains(phase)) {
-				phaseList.addLast(phase);
-			}
-		}
-	}
-
-	public final Phase[] getSubPhases() {
-		return (Phase[]) phaseList.toArray(new Phase[0]);
-	}
-
-	public final void removeSubPhase(Phase phase) {
-		synchronized (phaseList) {
-			if (phaseList.contains(phase)) {
-				phaseList.remove(phase);
-			}
-		}
-	}
-
-	public String toString() {
-		return displayName;
+	@Override
+	public String getAuditDescription() {
+		return toString();
 	}
 
 	/**
 	 * @return the displayName
 	 */
+	@Override
 	public final String getDisplayName() {
 		return displayName;
 	}
 
+	@Override
+	public final Phase getParent() {
+		return parent;
+	}
+
 	/**
-	 * @param displayName The displayName to set.
+	 * @return the phaseTask
 	 */
-	public final void setDisplayName(String displayName) {
-		this.displayName = displayName;
+	@Override
+	public final PhaseTask getPhaseTask() {
+		return phaseTask;
 	}
 
-	public final void setName(String name) {
-		super.setName(name);
+	@Override
+	public final int getPhaseType() {
+		return phaseType;
 	}
 
-	public final void addPrerequisite(Phase phase) {
-		synchronized (prerequisiteList) {
-			if (!prerequisiteList.contains(phase)) {
-				prerequisiteList.add(phase);
-			}
-		}
-	}
-
-	public final boolean hasPrerequisites() {
-		return !prerequisiteList.isEmpty();
-	}
-
+	@Override
 	public final Phase[] getPrerequisites() {
 		return prerequisiteList.toArray(new Phase[0]);
 	}
 
+	@Override
+	public final Phase[] getSubPhases() {
+		return (Phase[]) phaseList.toArray(new Phase[0]);
+	}
+
+	@Override
+	public final boolean hasPhaseTask() {
+		return phaseTask != null;
+	}
+
+	@Override
+	public final boolean hasPrerequisites() {
+		return !prerequisiteList.isEmpty();
+	}
+
+	@Override
+	public final boolean hasSubPhases() {
+		return !phaseList.isEmpty();
+	}
+
+	/**
+	 * @return the disjunctivePrereqs
+	 */
+	@Override
+	public boolean isDisjunctivePrereqs() {
+		return disjunctivePrereqs;
+	}
+
+	@Override
+	public final boolean isRoot() {
+		return parent == null;
+	}
+
+	@Override
 	public final void removePrerequisite(Phase phase) {
 		synchronized (prerequisiteList) {
 			if (prerequisiteList.contains(phase)) {
@@ -182,6 +157,50 @@ public abstract class AbstractPhase extends AbstractIDNameObject implements Phas
 		}
 	}
 
+	@Override
+	public final void removeSubPhase(Phase phase) {
+		synchronized (phaseList) {
+			if (phaseList.contains(phase)) {
+				phaseList.remove(phase);
+			}
+		}
+	}
+
+	/**
+	 * @param disjunctivePrereqs The disjunctivePrereqs to set.
+	 */
+	@Override
+	public void setDisjunctivePrereqs(boolean disjunctivePrereqs) {
+		this.disjunctivePrereqs = disjunctivePrereqs;
+	}
+
+	/**
+	 * @param displayName The displayName to set.
+	 */
+	@Override
+	public final void setDisplayName(String displayName) {
+		this.displayName = displayName;
+	}
+
+	@Override
+	public final void setName(String name) {
+		super.setName(name);
+	}
+
+	@Override
+	public final void setParent(Phase parent) {
+		this.parent = parent;
+	}
+
+	/**
+	 * @param phaseTask The phaseTask to set.
+	 */
+	@Override
+	public final void setPhaseTask(PhaseTask phaseTask) {
+		this.phaseTask = phaseTask;
+	}
+
+	@Override
 	public void setPrerequisites(Phase[] phases) {
 		synchronized (prerequisiteList) {
 			prerequisiteList.clear();
@@ -189,5 +208,10 @@ public abstract class AbstractPhase extends AbstractIDNameObject implements Phas
 				prerequisiteList.add(phases[i]);
 			}
 		}
+	}
+
+	@Override
+	public String toString() {
+		return displayName;
 	}
 }

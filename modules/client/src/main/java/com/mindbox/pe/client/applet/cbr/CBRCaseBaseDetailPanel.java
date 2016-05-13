@@ -10,8 +10,6 @@ import java.util.List;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentListener;
 
-import mseries.ui.MChangeListener;
-
 import com.mindbox.pe.client.ClientUtil;
 import com.mindbox.pe.client.InputValidationException;
 import com.mindbox.pe.client.applet.UIFactory;
@@ -29,42 +27,42 @@ import com.mindbox.pe.model.PeDataType;
 import com.mindbox.pe.model.cbr.CBRCaseBase;
 import com.mindbox.pe.model.filter.AllSearchFilter;
 
+import mseries.ui.MChangeListener;
+
 /**
  * CBR Case case detail panel.
  * @author deklerk
  * @since PowerEditor 4.1.0
  */
 public class CBRCaseBaseDetailPanel extends IDNameDescriptionObjectDetailPanel<CBRCaseBase, EntityManagementButtonPanel<CBRCaseBase>> implements ActionListener {
+	private class DetailChangeL implements DetailChangeListener {
+
+		@Override
+		public void detailChanged() {
+		}
+
+		@Override
+		public void detailSaved() {
+			CBRPanel.getInstance().updateFromServer();
+			CBRPanel.getInstance().selectCaseBase((CBRCaseBase) currentObject);
+		}
+	}
+
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -3951228734910107454L;
-
 	private NumberTextField matchThresholdField;
 	private NumberTextField maximumMatchesField;
 	private CBRCaseClassComboBox caseClassCombo;
 	private CBRScoringFunctionComboBox scoringFunctionCombo;
 	private JTextField namingAttributeField;
 	private JTextField indexFileField;
+
 	private DateSelectorComboField effDateField, expDateField;
 
-	// private static final int INT_NULL_VALUE = -1;
 	private DocumentListener documentListener = null;
 
-	private class DetailChangeL implements DetailChangeListener {
-
-		public void detailSaved() {
-			CBRPanel.getInstance().updateFromServer();
-			CBRPanel.getInstance().selectCaseBase((CBRCaseBase) currentObject);
-		}
-
-		public void detailChanged() {
-		}
-	}
-
-	/**
-	 * @param cb
-	 */
 	public CBRCaseBaseDetailPanel(CBRCaseBase cb) throws ServerException {
 		super(PeDataType.CBR_CASE_BASE);
 		this.addDetailChangeListener(new DetailChangeL());
@@ -77,32 +75,12 @@ public class CBRCaseBaseDetailPanel extends IDNameDescriptionObjectDetailPanel<C
 		if (cb.getId() == CBRCaseBase.UNASSIGNED_ID) fireDetailChanged();
 	}
 
-	protected void addDocumentListener(DocumentListener dl, final MChangeListener mchangeListener) {
-		super.addDocumentListener(dl);
-		matchThresholdField.getDocument().addDocumentListener(dl);
-		maximumMatchesField.getDocument().addDocumentListener(dl);
-		namingAttributeField.getDocument().addDocumentListener(dl);
-		indexFileField.getDocument().addDocumentListener(dl);
-		documentListener = dl;
-		effDateField.addActionListener(this);
-		expDateField.addActionListener(this);
-		caseClassCombo.addActionListener(this);
-		scoringFunctionCombo.addActionListener(this);
-
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if (documentListener != null) documentListener.insertUpdate(null);
 	}
 
-	protected void removeDocumentListener(DocumentListener dl, final MChangeListener mchangeListener) {
-		super.removeDocumentListener(dl);
-		matchThresholdField.getDocument().removeDocumentListener(dl);
-		maximumMatchesField.getDocument().removeDocumentListener(dl);
-		namingAttributeField.getDocument().removeDocumentListener(dl);
-		indexFileField.getDocument().removeDocumentListener(dl);
-		effDateField.removeActionListener(this);
-		expDateField.removeActionListener(this);
-		caseClassCombo.removeActionListener(this);
-		scoringFunctionCombo.removeActionListener(this);
-	}
-
+	@Override
 	protected void addComponents(GridBagLayout bag, GridBagConstraints c) {
 		matchThresholdField = new NumberTextField(10, Constants.CBR_NULL_DATA_EQUIVALENT_VALUE, Constants.CBR_NULL_DATA_EQUIVALENT_VALUE, true);
 		maximumMatchesField = new NumberTextField(10, Constants.CBR_NULL_DATA_EQUIVALENT_VALUE, Constants.CBR_NULL_DATA_EQUIVALENT_VALUE, false);
@@ -183,6 +161,26 @@ public class CBRCaseBaseDetailPanel extends IDNameDescriptionObjectDetailPanel<C
 		addComponent(this, bag, c, indexFileField);
 	}
 
+	@Override
+	protected void addDocumentListener(DocumentListener dl, final MChangeListener mchangeListener) {
+		super.addDocumentListener(dl);
+		matchThresholdField.getDocument().addDocumentListener(dl);
+		maximumMatchesField.getDocument().addDocumentListener(dl);
+		namingAttributeField.getDocument().addDocumentListener(dl);
+		indexFileField.getDocument().addDocumentListener(dl);
+		documentListener = dl;
+		effDateField.addActionListener(this);
+		expDateField.addActionListener(this);
+		caseClassCombo.addActionListener(this);
+		scoringFunctionCombo.addActionListener(this);
+
+	}
+
+	@Override
+	public void clearFields() {
+	}
+
+	@Override
 	protected void populateDetails(CBRCaseBase object) {
 		CBRCaseBase caseBase = object;
 		super.populateDetails(caseBase);
@@ -196,6 +194,20 @@ public class CBRCaseBaseDetailPanel extends IDNameDescriptionObjectDetailPanel<C
 		expDateField.setValue(caseBase.getExpirationDate());
 	}
 
+	@Override
+	protected void removeDocumentListener(DocumentListener dl, final MChangeListener mchangeListener) {
+		super.removeDocumentListener(dl);
+		matchThresholdField.getDocument().removeDocumentListener(dl);
+		maximumMatchesField.getDocument().removeDocumentListener(dl);
+		namingAttributeField.getDocument().removeDocumentListener(dl);
+		indexFileField.getDocument().removeDocumentListener(dl);
+		effDateField.removeActionListener(this);
+		expDateField.removeActionListener(this);
+		caseClassCombo.removeActionListener(this);
+		scoringFunctionCombo.removeActionListener(this);
+	}
+
+	@Override
 	protected void setCurrentObjectFromFields() {
 		CBRCaseBase caseBase = currentObject;
 		caseBase.setName(getNameFieldText());
@@ -210,6 +222,7 @@ public class CBRCaseBaseDetailPanel extends IDNameDescriptionObjectDetailPanel<C
 		caseBase.setExpirationDate(expDateField.getValue());
 	}
 
+	@Override
 	protected void validateFields() throws InputValidationException {
 		super.validateFields();
 		if (UtilBase.trim(this.getNameFieldText()).length() == 0) throw new InputValidationException("A Case-Base name may not be blank.");
@@ -227,12 +240,5 @@ public class CBRCaseBaseDetailPanel extends IDNameDescriptionObjectDetailPanel<C
 		catch (ServerException ex) {
 			throw new InputValidationException("Server Error occured while validating this Case-Base");
 		}
-	}
-
-	public void clearFields() {
-	}
-
-	public void actionPerformed(ActionEvent e) {
-		if (documentListener != null) documentListener.insertUpdate(null);
 	}
 }

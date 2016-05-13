@@ -33,8 +33,8 @@ public class EnumValues<T> implements Serializable, GridCellValue {
 
 	/**
 	 * 
-	 * @param s
-	 * @param checkOldExclusionPrefix
+	 * @param s s
+	 * @param checkOldExclusionPrefix checkOldExclusionPrefix
 	 * @param enumValues can be <code>null</code>
 	 * @return boolean 
 	 */
@@ -150,7 +150,7 @@ public class EnumValues<T> implements Serializable, GridCellValue {
 	/**
 	 * Checks if the given DeployID exists in the current EnumValues object. 
 	 * This method assumes that this only contains {@link com.mindbox.pe.model.EnumValue} objects.
-	 * @param deployID
+	 * @param deployID deployID
 	 * @return <code> true </code> if given DeployID exists in the current EnumValues object.
 	 * Else returns <code> false. </code>
 	 * 
@@ -173,7 +173,8 @@ public class EnumValues<T> implements Serializable, GridCellValue {
 		}
 		for (T item : list) {
 			if (EnumValue.class.isInstance(item)) {
-				if ((ignoreCase && EnumValue.class.cast(item).getDisplayLabel().equalsIgnoreCase(value)) || (!ignoreCase && EnumValue.class.cast(item).getDisplayLabel().equals(value))) {
+				if ((ignoreCase && EnumValue.class.cast(item).getDisplayLabel().equalsIgnoreCase(value))
+						|| (!ignoreCase && EnumValue.class.cast(item).getDisplayLabel().equals(value))) {
 					return true;
 				}
 			}

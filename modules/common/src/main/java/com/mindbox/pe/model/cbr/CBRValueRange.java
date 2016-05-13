@@ -24,14 +24,42 @@ public class CBRValueRange extends AbstractCBRConfigClass {
 	private boolean numericAllowed;
 	private boolean floatAllowed;
 	private boolean negativeAllowed;
+
 	/**
-	 * @param symbol
-	 * @param name
-	 * @param desc
+	 * 
+	 * @param id id
+	 * @param symbol symbol
+	 * @param name name
+	 * @param desc desc
+	 * @param enumeratedValuesAllowed enumeratedValuesAllowed
+	 * @param anythingAllowed anythingAllowed
+	 * @param numericAllowed numericAllowed
+	 * @param floatAllowed floatAllowed
+	 * @param negativeAllowed negativeAllowed
 	 */
-	public CBRValueRange(String symbol, String name, String desc, boolean enumeratedValuesAllowed,
-			boolean anythingAllowed,
-			boolean numericAllowed, boolean floatAllowed, boolean negativeAllowed) {
+	public CBRValueRange(int id, String symbol, String name, String desc, boolean enumeratedValuesAllowed, boolean anythingAllowed, boolean numericAllowed, boolean floatAllowed,
+			boolean negativeAllowed) {
+		super(id, symbol, name, desc);
+		this.enumeratedValuesAllowed = enumeratedValuesAllowed;
+		this.anythingAllowed = anythingAllowed;
+		this.numericAllowed = numericAllowed;
+		this.floatAllowed = floatAllowed;
+		this.negativeAllowed = negativeAllowed;
+	}
+
+	/**
+	 * 
+	 * @param symbol symbol
+	 * @param name name
+	 * @param desc desc
+	 * @param enumeratedValuesAllowed enumeratedValuesAllowed
+	 * @param anythingAllowed anythingAllowed
+	 * @param numericAllowed numericAllowed
+	 * @param floatAllowed floatAllowed
+	 * @param negativeAllowed negativeAllowed
+	 */
+	public CBRValueRange(String symbol, String name, String desc, boolean enumeratedValuesAllowed, boolean anythingAllowed, boolean numericAllowed, boolean floatAllowed,
+			boolean negativeAllowed) {
 		super(UNASSIGNED_ID, symbol, name, desc);
 		this.enumeratedValuesAllowed = enumeratedValuesAllowed;
 		this.anythingAllowed = anythingAllowed;
@@ -41,21 +69,12 @@ public class CBRValueRange extends AbstractCBRConfigClass {
 	}
 
 	/**
-	 * @param id
-	 * @param symbol
-	 * @param name
-	 * @param desc
+	 * @return Returns the anythingAllowed.
 	 */
-	public CBRValueRange(int id, String symbol, String name, String desc, boolean enumeratedValuesAllowed, boolean anythingAllowed,
-			boolean numericAllowed, boolean floatAllowed, boolean negativeAllowed) {
-		super(id, symbol, name, desc);
-		this.enumeratedValuesAllowed = enumeratedValuesAllowed;
-		this.anythingAllowed = anythingAllowed;
-		this.numericAllowed = numericAllowed;
-		this.floatAllowed = floatAllowed;
-		this.negativeAllowed = negativeAllowed;
+	public boolean isAnythingAllowed() {
+		return anythingAllowed;
 	}
-	
+
 	public boolean isConforming(String value, List<CBREnumeratedValue> enumeratedValues) {
 		if (numericAllowed) {
 			try {
@@ -63,12 +82,15 @@ public class CBRValueRange extends AbstractCBRConfigClass {
 				if (!negativeAllowed && number < 0.0) return false;
 				if (!floatAllowed && number != Math.rint(number)) return false;
 				return true;
-			} catch (Exception x) {
+			}
+			catch (Exception x) {
 				return false;
 			}
-		} else if (enumeratedValuesAllowed) {
+		}
+		else if (enumeratedValuesAllowed) {
 			Iterator<CBREnumeratedValue> it = enumeratedValues.iterator();
-			while (it.hasNext()) if (it.next().getName().equals(value)) return true;
+			while (it.hasNext())
+				if (it.next().getName().equals(value)) return true;
 			return false;
 		}
 		return true;
@@ -80,56 +102,57 @@ public class CBRValueRange extends AbstractCBRConfigClass {
 	public boolean isEnumeratedValuesAllowed() {
 		return enumeratedValuesAllowed;
 	}
-	/**
-	 * @param enumeratedValuesAllowed The enumeratedValuesAllowed to set.
-	 */
-	public void setEnumeratedValuesAllowed(boolean enumeratedValuesAllowed) {
-		this.enumeratedValuesAllowed = enumeratedValuesAllowed;
-	}
-	
-	
-	/**
-	 * @return Returns the anythingAllowed.
-	 */
-	public boolean isAnythingAllowed() {
-		return anythingAllowed;
-	}
-	/**
-	 * @param anythingAllowed The anythingAllowed to set.
-	 */
-	public void setAnythingAllowed(boolean anythingAllowed) {
-		this.anythingAllowed = anythingAllowed;
-	}
+
+
 	/**
 	 * @return Returns the floatAllowed.
 	 */
 	public boolean isFloatAllowed() {
 		return floatAllowed;
 	}
-	/**
-	 * @param floatAllowed The floatAllowed to set.
-	 */
-	public void setFloatAllowed(boolean floatAllowed) {
-		this.floatAllowed = floatAllowed;
-	}
+
 	/**
 	 * @return Returns the negativeAllowed.
 	 */
 	public boolean isNegativeAllowed() {
 		return negativeAllowed;
 	}
-	/**
-	 * @param negativeAllowed The negativeAllowed to set.
-	 */
-	public void setNegativeAllowed(boolean negativeAllowed) {
-		this.negativeAllowed = negativeAllowed;
-	}
+
 	/**
 	 * @return Returns the numericAllowed.
 	 */
 	public boolean isNumericAllowed() {
 		return numericAllowed;
 	}
+
+	/**
+	 * @param anythingAllowed The anythingAllowed to set.
+	 */
+	public void setAnythingAllowed(boolean anythingAllowed) {
+		this.anythingAllowed = anythingAllowed;
+	}
+
+	/**
+	 * @param enumeratedValuesAllowed The enumeratedValuesAllowed to set.
+	 */
+	public void setEnumeratedValuesAllowed(boolean enumeratedValuesAllowed) {
+		this.enumeratedValuesAllowed = enumeratedValuesAllowed;
+	}
+
+	/**
+	 * @param floatAllowed The floatAllowed to set.
+	 */
+	public void setFloatAllowed(boolean floatAllowed) {
+		this.floatAllowed = floatAllowed;
+	}
+
+	/**
+	 * @param negativeAllowed The negativeAllowed to set.
+	 */
+	public void setNegativeAllowed(boolean negativeAllowed) {
+		this.negativeAllowed = negativeAllowed;
+	}
+
 	/**
 	 * @param numericAllowed The numericAllowed to set.
 	 */

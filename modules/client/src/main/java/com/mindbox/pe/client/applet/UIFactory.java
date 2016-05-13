@@ -104,7 +104,7 @@ public final class UIFactory {
 	/**
 	 * Places the specified component at the center of ths screen.
 	 * 
-	 * @param comp
+	 * @param comp comp
 	 *            the component to centerize
 	 */
 	public static void centerize(Component comp) {
@@ -164,16 +164,17 @@ public final class UIFactory {
 	/**
 	 * Constructs a new JButton conforming to the application's look and feel.
 	 * 
-	 * @param label
+	 * @param label label
 	 *            the label of the button
-	 * @param iconKey
+	 * @param iconKey iconKey
 	 *            the icon file key for the button. If <code>null</code> the
 	 *            button has no icon
-	 * @param al
+	 * @param al al
 	 *            the action listener for the button
-	 * @param tooltipKey
+	 * @param tooltipKey tooltipKey
 	 *            the tooltip text resource key. If <code>null</code> the
 	 *            button has not tool tip text
+	 * @param showBorder show border flag
 	 * @return new JButton instance with the specified details
 	 */
 	public static JButton createButton(String label, String iconKey, ActionListener al, String tooltipKey, boolean showBorder) {

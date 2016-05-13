@@ -14,9 +14,9 @@ public class ReflectionUtil {
 	 * Calls the constructor of <code>className</code> with the specified param classes with the specified parameters.
 	 * This allows getting an instance of non-public member classes.
 	 * 
-	 * @param className
-	 * @param paramClasses
-	 * @param params
+	 * @param className className
+	 * @param paramClasses paramClasses
+	 * @param params params
 	 * @return the instance of <code>className</code>
 	 * @throws RuntimeException if no default constructor exists, it is inaccessible or if the constructor itself throws
 	 *             any exception.
@@ -40,6 +40,11 @@ public class ReflectionUtil {
 	/**
 	 * Invoke a method, even if its access modifier is 'private'.
 	 * 
+	 * @param o objet
+	 * @param methodName method name
+	 * @param parameterTypes parameter types
+	 * @param args arguments
+	 * @return result
 	 * @throws SecurityException if the system SecurityManager denies access.
 	 */
 	public static Object executePrivate(Object o, String methodName, Class<?>[] parameterTypes, Object[] args) {
@@ -59,6 +64,11 @@ public class ReflectionUtil {
 	/**
 	 * Invoke a method, even if its access modifier is 'private'.
 	 * 
+	 * @param clazz class
+	 * @param methodName method name
+	 * @param parameterTypes parameter types
+	 * @param args arguments
+	 * @return result
 	 * @throws SecurityException if the system SecurityManager denies access.
 	 * @throws IllegalArgumentException if the specified method is not static
 	 */
@@ -84,6 +94,8 @@ public class ReflectionUtil {
 	/**
 	 * Get all the static instances of a class that are declared as members of the same class.
 	 * 
+	 * @param clazz class
+	 * @return enum instances
 	 * @throws SecurityException if the system SecurityManager denies access.
 	 */
 	public static Object[] getEnumInstances(Class<?> clazz) {
@@ -93,7 +105,9 @@ public class ReflectionUtil {
 	/**
 	 * Searches the given class and all its superclasses for the named field.
 	 * 
-	 * @throws NoSuchFieldException wrapped in a RuntimeException if not found.
+	 * @param clazz class
+	 * @param fieldName field name
+	 * @return field object
 	 */
 	public static Field getField(Class<?> clazz, String fieldName) {
 		Class<?> curClazz = clazz;
@@ -121,7 +135,10 @@ public class ReflectionUtil {
 	/**
 	 * Searches the given class and all its superclasses for the named method.
 	 * 
-	 * @throws NoSuchMethodException wrapped in a RuntimeException if not found.
+	 * @param clazz class
+	 * @param methodName method name
+	 * @param parameterTypes parameter types
+	 * @return method
 	 */
 	public static Method getMethod(Class<?> clazz, String methodName, Class<?>[] parameterTypes) {
 		Class<?> curClazz = clazz;
@@ -150,7 +167,10 @@ public class ReflectionUtil {
 	/**
 	 * Searches the given class and all its superclasses for the named methods.
 	 * 
-	 * @throws NoSuchMethodException wrapped in a RuntimeException if any is not found.
+	 * @param clazz class
+	 * @param methodNames method name
+	 * @param paramTypes parameter types
+	 * @return methods
 	 */
 	public static Method[] getMethods(Class<?> clazz, String[] methodNames, Class<?>[][] paramTypes) {
 		Method[] methods = new Method[methodNames.length];
@@ -163,6 +183,9 @@ public class ReflectionUtil {
 	/**
 	 * Access the value held in a field, even if its access modifier is 'private'.
 	 * 
+	 * @param o object
+	 * @param fieldName field name
+	 * @return result
 	 * @throws SecurityException if the system SecurityManager denies access.
 	 */
 	public static Object getPrivate(Object o, String fieldName) {
@@ -203,7 +226,9 @@ public class ReflectionUtil {
 	/**
 	 * Searches the given class and all its superclasses for the named static field.
 	 * 
-	 * @throws NoSuchFieldException wrapped in a RuntimeException if not found.
+	 * @param clazz class
+	 * @param fieldName field name
+	 * @return field
 	 */
 	public static Field getStaticField(Class<?> clazz, String fieldName) {
 		Class<?> curClazz = clazz;
@@ -230,7 +255,9 @@ public class ReflectionUtil {
 
 	/**
 	 * Get all the static instances of a class that are declared as members some other class.
-	 * 
+	 * @param inClass in class
+	 * @param ofClass of class
+	 * @return object array
 	 * @throws SecurityException if the system SecurityManager denies access.
 	 */
 	public static Object[] getStaticInstances(Class<?> inClass, Class<?> ofClass) {
@@ -260,6 +287,9 @@ public class ReflectionUtil {
 	/**
 	 * Access the value held in a static field, even if its access modifier is 'private'.
 	 * 
+	 * @param clazz class
+	 * @param fieldName field name
+	 * @return result
 	 * @throws SecurityException if the system SecurityManager denies access.
 	 */
 	public static Object getStaticPrivate(Class<?> clazz, String fieldName) {
@@ -279,6 +309,8 @@ public class ReflectionUtil {
 	/**
 	 * Calls the default constructor of <code>clazz</code>.
 	 * 
+	 * @param clazz class
+	 * @return new instance
 	 * @throws RuntimeException if no default constructor exists, it is inaccessible or if the constructor itself throws
 	 *             any exception.
 	 */
@@ -297,6 +329,9 @@ public class ReflectionUtil {
 	/**
 	 * Modify the value of a static field, even if its access modifier is 'private'.
 	 * 
+	 * @param clazz class
+	 * @param fieldName field name
+	 * @param val value
 	 * @throws SecurityException if the system SecurityManager denies access.
 	 */
 	public static void setPrivate(Class<?> clazz, String fieldName, Object val) {
@@ -315,7 +350,9 @@ public class ReflectionUtil {
 
 	/**
 	 * Modify the value of a field, even if its access modifier is 'private'.
-	 * 
+	 * @param o object
+	 * @param fieldName field name
+	 * @param val value
 	 * @throws SecurityException if the system SecurityManager denies access.
 	 */
 	public static void setPrivate(Object o, String fieldName, Object val) {
@@ -332,6 +369,6 @@ public class ReflectionUtil {
 		}
 	}
 
-	private ReflectionUtil() {/*Singleton*/
+	private ReflectionUtil() {
 	}
 }

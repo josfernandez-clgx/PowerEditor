@@ -255,8 +255,7 @@ public abstract class AbstractTemplateCore<C extends AbstractTemplateColumn> ext
 	}
 
 	/**
-	 * @param comment
-	 *            The comment to set.
+	 * @param comment The comment to set.
 	 */
 	public final void setComment(String comment) {
 		this.comment = comment;
@@ -273,7 +272,7 @@ public abstract class AbstractTemplateCore<C extends AbstractTemplateColumn> ext
 	/**
 	 * Added for digest support.
 	 * 
-	 * @param str
+	 * @param str str
 	 * @since PowerEditor 3.2.0
 	 */
 	public final void setMaxRows(String str) {
@@ -289,8 +288,7 @@ public abstract class AbstractTemplateCore<C extends AbstractTemplateColumn> ext
 	}
 
 	/**
-	 * @param status
-	 *            The status to set.
+	 * @param status The status to set.
 	 */
 	public final void setStatus(String status) {
 		this.status = status;
@@ -302,7 +300,7 @@ public abstract class AbstractTemplateCore<C extends AbstractTemplateColumn> ext
 
 	/**
 	 * Added for digest support.
-	 * 
+	 * @param typeStr type string
 	 * @since PowerEditor 3.2.0
 	 */
 	public final void setUsageTypeString(String typeStr) {
@@ -312,8 +310,7 @@ public abstract class AbstractTemplateCore<C extends AbstractTemplateColumn> ext
 	/**
 	 * Sets the version to the specified value.
 	 * 
-	 * @param version
-	 *            new version
+	 * @param version new version
 	 * @since PowerEditor 4.2.0
 	 */
 	public final void setVersion(String version) {

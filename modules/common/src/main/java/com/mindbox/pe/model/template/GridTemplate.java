@@ -111,7 +111,7 @@ public class GridTemplate extends AbstractTemplateCore<GridTemplateColumn> imple
 	 * Makes sure invariants of this is identical to that of the specified template. Note that this
 	 * does not copy parent ID.
 	 * 
-	 * @param template
+	 * @param template template
 	 *            the source template
 	 */
 	public synchronized void copyFrom(GridTemplate template) {
@@ -123,6 +123,7 @@ public class GridTemplate extends AbstractTemplateCore<GridTemplateColumn> imple
 		this.ruleExplanation = template.ruleExplanation;
 	}
 
+	@Override
 	protected GridTemplateColumn createTemplateColumn(GridTemplateColumn source) {
 		GridTemplateColumn column = new GridTemplateColumn(source);
 		return column;
@@ -216,16 +217,18 @@ public class GridTemplate extends AbstractTemplateCore<GridTemplateColumn> imple
 
 	public boolean isCompletenessCheckColumn(int i) {
 		if (completenessColumns == null) return false;
-		for (int j = 0; j < completenessColumns.length; j++)
+		for (int j = 0; j < completenessColumns.length; j++) {
 			if (completenessColumns[j] == i) return true;
+		}
 
 		return false;
 	}
 
 	public boolean isConsistencyCheckColumn(int i) {
 		if (consistencyColumns == null) return true;
-		for (int j = 0; j < consistencyColumns.length; j++)
+		for (int j = 0; j < consistencyColumns.length; j++) {
 			if (consistencyColumns[j] == i) return true;
+		}
 
 		return false;
 	}
@@ -238,7 +241,7 @@ public class GridTemplate extends AbstractTemplateCore<GridTemplateColumn> imple
 	/**
 	 * Added for template import digester support.
 	 * 
-	 * @param str
+	 * @param str string
 	 * @since PowerEditor 4.2
 	 */
 	public void setCompleteColumnsString(String str) {
@@ -256,7 +259,7 @@ public class GridTemplate extends AbstractTemplateCore<GridTemplateColumn> imple
 	/**
 	 * Added for template import digester support.
 	 * 
-	 * @param str
+	 * @param str string
 	 * @since PowerEditor 4.2
 	 */
 	public void setConsistentColumnsString(String str) {
@@ -267,7 +270,7 @@ public class GridTemplate extends AbstractTemplateCore<GridTemplateColumn> imple
 	 * Added for digest support.
 	 * 
 	 * @since PowerEditor 3.2.0
-	 * @param message
+	 * @param message message
 	 *            The message to set.
 	 */
 	public void setMessage(String message) {
@@ -275,7 +278,7 @@ public class GridTemplate extends AbstractTemplateCore<GridTemplateColumn> imple
 	}
 
 	/**
-	 * @param ruleDefinition
+	 * @param ruleDefinition ruleDefinition
 	 *            The ruleDefinition to set.
 	 */
 	@Override
@@ -286,7 +289,7 @@ public class GridTemplate extends AbstractTemplateCore<GridTemplateColumn> imple
 	/**
 	 * For migration use only
 	 * 
-	 * @param ruleDefinitionString
+	 * @param ruleDefinitionString ruleDefinitionString
 	 *            the rule definition string
 	 * @since PowerEditor 4.0
 	 */
@@ -295,7 +298,7 @@ public class GridTemplate extends AbstractTemplateCore<GridTemplateColumn> imple
 	}
 
 	/**
-	 * @param ruleExplanation
+	 * @param ruleExplanation ruleExplanation
 	 *            The ruleExplanation to set.
 	 */
 	public void setRuleExplanation(String ruleExplanation) {
@@ -304,6 +307,7 @@ public class GridTemplate extends AbstractTemplateCore<GridTemplateColumn> imple
 
 	@Override
 	public String toString() {
-		return "GridTemplate[" + getID() + ",name=" + getName() + ",v=" + getVersion() + ",noCols=" + getNumColumns() + ",maxRows=" + getMaxNumOfRows() + "]@" + Integer.toHexString(hashCode());
+		return "GridTemplate[" + getID() + ",name=" + getName() + ",v=" + getVersion() + ",noCols=" + getNumColumns() + ",maxRows=" + getMaxNumOfRows() + "]@"
+				+ Integer.toHexString(hashCode());
 	}
 }

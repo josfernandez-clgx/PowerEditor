@@ -100,7 +100,7 @@ public class XmlUtil {
 	 * Gets the string value of the first child of the specified element with the specified tag name.
 	 * @param element the parent element
 	 * @param tagName the tag name
-	 * @param default value to return if there is no such element is found
+	 * @param defaultValue default value to return if there is no such element is found
 	 * @return the string value of the first child element with <code>tagName</code>, if found; <code>defaultValue</code>, otherwise
 	 */
 	public static String getValueOfFirstChild(Element element, String tagName, String defaultValue) {
@@ -125,13 +125,13 @@ public class XmlUtil {
 
 	/**
 	 * Generates XML document from the specified JAXB element object as string. This internally calls
-	 * {@link #marshall(Object, Writer, boolean)}.
+	 * <code>marshall(Object, Writer, boolean)</code>.
 	 * 
-	 * @param rootElement
-	 * @param writeXmlDeclaration
+	 * @param rootElement rootElement
+	 * @param writeXmlDeclaration writeXmlDeclaration
 	 * @param classesToRecognize classes for the marshaller to work with (optional)
 	 * @return XML string
-	 * @throws JAXBException
+	 * @throws JAXBException on error
 	 */
 	public static String marshal(Object rootElement, boolean writeXmlDeclaration, Class<?>... classesToRecognize) throws JAXBException {
 		StringWriter stringWriter = new StringWriter();
@@ -144,7 +144,8 @@ public class XmlUtil {
 	 * 
 	 * @param rootElement JAXB element object to write
 	 * @param writer writer
-	 * @param writeXmlDeclaration
+	 * @param closeWriter close writer flag
+	 * @param writeXmlDeclaration writeXmlDeclaration
 	 * @param classesToRecognize classes for the marshaller to work with (optional)
 	 * @throws JAXBException on error
 	 */
@@ -166,7 +167,8 @@ public class XmlUtil {
 		}
 	}
 
-	public static void marshalNonRoot(JAXBElement<?> nonRootElement, Writer writer, boolean closeWriter, boolean writeXmlDeclaration, Class<?>... classesToRecognize) throws JAXBException {
+	public static void marshalNonRoot(JAXBElement<?> nonRootElement, Writer writer, boolean closeWriter, boolean writeXmlDeclaration, Class<?>... classesToRecognize)
+			throws JAXBException {
 		try {
 			JAXBContext jaxbContext = JAXBContext.newInstance(classesToRecognize);
 			Marshaller marshaller = jaxbContext.createMarshaller();

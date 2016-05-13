@@ -90,6 +90,7 @@ public final class ConfigUtil {
 	/**
 	 * Gets the tab configuration that contains the specified usage type string.
 	 * @param usageType the usage type, as specified rule-set in the generated rules
+	 * @param userInterfaceConfig user interface config
 	 * @return the tab configuration that contains <code>usageType</code> usage type, if found;
 	 *         null, otherwise
 	 */

@@ -8,16 +8,28 @@ public class FloatRangeFormatter {
 	public FloatRangeFormatter(int precision) {
 		formatter = new FloatFormatter(precision);
 	}
-	
+
+	/**
+	 *  Override to decorate the formatted value.  
+	 *  note: The formatted value may be null. 
+	 *  @param formattedValue formatted value; maybe <code>null</code>
+	 *  @return decorated value
+	 */
+	protected String decorate(String formattedValue) {
+		return formattedValue;
+	}
+
 	public final String format(FloatRange range) {
 		if (range == null) {
 			return "";
 		}
-		
+
 		Double lo = range.getLowerValue();
 		Double hi = range.getUpperValue();
-		
-		if (lo == null && hi == null) { return decorate(""); }
+
+		if (lo == null && hi == null) {
+			return decorate("");
+		}
 
 		StringBuilder buff = new StringBuilder();
 		if (lo != null) {
@@ -36,10 +48,5 @@ public class FloatRangeFormatter {
 			buff.append(" ");
 		}
 		return decorate(buff.toString());
-	}
-
-	/** Override to decorate the formatted value.  note: The formatted value may be null. */
-	protected String decorate(String formattedValue) {
-		return formattedValue;
 	}
 }

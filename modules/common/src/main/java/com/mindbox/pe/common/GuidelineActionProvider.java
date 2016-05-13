@@ -8,7 +8,7 @@ public interface GuidelineActionProvider {
 	/**
 	 * Gets the action type definition for the specified action type id.
 	 * This should not throw an exception.
-	 * @param id
+	 * @param id id
 	 * @return null, if not found or on error
 	 */
 	ActionTypeDefinition getActionType(int id);
@@ -16,7 +16,7 @@ public interface GuidelineActionProvider {
 	/**
 	 * Gets the test type definition for the specified test type id.
 	 * This should not throw an exception.
-	 * @param id
+	 * @param id id
 	 * @return null, if not found or on error
 	 */
 	TestTypeDefinition getTestType(int id);

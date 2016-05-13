@@ -49,11 +49,16 @@ public class RuleDefinition extends AbstractIDNameDescriptionObject implements C
 
 	/**
 	 * Creates a new instance of this that is an exact copy of the source.
-	 * @param source
+	 * @param source source
 	 * @since PowerEditor 4.3.2
 	 */
 	public RuleDefinition(RuleDefinition source) {
-		this(source.getID(), source.getName(), source.getDescription(), RuleElementFactory.deepCopyCompoundLHSElement(source.rootCondition), RuleElementFactory.deepCopyRuleAction(source.action));
+		this(
+				source.getID(),
+				source.getName(),
+				source.getDescription(),
+				RuleElementFactory.deepCopyCompoundLHSElement(source.rootCondition),
+				RuleElementFactory.deepCopyRuleAction(source.action));
 	}
 
 	public void add(FunctionParameter element) {
@@ -135,6 +140,7 @@ public class RuleDefinition extends AbstractIDNameDescriptionObject implements C
 	 * This is used only by the server to cache old parser generated object tree for rule action.
 	 *  DO NOT USE IN CLIENT (APPLET) !!!
 	 * </b>
+	 * @return old parser object
 	 */
 	public Object getOldParserObjectForAction() {
 		return oldParserObjectForAction;
@@ -192,8 +198,8 @@ public class RuleDefinition extends AbstractIDNameDescriptionObject implements C
 	}
 
 	private boolean hasConditionForReference(Condition condition, Reference ref) {
-		return ref.equals(condition.getReference())
-				|| (UtilBase.isEmpty(ref.getAttributeName()) && condition.getReference().getClassName() != null && condition.getReference().getClassName().equals(ref.getClassName()));
+		return ref.equals(condition.getReference()) || (UtilBase.isEmpty(ref.getAttributeName()) && condition.getReference().getClassName() != null
+				&& condition.getReference().getClassName().equals(ref.getClassName()));
 	}
 
 	private boolean hasConditionForReference(ExistExpression existExpression, Reference ref) {
@@ -244,6 +250,7 @@ public class RuleDefinition extends AbstractIDNameDescriptionObject implements C
 	 * This is used only by the server to cache old parser generated object tree for rule action.
 	 *  DO NOT USE IN CLIENT (APPLET) !!!
 	 * </b>
+	 * @param oldParserObjectForAction old parser object
 	 */
 	public void setOldParserObjectForAction(Object oldParserObjectForAction) {
 		this.oldParserObjectForAction = oldParserObjectForAction;

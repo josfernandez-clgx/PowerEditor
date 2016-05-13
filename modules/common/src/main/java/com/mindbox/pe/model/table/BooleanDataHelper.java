@@ -13,26 +13,7 @@ public class BooleanDataHelper {
 			return true;
 		}
 		else {
-			return TRUE_VALUE.equals(str) || FALSE_VALUE.equals(str) || ANY_VALUE.equals(str) || str.equalsIgnoreCase("true")
-					|| str.equalsIgnoreCase("false");
-		}
-	}
-
-	/**
-	 * Handles true/false values. 
-	 * This maps <code>true</code> to {@link TRUE_VALUE} and <code>false</code> to {@link FALSE_VALUE}.
-	 * @param str string value to interpret
-	 * @return string representation fit for boolean data spec
-	 */
-	public static String toStringValue(String str) {
-		if (str.equalsIgnoreCase("TRUE")) {
-			return TRUE_VALUE;
-		}
-		else if (str.equalsIgnoreCase("FALSE")) {
-			return FALSE_VALUE;
-		}
-		else {
-			return str;
+			return TRUE_VALUE.equals(str) || FALSE_VALUE.equals(str) || ANY_VALUE.equals(str) || str.equalsIgnoreCase("true") || str.equalsIgnoreCase("false");
 		}
 	}
 
@@ -52,6 +33,24 @@ public class BooleanDataHelper {
 		}
 		else {
 			return booleanValue.booleanValue() ? TRUE_VALUE : FALSE_VALUE;
+		}
+	}
+
+	/**
+	 * Handles true/false values. 
+	 * This maps <code>true</code> to {@link #TRUE_VALUE} and <code>false</code> to {@link #FALSE_VALUE}.
+	 * @param str string value to interpret
+	 * @return string representation fit for boolean data spec
+	 */
+	public static String toStringValue(String str) {
+		if (str.equalsIgnoreCase("TRUE")) {
+			return TRUE_VALUE;
+		}
+		else if (str.equalsIgnoreCase("FALSE")) {
+			return FALSE_VALUE;
+		}
+		else {
+			return str;
 		}
 	}
 

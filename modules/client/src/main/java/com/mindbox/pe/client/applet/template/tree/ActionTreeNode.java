@@ -12,17 +12,11 @@ import com.mindbox.pe.model.rule.RuleAction;
  */
 public class ActionTreeNode extends FunctionTreeNode {
 
-	/**
-	 * @param data
-	 */
 	public ActionTreeNode(TreeNode parent, RuleAction data) {
-		super(parent, (FunctionCall)data);
-	}
-	
-	public RuleAction getRuleAction() {
-		return (RuleAction) super.data;
+		super(parent, (FunctionCall) data);
 	}
 
+	@Override
 	public String dispString(boolean selected) {
 		if (super.data == null || getRuleAction().getActionType() == null) {
 			return "";
@@ -30,5 +24,9 @@ public class ActionTreeNode extends FunctionTreeNode {
 		else {
 			return getRuleAction().getActionType().getName();
 		}
+	}
+
+	public RuleAction getRuleAction() {
+		return (RuleAction) super.data;
 	}
 }

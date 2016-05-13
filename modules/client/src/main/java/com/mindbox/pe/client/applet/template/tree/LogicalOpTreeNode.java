@@ -21,10 +21,7 @@ import com.mindbox.pe.model.rule.TestCondition;
 public class LogicalOpTreeNode extends AbstractRuleTreeNode implements LogicalOpAttachable {
 
 	private final int type;
-	
-	/**
-	 * @param data
-	 */
+
 	public LogicalOpTreeNode(TreeNode parent, CompoundLHSElement data) {
 		super(parent, data);
 		type = data.getType();
@@ -34,7 +31,7 @@ public class LogicalOpTreeNode extends AbstractRuleTreeNode implements LogicalOp
 				addChild(new ConditionTreeNode(this, RuleElementFactory.deepCopyCondition((Condition) element)));
 			}
 			else if (element instanceof TestCondition) {
-				addChild(new TestTreeNode(this, RuleElementFactory.deepCopyTestCondition((TestCondition)element)));
+				addChild(new TestTreeNode(this, RuleElementFactory.deepCopyTestCondition((TestCondition) element)));
 			}
 			else if (element instanceof CompoundLHSElement) {
 				addChild(new LogicalOpTreeNode(this, (CompoundLHSElement) element));
@@ -45,16 +42,17 @@ public class LogicalOpTreeNode extends AbstractRuleTreeNode implements LogicalOp
 		}
 	}
 
-	
+
+	public int getCompoundLHSElementType() {
+		return type;
+	}
+
+	@Override
 	public void swapChildren(int index1, int index2) {
 		if (index1 == index2) return;
 		super.swapChildren(index1, index2);
 		CompoundLHSElement data = (CompoundLHSElement) super.data;
 		data.swapRuleElements(index1, index2);
-	}
-	
-	public int getCompoundLHSElementType() {
-		return type;
 	}
 
 }

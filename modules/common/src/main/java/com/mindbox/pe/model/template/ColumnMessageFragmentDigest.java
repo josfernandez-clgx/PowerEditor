@@ -32,7 +32,13 @@ public class ColumnMessageFragmentDigest implements Serializable, ColumnReferenc
 	public ColumnMessageFragmentDigest() {
 	}
 
-	/** Constructor for Enum types */
+	/**
+	 * 
+	 * @param cellSelection cellSelection
+	 * @param enumDelimiter enumDelimiter
+	 * @param enumFinalDelimiter enumFinalDelimiter
+	 * @param enumPrefix enumPrefix
+	 */
 	public ColumnMessageFragmentDigest(CellSelectionType cellSelection, String enumDelimiter, String enumFinalDelimiter, String enumPrefix) {
 		this.type = MessageConfigType.ENUM;
 		this.setCellSelection(cellSelection);
@@ -43,12 +49,27 @@ public class ColumnMessageFragmentDigest implements Serializable, ColumnReferenc
 
 	/**
 	 * Creates a new instance of this that is an exact copy of the source.
-	 * @param source
+	 * @param source source
 	 * @since PowerEditor 4.3.2
 	 */
 	public ColumnMessageFragmentDigest(ColumnMessageFragmentDigest source) {
 		this();
 		copyFrom(source);
+	}
+
+	@Override
+	public void adjustChangedColumnReferences(int originalColNo, int newColNo) {
+		setText(TemplateMessageDigest.adjustColumnReferences(this.getText(), originalColNo, newColNo, false, false));
+	}
+
+	@Override
+	public void adjustDeletedColumnReferences(int colNo) {
+		setText(TemplateMessageDigest.adjustColumnReferences(this.getText(), colNo, -1, true, false));
+	}
+
+	@Override
+	public boolean containsColumnReference(int colNo) {
+		return TemplateMessageDigest.adjustColumnReferences(this.getText(), colNo, -1, false, true) != null;
 	}
 
 	public void copyFrom(ColumnMessageFragmentDigest source) {
@@ -60,20 +81,6 @@ public class ColumnMessageFragmentDigest implements Serializable, ColumnReferenc
 		this.enumPrefix = source.enumPrefix;
 		this.text = source.text;
 		this.hasConfigurationAttribute = source.hasConfigurationAttribute;
-	}
-
-	/**
-	 * If this fragment has no configuration attribute, no config object
-	 * needs to be created for it.  hasConfigurationAttribute tracks this.
-	 * @return true if a configuration attribute has been set
-	 */
-	public boolean hasConfigurationAttribute() {
-		return hasConfigurationAttribute;
-	}
-
-	public String toString() {
-		return "ColumnMessageFragmentDigest[type=" + this.getType() + "; cellSelection=" + this.getCellSelection() + "; EnumDelimiter=" + this.getEnumDelimiter() + "; EnumFinalDelimiter="
-				+ this.getEnumFinalDelimiter() + "; EnumPrefix=" + this.getEnumPrefix() + "; text=" + this.getText() + "; rangeStyle=" + this.getRangeStyle() + "]";
 	}
 
 	/* GETTERS */
@@ -89,6 +96,10 @@ public class ColumnMessageFragmentDigest implements Serializable, ColumnReferenc
 		return enumFinalDelimiter;
 	}
 
+	public String getEnumPrefix() {
+		return enumPrefix;
+	}
+
 	public RangeStyleType getRangeStyle() {
 		return rangeStyle;
 	}
@@ -97,19 +108,19 @@ public class ColumnMessageFragmentDigest implements Serializable, ColumnReferenc
 		return text;
 	}
 
+	/* SETTERS */
+
 	public MessageConfigType getType() {
 		return type;
 	}
 
-	public String getEnumPrefix() {
-		return enumPrefix;
-	}
-
-	/* SETTERS */
-
-	public void setText(String text) {
-		this.text = text;
-		// note, this is not a configuration attribute
+	/**
+	 * If this fragment has no configuration attribute, no config object
+	 * needs to be created for it.  hasConfigurationAttribute tracks this.
+	 * @return true if a configuration attribute has been set
+	 */
+	public boolean hasConfigurationAttribute() {
+		return hasConfigurationAttribute;
 	}
 
 	public void setCellSelection(CellSelectionType cellSelection) {
@@ -127,9 +138,19 @@ public class ColumnMessageFragmentDigest implements Serializable, ColumnReferenc
 		if (string != null) hasConfigurationAttribute = true;
 	}
 
+	public void setEnumPrefix(String string) {
+		this.enumPrefix = string;
+		if (string != null) hasConfigurationAttribute = true;
+	}
+
 	public void setRangeStyle(RangeStyleType rangeStyle) {
 		this.rangeStyle = rangeStyle;
 		if (rangeStyle != null) hasConfigurationAttribute = true;
+	}
+
+	public void setText(String text) {
+		this.text = text;
+		// note, this is not a configuration attribute
 	}
 
 	public void setType(MessageConfigType type) {
@@ -137,20 +158,10 @@ public class ColumnMessageFragmentDigest implements Serializable, ColumnReferenc
 		if (type != null) hasConfigurationAttribute = true;
 	}
 
-	public void setEnumPrefix(String string) {
-		this.enumPrefix = string;
-		if (string != null) hasConfigurationAttribute = true;
-	}
-
-	public void adjustChangedColumnReferences(int originalColNo, int newColNo) {
-		setText(TemplateMessageDigest.adjustColumnReferences(this.getText(), originalColNo, newColNo, false, false));
-	}
-
-	public void adjustDeletedColumnReferences(int colNo) {
-		setText(TemplateMessageDigest.adjustColumnReferences(this.getText(), colNo, -1, true, false));
-	}
-
-	public boolean containsColumnReference(int colNo) {
-		return TemplateMessageDigest.adjustColumnReferences(this.getText(), colNo, -1, false, true) != null;
+	@Override
+	public String toString() {
+		return "ColumnMessageFragmentDigest[type=" + this.getType() + "; cellSelection=" + this.getCellSelection() + "; EnumDelimiter=" + this.getEnumDelimiter()
+				+ "; EnumFinalDelimiter=" + this.getEnumFinalDelimiter() + "; EnumPrefix=" + this.getEnumPrefix() + "; text=" + this.getText() + "; rangeStyle="
+				+ this.getRangeStyle() + "]";
 	}
 }

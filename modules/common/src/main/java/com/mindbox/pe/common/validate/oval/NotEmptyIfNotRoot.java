@@ -11,12 +11,13 @@ import net.sf.oval.configuration.annotation.Constraint;
  * Checks that generic category has a parent if not root.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target( { ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER })
+@Target({ ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER })
 @Constraint(checkWith = NotEmptyIfNotRootCheck.class)
 public @interface NotEmptyIfNotRoot {
 
 	/**
 	 * Default validation failure message.
+	 * @return default failure message
 	 */
 	String message() default "violated.NotEmptyIfNotRoot";
 }

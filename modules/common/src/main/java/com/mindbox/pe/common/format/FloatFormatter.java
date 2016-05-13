@@ -28,12 +28,17 @@ public class FloatFormatter {
 		}
 	}
 
-	public final String format(Number n) {
-		return decorate(n == null ? null : formatter.format(n));
-	}
-
-	/** Override to decorate the formatted value.  note: The formatted value may be null. */
+	/**
+	 *  Override to decorate the formatted value.  
+	 *  note: The formatted value may be null. 
+	 *  @param formattedValue formatted value; maybe <code>null</code>
+	 *  @return decorated value
+	 */
 	protected String decorate(String formattedValue) {
 		return formattedValue;
+	}
+
+	public final String format(Number n) {
+		return decorate(n == null ? null : formatter.format(n));
 	}
 }

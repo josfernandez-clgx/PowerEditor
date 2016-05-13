@@ -20,10 +20,6 @@ import com.mindbox.pe.model.rule.TestCondition;
  */
 public class ExistTreeNode extends AbstractRuleTreeNode implements LogicalOpAttachable {
 
-	/**
-	 * @param parent
-	 * @param data
-	 */
 	public ExistTreeNode(TreeNode parent, ExistExpression data) {
 		super(parent, data);
 		for (int i = 0; i < data.getCompoundLHSElement().size(); i++) {
@@ -38,16 +34,16 @@ public class ExistTreeNode extends AbstractRuleTreeNode implements LogicalOpAtta
 				addChild(new ExistTreeNode(this, RuleElementFactory.deepCopyExistExpression((ExistExpression) element)));
 			}
 			else if (element instanceof TestCondition) {
-				addChild(new TestTreeNode(this, RuleElementFactory.deepCopyTestCondition((TestCondition)element)));
+				addChild(new TestTreeNode(this, RuleElementFactory.deepCopyTestCondition((TestCondition) element)));
 			}
 		}
 	}
-	
+
 	public String getExistClassName() {
-		return ((ExistExpression)super.data).getClassName();
+		return ((ExistExpression) super.data).getClassName();
 	}
 
 	public ExistExpression getExistExpression() {
-		return (ExistExpression)super.data;
+		return (ExistExpression) super.data;
 	}
 }

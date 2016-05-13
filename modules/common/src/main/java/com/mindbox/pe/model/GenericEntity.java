@@ -95,7 +95,10 @@ public final class GenericEntity extends AbstractIDObject implements GenericCont
 	}
 
 	/**
-	 * @param name
+	 * 
+	 * @param id id
+	 * @param type type
+	 * @param name name
 	 */
 	public GenericEntity(int id, GenericEntityType type, String name) {
 		this(id, type, name, new DefaultChildAssociationKeySet());
@@ -297,7 +300,7 @@ public final class GenericEntity extends AbstractIDObject implements GenericCont
 
 	/**
 	 * Tests if this has any existing category association that overlaps with categoryKey 
-	 * @param categoryKey
+	 * @param categoryKey categoryKey
 	 * @return  <code>true</code> if this has at least one category association that
 	 * overlaps with categoryKey; <code>false</code>, otherwise
 	 */
@@ -321,6 +324,7 @@ public final class GenericEntity extends AbstractIDObject implements GenericCont
 	/**
 	 * Tests if this has the same category associations as the specified entity.
 	 * @param entity the entity to check against
+	 * @return true if same association; false, otherwise
 	 * @throws NullPointerException if <code>entity</code> is <code>null</code>
 	 * @since 5.1.0
 	 */

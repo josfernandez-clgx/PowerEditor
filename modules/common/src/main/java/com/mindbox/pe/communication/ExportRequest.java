@@ -17,9 +17,9 @@ public class ExportRequest extends AbstractGuidelineReportFilterRequest<ByteArra
 	private static final long serialVersionUID = 242450650030981719L;
 
 	/**
-	 * @param exportSpec
-	 * @param userID
-	 * @param sessionID
+	 * @param filter filter
+	 * @param userID userID
+	 * @param sessionID sessionID
 	 */
 	public ExportRequest(GuidelineReportFilter filter, String userID, String sessionID) {
 		super(userID, sessionID, filter);

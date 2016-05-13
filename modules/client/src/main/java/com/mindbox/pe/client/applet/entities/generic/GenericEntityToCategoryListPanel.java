@@ -27,7 +27,6 @@ import com.mindbox.pe.client.common.event.ValueChangeEvent;
 import com.mindbox.pe.client.common.event.ValueChangeListener;
 import com.mindbox.pe.common.ui.AbstractSelectionTableModel;
 import com.mindbox.pe.common.ui.AbstractSortableTable;
-import com.mindbox.pe.communication.ServerException;
 import com.mindbox.pe.model.GenericCategory;
 import com.mindbox.pe.model.GenericEntity;
 import com.mindbox.pe.model.GenericEntityType;
@@ -41,24 +40,170 @@ import com.mindbox.pe.model.assckey.MutableTimedAssociationKey;
  * @since PowerEditor 5.1.0
  */
 public class GenericEntityToCategoryListPanel extends PanelBase {
+	private class EditL extends AbstractThreadedActionAdapter {
+		@Override
+		public void performAction(ActionEvent event) throws Exception {
+			if (selectionTable.getSelectedRowCount() == 1) {
+				MutableTimedAssociationKey key = (MutableTimedAssociationKey) selectionTable.getDateObjectAt(selectionTable.getSelectedRow());
+				MutableTimedAssociationKey newkey = GenericEntityToCategoryEditDialog.editParentCategory(entity, key);
+
+				if (newkey != null) {
+					// TT 2081
+					selectionTableModel.removeData(key);
+					selectionTableModel.addData(newkey);
+					//selectionTableModel.fireTableDataChanged();
+					notifyValueChanged();
+				}
+			}
+		}
+	}
+
+	private class NewL extends AbstractThreadedActionAdapter {
+		@Override
+		public void performAction(ActionEvent event) throws Exception {
+			GenericEntity entityCopy = new GenericEntity(entity);
+			entityCopy.removeAllCategoryAssociations();
+			for (Iterator<MutableTimedAssociationKey> i = selectionTableModel.getDataList().iterator(); i.hasNext();) {
+				entityCopy.addCategoryAssociation(i.next());
+			}
+			List<MutableTimedAssociationKey> newkeys = GenericEntityToCategoryBulkAddDialog.getNewCategoryAssociationsForEntity(
+					JOptionPane.getFrameForComponent(ClientUtil.getApplet()),
+					entityCopy);
+			if (newkeys != null) {
+				// TT 2081
+				selectionTableModel.addDataList(newkeys);
+				//selectionTableModel.fireTableDataChanged();
+				notifyValueChanged();
+			}
+		}
+	}
+
+	private class RemoveL extends AbstractThreadedActionAdapter {
+		@Override
+		public void performAction(ActionEvent event) throws Exception {
+			if (selectionTable.getSelectedRowCount() > 0) {
+				if (ClientUtil.getInstance().showConfirmation("msg.question.remove.category.association")) {
+					int[] rowIndex = selectionTable.getSelectedRows();
+					List<MutableTimedAssociationKey> removedKeys = new ArrayList<MutableTimedAssociationKey>();
+
+					for (int i = 0; i < rowIndex.length; i++) {
+						MutableTimedAssociationKey key = (MutableTimedAssociationKey) selectionTable.getValueAt(rowIndex[i], -1);
+						removedKeys.add(key);
+					}
+
+					for (Iterator<MutableTimedAssociationKey> i = removedKeys.iterator(); i.hasNext();) {
+						// TT 2081
+						selectionTableModel.removeData(i.next());
+					}
+
+					//selectionTableModel.fireTableDataChanged();
+					notifyValueChanged();
+				}
+			}
+		}
+	}
+
 	/**
+	 * Table for entity to category relationships.
 	 * 
+	 * @author MindBox, Inc
+	 * @since PowerEditor 5.1.0
 	 */
+	class SelectionTable extends AbstractSortableTable<SelectionTableModel, MutableTimedAssociationKey> {
+		private static final long serialVersionUID = -3951228734910107454L;
+
+		public SelectionTable(SelectionTableModel tableModel) {
+			super(tableModel);
+			setColumnSelectionAllowed(false);
+			setRowSelectionAllowed(true);
+			setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+			setShowHorizontalLines(true);
+			setAutoCreateColumnsFromModel(false);
+		}
+
+		void setData(List<MutableTimedAssociationKey> data) {
+			getSelectionTableModel().setDataList(data);
+		}
+	}
+
+	/**
+	 * Model for entity to category association.
+	 * 
+	 * @since PowerEditor 5.1.0
+	 */
+	class SelectionTableModel extends AbstractSelectionTableModel<MutableTimedAssociationKey> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -3951228734910107454L;
+
+		private final int categoryType;
+
+		public SelectionTableModel(int categoryType) {
+			super(
+					ClientUtil.getInstance().getLabel("label.category.parent"),
+					ClientUtil.getInstance().getLabel("label.date.activation"),
+					ClientUtil.getInstance().getLabel("label.date.expiration"));
+			this.categoryType = categoryType;
+		}
+
+		@Override
+		public Object getValueAt(int row, int col) {
+			if ((dataList == null) || (dataList.size() < row)) {
+				return null;
+			}
+			MutableTimedAssociationKey value = dataList.get(row);
+			GenericCategory category = EntityModelCacheFactory.getInstance().getGenericCategory(categoryType, value.getAssociableID());
+			switch (col) {
+			case 0:
+				return (category == null) ? "" : category.getName();
+
+			case 1:
+				return toDisplayString(value.getEffectiveDate());
+
+			case 2:
+				return toDisplayString(value.getExpirationDate());
+
+			default:
+				return value;
+			}
+		}
+	}
+
+	private final class ShowDateNameL extends AbstractThreadedActionAdapter {
+		@Override
+		public void performAction(ActionEvent e) {
+			selectionTable.refresh(dateNameCheckbox.isSelected());
+		}
+	}
+
+	private class TableSelectionL implements ListSelectionListener {
+		@Override
+		public void valueChanged(ListSelectionEvent arg0) {
+			removeButton.setEnabled(selectionTable.getSelectedRowCount() > 0);
+			editButton.setEnabled(selectionTable.getSelectedRowCount() == 1);
+		}
+	}
+
 	private static final long serialVersionUID = -3951228734910107454L;
 
 	final SelectionTable selectionTable;
+
 	private GenericEntity entity;
+
 	final SelectionTableModel selectionTableModel;
+
 	private final JButton newButton;
+
 	private final JButton editButton;
+
 	private final JButton removeButton;
+
 	private final JCheckBox dateNameCheckbox;
+
 	private final List<ValueChangeListener> changeListenerList;
 
-	/**
-	 * @throws ServerException
-	 * 
-	 */
 	public GenericEntityToCategoryListPanel(GenericEntityType entityType) {
 		super();
 		changeListenerList = new ArrayList<ValueChangeListener>();
@@ -76,6 +221,18 @@ public class GenericEntityToCategoryListPanel extends PanelBase {
 
 		initPanel();
 		setEnabled(false);
+	}
+
+	public final void addValueChangeListener(ValueChangeListener cl) {
+		synchronized (changeListenerList) {
+			if (!changeListenerList.contains(cl)) {
+				changeListenerList.add(cl);
+			}
+		}
+	}
+
+	List<MutableTimedAssociationKey> getCategoryAssociations() {
+		return selectionTable.getSelectionTableModel().getDataList();
 	}
 
 	private void initPanel() {
@@ -110,6 +267,15 @@ public class GenericEntityToCategoryListPanel extends PanelBase {
 		setEnabledSelectionAwares(false);
 	}
 
+	void notifyValueChanged() {
+		if (changeListenerList != null) {
+			for (Iterator<ValueChangeListener> i = changeListenerList.iterator(); i.hasNext();) {
+				ValueChangeListener listener = i.next();
+				listener.valueChanged(new ValueChangeEvent());
+			}
+		}
+	}
+
 	private synchronized void populateData() {
 		List<MutableTimedAssociationKey> data = new ArrayList<MutableTimedAssociationKey>();
 
@@ -125,187 +291,11 @@ public class GenericEntityToCategoryListPanel extends PanelBase {
 		setEnabled(true);
 	}
 
-	public void setEntity(GenericEntity entity) {
-		this.entity = entity;
-		populateData();
-		setEnabledSelectionAwares(false);
-	}
-
-	private void setEnabledSelectionAwares(boolean enabled) {
-		newButton.setEnabled(entity != null);
-		removeButton.setEnabled(enabled);
-		editButton.setEnabled(enabled);
-		dateNameCheckbox.setEnabled(entity != null);
-	}
-
-	public final void addValueChangeListener(ValueChangeListener cl) {
-		synchronized (changeListenerList) {
-			if (!changeListenerList.contains(cl)) {
-				changeListenerList.add(cl);
-			}
-		}
-	}
-
 	public final void removeValueChangeListener(ValueChangeListener cl) {
 		synchronized (changeListenerList) {
 			if (changeListenerList.contains(cl)) {
 				changeListenerList.remove(cl);
 			}
-		}
-	}
-
-	void notifyValueChanged() {
-		if (changeListenerList != null) {
-			for (Iterator<ValueChangeListener> i = changeListenerList.iterator(); i.hasNext();) {
-				ValueChangeListener listener = i.next();
-				listener.valueChanged(new ValueChangeEvent());
-			}
-		}
-	}
-
-	List<MutableTimedAssociationKey> getCategoryAssociations() {
-		return selectionTable.getSelectionTableModel().getDataList();
-	}
-
-	/**
-	 * Table for entity to category relationships.
-	 * 
-	 * @author MindBox, Inc
-	 * @since PowerEditor 5.1.0
-	 */
-	class SelectionTable extends AbstractSortableTable<SelectionTableModel, MutableTimedAssociationKey> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -3951228734910107454L;
-
-		/**
-			 * @param tableModel
-			 */
-		public SelectionTable(SelectionTableModel tableModel) {
-			super(tableModel);
-			setColumnSelectionAllowed(false);
-			setRowSelectionAllowed(true);
-			setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-			setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-			setShowHorizontalLines(true);
-			setAutoCreateColumnsFromModel(false);
-		}
-
-		void setData(List<MutableTimedAssociationKey> data) {
-			getSelectionTableModel().setDataList(data);
-		}
-	}
-
-	/**
-	 * Model for entity to category association.
-	 * 
-	 * @since PowerEditor 5.1.0
-	 */
-	class SelectionTableModel extends AbstractSelectionTableModel<MutableTimedAssociationKey> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -3951228734910107454L;
-
-		private final int categoryType;
-
-		public SelectionTableModel(int categoryType) {
-			super(ClientUtil.getInstance().getLabel("label.category.parent"), ClientUtil.getInstance().getLabel("label.date.activation"), ClientUtil.getInstance().getLabel("label.date.expiration"));
-			this.categoryType = categoryType;
-		}
-
-		@Override
-		public Object getValueAt(int row, int col) {
-			if ((dataList == null) || (dataList.size() < row)) {
-				return null;
-			}
-			MutableTimedAssociationKey value = dataList.get(row);
-			GenericCategory category = EntityModelCacheFactory.getInstance().getGenericCategory(categoryType, value.getAssociableID());
-			switch (col) {
-			case 0:
-				return (category == null) ? "" : category.getName();
-
-			case 1:
-				return toDisplayString(value.getEffectiveDate());
-
-			case 2:
-				return toDisplayString(value.getExpirationDate());
-
-			default:
-				return value;
-			}
-		}
-	}
-
-	private final class ShowDateNameL extends AbstractThreadedActionAdapter {
-		public void performAction(ActionEvent e) {
-			selectionTable.refresh(dateNameCheckbox.isSelected());
-		}
-	}
-
-	private class NewL extends AbstractThreadedActionAdapter {
-		public void performAction(ActionEvent event) throws Exception {
-			GenericEntity entityCopy = new GenericEntity(entity);
-			entityCopy.removeAllCategoryAssociations();
-			for (Iterator<MutableTimedAssociationKey> i = selectionTableModel.getDataList().iterator(); i.hasNext();) {
-				entityCopy.addCategoryAssociation(i.next());
-			}
-			List<MutableTimedAssociationKey> newkeys = GenericEntityToCategoryBulkAddDialog.getNewCategoryAssociationsForEntity(JOptionPane.getFrameForComponent(ClientUtil.getApplet()), entityCopy);
-			if (newkeys != null) {
-				// TT 2081
-				selectionTableModel.addDataList(newkeys);
-				//selectionTableModel.fireTableDataChanged();
-				notifyValueChanged();
-			}
-		}
-	}
-
-	private class EditL extends AbstractThreadedActionAdapter {
-		public void performAction(ActionEvent event) throws Exception {
-			if (selectionTable.getSelectedRowCount() == 1) {
-				MutableTimedAssociationKey key = (MutableTimedAssociationKey) selectionTable.getDateObjectAt(selectionTable.getSelectedRow());
-				MutableTimedAssociationKey newkey = GenericEntityToCategoryEditDialog.editParentCategory(entity, key);
-
-				if (newkey != null) {
-					// TT 2081
-					selectionTableModel.removeData(key);
-					selectionTableModel.addData(newkey);
-					//selectionTableModel.fireTableDataChanged();
-					notifyValueChanged();
-				}
-			}
-		}
-	}
-
-	private class RemoveL extends AbstractThreadedActionAdapter {
-		public void performAction(ActionEvent event) throws Exception {
-			if (selectionTable.getSelectedRowCount() > 0) {
-				if (ClientUtil.getInstance().showConfirmation("msg.question.remove.category.association")) {
-					int[] rowIndex = selectionTable.getSelectedRows();
-					List<MutableTimedAssociationKey> removedKeys = new ArrayList<MutableTimedAssociationKey>();
-
-					for (int i = 0; i < rowIndex.length; i++) {
-						MutableTimedAssociationKey key = (MutableTimedAssociationKey) selectionTable.getValueAt(rowIndex[i], -1);
-						removedKeys.add(key);
-					}
-
-					for (Iterator<MutableTimedAssociationKey> i = removedKeys.iterator(); i.hasNext();) {
-						// TT 2081
-						selectionTableModel.removeData(i.next());
-					}
-
-					//selectionTableModel.fireTableDataChanged();
-					notifyValueChanged();
-				}
-			}
-		}
-	}
-
-	private class TableSelectionL implements ListSelectionListener {
-		public void valueChanged(ListSelectionEvent arg0) {
-			removeButton.setEnabled(selectionTable.getSelectedRowCount() > 0);
-			editButton.setEnabled(selectionTable.getSelectedRowCount() == 1);
 		}
 	}
 
@@ -322,5 +312,18 @@ public class GenericEntityToCategoryListPanel extends PanelBase {
 			removeButton.setEnabled(enabled);
 			editButton.setEnabled(enabled);
 		}
+	}
+
+	private void setEnabledSelectionAwares(boolean enabled) {
+		newButton.setEnabled(entity != null);
+		removeButton.setEnabled(enabled);
+		editButton.setEnabled(enabled);
+		dateNameCheckbox.setEnabled(entity != null);
+	}
+
+	public void setEntity(GenericEntity entity) {
+		this.entity = entity;
+		populateData();
+		setEnabledSelectionAwares(false);
 	}
 }

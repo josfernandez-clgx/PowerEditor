@@ -15,33 +15,19 @@ public interface GuidelineContextHolder {
 
 	/**
 	 * 
-	 * @param entities
-	 * @since 3.0.0
-	 */
-	void addContext(GenericEntity[] entities);
-
-	/**
-	 * 
-	 * @param categories
+	 * @param categories categories
 	 * @since PowerEditor 3.1.0
 	 */
 	void addContext(GenericCategory[] categories);
 
-	void clearContext();
-
 	/**
 	 * 
-	 * @param entities
+	 * @param entities entities
 	 * @since 3.0.0
 	 */
-	void removeContext(GenericEntity[] entities);
+	void addContext(GenericEntity[] entities);
 
-	/**
-	 * 
-	 * @param categories
-	 * @since PowerEditor 3.1.0
-	 */
-	void removeContext(GenericCategory[] categories);
+	void clearContext();
 
 	/**
 	 * 
@@ -52,7 +38,21 @@ public interface GuidelineContextHolder {
 
 	/**
 	 * 
-	 * @param contexts
+	 * @param categories categories
+	 * @since PowerEditor 3.1.0
+	 */
+	void removeContext(GenericCategory[] categories);
+
+	/**
+	 * 
+	 * @param entities entities
+	 * @since 3.0.0
+	 */
+	void removeContext(GenericEntity[] entities);
+
+	/**
+	 * 
+	 * @param contexts contexts
 	 *            context elements to set
 	 * @since PowerEditor 4.2.0
 	 */

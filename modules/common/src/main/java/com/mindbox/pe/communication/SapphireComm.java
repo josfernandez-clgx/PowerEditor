@@ -59,6 +59,8 @@ public abstract class SapphireComm<T extends SapphireComm<?>> implements Seriali
 
 	/**
 	 * Deserialize the servletCom serialized in the specified ObjectInputStream.
+	 * @param pobjin input stream
+	 * @return deserialized instance
 	 */
 	public static SapphireComm<?> serializeInUnchecked(InputStream pobjin) {
 		byte[] ba = readBytes(pobjin);
@@ -82,6 +84,8 @@ public abstract class SapphireComm<T extends SapphireComm<?>> implements Seriali
 
 	/**
 	 * Deserialize the servletCom serialized in the specified ObjectInputStream.
+	 * @param pobjin input stream
+	 * @return deserialized instance
 	 */
 	public ResponseComm serializeIn(InputStream pobjin) {
 		byte[] ba = readBytes(pobjin);
@@ -121,6 +125,7 @@ public abstract class SapphireComm<T extends SapphireComm<?>> implements Seriali
 		}
 	}
 
+	@Override
 	public String toString() {
 		return super.toString();
 	}

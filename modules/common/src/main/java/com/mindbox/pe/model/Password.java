@@ -15,15 +15,6 @@ import org.apache.commons.codec.binary.Base64;
  * Instances are immutable.
  */
 public final class Password {
-	/** Factory method for creating a <code>Password</code> from clear text. */
-	public static Password fromClearText(String pwd) {
-		return new Password(pwd, false);
-	}
-
-	/** Package-private factory method for creating a <code>Password</code> from an encrypted string (as stored in a config file, for example). */
-	public static Password fromEncryptedString(String pwd) {
-		return new Password(pwd, true);
-	}
 
 	/*
 	 * Below is the cryptography for server passwords.
@@ -33,7 +24,9 @@ public final class Password {
 	 * But it does fully meet the requirement and has been approved by the business analyst.    
 	 */
 	private static final String ALGORITHM = "DES";
+
 	private static final String FEEDBACK_MODE = "ECB";
+
 	private static final String PADDING_SCHEME = "PKCS5Padding";
 	private static final String CIPHER_TRANSFORMATION = ALGORITHM + '/' + FEEDBACK_MODE + '/' + PADDING_SCHEME;
 	private static final Cipher CIPHER;
@@ -52,6 +45,14 @@ public final class Password {
 		catch (Exception e) {
 			throw new ExceptionInInitializerError();
 		}
+	}
+
+	public static Password fromClearText(String pwd) {
+		return new Password(pwd, false);
+	}
+
+	public static Password fromEncryptedString(String pwd) {
+		return new Password(pwd, true);
 	}
 
 	private final String clearText;
@@ -112,6 +113,7 @@ public final class Password {
 		return encrypted;
 	}
 
+	@Override
 	public String toString() {
 		return encrypted;
 	}

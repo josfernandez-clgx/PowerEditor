@@ -19,17 +19,17 @@ public class NamedEntityResponselessActionRequest extends AbstractEntityNameActi
 	private static final long serialVersionUID = 4101525660301485676L;
 
 	private final int actionType;
-	
+
 	/**
-	 * @param userID
-	 * @param sessionID
-	 * @param name
-	 * @param entityType
+	 * @param userID userID
+	 * @param sessionID sessionID
+	 * @param name name
+	 * @param entityType entityType
 	 * @param actionType defined in {@link SessionRequest} 
 	 */
 	public NamedEntityResponselessActionRequest(String userID, String sessionID, String name, PeDataType entityType, int actionType) {
 		super(userID, sessionID, name, entityType);
-		this.actionType= actionType;
+		this.actionType = actionType;
 	}
 
 	public int getActionType() {

@@ -2,9 +2,9 @@ package com.mindbox.pe.model.filter;
 
 import java.io.Serializable;
 
-import com.mindbox.pe.model.PeDataType;
 import com.mindbox.pe.model.GenericEntity;
 import com.mindbox.pe.model.GenericEntityType;
+import com.mindbox.pe.model.PeDataType;
 
 /**
  * @author Gene Kim
@@ -32,7 +32,8 @@ public abstract class AbstractGenericEntitySearchFilter implements SearchFilter<
 	protected final GenericEntityType entityType;
 
 	/**
-	 *  
+	 * 
+	 * @param entityType entity type
 	 */
 	protected AbstractGenericEntitySearchFilter(GenericEntityType entityType) {
 		super();
@@ -40,17 +41,20 @@ public abstract class AbstractGenericEntitySearchFilter implements SearchFilter<
 		this.entityType = entityType;
 	}
 
-	public boolean isAcceptable(GenericEntity object) {
-		if (object == null) throw new NullPointerException();
-		return object.getType() == entityType;
-	}
-
+	@Override
 	public final PeDataType getEntityType() {
 		return null;
 	}
 
+	@Override
 	public final GenericEntityType getGenericEntityType() {
 		return entityType;
+	}
+
+	@Override
+	public boolean isAcceptable(GenericEntity object) {
+		if (object == null) throw new NullPointerException();
+		return object.getType() == entityType;
 	}
 
 }

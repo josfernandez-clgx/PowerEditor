@@ -226,12 +226,12 @@ public final class IOUtil {
 
 	/**
 	 * 
-	 * @param zipFile
-	 * @param targetDir
+	 * @param zipFile zipFile
+	 * @param targetDir targetDir
 	 * @param patternToCheck pattern to check; can be <code>null</code> (no check performed)
 	 * @return <code>true</code> if the specified zip contains a file that doesn't match <code>patternToCheck</code>;
 	 *         <code>false</code>, otherwise
-	 * @throws IOException
+	 * @throws IOException on I/O error
 	 */
 	public static boolean unzipAndCheckFilename(ZipFile zipFile, File targetDir, Pattern patternToCheck) throws IOException {
 		boolean nonMatchingFileFound = false;
@@ -273,9 +273,8 @@ public final class IOUtil {
 
 	/**
 	 * 
-	 * @param sourceFile
-	 * @param timeout
-	 * @param timeUnit
+	 * @param sourceFile sourceFile
+	 * @param timeOutInSec timeout in seconds
 	 * @return <code>true</code> if sourceFile exists; <code>false</code>, otherwise
 	 */
 	public static boolean waitUntilFileExists(File sourceFile, long timeOutInSec) {

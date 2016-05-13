@@ -11,10 +11,6 @@ import java.util.List;
 
 import javax.swing.JButton;
 
-import mseries.Calendar.MFieldListener;
-import mseries.ui.MChangeEvent;
-import mseries.ui.MChangeListener;
-
 import com.mindbox.pe.client.ClientUtil;
 import com.mindbox.pe.client.EntityModelCacheFactory;
 import com.mindbox.pe.client.applet.UIFactory;
@@ -38,6 +34,10 @@ import com.mindbox.pe.model.grid.ParameterGrid;
 import com.mindbox.pe.model.template.ParameterTemplate;
 import com.mindbox.pe.xsd.config.CategoryType;
 
+import mseries.Calendar.MFieldListener;
+import mseries.ui.MChangeEvent;
+import mseries.ui.MChangeListener;
+
 /**
  * 
  * @author Gene Kim
@@ -52,41 +52,9 @@ import com.mindbox.pe.xsd.config.CategoryType;
  * (as well as the code).
  */
 public final class EntityManagementButtonPanel<T extends IDNameObject> extends ButtonPanel {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3951228734910107454L;
-
-	private class NewL implements ActionListener {
-
-		public void actionPerformed(ActionEvent e) {
-			_newEntity();
-		}
-	}
-
-	private class EditL implements ActionListener {
-
-		public void actionPerformed(ActionEvent e) {
-			_editEntity();
-		}
-	}
-
-	private class ViewL implements ActionListener {
-
-		public void actionPerformed(ActionEvent e) {
-			_viewEntity();
-		}
-	}
-
-	private class RemoveL implements ActionListener {
-
-		public void actionPerformed(ActionEvent e) {
-			_removeEntity();
-		}
-	}
-
 	private class CloneL implements ActionListener {
 
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			_cloneEntity();
 		}
@@ -94,6 +62,7 @@ public final class EntityManagementButtonPanel<T extends IDNameObject> extends B
 
 	private class CopyL implements ActionListener {
 
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			_copyEntity();
 		}
@@ -101,14 +70,50 @@ public final class EntityManagementButtonPanel<T extends IDNameObject> extends B
 
 	private class DetailChangeL implements DetailChangeListener {
 
+		@Override
 		public void detailChanged() {
 			setHasUnsavedChanges(true);
 		}
 
+		@Override
 		public void detailSaved() {
 			setHasUnsavedChanges(false);
 		}
 	}
+
+	private class EditL implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			_editEntity();
+		}
+	}
+
+	private class NewL implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			_newEntity();
+		}
+	}
+
+	private class RemoveL implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			_removeEntity();
+		}
+	}
+
+	private class ViewL implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			_viewEntity();
+		}
+	}
+
+	private static final long serialVersionUID = -3951228734910107454L;
 
 	private final boolean readOnly;
 	private final AbstractSelectionPanel<T, EntityManagementButtonPanel<T>> selectionPanel;
@@ -130,37 +135,18 @@ public final class EntityManagementButtonPanel<T extends IDNameObject> extends B
 	 */
 	private final GenericEntityType genericEntityType;
 
-	public EntityManagementButtonPanel(boolean readOnly, AbstractSelectionPanel<T, EntityManagementButtonPanel<T>> selectionPanel, PeDataType entityType, String entityName, boolean hasCloneButton,
-			boolean hasRemoveButton) {
-		this(readOnly, selectionPanel, null, entityType, entityName, hasCloneButton, hasRemoveButton);
-	}
-
 	/**
 	 * 
-	 * @param selectionPanel
-	 * @param entityType
-	 * @param entityName
-	 * @param hasCloneButton
-	 * @param hasRemoveButton
+	 * @param selectionPanel selectionPanel
+	 * @param genericEntityType genericEntityType
+	 * @param entityType entityType
+	 * @param entityName entityName
+	 * @param hasCloneButton hasCloneButton
+	 * @param hasRemoveButton hasRemoveButton
 	 * @since 3.0.0
 	 */
-	public EntityManagementButtonPanel(boolean readOnly, AbstractSelectionPanel<T, EntityManagementButtonPanel<T>> selectionPanel, GenericEntityType entityType, String entityName,
-			boolean hasCloneButton, boolean hasRemoveButton) {
-		this(readOnly, selectionPanel, entityType, null, entityName, hasCloneButton, hasRemoveButton);
-	}
-
-	/**
-	 * 
-	 * @param selectionPanel
-	 * @param genericEntityType
-	 * @param entityType
-	 * @param entityName
-	 * @param hasCloneButton
-	 * @param hasRemoveButton
-	 * @since 3.0.0
-	 */
-	private EntityManagementButtonPanel(boolean readOnly, final AbstractSelectionPanel<T, EntityManagementButtonPanel<T>> selectionPanel, GenericEntityType genericEntityType, PeDataType entityType,
-			String entityName, boolean hasCloneButton, boolean hasRemoveButton) {
+	private EntityManagementButtonPanel(boolean readOnly, final AbstractSelectionPanel<T, EntityManagementButtonPanel<T>> selectionPanel, GenericEntityType genericEntityType,
+			PeDataType entityType, String entityName, boolean hasCloneButton, boolean hasRemoveButton) {
 		super();
 		this.readOnly = readOnly;
 		this.selectionPanel = selectionPanel;
@@ -178,6 +164,7 @@ public final class EntityManagementButtonPanel<T extends IDNameObject> extends B
 				selectionPanel.setCategoryOnDate(categoryOnDateField.getDate());
 
 				categoryRefreshButton = UIFactory.createJButton("label.refresh", null, new AbstractThreadedActionAdapter() {
+					@Override
 					public void performAction(ActionEvent event) throws Exception {
 						if (categoryOnDateField.getDate() != null) {
 							selectionPanel.setCategoryOnDate(categoryOnDateField.getDate());
@@ -186,24 +173,29 @@ public final class EntityManagementButtonPanel<T extends IDNameObject> extends B
 					}
 				}, null);
 				categoryRefreshButton.addFocusListener(new FocusListener() {
+					@Override
 					public void focusGained(FocusEvent e) {
 						categoryRefreshButton.setEnabled(categoryOnDateField.getDate() != null);
 					}
 
+					@Override
 					public void focusLost(FocusEvent e) {
 
 					}
 				});
 				categoryOnDateField.addMChangeListener(new MChangeListener() {
+					@Override
 					public void valueChanged(MChangeEvent arg0) {
 						categoryRefreshButton.setEnabled(categoryOnDateField.getDate() != null);
 					}
 				});
 				categoryOnDateField.addMFieldListener(new MFieldListener() {
+					@Override
 					public void fieldEntered(FocusEvent arg0) {
 						categoryRefreshButton.setEnabled(categoryOnDateField.getDate() != null);
 					}
 
+					@Override
 					public void fieldExited(FocusEvent arg0) {
 						categoryRefreshButton.setEnabled(categoryOnDateField.getDate() != null);
 					}
@@ -215,90 +207,53 @@ public final class EntityManagementButtonPanel<T extends IDNameObject> extends B
 		}
 	}
 
-	/** 
-	 * If EditEntity Nameprivilege does not exist, then CRUD buttons
-	 * are disabled.
-	 * @param priv
+	/**
+	 * 
+	 * @param selectionPanel selectionPanel
+	 * @param entityType entityType
+	 * @param entityName entityName
+	 * @param hasCloneButton hasCloneButton
+	 * @param hasRemoveButton hasRemoveButton
+	 * @since 3.0.0
 	 */
-	public void setEditPrivilege(String priv) {
-		if (priv != null) {
-			if (!ClientUtil.checkPermissionByPrivilegeName(priv)) {
-				hideAndDisableButton(editButton);
-				hideAndDisableButton(newButton);
-				hideAndDisableButton(copyButton);
-				hideAndDisableButton(cloneButton);
-				hideAndDisableButton(removeButton);
+	public EntityManagementButtonPanel(boolean readOnly, AbstractSelectionPanel<T, EntityManagementButtonPanel<T>> selectionPanel, GenericEntityType entityType, String entityName,
+			boolean hasCloneButton, boolean hasRemoveButton) {
+		this(readOnly, selectionPanel, entityType, null, entityName, hasCloneButton, hasRemoveButton);
+	}
+
+	public EntityManagementButtonPanel(boolean readOnly, AbstractSelectionPanel<T, EntityManagementButtonPanel<T>> selectionPanel, PeDataType entityType, String entityName,
+			boolean hasCloneButton, boolean hasRemoveButton) {
+		this(readOnly, selectionPanel, null, entityType, entityName, hasCloneButton, hasRemoveButton);
+	}
+
+	private synchronized void _cloneEntity() {
+		if (verifyUnlockPrevious()) {
+			List<T> values = selectionPanel.getSelectedObjects();
+			if (values != null && values.size() > 0) {
+				detailPanel.setForViewOnly(false);
+				if (values.get(0) instanceof CloneableEntity) {
+					((CloneableEntity) values.get(0)).setForClone(true);
+					((CloneableEntity) values.get(0)).setCopyPolicies(true);
+				}
+				detailPanel.populateForClone(values.get(0));
+				hasUnsavedChanges = true;
+				detailPanel.fireDetailChanged();
 			}
 		}
 	}
 
-	private void hideAndDisableButton(JButton button) {
-		if (button != null) {
-			button.setEnabled(false);
-			button.setVisible(false);
-		}
-	}
-
-	private synchronized void setHasUnsavedChanges(boolean hasChanges) {
-		this.hasUnsavedChanges = hasChanges;
-	}
-
-	// Allow inspection of dirty flag
-	public boolean hasUnsavedChanges() {
-		return this.hasUnsavedChanges;
-	}
-
-	public void setDetailPanel(AbstractDetailPanel<T, EntityManagementButtonPanel<T>> detailPanel) {
-		this.detailPanel = detailPanel;
-		this.detailPanel.addDetailChangeListener(new DetailChangeL());
-	}
-
-	private final JButton[] createButtons(boolean hasCloneButton, boolean hasRemoveButton) {
-		JButton[] buttons = null;
-
-		viewButton = UIFactory.createButton(ClientUtil.getInstance().getLabel("button.view"), "image.btn.small.view", new ViewL(), null);
-		editButton = UIFactory.createButton(ClientUtil.getInstance().getLabel("button.edit"), "image.btn.small.edit", new EditL(), null);
-		newButton = UIFactory.createButton(ClientUtil.getInstance().getLabel("button.new"), "image.btn.small.new", new NewL(), null);
-		copyButton = UIFactory.createButton(ClientUtil.getInstance().getLabel("button.copy"), "image.btn.small.add", new CopyL(), null);
-
-		if (readOnly) {
-			buttons = new JButton[] { viewButton };
-		}
-		else if (hasCloneButton && hasRemoveButton) {
-			cloneButton = UIFactory.createButton(ClientUtil.getInstance().getLabel("button.clone"), "image.btn.small.copy", new CloneL(), null);
-			removeButton = UIFactory.createButton(ClientUtil.getInstance().getLabel("button.remove"), "image.btn.small.delete", new RemoveL(), null);
-			buttons = new JButton[] { newButton, copyButton, editButton, viewButton, cloneButton, removeButton };
-		}
-		else if (hasCloneButton) {
-			cloneButton = UIFactory.createButton(ClientUtil.getInstance().getLabel("button.clone"), "image.btn.small.copy", new CloneL(), null);
-			buttons = new JButton[] { copyButton, editButton, viewButton, cloneButton };
-		}
-		else if (hasRemoveButton) {
-			removeButton = UIFactory.createButton(ClientUtil.getInstance().getLabel("button.remove"), "image.btn.small.delete", new RemoveL(), null);
-			buttons = new JButton[] { newButton, copyButton, editButton, viewButton, removeButton };
-		}
-		else {
-			buttons = new JButton[] { newButton, copyButton, editButton, viewButton };
-		}
-		return buttons;
-	}
-
-	private synchronized void _newEntity() {
-		if (verifyUnlockPrevious()) {
-
-			selectionPanel.clearSelection();
-			detailPanel.resetFields();
-			detailPanel.setForViewOnly(false);
-			detailPanel.fireDetailChanged();
-		}
-	}
-
-	private synchronized void _viewEntity() {
+	private synchronized void _copyEntity() {
 		if (verifyUnlockPrevious()) {
 			List<T> values = selectionPanel.getSelectedObjects();
 			if (values != null && values.size() > 0) {
-				detailPanel.populateFields(values.get(0));
-				detailPanel.setForViewOnly(true);
+				detailPanel.setForViewOnly(false);
+				if (values.get(0) instanceof CloneableEntity) {
+					((CloneableEntity) values.get(0)).setForClone(true);
+					((CloneableEntity) values.get(0)).setCopyPolicies(false);
+				}
+				detailPanel.populateForClone(values.get(0));
+				hasUnsavedChanges = true;
+				detailPanel.fireDetailChanged();
 			}
 		}
 	}
@@ -331,6 +286,16 @@ public final class EntityManagementButtonPanel<T extends IDNameObject> extends B
 		}
 	}
 
+	private synchronized void _newEntity() {
+		if (verifyUnlockPrevious()) {
+
+			selectionPanel.clearSelection();
+			detailPanel.resetFields();
+			detailPanel.setForViewOnly(false);
+			detailPanel.fireDetailChanged();
+		}
+	}
+
 	private synchronized void _removeEntity() {
 		if (verifyUnlockPrevious()) {
 			List<T> values = selectionPanel.getSelectedObjects();
@@ -359,6 +324,64 @@ public final class EntityManagementButtonPanel<T extends IDNameObject> extends B
 			else {
 				ClientUtil.getInstance().showWarning("msg.warning.select.generic");
 			}
+		}
+	}
+
+	private synchronized void _viewEntity() {
+		if (verifyUnlockPrevious()) {
+			List<T> values = selectionPanel.getSelectedObjects();
+			if (values != null && values.size() > 0) {
+				detailPanel.populateFields(values.get(0));
+				detailPanel.setForViewOnly(true);
+			}
+		}
+	}
+
+	private final JButton[] createButtons(boolean hasCloneButton, boolean hasRemoveButton) {
+		JButton[] buttons = null;
+
+		viewButton = UIFactory.createButton(ClientUtil.getInstance().getLabel("button.view"), "image.btn.small.view", new ViewL(), null);
+		editButton = UIFactory.createButton(ClientUtil.getInstance().getLabel("button.edit"), "image.btn.small.edit", new EditL(), null);
+		newButton = UIFactory.createButton(ClientUtil.getInstance().getLabel("button.new"), "image.btn.small.new", new NewL(), null);
+		copyButton = UIFactory.createButton(ClientUtil.getInstance().getLabel("button.copy"), "image.btn.small.add", new CopyL(), null);
+
+		if (readOnly) {
+			buttons = new JButton[] { viewButton };
+		}
+		else if (hasCloneButton && hasRemoveButton) {
+			cloneButton = UIFactory.createButton(ClientUtil.getInstance().getLabel("button.clone"), "image.btn.small.copy", new CloneL(), null);
+			removeButton = UIFactory.createButton(ClientUtil.getInstance().getLabel("button.remove"), "image.btn.small.delete", new RemoveL(), null);
+			buttons = new JButton[] { newButton, copyButton, editButton, viewButton, cloneButton, removeButton };
+		}
+		else if (hasCloneButton) {
+			cloneButton = UIFactory.createButton(ClientUtil.getInstance().getLabel("button.clone"), "image.btn.small.copy", new CloneL(), null);
+			buttons = new JButton[] { copyButton, editButton, viewButton, cloneButton };
+		}
+		else if (hasRemoveButton) {
+			removeButton = UIFactory.createButton(ClientUtil.getInstance().getLabel("button.remove"), "image.btn.small.delete", new RemoveL(), null);
+			buttons = new JButton[] { newButton, copyButton, editButton, viewButton, removeButton };
+		}
+		else {
+			buttons = new JButton[] { newButton, copyButton, editButton, viewButton };
+		}
+		return buttons;
+	}
+
+	@Override
+	public void discardChanges() {
+		setHasUnsavedChanges(false);
+		setEnabledSelectionAwares(false);
+		detailPanel.discardChanges(); // allow disable save button
+	}
+
+	public MDateDateField getCategoryOnDateField() {
+		return categoryOnDateField;
+	}
+
+	@Override
+	public void handleDoubleClick() {
+		if (editButton.isVisible()) {
+			_editEntity();
 		}
 	}
 
@@ -402,105 +425,62 @@ public final class EntityManagementButtonPanel<T extends IDNameObject> extends B
 		return false;
 	}
 
-	private synchronized void _copyEntity() {
-		if (verifyUnlockPrevious()) {
-			List<T> values = selectionPanel.getSelectedObjects();
-			if (values != null && values.size() > 0) {
-				detailPanel.setForViewOnly(false);
-				if (values.get(0) instanceof CloneableEntity) {
-					((CloneableEntity) values.get(0)).setForClone(true);
-					((CloneableEntity) values.get(0)).setCopyPolicies(false);
-				}
-				detailPanel.populateForClone(values.get(0));
-				hasUnsavedChanges = true;
-				detailPanel.fireDetailChanged();
-			}
+	// Allow inspection of dirty flag
+	@Override
+	public boolean hasUnsavedChanges() {
+		return this.hasUnsavedChanges;
+	}
+
+	private void hideAndDisableButton(JButton button) {
+		if (button != null) {
+			button.setEnabled(false);
+			button.setVisible(false);
 		}
 	}
 
-	private synchronized void _cloneEntity() {
-		if (verifyUnlockPrevious()) {
-			List<T> values = selectionPanel.getSelectedObjects();
-			if (values != null && values.size() > 0) {
-				detailPanel.setForViewOnly(false);
-				if (values.get(0) instanceof CloneableEntity) {
-					((CloneableEntity) values.get(0)).setForClone(true);
-					((CloneableEntity) values.get(0)).setCopyPolicies(true);
-				}
-				detailPanel.populateForClone(values.get(0));
-				hasUnsavedChanges = true;
-				detailPanel.fireDetailChanged();
-			}
-		}
-	}
-
-	private synchronized boolean verifyUnlockPrevious() {
-		int currentID = detailPanel.getCurrentEntityID();
+	// returns false if the changes failed to save
+	@Override
+	public synchronized boolean saveChanges() {
 		try {
-			if (currentID == -1 || !hasUnsavedChanges) {
-				return true;
-			}
-			else {
-				Boolean result = ClientUtil.getInstance().showSaveDiscardCancelDialog();
-				if (result == null) {
-					return false;
-				}
-				else {
-					if (result.booleanValue()) {
-						try {
-							detailPanel.saveChanges();
-						}
-						catch (CanceledException ex) {
-							return false;
-						}
-						catch (ServerException ex) {
-							ClientUtil.getInstance().showErrorDialog("msg.error.failure.save", new Object[] { ClientUtil.getInstance().getErrorMessage(ex) });
-							return false;
-						}
-					}
-					else {
-						detailPanel.discardChanges();
-					}
-					hasUnsavedChanges = false;
-					return true;
-				}
-			}
+			detailPanel.saveChanges();
 		}
-		finally {
-			unlockPreviousIfPossible(currentID);
+		catch (CanceledException ex) {
+			return false;
 		}
+		catch (ServerException ex) {
+			ClientUtil.getInstance().showErrorDialog("msg.error.failure.save", new Object[] { ClientUtil.getInstance().getErrorMessage(ex) });
+			return false;
+		}
+		hasUnsavedChanges = false;
+		detailPanel.resetFields(); // disable save button
+		return true;
+
 	}
 
-	private void unlockPreviousIfPossible(int currentID) {
-		if (currentID > 0) {
-			try {
-				if (entityType != null) {
-					ClientUtil.getCommunicator().unlock(currentID, entityType);
-				}
-				else {
-					ClientUtil.getCommunicator().unlock(currentID, genericEntityType);
-				}
-			}
-			catch (ServerException ex) {
-				ClientUtil.getInstance().showErrorDialog("msg.error.generic.service", new Object[] { ClientUtil.getInstance().getErrorMessage(ex) });
-			}
-		}
+	public void setDetailPanel(AbstractDetailPanel<T, EntityManagementButtonPanel<T>> detailPanel) {
+		this.detailPanel = detailPanel;
+		this.detailPanel.addDetailChangeListener(new DetailChangeL());
 	}
 
-	public void handleDoubleClick() {
-		if (editButton.isVisible()) {
-			_editEntity();
+	/** 
+	 * If EditEntity Nameprivilege does not exist, then CRUD buttons
+	 * are disabled.
+	 * @param priv priv
+	 */
+	public void setEditPrivilege(String priv) {
+		if (priv != null) {
+			if (!ClientUtil.checkPermissionByPrivilegeName(priv)) {
+				hideAndDisableButton(editButton);
+				hideAndDisableButton(newButton);
+				hideAndDisableButton(copyButton);
+				hideAndDisableButton(cloneButton);
+				hideAndDisableButton(removeButton);
+			}
 		}
 	}
 
 	public void setEnabledNewButton(boolean enabled) {
 		buttons[0].setEnabled(enabled);
-	}
-
-	public void discardChanges() {
-		setHasUnsavedChanges(false);
-		setEnabledSelectionAwares(false);
-		detailPanel.discardChanges(); // allow disable save button
 	}
 
 	public void setEnabledSelectionAwares(boolean enabled) {
@@ -545,25 +525,60 @@ public final class EntityManagementButtonPanel<T extends IDNameObject> extends B
 
 	}
 
-	public MDateDateField getCategoryOnDateField() {
-		return categoryOnDateField;
+	private synchronized void setHasUnsavedChanges(boolean hasChanges) {
+		this.hasUnsavedChanges = hasChanges;
 	}
 
-	// returns false if the changes failed to save
-	public synchronized boolean saveChanges() {
-		try {
-			detailPanel.saveChanges();
+	private void unlockPreviousIfPossible(int currentID) {
+		if (currentID > 0) {
+			try {
+				if (entityType != null) {
+					ClientUtil.getCommunicator().unlock(currentID, entityType);
+				}
+				else {
+					ClientUtil.getCommunicator().unlock(currentID, genericEntityType);
+				}
+			}
+			catch (ServerException ex) {
+				ClientUtil.getInstance().showErrorDialog("msg.error.generic.service", new Object[] { ClientUtil.getInstance().getErrorMessage(ex) });
+			}
 		}
-		catch (CanceledException ex) {
-			return false;
-		}
-		catch (ServerException ex) {
-			ClientUtil.getInstance().showErrorDialog("msg.error.failure.save", new Object[] { ClientUtil.getInstance().getErrorMessage(ex) });
-			return false;
-		}
-		hasUnsavedChanges = false;
-		detailPanel.resetFields(); // disable save button
-		return true;
+	}
 
+	private synchronized boolean verifyUnlockPrevious() {
+		int currentID = detailPanel.getCurrentEntityID();
+		try {
+			if (currentID == -1 || !hasUnsavedChanges) {
+				return true;
+			}
+			else {
+				Boolean result = ClientUtil.getInstance().showSaveDiscardCancelDialog();
+				if (result == null) {
+					return false;
+				}
+				else {
+					if (result.booleanValue()) {
+						try {
+							detailPanel.saveChanges();
+						}
+						catch (CanceledException ex) {
+							return false;
+						}
+						catch (ServerException ex) {
+							ClientUtil.getInstance().showErrorDialog("msg.error.failure.save", new Object[] { ClientUtil.getInstance().getErrorMessage(ex) });
+							return false;
+						}
+					}
+					else {
+						detailPanel.discardChanges();
+					}
+					hasUnsavedChanges = false;
+					return true;
+				}
+			}
+		}
+		finally {
+			unlockPreviousIfPossible(currentID);
+		}
 	}
 }

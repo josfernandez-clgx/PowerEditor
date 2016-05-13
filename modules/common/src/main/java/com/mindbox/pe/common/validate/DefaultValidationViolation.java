@@ -16,9 +16,9 @@ public class DefaultValidationViolation implements ValidationViolation, Serializ
 
 	/**
 	 * Equivalent to <code>DefaultValidationViolation(validatedObject, message, invalidValue, null)</code>.
-	 * @param validatedObject
-	 * @param message
-	 * @param invalidValue
+	 * @param validatedObject validatedObject
+	 * @param message message
+	 * @param invalidValue invalidValue
 	 */
 	public DefaultValidationViolation(Object validatedObject, String message, Object invalidValue) {
 		this(validatedObject, message, invalidValue, null);
@@ -51,6 +51,7 @@ public class DefaultValidationViolation implements ValidationViolation, Serializ
 		return validatedObject;
 	}
 
+	@Override
 	public String toErrorString() {
 		StringBuilder buff = new StringBuilder();
 		buff.append(getMessage());
@@ -66,6 +67,7 @@ public class DefaultValidationViolation implements ValidationViolation, Serializ
 		return buff.toString();
 	}
 
+	@Override
 	public String toString() {
 		return "ValidationViolation[\"" + message + "\",value=" + invalidValue + "]";
 	}

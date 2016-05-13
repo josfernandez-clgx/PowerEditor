@@ -29,6 +29,10 @@ public class ColumnMessageConfigSet extends AbstractMessageConfigSet<ColumnMessa
 		super(source);
 	}
 
+	public void addColumnMessageFragmentDigest(ColumnMessageFragmentDigest source) {
+		updateMessageDigest(source);
+	}
+
 	/**
 	 * Creates a new EnumConfiguration and adds it to the messageConfiguration.
 	 * Note that a default cellSelection object is always created up front with system
@@ -61,10 +65,6 @@ public class ColumnMessageConfigSet extends AbstractMessageConfigSet<ColumnMessa
 			ColumnMessageFragmentDigest msg = new ColumnMessageFragmentDigest(cellSelection, enumDelim, enumFinalDelim, enumPrefix);
 			updateConfig(msg.getType(), msg, msg.getCellSelection());
 		}
-	}
-
-	public void addColumnMessageFragmentDigest(ColumnMessageFragmentDigest source) {
-		updateMessageDigest(source);
 	}
 
 	public void addEnumSelection(final MessageConfig messageConfig) {
@@ -135,31 +135,22 @@ public class ColumnMessageConfigSet extends AbstractMessageConfigSet<ColumnMessa
 	}
 
 	/**
-	 * Returns the rangeStyle for this MessageConfig.
 	 * This method isn't exported since the external world should
 	 * use isRangeVerbose, etc.
+	 * @return the rangeStyle for this MessageConfig.
 	 */
 	private RangeStyleType getRangeStyle() {
 		return getRangeConfigOrDefaultIfNotFound().getRangeStyle();
 	}
 
-	/** 
-	 * External method for checking RangeStyle type
-	 */
 	public boolean isRangeStyleBracketed() {
 		return getRangeStyle() == RangeStyleType.BRACKETED;
 	}
 
-	/** 
-	 * External method for checking RangeStyle type
-	 */
 	public boolean isRangeStyleSymbolic() {
 		return getRangeStyle() == RangeStyleType.SYMBOLIC;
 	}
 
-	/** 
-	 * External method for checking RangeStyle type
-	 */
 	public boolean isRangeStyleVerbose() {
 		return getRangeStyle() == RangeStyleType.VERBOSE;
 	}
@@ -179,10 +170,11 @@ public class ColumnMessageConfigSet extends AbstractMessageConfigSet<ColumnMessa
 
 	/**
 	 * 
-	 * @param rangeStyle
-	 * @param enumDelim
-	 * @param enumFinalDelim
-	 * @param enumPrefix
+	 * @param rangeStyle rangeStyle
+	 * @param enumDelim enumDelim
+	 * @param enumFinalDelim enumFinalDelim
+	 * @param enumPrefix enumPrefix
+	 * @param text text
 	 */
 	public void setDefaults(final RangeStyleType rangeStyle, String enumDelim, String enumFinalDelim, String enumPrefix, String text) {
 		final ColumnMessageFragmentDigest defaultObj = getDefaultConfig();
@@ -206,17 +198,17 @@ public class ColumnMessageConfigSet extends AbstractMessageConfigSet<ColumnMessa
 		updateConfig(MessageConfigType.RANGE, rangeMessageFragement, null);
 	}
 
-	/**
-	 * Given a msgDigest object, udpates the list.
-	 * If the msgDigest is a default, just override defaults.
-	 * @param msgDigest
-	 */
-	public void updateMessageDigest(ColumnMessageFragmentDigest msgDigest) {
-		super.updateConfig(msgDigest.getType(), msgDigest, msgDigest.getCellSelection());
-	}
-
 	@Override
 	protected void updateInvariants(ColumnMessageFragmentDigest target, ColumnMessageFragmentDigest source) {
 		target.copyFrom(source);
+	}
+
+	/**
+	 * Given a msgDigest object, udpates the list.
+	 * If the msgDigest is a default, just override defaults.
+	 * @param msgDigest msgDigest
+	 */
+	public void updateMessageDigest(ColumnMessageFragmentDigest msgDigest) {
+		super.updateConfig(msgDigest.getType(), msgDigest, msgDigest.getCellSelection());
 	}
 }

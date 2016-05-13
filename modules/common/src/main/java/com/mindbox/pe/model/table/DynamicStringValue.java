@@ -75,6 +75,7 @@ public class DynamicStringValue implements Serializable, GridCellValue {
 	 * Updates column referens for rearranged columns.
 	 * @param rearrangedColumnMap key=old-id, value=new-id
 	 * @return <code>true</code> if this has changed as a result of this call; <code>false</code>, otherwise
+	 * @throws InvalidDataException on error
 	 */
 	public synchronized boolean replaceColumnReferences(final Map<Integer, Integer> rearrangedColumnMap) throws InvalidDataException {
 		final Matcher matcher = COLUMN_REF_PATTERN.matcher(value);

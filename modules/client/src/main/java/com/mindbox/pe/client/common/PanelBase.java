@@ -12,9 +12,6 @@ import org.apache.log4j.Logger;
 
 import com.mindbox.pe.client.applet.UIFactory;
 
-// Referenced classes of package com.mindbox.client.applet:
-//            FrameBase, SapphireApplet
-
 public abstract class PanelBase extends JPanel {
 	/**
 	 * 
@@ -31,9 +28,9 @@ public abstract class PanelBase extends JPanel {
 
 	/**
 	 * This changes grid bag constraint. Be sure to reset after calling this method.
-	 * @param panel
-	 * @param bag
-	 * @param c
+	 * @param panel panel
+	 * @param bag bag
+	 * @param c c
 	 */
 	public static final void addFormSeparator(JPanel panel, GridBagLayout bag, GridBagConstraints c) {
 		Insets prevInsets = c.insets;

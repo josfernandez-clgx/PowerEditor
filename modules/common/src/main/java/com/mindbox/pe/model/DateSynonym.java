@@ -2,10 +2,10 @@ package com.mindbox.pe.model;
 
 import java.util.Date;
 
-import net.sf.oval.constraint.NotNull;
-
 import com.mindbox.pe.common.UtilBase;
 import com.mindbox.pe.common.config.ConfigUtil;
+
+import net.sf.oval.constraint.NotNull;
 
 /**
  * Date Synonym.
@@ -17,27 +17,18 @@ import com.mindbox.pe.common.config.ConfigUtil;
 public final class DateSynonym extends AbstractIDNameDescriptionObject implements Auditable {
 
 	private static final long serialVersionUID = 20041208170000L;
-    
-   /**
-     * Default constructor. Only invoked by Digester during import. All
-     * date synonyms should be named in the future.
-     */
-    public DateSynonym() {
-        super(UNASSIGNED_ID, "", null);
-        isNamed = true;
-    }   
-    
-		
+
 	/**
-	 * Creates a new unnamed date synonym.
-	 * @param date
-	 * @return newly created unnamed date synonym
-	 */
+	* Creates a new unnamed date synonym.
+	* @param date date
+	* @return newly created unnamed date synonym
+	*/
 	public static DateSynonym createUnnamedInstance(Date date) {
 		String postfix = String.valueOf(System.currentTimeMillis());
-		return new DateSynonym(-1, postfix, "Unnamed-"+postfix, date, false);
+		return new DateSynonym(-1, postfix, "Unnamed-" + postfix, date, false);
 	}
-	
+
+
 	/**
 	 * Creates an unnamed date synonym. Do not use this from client.
 	 * This is for creating alreay saved date synonym at cache loading time.
@@ -50,93 +41,89 @@ public final class DateSynonym extends AbstractIDNameDescriptionObject implement
 	 */
 	public static DateSynonym createUnnamedInstance(int id, String name, String desc, Date date) {
 		if (id < 1) throw new IllegalArgumentException("id must be greater than 0");
-		return new DateSynonym(id,name,desc,date,false);
+		return new DateSynonym(id, name, desc, date, false);
 	}
-	
+
 	@NotNull
 	private Date theDate = null;
+
 	private final boolean isNamed;
-	
 	// Indicates if this date synonym is not in use; i.e., filtered out by KB Filter configuration
 	private boolean notInUse = false;
 
 	/**
+	     * Default constructor. Only invoked by Digester during import. All
+	     * date synonyms should be named in the future.
+	     */
+	public DateSynonym() {
+		super(UNASSIGNED_ID, "", null);
+		isNamed = true;
+	}
+
+	/**
 	 * Create a new named date synonym.
 	 * Identical to <code>DateSynonym(id,name,desc,false)</code>.
-	 * @param id
-	 * @param name
-	 * @param desc
+	 * @param id id
+	 * @param name name
+	 * @param desc desc
 	 * @param date cannot be null
 	 * @throws NullPointerException if <code>date</code> is <code>null</code>
 	 */
 	public DateSynonym(int id, String name, String desc, Date date) {
 		this(id, name, desc, date, true);
 	}
-	
+
 	private DateSynonym(int id, String name, String desc, Date date, boolean isNamed) {
 		super(id, name, desc);
 		checkDate(date);
 		this.theDate = date;
 		this.isNamed = isNamed;
 	}
-	
+
 
 	/**
 	 * 
-	 * @param ds
+	 * @param ds ds
 	 * @return <code>true</code> if this is after ds or if ds is <code>null</code>; <code>false</code>, otherwise
 	 */
 	public boolean after(DateSynonym ds) {
 		if (ds == null) return true;
 		return theDate.after(ds.getDate());
 	}
-	
+
 	/**
 	 * 
-	 * @param ds
+	 * @param ds ds
 	 * @return <code>true</code> if ds is not <code>null</code> and this is before ds; <code>false</code>, otherwise
 	 */
 	public boolean before(DateSynonym ds) {
 		if (ds == null) return false;
 		return theDate.before(ds.getDate());
 	}
-	
-	/**
-	 * Tests if this is not after the specified date synonym
-	 * @param ds date synonym to test against
-	 * @return <code>true</code> if <code>ds</code> is not <code>null</code> and this is not after <code>ds</code>; <code>false</code>, otherwise
-	 * @since 5.1.0
-	 */
-	public boolean notAfter(DateSynonym ds) {
-		if (ds == null) return false;
-		return !theDate.after(ds.getDate());
+
+	private void checkDate(Date date) {
+		if (date == null) throw new NullPointerException("date cannot be null");
 	}
-	
-	/**
-	 * Tests if this is not before the specified date synonym
-	 * @param ds date synonym to test against
-	 * @return <code>true</code> if is not before <code>ds</code> or <code>ds</code> is <code>null</code>; <code>false</code>, otherwise
-	 * @since 5.1.0
-	 */
-	public boolean notBefore(DateSynonym ds) {
-		if (ds == null) return true;
-		return !theDate.before(ds.getDate());
+
+	public void copyFrom(DateSynonym source) {
+		setName(source.getName());
+		setDescription(source.getDescription());
+		this.theDate = source.theDate;
 	}
-	
-	/**
-	 * Tests if this is a named date synonym.
-	 * @return <code>true</code> if this is a named date synonym; <code>false</code>, otherwise
-	 */
-	public boolean isNamed() {
-		return isNamed;
+
+	@Override
+	public Auditable deepCopy() {
+		DateSynonym copy = new DateSynonym(getID(), getName(), getDescription(), theDate);
+		return copy;
 	}
-	
+
 	/**
 	 * Tests equality.
 	 * This just compares the id. That is, this returns <code>true</code>, if and only if
 	 * <code>obj</code> is an instance of this and <code>this.getID() == obj.getID()</code>.
-
+	
 	 */
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
 		if (obj instanceof DateSynonym) {
@@ -147,29 +134,9 @@ public final class DateSynonym extends AbstractIDNameDescriptionObject implement
 		}
 	}
 
-	public int hashCode() {
-		return this.getID();
-	}
-	
-	public boolean isSameDate(DateSynonym synonym) {
-		if (synonym == null) return false;
-		if (synonym == this || synonym.getID() == getID()) return true;
-		return UtilBase.isSame(this.theDate, synonym.theDate);
-	}
-	
-	public Auditable deepCopy() {
-		DateSynonym copy = new DateSynonym(getID(), getName(), getDescription(), theDate);
-		return copy;
-	}
-	
+	@Override
 	public String getAuditDescription() {
-		return "date '"+ getName() + "'";
-	}
-	
-	public void copyFrom(DateSynonym source) {
-		setName(source.getName());
-		setDescription(source.getDescription());
-		this.theDate = source.theDate;
+		return "date '" + getName() + "'";
 	}
 
 	/**
@@ -180,9 +147,54 @@ public final class DateSynonym extends AbstractIDNameDescriptionObject implement
 		return theDate;
 	}
 
+	@Override
+	public int hashCode() {
+		return this.getID();
+	}
+
+	/**
+	 * Tests if this is a named date synonym.
+	 * @return <code>true</code> if this is a named date synonym; <code>false</code>, otherwise
+	 */
+	public boolean isNamed() {
+		return isNamed;
+	}
+
+	public boolean isNotInUse() {
+		return notInUse;
+	}
+
+	public boolean isSameDate(DateSynonym synonym) {
+		if (synonym == null) return false;
+		if (synonym == this || synonym.getID() == getID()) return true;
+		return UtilBase.isSame(this.theDate, synonym.theDate);
+	}
+
+	/**
+	 * Tests if this is not after the specified date synonym
+	 * @param ds date synonym to test against
+	 * @return <code>true</code> if <code>ds</code> is not <code>null</code> and this is not after <code>ds</code>; <code>false</code>, otherwise
+	 * @since 5.1.0
+	 */
+	public boolean notAfter(DateSynonym ds) {
+		if (ds == null) return false;
+		return !theDate.after(ds.getDate());
+	}
+
+	/**
+	 * Tests if this is not before the specified date synonym
+	 * @param ds date synonym to test against
+	 * @return <code>true</code> if is not before <code>ds</code> or <code>ds</code> is <code>null</code>; <code>false</code>, otherwise
+	 * @since 5.1.0
+	 */
+	public boolean notBefore(DateSynonym ds) {
+		if (ds == null) return true;
+		return !theDate.before(ds.getDate());
+	}
+
 	/**
 	 * 
-	 * @param date
+	 * @param date date
 	 * @throws NullPointerException if <code>date</code> is <code>null</code>
 	 */
 	public void setDate(Date date) {
@@ -190,27 +202,21 @@ public final class DateSynonym extends AbstractIDNameDescriptionObject implement
 		this.theDate = date;
 	}
 
-    /**
-     * Added for digest support.
-     */
-    public void setDateString(String dateStr) {
-        this.theDate = ConfigUtil.toDate(dateStr);
-    }
-
-    public String toString() {
-        return ((theDate == null) ? "" : getName());
-	}
-	
-	private void checkDate(Date date) {
-		if (date == null) throw new NullPointerException("date cannot be null");
-	}
-
-	public boolean isNotInUse() {
-		return notInUse;
+	/**
+	 * Added for digest support.
+	 * @param dateStr date string
+	 */
+	public void setDateString(String dateStr) {
+		this.theDate = ConfigUtil.toDate(dateStr);
 	}
 
 	public void setNotInUse(boolean notInUse) {
 		this.notInUse = notInUse;
 	}
-	
+
+	@Override
+	public String toString() {
+		return ((theDate == null) ? "" : getName());
+	}
+
 }

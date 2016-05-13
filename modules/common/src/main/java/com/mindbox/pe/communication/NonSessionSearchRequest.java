@@ -22,9 +22,6 @@ public class NonSessionSearchRequest<T extends Persistent> extends RequestComm<L
 
 	private final SearchFilter<T> filter;
 
-	/**
-	 * 
-	 */
 	public NonSessionSearchRequest(SearchFilter<T> filter) {
 		super();
 		this.filter = filter;

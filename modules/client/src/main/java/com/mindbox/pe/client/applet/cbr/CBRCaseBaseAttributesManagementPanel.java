@@ -32,9 +32,6 @@ public class CBRCaseBaseAttributesManagementPanel extends JPanel implements Powe
 	private CBRCaseBaseManagementPanel cbPanel;
 	private CBRAttributeManagementPanel attPanel;
 
-	/**
-	 * 
-	 */
 	public CBRCaseBaseAttributesManagementPanel(CBRCaseBase cb, boolean readOnly) {
 		super();
 		caseBase = cb;
@@ -44,8 +41,14 @@ public class CBRCaseBaseAttributesManagementPanel extends JPanel implements Powe
 			cbPanel.setPreferredSize(new Dimension(270, 1000));
 			CBRAttributeTableModel tableModel = new CBRAttributeTableModel();
 			CBRAttributeDetailPanel detailPanel = new CBRAttributeDetailPanel(cb);
-			IDNameDescriptionObjectSelectionTable<CBRAttributeTableModel, CBRAttribute> table = new IDNameDescriptionObjectSelectionTable<CBRAttributeTableModel, CBRAttribute>(tableModel, false);
-			CBRAttributeSelectionPanel selectionPanel = new CBRAttributeSelectionPanel(ClientUtil.getInstance().getLabel("label.title.cbr.attributes"), table, detailPanel, readOnly);
+			IDNameDescriptionObjectSelectionTable<CBRAttributeTableModel, CBRAttribute> table = new IDNameDescriptionObjectSelectionTable<CBRAttributeTableModel, CBRAttribute>(
+					tableModel,
+					false);
+			CBRAttributeSelectionPanel selectionPanel = new CBRAttributeSelectionPanel(
+					ClientUtil.getInstance().getLabel("label.title.cbr.attributes"),
+					table,
+					detailPanel,
+					readOnly);
 			CBRAttributeFilterPanel filterPanel = new CBRAttributeFilterPanel(selectionPanel, false, caseBase);
 			attPanel = new CBRAttributeManagementPanel(filterPanel, selectionPanel, detailPanel);
 			attPanel.setMinimumSize(new Dimension(200, 100));
@@ -64,18 +67,21 @@ public class CBRCaseBaseAttributesManagementPanel extends JPanel implements Powe
 		}
 	}
 
+	@Override
+	public void discardChanges() {
+		if (cbPanel.hasUnsavedChanges()) cbPanel.discardChanges();
+		if (attPanel.hasUnsavedChanges()) attPanel.discardChanges();
+	}
+
+	@Override
 	public boolean hasUnsavedChanges() {
 		return cbPanel.hasUnsavedChanges() || attPanel.hasUnsavedChanges();
 	}
 
+	@Override
 	public void saveChanges() throws CanceledException, ServerException {
 		if (cbPanel.hasUnsavedChanges()) cbPanel.saveChanges();
 		if (attPanel.hasUnsavedChanges()) attPanel.saveChanges();
-	}
-
-	public void discardChanges() {
-		if (cbPanel.hasUnsavedChanges()) cbPanel.discardChanges();
-		if (attPanel.hasUnsavedChanges()) attPanel.discardChanges();
 	}
 
 }

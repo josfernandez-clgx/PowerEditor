@@ -25,7 +25,7 @@ public interface MainApplication {
 	/**
 	 * Given the privilege name, this returns true if that permission exists
 	 * for the role the current user has logged in as
-	 * @param String
+	 * @param s String
 	 * @return boolean
 	 * @since 5.0.0 (replaces checkPermission(String str))
 	 */
@@ -36,7 +36,7 @@ public interface MainApplication {
 	 * Extracts all UsageTypes of a GuidelineTab and returns 'true' if view
 	 * guideline privilege exists OR if edit guideline privilege exists 
 	 * on any one of the UsageType's belonging to this GuidelineTab
-	 * @param GuidelineTab
+	 * @param gtConfig GuidelineTab
 	 * @return boolean
 	 * @since 5.0.0
 	 */
@@ -46,7 +46,7 @@ public interface MainApplication {
 	/**
 	 * Returns 'true' if view guideline privilege exists OR if edit guideline privilege exists 
 	 * on a specific UsageType
-	 * @param TemplateUsageType
+	 * @param usageType TemplateUsageType
 	 * @return boolean
 	 * @since 5.0.0
 	 */
@@ -57,7 +57,7 @@ public interface MainApplication {
 	 * Extracts all UsageTypes of a GuidelineTab and returns 'true' if view
 	 * template privilege exists OR if edit template privilege exists 
 	 * on any one of the UsageType's belonging to this GuidelineTab
-	 * @param GuidelineTab
+	 * @param gtConfig GuidelineTab
 	 * @return boolean
 	 * @since 5.0.0
 	 */
@@ -67,11 +67,23 @@ public interface MainApplication {
 	/**
 	 * Returns 'true' if view template privilege exists OR if edit template privilege exists 
 	 * on a specific UsageType
-	 * @param TemplateUsageType
+	 * @param usageType TemplateUsageType
 	 * @return boolean
 	 * @since 5.0.0
 	 */
 	boolean checkViewOrEditTemplatePermissionOnUsageType(TemplateUsageType usageType);
+
+	boolean confirmExit();
+
+	void dispose();
+
+	Communicator getCommunicator();
+
+	String getSessionID();
+
+	String getUserID();
+
+	UserProfile getUserSession();
 
 	/**
 	 * Processes the specified exception and present appropriate dialogs to the user.
@@ -82,23 +94,11 @@ public interface MainApplication {
 	 */
 	void handleRuntimeException(Exception ex);
 
-	boolean confirmExit();
-
-	void dispose();
-
-	void showTemplateEditPanel(GridTemplate template) throws CanceledException;
-
-	Communicator getCommunicator();
-
-	String getUserID();
-
-	String getSessionID();
-
-	UserProfile getUserSession();
+	void reloadTemplates() throws ServerException;
 
 	void setCursor(Cursor cursor);
 
 	void setStatusMsg(String msg);
 
-	void reloadTemplates() throws ServerException;
+	void showTemplateEditPanel(GridTemplate template) throws CanceledException;
 }

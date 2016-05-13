@@ -14,28 +14,26 @@ public abstract class AbstractRuleTreeNode extends NonSortingRootTreeNode {
 
 	private TreeNode parent = null;
 
-	/**
-	 * @param data
-	 */
 	public AbstractRuleTreeNode(TreeNode parent, RuleElement data) {
 		super(data);
 		this.parent = parent;
 	}
 
-	public RuleElement getRuleElement() {
-		return (RuleElement) super.data;
+	public String dispString(boolean selected) {
+		return (data == null ? "" : (selected ? data.toString() : data.toString()));
 	}
-	
+
 	public Object getData() {
 		return super.data;
 	}
 
+	@Override
 	public TreeNode getParent() {
 		return parent;
 	}
 
-	public String dispString(boolean selected) {
-		return (data == null ? "" : (selected ? data.toString() : data.toString()));
+	public RuleElement getRuleElement() {
+		return (RuleElement) super.data;
 	}
 
 	public void setParent(AbstractRuleTreeNode parent) {

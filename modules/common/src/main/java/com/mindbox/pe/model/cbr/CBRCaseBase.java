@@ -35,39 +35,28 @@ public class CBRCaseBase extends AbstractIDNameDescriptionObject implements Audi
 		super(UNASSIGNED_ID, "", null);
 	}
 
-	/**
-	 * @param name
-	 * @param desc
-	 */
-	public CBRCaseBase(String name, String desc) {
-		super(name, desc);
+	public CBRCaseBase(CBRCaseBase source) {
+		super(source);
+		copyFrom(source);
 	}
 
 	/**
-	 * @param id
-	 * @param name
-	 * @param desc
+	 * @param id id
+	 * @param name name
+	 * @param desc desc
 	 */
 	public CBRCaseBase(int id, String name, String desc) {
 		super(id, name, desc);
 	}
 
-	public CBRCaseBase(CBRCaseBase source) {
-		super(source);
-		copyFrom(source);
+	/**
+	 * @param name name
+	 * @param desc desc
+	 */
+	public CBRCaseBase(String name, String desc) {
+		super(name, desc);
 	}
-	
-	public Auditable deepCopy() {
-		CBRCaseBase newCaseBase = new CBRCaseBase();
-		newCaseBase.setID(getID());
-		newCaseBase.copyFrom(this);
-		return newCaseBase;
-	}
-	
-	public String getAuditDescription() {
-		return toString();
-	}
-	
+
 	public synchronized void copyFrom(CBRCaseBase caseBase) {
 		setName(caseBase.getName());
 		setDescription(caseBase.getDescription());
@@ -81,12 +70,74 @@ public class CBRCaseBase extends AbstractIDNameDescriptionObject implements Audi
 		this.expDate = caseBase.expDate;
 	}
 
+	@Override
+	public Auditable deepCopy() {
+		CBRCaseBase newCaseBase = new CBRCaseBase();
+		newCaseBase.setID(getID());
+		newCaseBase.copyFrom(this);
+		return newCaseBase;
+	}
+
+	@Override
+	public String getAuditDescription() {
+		return toString();
+	}
+
+	/**
+	 * @return Returns the caseClass.
+	 */
+	public CBRCaseClass getCaseClass() {
+		return caseClass;
+	}
+
 	public final DateSynonym getEffectiveDate() {
 		return effDate;
 	}
 
 	public final DateSynonym getExpirationDate() {
 		return expDate;
+	}
+
+	/**
+	 * @return Returns the indexFile.
+	 */
+	public String getIndexFile() {
+		return indexFile;
+	}
+
+	/**
+	 * @return Returns the matchThreshold.
+	 */
+	public int getMatchThreshold() {
+		return matchThreshold;
+	}
+
+	/**
+	 * @return Returns the maximumMatches.
+	 */
+	public int getMaximumMatches() {
+		return maximumMatches;
+	}
+
+	/**
+	 * @return Returns the namingAttribute.
+	 */
+	public String getNamingAttribute() {
+		return namingAttribute;
+	}
+
+	/**
+	 * @return Returns the scoringFunction.
+	 */
+	public CBRScoringFunction getScoringFunction() {
+		return scoringFunction;
+	}
+
+	/**
+	 * @param caseClass The caseClass to set.
+	 */
+	public void setCaseClass(CBRCaseClass caseClass) {
+		this.caseClass = caseClass;
 	}
 
 	public final void setEffectiveDate(DateSynonym effDate) {
@@ -98,38 +149,10 @@ public class CBRCaseBase extends AbstractIDNameDescriptionObject implements Audi
 	}
 
 	/**
-	 * @return Returns the caseClass.
-	 */
-	public CBRCaseClass getCaseClass() {
-		return caseClass;
-	}
-
-	/**
-	 * @param caseClass The caseClass to set.
-	 */
-	public void setCaseClass(CBRCaseClass caseClass) {
-		this.caseClass = caseClass;
-	}
-
-	/**
-	 * @return Returns the indexFile.
-	 */
-	public String getIndexFile() {
-		return indexFile;
-	}
-
-	/**
 	 * @param indexFile The indexFile to set.
 	 */
 	public void setIndexFile(String indexFile) {
 		this.indexFile = indexFile;
-	}
-
-	/**
-	 * @return Returns the matchThreshold.
-	 */
-	public int getMatchThreshold() {
-		return matchThreshold;
 	}
 
 	/**
@@ -140,10 +163,10 @@ public class CBRCaseBase extends AbstractIDNameDescriptionObject implements Audi
 	}
 
 	/**
-	 * @return Returns the namingAttribute.
+	 * @param maximumMatches The maximumMatches to set.
 	 */
-	public String getNamingAttribute() {
-		return namingAttribute;
+	public void setMaximumMatches(int maximumMatches) {
+		this.maximumMatches = maximumMatches;
 	}
 
 	/**
@@ -154,36 +177,16 @@ public class CBRCaseBase extends AbstractIDNameDescriptionObject implements Audi
 	}
 
 	/**
-	 * @return Returns the scoringFunction.
-	 */
-	public CBRScoringFunction getScoringFunction() {
-		return scoringFunction;
-	}
-
-	/**
 	 * @param scoringFunction The scoringFunction to set.
 	 */
 	public void setScoringFunction(CBRScoringFunction scoringFunction) {
 		this.scoringFunction = scoringFunction;
 	}
 
-	/**
-	 * @return Returns the maximumMatches.
-	 */
-	public int getMaximumMatches() {
-		return maximumMatches;
-	}
-
-	/**
-	 * @param maximumMatches The maximumMatches to set.
-	 */
-	public void setMaximumMatches(int maximumMatches) {
-		this.maximumMatches = maximumMatches;
-	}
-
+	@Override
 	public String toString() {
-		return "CBRcaseBase[" + getID() + ",name=" + getName() + ", act=" + effDate + "-" + expDate + ", indexFile=" + indexFile
-				+ ",matchThreshold=" + getMatchThreshold() + ",maximumMatches=" + getMaximumMatches() + "]";
+		return "CBRcaseBase[" + getID() + ",name=" + getName() + ", act=" + effDate + "-" + expDate + ", indexFile=" + indexFile + ",matchThreshold=" + getMatchThreshold()
+				+ ",maximumMatches=" + getMaximumMatches() + "]";
 	}
 
 }

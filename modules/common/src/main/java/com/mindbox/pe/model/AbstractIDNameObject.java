@@ -16,16 +16,9 @@ public abstract class AbstractIDNameObject extends AbstractIDObject implements C
 	@NotNull
 	@NotBlank
 	private String name = null;
-	
-	/**
-	 * Constructs a new IDName object with the specified name.
-	 * @param name the name
-	 * @throws NullPointerException if name is null
-	 */
-	protected AbstractIDNameObject(String name) {
-		super();
-		if (name == null) throw new NullPointerException("name cannot be null"); 
-		this.name = name;
+
+	protected AbstractIDNameObject(AbstractIDNameObject source) {
+		this(source.getID(), source.name);
 	}
 
 	/**
@@ -36,45 +29,26 @@ public abstract class AbstractIDNameObject extends AbstractIDObject implements C
 	 */
 	protected AbstractIDNameObject(int id, String name) {
 		super(id);
-		if (name == null) throw new NullPointerException("name cannot be null"); 
+		if (name == null) throw new NullPointerException("name cannot be null");
 		this.name = name;
 	}
 
-	protected AbstractIDNameObject(AbstractIDNameObject source) {
-		this(source.getID(), source.name);
-	}
-	
-	public boolean equals(Object obj) {
-		if (obj instanceof AbstractIDNameObject) {
-			return (super.equals(obj) && name.equals(((AbstractIDNameObject)obj).name));
-		}
-		else {
-			return false;
-		}
-	}
-	
-	public String getAuditName() {
-		return getName();
-	}
-	
-	public String getName() {
-		return name;
-	}
-	
 	/**
+	 * Constructs a new IDName object with the specified name.
+	 * @param name the name
 	 * @throws NullPointerException if name is null
 	 */
-	protected void setName(String name) {
-		if (name == null) throw new NullPointerException("name cannot be null"); 
+	protected AbstractIDNameObject(String name) {
+		super();
+		if (name == null) throw new NullPointerException("name cannot be null");
 		this.name = name;
 	}
-	
-	/**
-	 * Comparable's compareTo method that compares name.
-	 */
+
+	@Override
 	public int compareTo(AbstractIDNameObject target) {
 		if (this == target) {
-			return 0;}
+			return 0;
+		}
 		else {
 			if (this.getID() == target.getID()) {
 				return 0;
@@ -84,7 +58,36 @@ public abstract class AbstractIDNameObject extends AbstractIDObject implements C
 			}
 		}
 	}
-	
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof AbstractIDNameObject) {
+			return (super.equals(obj) && name.equals(((AbstractIDNameObject) obj).name));
+		}
+		else {
+			return false;
+		}
+	}
+
+	public String getAuditName() {
+		return getName();
+	}
+
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * @param name name
+	 * @throws NullPointerException if name is null
+	 */
+	protected void setName(String name) {
+		if (name == null) throw new NullPointerException("name cannot be null");
+		this.name = name;
+	}
+
+	@Override
 	public String toString() {
 		return "[name=" + name + ",id=" + getID() + "]";
 	}

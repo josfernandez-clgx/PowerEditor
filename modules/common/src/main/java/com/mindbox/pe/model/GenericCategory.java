@@ -156,7 +156,7 @@ public final class GenericCategory extends AbstractIDObject implements GenericCo
 
 	/**
 	 * Gets the iterator for all child associations.
-	 * @return
+	 * @return child association iterator
 	 * @since 5.1.0
 	 */
 	public Iterator<MutableTimedAssociationKey> getChildrenKeyIterator() {
@@ -170,7 +170,7 @@ public final class GenericCategory extends AbstractIDObject implements GenericCo
 
 	/**
 	 * Gets the parent assocation as of date
-	 * @param date
+	 * @param date date
 	 * @return the parent association if found; <code>null</code>, otherwise
 	 * @throws NullPointerException if <code>date</code> is <code>null</code>
 	 * @since 5.1.0
@@ -181,7 +181,7 @@ public final class GenericCategory extends AbstractIDObject implements GenericCo
 
 	/**
 	 * Gets the id of the parent as of date
-	 * @param date
+	 * @param date date
 	 * @return the id of the parent if found; -1, otherwise
 	 * @throws NullPointerException if <code>date</code> is <code>null</code>
 	 * @since 5.1.0
@@ -244,6 +244,7 @@ public final class GenericCategory extends AbstractIDObject implements GenericCo
 	/**
 	 * Tests if this has the same parent associations as the specified category.
 	 * @param category the category to check against
+	 * @return true if same parent associations; false, otherwise
 	 * @throws NullPointerException if <code>category</code> is <code>null</code>
 	 * @since 5.1.0
 	 */
@@ -264,7 +265,7 @@ public final class GenericCategory extends AbstractIDObject implements GenericCo
 
 	/**
 	 * Tests if the specified date synonym is used by at least one child association.
-	 * @param dateSynonym
+	 * @param dateSynonym dateSynonym
 	 * @return <code>true</code> if <code>dateSynonym</code> is used by at least one child association; 
 	 *         <code>false</code>, otherwise
 	 * @throws NullPointerException if <code>dateSynonym</code> is <code>null</code>

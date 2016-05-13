@@ -13,44 +13,12 @@ import com.mindbox.pe.model.template.ColumnDataSpecDigest.EnumSourceType;
 
 public class EnumValuesDataHelper {
 
-	public static List<EnumValue> getAllEnumValues(ColumnDataSpecDigest columnDataSpecDigest, DomainClassProvider domainClassProvider, EnumerationSourceProxy enumerationSourceProxy) {
-		if (columnDataSpecDigest.getEnumSourceType() == EnumSourceType.DOMAIN_ATTRIBUTE) {
-			return getEnumValuesFromDomainAttribute(columnDataSpecDigest.getMappedAttribute(), domainClassProvider);
-		}
-		else if (columnDataSpecDigest.getEnumSourceType() == EnumSourceType.EXTERNAL) {
-			return getAllEnumValuesFromEnumerationSource(columnDataSpecDigest.getEnumSourceName(), enumerationSourceProxy);
-		}
-		else {
-			return columnDataSpecDigest.getColumnEnumValuesAsEnumValueList();
-		}
-	}
-
-	private static List<EnumValue> getEnumValuesFromDomainAttribute(String mappedAttribute, DomainClassProvider domainClassProvider) {
-		List<EnumValue> enumValueList = new ArrayList<EnumValue>();
-		if (mappedAttribute != null) {
-			String[] strs = mappedAttribute.split("\\.");
-			if (strs.length == 2) {
-				DomainClass domainClass = domainClassProvider.getDomainClass(strs[0]);
-				DomainAttribute attribute = domainClass == null ? null : domainClass.getDomainAttribute(strs[1]);
-				if (attribute != null) {
-					EnumValue[] enumValues = attribute.getEnumValues();
-					for (int i = 0; i < enumValues.length; i++) {
-						enumValueList.add(enumValues[i]);
-					}
-				}
-			}
-		}
-		return enumValueList;
-	}
-
-	private static final List<EnumValue> getAllEnumValuesFromEnumerationSource(String dataSourceName, EnumerationSourceProxy enumerationSourceProxy) {
-		return enumerationSourceProxy.getAllEnumValues(dataSourceName);
-	}
-
 	/**
 	 * Converts the specified string grid cell value into a value object for enum column.
-	 * @param enumdataspec enum data spec 
+	 * @param columnDataSpecDigest columnDataSpecDigest 
 	 * @param strValue the string value
+	 * @param domainClassProvider domainClassProvider
+	 * @param enumerationSourceProxy enumeration source proxy
 	 * @return object value
 	 */
 	public static Object convertToEnumValue(final ColumnDataSpecDigest columnDataSpecDigest, final String strValue, final DomainClassProvider domainClassProvider,
@@ -83,6 +51,23 @@ public class EnumValuesDataHelper {
 		return enumValues;
 	}
 
+	public static List<EnumValue> getAllEnumValues(ColumnDataSpecDigest columnDataSpecDigest, DomainClassProvider domainClassProvider,
+			EnumerationSourceProxy enumerationSourceProxy) {
+		if (columnDataSpecDigest.getEnumSourceType() == EnumSourceType.DOMAIN_ATTRIBUTE) {
+			return getEnumValuesFromDomainAttribute(columnDataSpecDigest.getMappedAttribute(), domainClassProvider);
+		}
+		else if (columnDataSpecDigest.getEnumSourceType() == EnumSourceType.EXTERNAL) {
+			return getAllEnumValuesFromEnumerationSource(columnDataSpecDigest.getEnumSourceName(), enumerationSourceProxy);
+		}
+		else {
+			return columnDataSpecDigest.getColumnEnumValuesAsEnumValueList();
+		}
+	}
+
+	private static final List<EnumValue> getAllEnumValuesFromEnumerationSource(String dataSourceName, EnumerationSourceProxy enumerationSourceProxy) {
+		return enumerationSourceProxy.getAllEnumValues(dataSourceName);
+	}
+
 	private static EnumValue getEnumValueForStringValue(List<EnumValue> enumValues, String strValue) {
 		// check deploy id first
 		for (EnumValue enumValue : enumValues) {
@@ -103,6 +88,24 @@ public class EnumValuesDataHelper {
 			}
 		}
 		return null;
+	}
+
+	private static List<EnumValue> getEnumValuesFromDomainAttribute(String mappedAttribute, DomainClassProvider domainClassProvider) {
+		List<EnumValue> enumValueList = new ArrayList<EnumValue>();
+		if (mappedAttribute != null) {
+			String[] strs = mappedAttribute.split("\\.");
+			if (strs.length == 2) {
+				DomainClass domainClass = domainClassProvider.getDomainClass(strs[0]);
+				DomainAttribute attribute = domainClass == null ? null : domainClass.getDomainAttribute(strs[1]);
+				if (attribute != null) {
+					EnumValue[] enumValues = attribute.getEnumValues();
+					for (int i = 0; i < enumValues.length; i++) {
+						enumValueList.add(enumValues[i]);
+					}
+				}
+			}
+		}
+		return enumValueList;
 	}
 
 }

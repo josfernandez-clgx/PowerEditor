@@ -28,14 +28,27 @@ public class FunctionTypeDefinition extends AbstractIDNameDescriptionObject {
 
 	/**
 	 * 
+	 * @param id id
+	 * @param name name
+	 * @param desc desc
 	 */
 	public FunctionTypeDefinition(int id, String name, String desc) {
 		super(id, name, desc);
 	}
 
+	public void addParameterDefinition(FunctionParameterDefinition paramDef) {
+		if (!paramDefList.contains(paramDef)) {
+			paramDefList.add(paramDef);
+		}
+	}
+
+	public void clearParameterDefinitions() {
+		this.paramDefList.clear();
+	}
+
 	/**
 	 * Makes sure fields of this are identical to those of the source, except the parameters. 
-	 * @param source
+	 * @param source source
 	 */
 	public synchronized void copyFrom(FunctionTypeDefinition source) {
 		this.setID(source.getID());
@@ -46,29 +59,8 @@ public class FunctionTypeDefinition extends AbstractIDNameDescriptionObject {
 		this.paramDefList.addAll(source.paramDefList);
 	}
 
-	public void clearParameterDefinitions() {
-		this.paramDefList.clear();
-	}
-
-	public void addParameterDefinition(FunctionParameterDefinition paramDef) {
-		if (!paramDefList.contains(paramDef)) {
-			paramDefList.add(paramDef);
-		}
-	}
-
-	public FunctionParameterDefinition[] getParameterDefinitions() {
-		return paramDefList.toArray(new FunctionParameterDefinition[0]);
-	}
-	public List<FunctionParameterDefinition> getParameterDefinitionList() {
-		return Collections.unmodifiableList(paramDefList);
-	}
-	
-	public boolean hasParameter() {
-		return !paramDefList.isEmpty();
-	}
-	
-	public int parameterSize() {
-		return paramDefList.size();
+	public String getDeploymentRule() {
+		return deploymentRule;
 	}
 
 	/**
@@ -79,7 +71,23 @@ public class FunctionTypeDefinition extends AbstractIDNameDescriptionObject {
 	public FunctionParameterDefinition getParameterDefinitionAt(int paramNum) {
 		return paramDefList.get(paramNum - 1);
 	}
-	
+
+	public List<FunctionParameterDefinition> getParameterDefinitionList() {
+		return Collections.unmodifiableList(paramDefList);
+	}
+
+	public FunctionParameterDefinition[] getParameterDefinitions() {
+		return paramDefList.toArray(new FunctionParameterDefinition[0]);
+	}
+
+	public boolean hasParameter() {
+		return !paramDefList.isEmpty();
+	}
+
+	public int parameterSize() {
+		return paramDefList.size();
+	}
+
 	public void removeParameterDefinitionAt(int paramNum) {
 		if (paramDefList.size() >= paramNum) {
 			paramDefList.remove(paramNum - 1);
@@ -91,14 +99,11 @@ public class FunctionTypeDefinition extends AbstractIDNameDescriptionObject {
 		}
 	}
 
-	public String getDeploymentRule() {
-		return deploymentRule;
-	}
-
 	public void setDeploymentRule(String string) {
 		deploymentRule = string;
 	}
 
+	@Override
 	public String toString() {
 		return "FunctionType[" + getID() + "," + getName() + ",noParams=" + paramDefList.size() + "]";
 	}

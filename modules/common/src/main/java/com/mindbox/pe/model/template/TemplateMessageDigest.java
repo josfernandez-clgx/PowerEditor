@@ -114,11 +114,11 @@ public class TemplateMessageDigest implements ColumnReferenceContainer {
 	private String text;
 	private String channel; // for import backward-compatibility
 
-	/**
+	/*
 	 * The delimeter to use between conditional clauses in the message text
 	 */
 	private String conditionalDelimiter;
-	/**
+	/*
 	 * The delimeter to use between the last two conditional clauses in the message text
 	 */
 	private String conditionalFinalDelimiter;
@@ -129,7 +129,7 @@ public class TemplateMessageDigest implements ColumnReferenceContainer {
 	/**
 	 * Creates a new instance of this that is an exact copy of the source.
 	 * 
-	 * @param source
+	 * @param source source
 	 * @since PowerEditor 4.3.2
 	 */
 	public TemplateMessageDigest(TemplateMessageDigest source) {

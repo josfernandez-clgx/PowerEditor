@@ -15,12 +15,12 @@ import com.mindbox.pe.model.PeDataType;
 public class DeleteTemplateRequest extends IDEntityResponselessActionRequest {
 
 	private static final long serialVersionUID = 20050902700000L;
-	
+
 	private final boolean deleteGuidelines;
-	
+
 	/**
-	 * @param userID
-	 * @param sessionID
+	 * @param userID userID
+	 * @param sessionID sessionID
 	 * @param templateID the template ID
 	 * @param deleteGuidelines indicates whether or not to delete guidelines for the specified template
 	 */
@@ -28,7 +28,7 @@ public class DeleteTemplateRequest extends IDEntityResponselessActionRequest {
 		super(userID, sessionID, templateID, PeDataType.TEMPLATE, SessionRequest.ACTION_TYPE_DELETE);
 		this.deleteGuidelines = deleteGuidelines;
 	}
-	
+
 	public boolean isDeleteGuidelinesOn() {
 		return deleteGuidelines;
 	}

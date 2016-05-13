@@ -17,7 +17,8 @@ import com.mindbox.pe.client.applet.UIFactory;
 
 /**
  * Contains a selection tree with collapse/expand all buttons.
- * <B>Note: <B>Be sure to set the model of the tree.
+ * <b>Note: </b>
+ * Be sure to set the model of the tree.
  *
  */
 public abstract class AbstractSelectionTree {
@@ -29,8 +30,7 @@ public abstract class AbstractSelectionTree {
 	protected final JButton expandAllButton;
 	protected final JButton collapseAllButton;
 
-	protected AbstractSelectionTree(int selectionMode, final boolean showRoot, boolean showRootHandles, boolean showCollapseExpandButtons,
-			boolean sort) {
+	protected AbstractSelectionTree(int selectionMode, final boolean showRoot, boolean showRootHandles, boolean showCollapseExpandButtons, boolean sort) {
 		tree = new JTree();
 
 		tree.getSelectionModel().setSelectionMode(selectionMode);
@@ -49,6 +49,7 @@ public abstract class AbstractSelectionTree {
 			expandAllButton.setBackground(null);
 			expandAllButton.addActionListener(new java.awt.event.ActionListener() {
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent actionevent) {
 					try {
 						getJComponent().setCursor(UIFactory.getWaitCursor());
@@ -64,6 +65,7 @@ public abstract class AbstractSelectionTree {
 			collapseAllButton.setBackground(null);
 			collapseAllButton.addActionListener(new java.awt.event.ActionListener() {
 
+				@Override
 				public void actionPerformed(java.awt.event.ActionEvent actionevent) {
 					try {
 						getJComponent().setCursor(UIFactory.getWaitCursor());
@@ -90,6 +92,30 @@ public abstract class AbstractSelectionTree {
 		}
 	}
 
+	public final void addMouseListener(MouseListener mouseListener) {
+		tree.addMouseListener(mouseListener);
+	}
+
+	public final void addTreeSelectionListener(TreeSelectionListener treeSelectionListener) {
+		tree.addTreeSelectionListener(treeSelectionListener);
+	}
+
+	public final void addTreeWillExpandListener(TreeWillExpandListener treeWillExpandListener) {
+		tree.addTreeWillExpandListener(treeWillExpandListener);
+	}
+
+	public void clearSelection() {
+		tree.clearSelection();
+	}
+
+	public final void expandAll(boolean expand) {
+		TreeUtil.expandAll(tree, expand);
+	}
+
+	public final void expandPath(TreePath path) {
+		tree.expandPath(path);
+	}
+
 	protected abstract JPanel getJComponent();
 
 	protected final TreePath getTreePath(TreeNode node) {
@@ -103,55 +129,31 @@ public abstract class AbstractSelectionTree {
 		return path;
 	}
 
-	public final void expandAll(boolean expand) {
-		TreeUtil.expandAll(tree, expand);
-	}
-
-	public final void setEnabled(boolean enabled) {
-		tree.setEditable(enabled);
-	}
-
-	public final void addMouseListener(MouseListener mouseListener) {
-		tree.addMouseListener(mouseListener);
+	public final TreeSelectionModel getTreeSelectionModel() {
+		return tree.getSelectionModel();
 	}
 
 	public final void removeMouseListener(MouseListener mouseListener) {
 		tree.removeMouseListener(mouseListener);
 	}
 
-	public final void addTreeWillExpandListener(TreeWillExpandListener treeWillExpandListener) {
-		tree.addTreeWillExpandListener(treeWillExpandListener);
+	public final void removeTreeSelectionListener(TreeSelectionListener treeSelectionListener) {
+		tree.removeTreeSelectionListener(treeSelectionListener);
 	}
 
 	public final void removeTreeWillExpandListener(TreeWillExpandListener treeWillExpandListener) {
 		tree.addTreeWillExpandListener(treeWillExpandListener);
 	}
 
-	public final void addTreeSelectionListener(TreeSelectionListener treeSelectionListener) {
-		tree.addTreeSelectionListener(treeSelectionListener);
+	public final void scrollPathToVisible(TreePath treePath) {
+		tree.scrollPathToVisible(treePath);
 	}
 
-	public final void removeTreeSelectionListener(TreeSelectionListener treeSelectionListener) {
-		tree.removeTreeSelectionListener(treeSelectionListener);
-	}
-
-	public void clearSelection() {
-		tree.clearSelection();
-	}
-
-	public final void expandPath(TreePath path) {
-		tree.expandPath(path);
-	}
-
-	public final TreeSelectionModel getTreeSelectionModel() {
-		return tree.getSelectionModel();
+	public final void setEnabled(boolean enabled) {
+		tree.setEditable(enabled);
 	}
 
 	public final void setTreeCellRenderer(TreeCellRenderer renderer) {
 		tree.setCellRenderer(renderer);
-	}
-	
-	public final void scrollPathToVisible(TreePath treePath) {
-		tree.scrollPathToVisible(treePath);
 	}
 }

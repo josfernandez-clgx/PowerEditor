@@ -32,8 +32,8 @@ public class UserProfile implements Serializable {
 	private final int defaultExpirationDays;
 	private final boolean showDeployAsOfDate;
 
-	public UserProfile(final String userID, final Set<Privilege> privileges, final Map<Object, MessageConfiguration> defaultCondMsgs, final int historyLookBack, final int maxAttempts,
-			final int passwordExpirationDays, final String[] defaultTime, final int defaultExpirationDays, final boolean showDeployAsOfDate) {
+	public UserProfile(final String userID, final Set<Privilege> privileges, final Map<Object, MessageConfiguration> defaultCondMsgs, final int historyLookBack,
+			final int maxAttempts, final int passwordExpirationDays, final String[] defaultTime, final int defaultExpirationDays, final boolean showDeployAsOfDate) {
 		this.userID = userID;
 		this.privilegeSet = (privileges == null ? new HashSet<Privilege>() : privileges);
 		this.defaultCondMsgs = defaultCondMsgs;
@@ -46,7 +46,7 @@ public class UserProfile implements Serializable {
 	}
 
 	/**
-	 * @param usageType
+	 * @param usageType usageType
 	 * @since PowerEditor 4.2.0.
 	 * @return default condition configuration for <code>usageType</code>
 	 */
@@ -123,6 +123,7 @@ public class UserProfile implements Serializable {
 		return showDeployAsOfDate;
 	}
 
+	@Override
 	public String toString() {
 		return "UserProfile[" + userID + "]";
 	}

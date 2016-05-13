@@ -11,14 +11,16 @@ import java.io.Serializable;
 public class DomainClassLink implements Serializable {
 
 	private static final long serialVersionUID = -3447362247013354354L;
-	
+
+	private String parentName;
+	private String childName;
+	private String deployValue; // link name. @since PowerEditor 4.2.0, configuration in domain.xml file.
+	private boolean isSingleton;
+
 	public DomainClassLink() {
 	}
 
-	public int hashCode() {
-		return (parentName+"."+childName).hashCode();
-	}
-	
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
 		if (obj instanceof DomainClassLink) {
@@ -29,48 +31,49 @@ public class DomainClassLink implements Serializable {
 		}
 	}
 
-	public String getParentName() {
-		return parentName;
-	}
-
-	/**
-	 * Sets multiplicity flag.
-	 * @param value
-	 */
-	public void setHasMultiplicity(String value) {
-		isSingleton = !(value != null && (value.equals("1") || Boolean.valueOf(value).booleanValue()));
-	}
-
-	public String toString() {
-		return "DomainClassLink[" + getParentName() + "->" + getChildName() + ",dv="+getDeployValueName() + " -> " + "]";
-	}
-
-	public void setChildName(String s) {
-		childName = s;
-	}
-
 	public String getChildName() {
 		return childName;
-	}
-
-	public boolean isSingleton() {
-		return isSingleton;
-	}
-
-	public void setParentName(String s) {
-		parentName = s;
 	}
 
 	public String getDeployValueName() {
 		return deployValue;
 	}
 
+	public String getParentName() {
+		return parentName;
+	}
+
+	@Override
+	public int hashCode() {
+		return (parentName + "." + childName).hashCode();
+	}
+
+	public boolean isSingleton() {
+		return isSingleton;
+	}
+
+	public void setChildName(String s) {
+		childName = s;
+	}
+
 	public void setDeployValueName(String s) {
 		deployValue = s;
 	}
 
-	private String parentName;
-	private String childName;
-	private String deployValue; // link name. @since PowerEditor 4.2.0, configuration in domain.xml file.
-	private boolean isSingleton;
+	/**
+	 * Sets multiplicity flag.
+	 * @param value value
+	 */
+	public void setHasMultiplicity(String value) {
+		isSingleton = !(value != null && (value.equals("1") || Boolean.valueOf(value).booleanValue()));
+	}
+
+	public void setParentName(String s) {
+		parentName = s;
+	}
+
+	@Override
+	public String toString() {
+		return "DomainClassLink[" + getParentName() + "->" + getChildName() + ",dv=" + getDeployValueName() + " -> " + "]";
+	}
 }

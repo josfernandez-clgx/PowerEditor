@@ -16,25 +16,26 @@ public class SearchRequest<T extends Persistent> extends SessionRequest<ListResp
 
 
 	private final SearchFilter<T> filter;
-	
+
 	/**
 	 * @param userID the user ID
 	 * @param sessionID the session ID
+	 * @param filter filter
 	 */
 	public SearchRequest(String userID, String sessionID, SearchFilter<T> filter) {
 		super(userID, sessionID);
 		this.filter = filter;
 	}
 
-	public SearchFilter<T> getSearchFilter() {
-		return filter;
-	}
-	
 	/**
 	 * Convenicence method to get the entity type of the filter for this request.
 	 * @return the filter entity type
 	 */
 	public PeDataType getEntityType() {
 		return filter.getEntityType();
+	}
+
+	public SearchFilter<T> getSearchFilter() {
+		return filter;
 	}
 }

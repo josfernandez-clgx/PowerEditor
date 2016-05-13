@@ -17,8 +17,8 @@ import com.mindbox.pe.client.ClientUtil;
 import com.mindbox.pe.client.applet.UIFactory;
 import com.mindbox.pe.client.common.ButtonPanel;
 import com.mindbox.pe.client.common.selection.AbstractSelectionPanel;
-import com.mindbox.pe.model.PeDataType;
 import com.mindbox.pe.model.GenericEntityType;
+import com.mindbox.pe.model.PeDataType;
 import com.mindbox.pe.model.Persistent;
 
 /**
@@ -29,6 +29,18 @@ import com.mindbox.pe.model.Persistent;
  */
 public abstract class AbstractPersistedFilterPanel<T extends Persistent, B extends ButtonPanel> extends AbstractFilterPanel<T, B> {
 	/**
+	 * @since PowerEditor 4.2.0
+	 * @author Inna Nill
+	 * 
+	 */
+	private class ClearL implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			clearSearchFields();
+		}
+	}
+
+	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -3951228734910107454L;
@@ -38,37 +50,27 @@ public abstract class AbstractPersistedFilterPanel<T extends Persistent, B exten
 		panel.add(component);
 	}
 
-	/**
-	 * @since PowerEditor 4.2.0
-	 * @author Inna Nill
-	 * 
-	 */
-	private class ClearL implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			clearSearchFields();
-		}
-	}
-
 	protected final PeDataType filterEntityType;
 	protected final GenericEntityType filterGenericEntityType;
 	private JButton filterButton;
 	private JButton clearSearchFieldsButton;
 
 	/**
-	 * @param selectionPanel
-	 */
-	protected AbstractPersistedFilterPanel(AbstractSelectionPanel<T, B> selectionPanel, PeDataType filterEntityType, boolean hideManagementButtons) {
-		this(selectionPanel, filterEntityType, null, hideManagementButtons);
-	}
-
-	/**
-	 * @param selectionPanel
+	 * @param selectionPanel selectionPanel
 	 */
 	protected AbstractPersistedFilterPanel(AbstractSelectionPanel<T, B> selectionPanel, GenericEntityType filterGenericEntityType, boolean hideManagementButtons) {
 		this(selectionPanel, null, filterGenericEntityType, hideManagementButtons);
 	}
 
-	private AbstractPersistedFilterPanel(AbstractSelectionPanel<T, B> selectionPanel, PeDataType filterEntityType, GenericEntityType filterGenericEntityType, boolean hideManagementButtons) {
+	/**
+	 * @param selectionPanel selectionPanel
+	 */
+	protected AbstractPersistedFilterPanel(AbstractSelectionPanel<T, B> selectionPanel, PeDataType filterEntityType, boolean hideManagementButtons) {
+		this(selectionPanel, filterEntityType, null, hideManagementButtons);
+	}
+
+	private AbstractPersistedFilterPanel(AbstractSelectionPanel<T, B> selectionPanel, PeDataType filterEntityType, GenericEntityType filterGenericEntityType,
+			boolean hideManagementButtons) {
 		super(selectionPanel);
 		this.filterEntityType = filterEntityType;
 		this.filterGenericEntityType = filterGenericEntityType;
@@ -89,13 +91,15 @@ public abstract class AbstractPersistedFilterPanel<T extends Persistent, B exten
 		initPanel(hideManagementButtons);
 	}
 
-	protected abstract void clearSearchFields();
-
 	/**
 	 * Adds additional UI components, if necessary. This should be overriden by sub-classes. This
 	 * method implementation does nothing.
+	 * @param bag bag
+	 * @param c constraint
 	 */
 	protected abstract void addComponents(GridBagLayout bag, GridBagConstraints c);
+
+	protected abstract void clearSearchFields();
 
 	private void initPanel(boolean hideManagementButtons) {
 		GridBagLayout bag = new GridBagLayout();

@@ -32,7 +32,6 @@ public class ChangePwdDialog extends JPanel {
 
 	/**
 	 * Displays the Change password dialog for the specified user.
-	 * @param frameBase the root frame
 	 * @param user the user object
 	 * @return <code>true</code> if password was changed successfully; <code>false</code>, otherwise
 	 */

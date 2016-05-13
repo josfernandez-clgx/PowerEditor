@@ -31,10 +31,29 @@ public class CBRCase extends AbstractIDNameDescriptionObject implements Auditabl
 		caseActions = new ArrayList<CBRCaseAction>();
 	}
 
+	public CBRCase(CBRCase source) {
+		super(source);
+		attributeValues = new ArrayList<CBRAttributeValue>();
+		caseActions = new ArrayList<CBRCaseAction>();
+		copyFrom(source);
+	}
+
 	/**
 	 * Constructor
-	 * @param name
-	 * @param desc
+	 * @param id id
+	 * @param name name
+	 * @param desc desc
+	 */
+	public CBRCase(int id, String name, String desc) {
+		super(id, name, desc);
+		attributeValues = new ArrayList<CBRAttributeValue>();
+		caseActions = new ArrayList<CBRCaseAction>();
+	}
+
+	/**
+	 * Constructor
+	 * @param name name
+	 * @param desc desc
 	 */
 	public CBRCase(String name, String desc) {
 		super(name, desc);
@@ -43,58 +62,11 @@ public class CBRCase extends AbstractIDNameDescriptionObject implements Auditabl
 	}
 
 	/**
-	 * Constructor
-	 * @param id
-	 * @param name
-	 * @param desc
-	 */
-	public CBRCase(int id, String name, String desc) {
-		super(id, name, desc);
-		attributeValues = new ArrayList<CBRAttributeValue>();
-		caseActions = new ArrayList<CBRCaseAction>();
-	}
-
-	public CBRCase(CBRCase source) {
-		super(source);
-		attributeValues = new ArrayList<CBRAttributeValue>();
-		caseActions = new ArrayList<CBRCaseAction>();
-		copyFrom(source);
-	}
-	
-	public final DateSynonym getEffectiveDate() {
-		return effDate;
-	}
-
-	public final DateSynonym getExpirationDate() {
-		return expDate;
-	}
-
-	public final void setEffectiveDate(DateSynonym effDate) {
-		this.effDate = effDate;
-	}
-
-	public final void setExpirationDate(DateSynonym expDate) {
-		this.expDate = expDate;
-	}
-
-
-	public Auditable deepCopy() {
-		CBRCase newCase = new CBRCase();
-		newCase.setID(getID());
-		newCase.copyFrom(this);
-		return newCase;
-	}
-
-	public String getAuditDescription() {
-		return toString();
-	}
-
-	/**
 	 * Copies the values from the passed-in CBRCase into this CBRCase.
 	 * The CBRAttributeValue objects must be a deep-copy, since they are unique for
 	 * each case and are not copied anywhere else.
 	 * The CBRCaseBase is not a deep copy, and neither is the activation label.
-	 * @param cbrCase
+	 * @param cbrCase cbrCase
 	 */
 	public synchronized void copyFrom(CBRCase cbrCase) {
 		this.setName(cbrCase.getName());
@@ -113,20 +85,55 @@ public class CBRCase extends AbstractIDNameDescriptionObject implements Auditabl
 		this.expDate = cbrCase.expDate;
 	}
 
-	/**
-	 * Formats the attributes of this class and returns a string.
-	 * @return String
-	 */
-	public String toString() {
-		return super.toString() + "CBRCase[CaseBase: " + getCaseBase() + ", case action=" + getCaseActions() + ", Attribute Values="
-				+ getAttributeValues() + ", act=" + effDate + "-" + expDate + "]";
+	@Override
+	public Auditable deepCopy() {
+		CBRCase newCase = new CBRCase();
+		newCase.setID(getID());
+		newCase.copyFrom(this);
+		return newCase;
 	}
+
+	/**
+	 * @return Returns the attributeValues.
+	 */
+	public List<CBRAttributeValue> getAttributeValues() {
+		return attributeValues;
+	}
+
+	@Override
+	public String getAuditDescription() {
+		return toString();
+	}
+
 
 	/**
 	 * @return Returns the list of case actions.
 	 */
 	public List<CBRCaseAction> getCaseActions() {
 		return caseActions;
+	}
+
+	/**
+	 * @return Returns the caseBase.
+	 */
+	public CBRCaseBase getCaseBase() {
+		return caseBase;
+	}
+
+	public final DateSynonym getEffectiveDate() {
+		return effDate;
+	}
+
+	public final DateSynonym getExpirationDate() {
+		return expDate;
+	}
+
+	/**
+	 * @param attributeValues The attributeValues to set.
+	 */
+	public void setAttributeValues(List<CBRAttributeValue> attributeValues) {
+		this.attributeValues.clear();
+		this.attributeValues.addAll(attributeValues);
 	}
 
 	/**
@@ -140,32 +147,28 @@ public class CBRCase extends AbstractIDNameDescriptionObject implements Auditabl
 	}
 
 	/**
-	 * @return Returns the caseBase.
-	 */
-	public CBRCaseBase getCaseBase() {
-		return caseBase;
-	}
-
-	/**
 	 * @param caseBase The caseBase to set.
 	 */
 	public void setCaseBase(CBRCaseBase caseBase) {
 		this.caseBase = caseBase;
 	}
 
-	/**
-	 * @return Returns the attributeValues.
-	 */
-	public List<CBRAttributeValue> getAttributeValues() {
-		return attributeValues;
+	public final void setEffectiveDate(DateSynonym effDate) {
+		this.effDate = effDate;
+	}
+
+	public final void setExpirationDate(DateSynonym expDate) {
+		this.expDate = expDate;
 	}
 
 	/**
-	 * @param attributeValues The attributeValues to set.
+	 * Formats the attributes of this class and returns a string.
+	 * @return String
 	 */
-	public void setAttributeValues(List<CBRAttributeValue> attributeValues) {
-		this.attributeValues.clear();
-		this.attributeValues.addAll(attributeValues);
+	@Override
+	public String toString() {
+		return super.toString() + "CBRCase[CaseBase: " + getCaseBase() + ", case action=" + getCaseActions() + ", Attribute Values=" + getAttributeValues() + ", act=" + effDate
+				+ "-" + expDate + "]";
 	}
 
 }

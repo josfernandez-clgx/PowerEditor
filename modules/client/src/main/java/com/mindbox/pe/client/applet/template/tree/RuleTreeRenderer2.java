@@ -42,14 +42,12 @@ public class RuleTreeRenderer2 extends JLabel implements TreeCellRenderer {
 	private final ImageIcon existIcon = ClientUtil.getInstance().makeImageIcon("image.node.adhoc.exist");
 	private final ImageIcon selectedExistIcon = ClientUtil.getInstance().makeImageIcon("image.node.adhoc.exist");
 
-	/**
-	 *
-	 */
 	public RuleTreeRenderer2() {
 		super();
 		this.setOpaque(true);
 	}
 
+	@Override
 	public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean arg6) {
 
 		setBackground((selected ? PowerEditorSwingTheme.blueShadowColor : PowerEditorSwingTheme.whiteColor));

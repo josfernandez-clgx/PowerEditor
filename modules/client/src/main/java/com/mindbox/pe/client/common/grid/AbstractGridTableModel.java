@@ -25,9 +25,6 @@ import com.mindbox.pe.model.template.AbstractTemplateCore;
 import com.mindbox.pe.model.template.ColumnDataSpecDigest;
 
 public abstract class AbstractGridTableModel<T extends AbstractTemplateCore<?>> extends DefaultTableModel {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -3951228734910107454L;
 
 	private static final boolean equalAsString(Object obj, Object obj1) {
@@ -43,15 +40,8 @@ public abstract class AbstractGridTableModel<T extends AbstractTemplateCore<?>> 
 		return ClientUtil.getCommunicator().getNextRuleID();
 	}
 
-	protected abstract ColumnDataSpecDigest getColumnDataSpecDigest(int columnNo);
-
-	protected abstract int getTemplateMaxRow();
-
-	protected abstract int getTemplateColumnCount();
-
-	protected abstract T getTemplate();
-
 	private boolean isDirty;
+
 	private final Logger logger;
 
 	protected AbstractGridTableModel() {
@@ -59,34 +49,29 @@ public abstract class AbstractGridTableModel<T extends AbstractTemplateCore<?>> 
 		isDirty = false;
 	}
 
-	private final boolean isNonEmptyDependentColumn(int row, String sourceColumnName, AbstractTemplateColumn column, int columnNo) {
-		return (!column.getName().equals(sourceColumnName) && column.getColumnDataSpecDigest().isEnumListAndSelectorSetFor(sourceColumnName) && !UtilBase.isEmptyCellValue(getValueAt(row, columnNo - 1)));
+	final boolean addRow(int row) throws ServerException {
+		int colCount = getTemplateColumnCount();
+		List<Object> list = new ArrayList<Object>(colCount);
+		for (int i = 0; i < colCount; i++)
+			list.add(getDefaultValue(i));
+		return addRow(row, list);
 	}
 
-	/**
-	 * Tests if there is a dependent column of this with a value in it. 
-	 * 
-	 * @return <code>true</code> if there is a non-empty dependent column; <code>false</code>, otherwise
-	 */
-	public boolean hasNonEmptyDepedentCell(int row, String columnName) {
-		for (int c = 1; c <= getTemplateColumnCount(); c++) {
-			AbstractTemplateColumn column = getTemplate().getColumn(c);
-			if (isNonEmptyDependentColumn(row, columnName, column, c)) {
-				return true;
-			}
+	final boolean addRow(int row, List<Object> list) {
+		int maxRow = getTemplateMaxRow();
+		if (maxRow > 0 && getRowCount() >= maxRow) {
+			ClientUtil.getInstance().showErrorDialog("MaxRowsExceededMsg");
+			return false;
 		}
-		return false;
-	}
 
-	public List<Integer> getNonEmptyDependentColumnIDs(int row, String columnName) {
-		List<Integer> list = new ArrayList<Integer>();
-		for (int c = 1; c <= getTemplateColumnCount(); c++) {
-			AbstractTemplateColumn column = getTemplate().getColumn(c);
-			if (isNonEmptyDependentColumn(row, columnName, column, c)) {
-				list.add(c);
-			}
+		if (row >= 0 && row < getRowCount()) {
+			super.insertRow(row, list.toArray());
 		}
-		return list;
+		else {
+			super.addRow(list.toArray());
+		}
+		setDirty(true);
+		return true;
 	}
 
 	public void clearNonEmptyDependentColumns(int row, String columnName) {
@@ -97,6 +82,62 @@ public abstract class AbstractGridTableModel<T extends AbstractTemplateCore<?>> 
 			}
 		}
 		fireTableRowsUpdated(row, row);
+	}
+
+	public final Object getCellValueAt(int row, String columnName) {
+		return getValueAt(row, getColumnIndex(columnName));
+	}
+
+	@Override
+	public final Class<?> getColumnClass(int i) {
+		ColumnDataSpecDigest dataSpecDigest = getColumnDataSpecDigest(i + 1);
+		if (dataSpecDigest != null && dataSpecDigest.getType().equals(ColumnDataSpecDigest.TYPE_ENTITY)) {
+			if (dataSpecDigest.isMultiSelectAllowed()) {
+				return CategoryOrEntityValues.class;
+			}
+			else {
+				return CategoryOrEntityValue.class;
+			}
+		}
+		else if (dataSpecDigest.isRuleIDType()) {
+			return Long.class;
+		}
+		else if (dataSpecDigest.getType().equals(ColumnDataSpecDigest.TYPE_BOOLEAN)) {
+			return (dataSpecDigest.isBlankAllowed() ? String.class : Boolean.class);
+		}
+		else if (dataSpecDigest.getType().equals(ColumnDataSpecDigest.TYPE_INTEGER_RANGE)) {
+			return IntegerRange.class;
+		}
+		else if (dataSpecDigest.getType().equals(ColumnDataSpecDigest.TYPE_INTEGER)) {
+			return Integer.class;
+		}
+		else if (dataSpecDigest.getType().equals(ColumnDataSpecDigest.TYPE_FLOAT_RANGE) || dataSpecDigest.getType().equals(ColumnDataSpecDigest.TYPE_CURRENCY_RANGE)) {
+			return FloatRange.class;
+		}
+		else if (dataSpecDigest.isDoubleType()) {
+			return Double.class;
+		}
+		else if (dataSpecDigest.getType().equals(ColumnDataSpecDigest.TYPE_ENUM_LIST)) {
+			if (dataSpecDigest.isMultiSelectAllowed()) {
+				return EnumValues.class;
+			}
+			else {
+				return String.class;
+			}
+		}
+		else if (dataSpecDigest.getType().equals(ColumnDataSpecDigest.TYPE_DATE_RANGE) || dataSpecDigest.getType().equals(ColumnDataSpecDigest.TYPE_DATE_TIME_RANGE)) {
+			return String.class;
+		}
+		else if (dataSpecDigest.getType().equals(ColumnDataSpecDigest.TYPE_DATE)) {
+			return Date.class;
+		}
+		return String.class;
+	}
+
+	protected abstract ColumnDataSpecDigest getColumnDataSpecDigest(int columnNo);
+
+	public final int getColumnIndex(String columnName) {
+		return getTemplate().getColumn(columnName).getColumnNumber() - 1;
 	}
 
 	private Object getDefaultValue(int i) throws ServerException {
@@ -142,41 +183,108 @@ public abstract class AbstractGridTableModel<T extends AbstractTemplateCore<?>> 
 		}
 	}
 
-	/**
-	 * Update the dirty flag.
-	 * When overriding this, make sure to call <code>super.setDirty(flag)</code>.
-	 * @param flag
-	 */
-	public void setDirty(boolean flag) {
-		isDirty = flag;
-	}
-
-	/**
-	 * @return A String of the values of of the rows and columns in a "grid" display.
-	 * @since PowerEditor 4.2.0
-	 */
-	public String toString() {
-		StringBuilder retString = new StringBuilder();
-
-		for (int idx = 0; idx < super.getRowCount(); idx++) {
-			retString.append("     ");
-			for (int jdx = 0; jdx < super.getColumnCount(); jdx++) {
-				retString.append(getValueAt(idx, jdx));
-				retString.append(",   ");
+	public List<Integer> getNonEmptyDependentColumnIDs(int row, String columnName) {
+		List<Integer> list = new ArrayList<Integer>();
+		for (int c = 1; c <= getTemplateColumnCount(); c++) {
+			AbstractTemplateColumn column = getTemplate().getColumn(c);
+			if (isNonEmptyDependentColumn(row, columnName, column, c)) {
+				list.add(c);
 			}
-			retString.append("\n");
 		}
-		return retString.toString();
+		return list;
 	}
 
-	public final void setValueAt(Object value, int row, int col) {
-		if (!UtilBase.isSameGridCellValue(value, getValueAt(row, col))) {
-			setCellValue(value, row, col);
+	protected abstract T getTemplate();
+
+	protected abstract int getTemplateColumnCount();
+
+	protected abstract int getTemplateMaxRow();
+
+	@Override
+	public final synchronized Object getValueAt(int row, int col) {
+		if (super.getRowCount() == 0 || row >= super.getRowCount() || col >= super.getColumnCount()) {
+			return null;
 		}
+		Object obj = super.getValueAt(row, col);
+		ColumnDataSpecDigest columnDataSpecDigest = getColumnDataSpecDigest(col + 1);
+		if (getColumnClass(col).equals(Boolean.class)) {
+			obj = (obj == null ? Boolean.FALSE : Boolean.valueOf(obj.toString()));
+		}
+		else if (getColumnClass(col).equals(Date.class)) {
+			if (obj != null) {
+				try {
+					if (obj instanceof String && ((String) obj).length() == 0) {
+						obj = null;
+					}
+					else if (!(obj instanceof Date)) {
+						String str = obj.toString();
+						if (columnDataSpecDigest.getType().equals(ColumnDataSpecDigest.TYPE_DATE_TIME)) {
+							obj = Constants.THREADLOCAL_FORMAT_DATE_TIME_MIN.get().parse(str);
+						}
+						else if (columnDataSpecDigest.getType().equals(ColumnDataSpecDigest.TYPE_DATE)) {
+							obj = Constants.THREADLOCAL_FORMAT_DATE.get().parse(str);
+						}
+						else {
+							logger.warn("Invalid object for date field: " + obj);
+							obj = null;
+						}
+					}
+				}
+				catch (Exception exception) {
+					logger.error("failed to parse as date: " + obj, exception);
+					obj = null;
+				}
+			}
+		}
+		return obj;
 	}
 
 	public final synchronized boolean hasCell(int row, int col) {
 		return row >= 0 && col >= 0 && row < getRowCount() && col < getColumnCount();
+	}
+
+	/**
+	 * Tests if there is a dependent column of this with a value in it. 
+	 * @param row row
+	 * @param columnName column name
+	 * @return <code>true</code> if there is a non-empty dependent column; <code>false</code>, otherwise
+	 */
+	public boolean hasNonEmptyDepedentCell(int row, String columnName) {
+		for (int c = 1; c <= getTemplateColumnCount(); c++) {
+			AbstractTemplateColumn column = getTemplate().getColumn(c);
+			if (isNonEmptyDependentColumn(row, columnName, column, c)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public boolean isCellEditable(int i, int j) {
+		ColumnDataSpecDigest dataSpecDigest = getColumnDataSpecDigest(j + 1);
+		return !dataSpecDigest.isRuleIDType();
+	}
+
+	public final boolean isDirty() {
+		return isDirty;
+	}
+
+	private final boolean isNonEmptyDependentColumn(int row, String sourceColumnName, AbstractTemplateColumn column, int columnNo) {
+		return (!column.getName().equals(sourceColumnName) && column.getColumnDataSpecDigest().isEnumListAndSelectorSetFor(sourceColumnName)
+				&& !UtilBase.isEmptyCellValue(getValueAt(row, columnNo - 1)));
+	}
+
+	public final void setAndValidateValueAt(Object obj, int i, int j) throws RuntimeException {
+		if (!UtilBase.isSameGridCellValue(obj, getValueAt(i, j))) {
+			if (validateValue(obj, j)) {
+				setDirty(true);
+				setCellValue(obj, i, j);
+			}
+			else {
+				logger.warn("Invalid value " + obj + " for col " + j);
+				throw new RuntimeException("Invalid Paste Value = '" + obj + "'");
+			}
+		}
 	}
 
 	// Returns true if and only if 
@@ -225,7 +333,8 @@ public abstract class AbstractGridTableModel<T extends AbstractTemplateCore<?>> 
 						objToSet = formatterThreadLocal.get().parse(obj.toString());
 					}
 				}
-				else if (columnDataSpecDigest.getType().equals(ColumnDataSpecDigest.TYPE_FLOAT_RANGE) || columnDataSpecDigest.getType().equals(ColumnDataSpecDigest.TYPE_CURRENCY_RANGE)) {
+				else if (columnDataSpecDigest.getType().equals(ColumnDataSpecDigest.TYPE_FLOAT_RANGE)
+						|| columnDataSpecDigest.getType().equals(ColumnDataSpecDigest.TYPE_CURRENCY_RANGE)) {
 					// TT 1651
 					if (obj instanceof FloatRange) {
 						objToSet = (FloatRange) obj;
@@ -302,102 +411,44 @@ public abstract class AbstractGridTableModel<T extends AbstractTemplateCore<?>> 
 		}
 	}
 
-	public final Object getCellValueAt(int row, String columnName) {
-		return getValueAt(row, getColumnIndex(columnName));
-	}
-
-	public final int getColumnIndex(String columnName) {
-		return getTemplate().getColumn(columnName).getColumnNumber() - 1;
-	}
-
-	public final synchronized Object getValueAt(int row, int col) {
-		if (super.getRowCount() == 0 || row >= super.getRowCount() || col >= super.getColumnCount()) {
-			return null;
-		}
-		Object obj = super.getValueAt(row, col);
-		ColumnDataSpecDigest columnDataSpecDigest = getColumnDataSpecDigest(col + 1);
-		if (getColumnClass(col).equals(Boolean.class)) {
-			obj = (obj == null ? Boolean.FALSE : Boolean.valueOf(obj.toString()));
-		}
-		else if (getColumnClass(col).equals(Date.class)) {
-			if (obj != null) {
-				try {
-					if (obj instanceof String && ((String) obj).length() == 0) {
-						obj = null;
-					}
-					else if (!(obj instanceof Date)) {
-						String str = obj.toString();
-						if (columnDataSpecDigest.getType().equals(ColumnDataSpecDigest.TYPE_DATE_TIME)) {
-							obj = Constants.THREADLOCAL_FORMAT_DATE_TIME_MIN.get().parse(str);
-						}
-						else if (columnDataSpecDigest.getType().equals(ColumnDataSpecDigest.TYPE_DATE)) {
-							obj = Constants.THREADLOCAL_FORMAT_DATE.get().parse(str);
-						}
-						else {
-							logger.warn("Invalid object for date field: " + obj);
-							obj = null;
-						}
-					}
-				}
-				catch (Exception exception) {
-					logger.error("failed to parse as date: " + obj, exception);
-					obj = null;
-				}
-			}
-		}
-		return obj;
-	}
-
 	public final void setData(Object[][] data, List<String> columnNameList) {
 		setDataVector(data == null ? new Object[0][0] : data, columnNameList.toArray());
 		setDirty(false);
 	}
 
-	public boolean isCellEditable(int i, int j) {
-		ColumnDataSpecDigest dataSpecDigest = getColumnDataSpecDigest(j + 1);
-		return !dataSpecDigest.isRuleIDType();
+	/**
+	 * Update the dirty flag.
+	 * When overriding this, make sure to call <code>super.setDirty(flag)</code>.
+	 * @param flag flag
+	 */
+	public void setDirty(boolean flag) {
+		isDirty = flag;
 	}
 
-	public final boolean isDirty() {
-		return isDirty;
-	}
-
-	final boolean addRow(int row, List<Object> list) {
-		int maxRow = getTemplateMaxRow();
-		if (maxRow > 0 && getRowCount() >= maxRow) {
-			ClientUtil.getInstance().showErrorDialog("MaxRowsExceededMsg");
-			return false;
+	@Override
+	public final void setValueAt(Object value, int row, int col) {
+		if (!UtilBase.isSameGridCellValue(value, getValueAt(row, col))) {
+			setCellValue(value, row, col);
 		}
-
-		if (row >= 0 && row < getRowCount()) {
-			super.insertRow(row, list.toArray());
-		}
-		else {
-			super.addRow(list.toArray());
-		}
-		setDirty(true);
-		return true;
 	}
 
-	final boolean addRow(int row) throws ServerException {
-		int colCount = getTemplateColumnCount();
-		List<Object> list = new ArrayList<Object>(colCount);
-		for (int i = 0; i < colCount; i++)
-			list.add(getDefaultValue(i));
-		return addRow(row, list);
-	}
+	/*
+	 * @return A String of the values of of the rows and columns in a "grid" display.
+	 * @since PowerEditor 4.2.0
+	 */
+	@Override
+	public String toString() {
+		StringBuilder retString = new StringBuilder();
 
-	public final void setAndValidateValueAt(Object obj, int i, int j) throws RuntimeException {
-		if (!UtilBase.isSameGridCellValue(obj, getValueAt(i, j))) {
-			if (validateValue(obj, j)) {
-				setDirty(true);
-				setCellValue(obj, i, j);
+		for (int idx = 0; idx < super.getRowCount(); idx++) {
+			retString.append("     ");
+			for (int jdx = 0; jdx < super.getColumnCount(); jdx++) {
+				retString.append(getValueAt(idx, jdx));
+				retString.append(",   ");
 			}
-			else {
-				logger.warn("Invalid value " + obj + " for col " + j);
-				throw new RuntimeException("Invalid Paste Value = '" + obj + "'");
-			}
+			retString.append("\n");
 		}
+		return retString.toString();
 	}
 
 	private boolean validateValue(Object obj, int col) {
@@ -441,51 +492,6 @@ public abstract class AbstractGridTableModel<T extends AbstractTemplateCore<?>> 
 			flag = false;
 		}
 		return flag;
-	}
-
-	public final Class<?> getColumnClass(int i) {
-		ColumnDataSpecDigest dataSpecDigest = getColumnDataSpecDigest(i + 1);
-		if (dataSpecDigest != null && dataSpecDigest.getType().equals(ColumnDataSpecDigest.TYPE_ENTITY)) {
-			if (dataSpecDigest.isMultiSelectAllowed()) {
-				return CategoryOrEntityValues.class;
-			}
-			else {
-				return CategoryOrEntityValue.class;
-			}
-		}
-		else if (dataSpecDigest.isRuleIDType()) {
-			return Long.class;
-		}
-		else if (dataSpecDigest.getType().equals(ColumnDataSpecDigest.TYPE_BOOLEAN)) {
-			return (dataSpecDigest.isBlankAllowed() ? String.class : Boolean.class);
-		}
-		else if (dataSpecDigest.getType().equals(ColumnDataSpecDigest.TYPE_INTEGER_RANGE)) {
-			return IntegerRange.class;
-		}
-		else if (dataSpecDigest.getType().equals(ColumnDataSpecDigest.TYPE_INTEGER)) {
-			return Integer.class;
-		}
-		else if (dataSpecDigest.getType().equals(ColumnDataSpecDigest.TYPE_FLOAT_RANGE) || dataSpecDigest.getType().equals(ColumnDataSpecDigest.TYPE_CURRENCY_RANGE)) {
-			return FloatRange.class;
-		}
-		else if (dataSpecDigest.isDoubleType()) {
-			return Double.class;
-		}
-		else if (dataSpecDigest.getType().equals(ColumnDataSpecDigest.TYPE_ENUM_LIST)) {
-			if (dataSpecDigest.isMultiSelectAllowed()) {
-				return EnumValues.class;
-			}
-			else {
-				return String.class;
-			}
-		}
-		else if (dataSpecDigest.getType().equals(ColumnDataSpecDigest.TYPE_DATE_RANGE) || dataSpecDigest.getType().equals(ColumnDataSpecDigest.TYPE_DATE_TIME_RANGE)) {
-			return String.class;
-		}
-		else if (dataSpecDigest.getType().equals(ColumnDataSpecDigest.TYPE_DATE)) {
-			return Date.class;
-		}
-		return String.class;
 	}
 
 }

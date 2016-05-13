@@ -83,7 +83,7 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 	/**
 	 * Copies combo box model. 
 	 * If <code>model</code> is <code>null</code>, this returns an empty combo model.
-	 * @param model
+	 * @param model model
 	 * @return copy of <code>model</code>, if it's not <code>null</code>; empty combo model, otherwise
 	 */
 	private static DefaultComboBoxModel<GenericEntity> copyComboBoxModel(ComboBoxModel<GenericEntity> model) {
@@ -130,7 +130,7 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 
 	/**
 	 * Tests if the specified domain class has at least one attribute with policy editor domain view.
-	 * @param domainClass
+	 * @param domainClass domainClass
 	 * @return <code>true</code> if <code>domainClass</code> has at least one attribute with policy editor domain view;
 	 *         <code>false</code>, otherwise
 	 * @since PowerEditor 3.2.0
@@ -288,7 +288,7 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 	/**
 	 * Adds the specified category in all generic category tree models.
 	 * 
-	 * @param category
+	 * @param category category
 	 */
 	public void addGenericCategory(GenericCategory category) {
 		Integer key = new Integer(category.getType());
@@ -515,7 +515,7 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 	/**
 	 * Call this only when the parent of the specified category has changed.
 	 * 
-	 * @param category
+	 * @param category category
 	 *            category whose parent has changed
 	 */
 	public void editGenericCategory(GenericCategory category) {
@@ -547,8 +547,8 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 
 	/**
 	 * Note this considers all dates.
-	 * @param parentCategory
-	 * @param name
+	 * @param parentCategory parentCategory
+	 * @param name name
 	 * @param date date
 	 * @return
 	 */
@@ -576,10 +576,9 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 
 	/**
 	 * This considers all dates. 
-	 * @param categoryType
-	 * @param path
-	 * @param date
-	 * @return
+	 * @param categoryType categoryType
+	 * @param path path
+	 * @return generic category 
 	 */
 	private GenericCategory findFullyQualifiedGenericCategoryByPath(int categoryType, String path) {
 		GenericCategory category = null;
@@ -795,7 +794,7 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 
 
 	/**
-	 * @param category
+	 * @param category category
 	 * @return A list of entity to category associations for the given category.
 	 */
 	public List<CategoryToEntityAssociationData> getCategoryToEntityAssociationsByCategory(GenericCategory category) {
@@ -925,8 +924,8 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 	}
 
 	/**
-	 * @param type
-	 * @param id
+	 * @param type type
+	 * @param id id
 	 * @return GenericEntity with <code>id</code>, if found;
 	 *         <code>null</code>, otherwise
 	 * @since 3.0.0
@@ -953,7 +952,7 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 	}
 
 	/**
-	 * @param type
+	 * @param type type
 	 * @return A map containing the entity ID as the key and the list
 	 *         position as the value
 	 *         
@@ -977,8 +976,8 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 	 * types for them -- this logic should be eliminated when channel, investor,
 	 * and product are converted to generic entities.
 	 * 
-	 * @param type
-	 * @param hasEmpty
+	 * @param type type
+	 * @param hasEmpty hasEmpty
 	 * @return the combobox model
 	 */
 	private ComboBoxModel<GenericEntity> getGenericEntityModel_aux(GenericEntityType type, boolean hasEmpty) {
@@ -996,9 +995,9 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 	}
 
 	/**
-	 * @param type
-	 * @param id
-	 * @param defaultValue
+	 * @param type type
+	 * @param id id
+	 * @param defaultValue defaultValue
 	 * @return String
 	 * @since 3.0.0
 	 */
@@ -1030,7 +1029,7 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 
 	/**
 	 * Return the most recent fully qualified category name. 
-	 * @param categoryType
+	 * @param categoryType categoryType
 	 * @return fully qualified name.
 	 */
 	public String getMostRecentFullyQualifiedCategoryName(GenericCategory category) {
@@ -1246,7 +1245,7 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 	 * @param childID the child id
 	 * @param parentIDs parent ids
 	 * @param categoryType category type
-	 * @param date
+	 * @param date date
 	 * @return <code>true</code> if childID is a child of all parentIDs
 	 */
 	public boolean isDescendentAtAnyTime(int childID, int parentIDs[], int categoryType) {
@@ -1596,7 +1595,7 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 	 * from server
 	 * @author vineet khosla
 	 * @since PowerEditor 5.0
-	 * @param relodRolesInRoleTabpanel
+	 * @param relodRolesInRoleTabpanel relodRolesInRoleTabpanel
 	 */
 	public void setRelodRolesInRoleTabpanel(boolean relodRolesInRoleTabpanel) {
 		this.relodRolesInRoleTabpanel = relodRolesInRoleTabpanel;
