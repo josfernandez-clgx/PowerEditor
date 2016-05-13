@@ -1,6 +1,0 @@
-version:1
-
-dn: dc=mindbox,dc=com
-objectClass: domain
-objectClass: top
-dc: mindbox
