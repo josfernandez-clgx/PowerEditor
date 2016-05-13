@@ -1,0 +1,46 @@
+version: 1
+
+dn: o=PowerEditor,dc=mindbox,dc=com
+objectClass: organization
+objectClass: top
+o: PowerEditor
+
+dn: ou=Users,o=PowerEditor,dc=mindbox,dc=com
+objectClass: organizationalUnit
+objectClass: top
+ou: Users
+
+dn: cn=demo,ou=Users,o=PowerEditor,dc=mindbox,dc=com
+objectClass: powerEditorOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+cn: demo
+description: PowerEditor Demo User
+peRoleName: Viewer
+peRoleName: SuperUser
+peUserName: Demo User
+peUserStatus: Active
+sn: demo 
+# userPassword:: IMlzICI5wNM=
+userPassword:: ZGVtbw==
+pePasswordChangeRequired: FALSE
+pePasswordChangeDate: 01/01/2007 3:57:03 PM
+peFailedLoginCounter: 0
+
+dn: cn=admin,ou=Users,o=PowerEditor,dc=mindbox,dc=com
+objectClass: powerEditorOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+cn: admin
+description: PowerEditor Admin User
+peRoleName: SuperUser
+peUserName: Administrator User
+peUserStatus: Active
+sn: admin 
+# userPassword:: W08TKC5+P70=
+userPassword:: YWRtaW4=
+pePasswordChangeRequired: FALSE
+pePasswordChangeDate: 01/01/2007 3:57:03 PM
+peFailedLoginCounter: 0

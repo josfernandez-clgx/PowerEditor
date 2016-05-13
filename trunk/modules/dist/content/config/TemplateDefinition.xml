@@ -1,0 +1,864 @@
+<?xml version="1.0"?>
+<EditorDefinitions>
+
+	<AdHocRuleAction id="100" name="Disqualify Loan">
+		<Description>Use this to disqualify a loan</Description>
+		<UsageList>
+			<Usage>Product-Qualify</Usage>
+			<Usage>Unit-Test</Usage>
+		</UsageList>
+		<ParameterList>
+		</ParameterList>
+		<DeploymentAction>
+		disqualify_product()
+		</DeploymentAction>
+	</AdHocRuleAction>
+	
+	<AdHocRuleAction id="101" name="Recommend Loan">
+		<Description>Use this to recommend a loan with a optional message</Description>
+		<UsageList>
+			<Usage>Product-Qualify</Usage>
+			<Usage>Unit-Test</Usage>
+		</UsageList>
+		<ParameterList>
+			<Parameter paramNum="1" name="Comment" deployType="String"/>
+			<Parameter paramNum="2" name="EnumValue" deployType="Symbol"/>
+		</ParameterList>
+		<DeploymentAction>
+		disqualify_product(product, "%productID%", comment, "%parameter 1%", enum, "%parameter 2%")
+		</DeploymentAction>
+	</AdHocRuleAction>
+	
+	<AdHocRuleAction id="200" name="Adjust Rate">
+		<Description>Adjust rate</Description>
+		<UsageList>
+			<Usage>Rate-Adjustment</Usage>
+		</UsageList>
+		<ParameterList>
+			<Parameter paramNum="1" name="Adjustment Amount" deployType="Float"/>
+		</ParameterList>
+		<DeploymentAction>
+		add_to_rate(amount, "%parameter 1%")
+		</DeploymentAction>
+	</AdHocRuleAction>
+	
+<!--
+	<GridTemplateDefinition id="1001" name="DTI Limits" usage="Product-Qualify" status="Draft" numColumns="4" maxRows="99" >
+		<Description>If the loan is for the given &quot;Documentation Type&quot; and for the given &quot;Occupancy&quot; and is not within the &quot;Allowable DTI&quot; then eliminate the selected product.																																		</Description>
+		<QualificationRule qualificationType="">
+			<QualificationCondition>
+				if Transaction.DocumentationType in %column 1% and Transaction.Occupancy in %column 2% and Calculation.DTI between %column 3% and Transaction.Purpose in %column 4% then 
+				disqualify_product(gridID, "%gridID%", context, "%context%")
+			</QualificationCondition>
+			<Message channel="default">DTI needs to be within %column 3% on %column 2% %column 1%.</Message>
+			<Message channel="Retail">DTI needs to be within %column 3% on %column 2% %column 1% for Retail.</Message>
+		</QualificationRule>
+		<ColumnDefinition colNum="1" description="Documentation Type" attributeMap="Transaction.DocumentationType">
+			<Presentation title="Documentation Type">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="EnumList" multipleSelect="Yes" allowBlank="Yes" >
+			</DataSpec>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="2" description="Occupancy" attributeMap="Transaction.Occupancy">
+			<Presentation title="Occupancy">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="EnumList" multipleSelect="Yes" allowBlank="Yes" >
+			</DataSpec>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="3" description="Allowable DTI" attributeMap="">
+			<Presentation title="Allowable DTI">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="IntegerRange" multipleSelect="No" allowBlank="No" >
+				<MinValue>0</MinValue>
+				<MaxValue>100</MaxValue>
+				<Precision>0.0</Precision>
+			</DataSpec>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="4" description="Loan Purpose" attributeMap="Transaction.Purpose">
+			<Presentation title="Loan Purpose">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="EnumList" multipleSelect="No" allowBlank="Yes" >
+			</DataSpec>
+		</ColumnDefinition>
+	</GridTemplateDefinition>
+
+	<GridTemplateDefinition id="1002" name="LTV &amp; Loan Limits" usage="Product-Qualify" status="Draft" numColumns="6" maxRows="99" >
+		<Description>If the loan is for the given &quot;Doc Type&quot; and the given &quot;Occupancy&quot; and the given &quot;Loan Purpose&quot; and the borrower is within the given &quot;Credit Score&quot;, 
+then the loan amount must be within the &quot;Allowable Loan Amount&quot; and the LTV must be within the &quot;Allowable LTV&quot;.																																</Description>
+		<QualificationRule qualificationType="">
+			<QualificationCondition>
+				if Transaction.DocumentationType in %column 1% and Transaction.Occupancy in %column 2% and Borrower.CreditScore between %column 4% and Transaction.Purpose in %column 3% and Transaction.LoanAmount between %column 5% and Calculation.LTV between %column 6% then disqualify_product()
+			</QualificationCondition>
+			<Message channel="default">Loan Amount must be %column 6% for %column 1%,  %column 2%,  %column 3%,  %column 4%,  %column 5%.
+			</Message>
+		</QualificationRule>
+		<ColumnDefinition colNum="1" description="Doc Type" attributeMap="Transaction.DocumentationType">
+			<Presentation title="Doc Type">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="EnumList" multipleSelect="Yes" allowBlank="Yes" >
+			</DataSpec>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="2" description="Occupancy" attributeMap="Transaction.Occupancy">
+			<Presentation title="Occupancy">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="EnumList" multipleSelect="Yes" allowBlank="Yes" >
+			</DataSpec>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="5" description="Loan Amount" attributeMap="">
+			<Presentation title="Allowable Loan Amount">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="IntegerRange" multipleSelect="No" allowBlank="Yes" >
+			</DataSpec>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="4" description="Credit Score" attributeMap="">
+			<Presentation title="Credit Score">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="IntegerRange" multipleSelect="No" allowBlank="Yes" >
+			</DataSpec>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="3" description="Loan Purpose" attributeMap="Transaction.Purpose">
+			<Presentation title="Loan Purpose">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="EnumList" multipleSelect="No" allowBlank="Yes" >
+			</DataSpec>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="6" description="Allowable LTV" attributeMap="">
+			<Presentation title="Allowable LTV">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="IntegerRange" multipleSelect="No" allowBlank="No" >
+			</DataSpec>
+		</ColumnDefinition>
+	</GridTemplateDefinition>
+
+	<GridTemplateDefinition id="1003" name="Cashout Limits" usage="Product-Qualify" status="Draft" numColumns="3" maxRows="99" >
+		<Description>edit score is within the &quot;Illegal Creit Score&quot; and the 																																						</Description>
+		<ColumnDefinition colNum="1" description="Loan Purpose" attributeMap="Transaction.Purpose">
+			<Presentation title="If the Loan Purpose is...">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="EnumList" multipleSelect="No" allowBlank="Yes" >
+			</DataSpec>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="2" description="Cashout Amount" attributeMap="">
+			<Presentation title="..the Cashout Amount must be wtihin...">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="CurrencyRange" multipleSelect="No" allowBlank="Yes" >
+			</DataSpec>
+				<Message channel="default">Cashout amount must be within %column 2%.
+				</Message>
+			<DeploymentRule>
+				if Transaction.Purpose in %column 1% and Transaction.CashOutAmount between %column 2% then disqualify_product()
+			</DeploymentRule>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="3" description="Cashout %" attributeMap="">
+			<Presentation title="...and the Cashout % must be within...">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="IntegerRange" multipleSelect="No" allowBlank="Yes" >
+			</DataSpec>
+				<Message channel="default">Cashout percent must be within %column 3%.
+				</Message>
+			<DeploymentRule>
+				if Transaction.Purpose in %column 1% and Calculation.CashOutPercent between %column 3% then disqualify_product()
+			</DeploymentRule>
+		</ColumnDefinition>
+	</GridTemplateDefinition>
+-->
+<!--
+	<GridTemplateDefinition id="1004" name="Pledged Assets" usage="Product-Qualify" status="" numColumns="1" maxRows="1" >
+		<QualificationRule qualificationType="">
+			<QualificationCondition>
+				if Transaction.PledgedAsset == %column 1% then disqualify_product()
+			</QualificationCondition>
+			<Message channel="default">Pledged assets not allowed with I/O.
+			</Message>
+		</QualificationRule>
+		<ColumnDefinition colNum="1" description="Pledged Assets" attributeMap="Transaction.PledgedAsset">
+			<Presentation title="Pledged Assets">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="EnumList" multipleSelect="No" allowBlank="No" >
+				<EnumValue>Loan must include Pledged Asset Accounts</EnumValue>
+				<EnumValue>Pledged Asset Accounts not allowed</EnumValue>
+			</DataSpec>
+		</ColumnDefinition>
+	</GridTemplateDefinition>
+
+	<GridTemplateDefinition id="5001" name="State Adjustments" usage="Price-Adjustment" status="" numColumns="4" maxRows="99" >
+		<Description>If the property address is in the given state, then adjust the rate, points, and margin by the given amount.																										</Description>
+		<ColumnDefinition colNum="1" description="State" attributeMap="Property.State">
+			<Presentation title="State">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="EnumList" multipleSelect="Yes" allowBlank="No" >
+			</DataSpec>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="2" description="Rate Adj." attributeMap="">
+			<Presentation title="Rate Adj.">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="Float" multipleSelect="No" allowBlank="Yes" >
+				<Precision>0.0</Precision>
+			</DataSpec>
+				<Message channel="default">Rate adjusted by %cellValue% for State of |Property.State|.
+				</Message>
+			<DeploymentRule>
+				if Property.State in %column 1% then pe_action(function_name, modify_price, action, add, type, rate, value, %cellValue%, message_code, 5001)
+			</DeploymentRule>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="3" description="Points Adj." attributeMap="">
+			<Presentation title="Points Adj.">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="Float" multipleSelect="No" allowBlank="Yes" >
+				<Precision>0.0</Precision>
+			</DataSpec>
+				<Message channel="default">Points adjusted by %cellValue% for State of |Property.State|.
+				</Message>
+			<DeploymentRule>
+				if Property.State in %column 1% then pe_action(function_name, modify_price, action, add, type, points, value, %cellValue%, message_code, 5001)
+			</DeploymentRule>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="4" description="Margin Adj." attributeMap="">
+			<Presentation title="Margin Adj.">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="Float" multipleSelect="No" allowBlank="Yes" >
+				<Precision>0.0</Precision>
+			</DataSpec>
+				<Message channel="default">Margin adjusted by %cellValue% for State of |Property.State|.
+				</Message>
+			<DeploymentRule>
+				if Property.State in %column 1% then pe_action(function_name, modify_price, action, add, type, margin, value, %cellValue%, message_code, 5001)
+			</DeploymentRule>
+		</ColumnDefinition>
+	</GridTemplateDefinition>
+
+	<GridTemplateDefinition id="7000" name="Select Pricing Table by Category" usage="Pricing-Table-Selection" status="" numColumns="3" maxRows="99" >
+		<Description>For all of the selected ProductSets, use the selected &quot;Pricing Table&quot;.																								</Description>
+		<ColumnDefinition colNum="3" description="Pricing Table" attributeMap="PricingTable.TableID">
+			<Presentation title="Pricing Table">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="EnumList" multipleSelect="No" allowBlank="No" >
+			</DataSpec>
+				<Message channel="default">Base Rate Table Selected: %column 3%.
+				</Message>
+			<DeploymentRule>
+				if Calculation.LTV between %column 1% and Transaction.DocumentationType in %column 2% then pe_action(function_name, select_pricing_table, table_id, %cellValue%)
+			</DeploymentRule>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="1" description="LTV" attributeMap="">
+			<Presentation title="LTV">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="IntegerRange" multipleSelect="No" allowBlank="Yes" >
+			</DataSpec>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="2" description="Documentation Type" attributeMap="Transaction.DocumentationType">
+			<Presentation title="Documentation Type">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="EnumList" multipleSelect="Yes" allowBlank="Yes" >
+			</DataSpec>
+		</ColumnDefinition>
+	</GridTemplateDefinition>
+
+	<GridTemplateDefinition id="7001" name="Test-Select Pricing Table by Category" usage="Pricing-Table-Selection" status="" numColumns="2" maxRows="10" >
+		<Description>For all of the selected ProductSets, use the selected &quot;Pricing Table&quot;.																								</Description>
+		<ColumnDefinition colNum="2" description="Pricing Table" attributeMap="PricingTable.TableID">
+			<Presentation title="Pricing Table">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="EnumList" multipleSelect="Yes" allowBlank="No" >
+			</DataSpec>
+				<Message channel="default">Base Rate Table Selected: %column 3%.
+				</Message>
+			<DeploymentRule>
+				if Calculation.LTV between %column 1% then pe_action(function_name, select_pricing_table, table_id, %cellValue%)
+			</DeploymentRule>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="1" description="LTV" attributeMap="">
+			<Presentation title="LTV">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="IntegerRange" multipleSelect="No" allowBlank="Yes" >
+			</DataSpec>
+		</ColumnDefinition>
+	</GridTemplateDefinition>
+
+-->
+<!--
+	<GridTemplateDefinition id="999990" name="Template-MathTest" usage="Unit-Test" status="Production" numColumns="2" maxRows="99" >
+		<QualificationRule qualificationType="">
+			<QualificationCondition>
+				if Calculation.CLTV &gt; (%column 1% * Calculation.LTV)
+and Calculation.OveragePercent &gt;= (%column 2% + Calculation.RatioFrontEnd)
+and Calculation.RatioFrontEnd >= Calculation.RatioBackEnd
+then
+pe_action(function_name, math_test, row_num, "%rowNumber%", prod_code, "%productID%", scenario_id, "%lineageID%",
+          param1, "|Calculation.CLTV|", param2, "|Calculation.HCLTV|")
+
+			</QualificationCondition>
+			<Message channel="default">math test message with borrower response of |Calculation.RatioBackEnd|.
+			</Message>
+		</QualificationRule>
+		<ColumnDefinition colNum="1" description="Integer Data" attributeMap="">
+			<Presentation title="Integer Data">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="Integer" multipleSelect="No" allowBlank="No" >
+				<MinValue>0</MinValue>
+				<MaxValue>1000</MaxValue>
+			</DataSpec>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="2" attributeMap="">
+			<Presentation title="ColTwo">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="Integer" multipleSelect="No" allowBlank="Yes" >
+				<MinValue>0</MinValue>
+				<MaxValue>1000</MaxValue>
+			</DataSpec>
+		</ColumnDefinition>
+	</GridTemplateDefinition>
+
+	<GridTemplateDefinition id="999991" name="Template-MultiEnumTest:999991" usage="Unit-Test" numColumns="6" maxRows="99"  status="Production" >
+		<QualificationRule qualificationType="">
+			<QualificationCondition>
+				if Transaction.DocumentationType in %column 2% and Transaction.SYMATTR in %column 4%
+				and Transaction.PromotionCode between %column 3%
+then
+pe_action(function_name, math_test, row_num, "%rowNumber%", prod_code, "%productID%", scenario_id, "%lineageID%")
+
+			</QualificationCondition>
+			<Message channel="default">math test message.
+			</Message>
+		</QualificationRule>
+		<ColumnDefinition colNum="1" description="Doc Type" attributeMap="">
+			<Presentation title="Message-Text">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="String" multipleSelect="No" allowBlank="Yes" >
+			</DataSpec>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="2" description="Doc Type" attributeMap="Transaction.DocumentationType">
+			<Presentation title="Doc Type">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="EnumList" multipleSelect="No" allowBlank="No" >
+			</DataSpec>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="3" attributeMap="">
+			<Presentation title="TwoCol">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="IntegerRange" multipleSelect="No" allowBlank="No" >
+				<MinValue>-500</MinValue>
+				<MaxValue>500</MaxValue>
+			</DataSpec>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="4" description="Occupancy" attributeMap="Transaction.SYMATTR">
+			<Presentation title="Occupancy">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="EnumList" multipleSelect="No" allowBlank="Yes" >
+			</DataSpec>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="5" description="BirthDate" attributeMap="">
+			<Presentation title="BirthDate">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="Date" multipleSelect="No" allowBlank="Yes" >
+			</DataSpec>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="6" description="Doc Type" attributeMap="">
+			<Presentation title="Message-Text-2">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="String" multipleSelect="No" allowBlank="Yes" >
+			</DataSpec>
+		</ColumnDefinition>
+	</GridTemplateDefinition>
+-->
+
+<!-- -->
+	<GridTemplateDefinition id="999992" name="NotBetween-Test__999992" usage="Unit-Test" numColumns="6" maxRows="9" status="Production"  >
+		<QualificationRule qualificationType="">
+			<QualificationCondition>
+				if !(Calculation.CLTV between %column 1%) and 
+				   ~(Calculation.OveragePercent between %column 2%) and
+				   Calculation.RatioFrontEnd between %column 1% and
+				   Calculation.RatioBackEnd between %column 2% and
+				   !(LoanApplication.ApplicationTime between %column 3%) and
+				   LoanApplication.ApplicationTime between %column 3% and
+				   /*
+				   !(LoanApplication.ExtensionTime between %column 4%) and
+				   LoanApplication.ExtensionTime between %column 4% and*/
+				   /*Transaction.DPA &lt;= %column 4% and */
+				   Transaction.PledgedAsset == %column 5% and
+				   Borrower.Citizenship in %column 7%  then
+pe_action(function_name, math_test, rowNumber, "%rowNumber%", productID, "%productID%", scenario_id, "%lineageID%",
+          param1, "|Calculation.CLTV|", categoryID, "%categoryID%", categoryName, "%categoryName%")
+
+			</QualificationCondition>
+			<Message channel="default">math test message with borrower response of |Calculation.RatioBackEnd| - %column 6%.
+			</Message>
+		</QualificationRule>
+		<ColumnDefinition colNum="1" description="Integer" attributeMap="">
+			<Presentation title="IntegerRange">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="IntegerRange" multipleSelect="No" allowBlank="Yes" >
+				<MinValue>0</MinValue>
+				<MaxValue>1000</MaxValue>
+			</DataSpec>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="2" attributeMap="">
+			<Presentation title="FloatRange">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="FloatRange" multipleSelect="No" allowBlank="Yes" >
+				<MinValue>0</MinValue>
+				<MaxValue>1000</MaxValue>
+			</DataSpec>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="3" attributeMap="">
+			<Presentation title="DateRange">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>150</ColWidth>
+			</Presentation>
+			<DataSpec type="DateRange" multipleSelect="No" allowBlank="Yes" >
+				<MinValue>1/1/1970</MinValue>
+				<MaxValue>12/31/2099</MaxValue>
+			</DataSpec>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="4" attributeMap="">
+			<Presentation title="Boolean">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>150</ColWidth>
+			</Presentation>
+			<DataSpec type="Boolean" multipleSelect="No" allowBlank="Yes" >
+			</DataSpec>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="5" attributeMap="Some Text">
+			<Presentation title="Additional Text">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>200</ColWidth>
+			</Presentation>
+			<DataSpec type="String" multipleSelect="No" allowBlank="Yes" >
+			</DataSpec>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="6" attributeMap="Borrower.Citizenship">
+			<Presentation title="Citizenship">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>200</ColWidth>
+			</Presentation>
+			<DataSpec type="EnumList" multipleSelect="No" allowBlank="Yes" >
+			</DataSpec>
+		</ColumnDefinition>
+	</GridTemplateDefinition>
+<!-- -->
+	
+<!-- -->
+	<GridTemplateDefinition id="999993" name="DateColumns-Tester" usage="Unit-Test" status="Production" numColumns="6" maxRows="99" >
+		<QualificationRule qualificationType="">
+			<QualificationCondition>
+if 
+	LoanApplication.ApplicationTime between %column 1% and
+	LoanApplication.ExtensionTime between %column 2% and
+	~(LoanApplication.ApplicationTime between %column 1%) and
+	~(LoanApplication.ExtensionTime between %column 2%) 	
+then
+	pe_action(function_name, daterangetest, message-text, "%column 3%")
+
+			</QualificationCondition>
+			<Message channel="default">math test message.
+			</Message>
+		</QualificationRule>
+		<ColumnDefinition colNum="1" description="Date-Range" attributeMap="">
+			<Presentation title="Date-Range">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>150</ColWidth>
+			</Presentation>
+			<DataSpec type="DateRange" multipleSelect="No" allowBlank="No" >
+				<MinValue>1/1/1970</MinValue>
+				<MaxValue>12/31/2099</MaxValue>
+			</DataSpec>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="2" description="Date-Range Optional" attributeMap="">
+			<Presentation title="Date-Range Optional">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>150</ColWidth>
+			</Presentation>
+			<DataSpec type="DateRange" multipleSelect="No" allowBlank="Yes" >
+				<MinValue>1/1/1970</MinValue>
+			</DataSpec>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="3" description="Date Optional" attributeMap="">
+			<Presentation title="Date Optional">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>150</ColWidth>
+			</Presentation>
+			<DataSpec type="Date" multipleSelect="No" allowBlank="Yes" >
+			</DataSpec>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="4" attributeMap="">
+			<Presentation title="DateTime-Range">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>160</ColWidth>
+			</Presentation>
+			<DataSpec type="DateTimeRange" multipleSelect="No" allowBlank="No" >
+				<MinValue>1/1/1900</MinValue>
+			</DataSpec>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="5" attributeMap="">
+			<Presentation title="DateTime-Range Optional">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>150</ColWidth>
+			</Presentation>
+			<DataSpec type="DateTimeRange" multipleSelect="No" allowBlank="Yes" >
+				<MaxValue>12/31/2999</MaxValue>
+			</DataSpec>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="6" description="Text" attributeMap="">
+			<Presentation title="Text Message">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>200</ColWidth>
+			</Presentation>
+			<DataSpec type="String" multipleSelect="No" allowBlank="Yes" >
+			</DataSpec>
+		</ColumnDefinition>
+	</GridTemplateDefinition>
+<!-- -->
+<!-- -->
+	<GridTemplateDefinition id="9150" name="Deal Qualification - 9150" usage="Deal-Qualification" status="" numColumns="2" maxRows="99" >
+		<Description>Specify invalid combinations of 1st and 2nd lien products.</Description>
+		<QualificationRule qualificationType="">
+			<QualificationCondition>
+				if 
+				   Property.GACounty in %column 1% /*and
+				   exists BFDeal with
+				     (FirstLienProduct.Program in %column 1% and
+				     SecondLienProduct.Product in %column 2%)
+				   and BFDeal.ScenarioID != -1*/
+				then pe_action (function_name, deal_qualification, 
+						product_id, "%productID%",
+						scenario_id, "%lineageID%",
+						category_name, "%categoryName%",
+						category_id, "%categoryID%",
+						row_num, "%rowNumber%",
+						message_code, 9150)
+			</QualificationCondition>
+			<Message channel="default">second lien product not compatible with first lien product/program
+			</Message>
+		</QualificationRule>
+		<ColumnDefinition colNum="1" description="Program" attributeMap="ProductCombo.Program">
+			<Presentation title="Program">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>50</ColWidth>
+			</Presentation>
+			<DataSpec type="EnumList" multipleSelect="Yes" allowBlank="Yes" >
+			</DataSpec>
+		</ColumnDefinition>
+      		<ColumnDefinition colNum="2" description="Product" attributeMap="ProductCombo.Product">
+			<Presentation title="Product">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="EnumList" multipleSelect="Yes" allowBlank="No" >
+			</DataSpec>
+		</ColumnDefinition>
+	</GridTemplateDefinition>
+
+
+	<GridTemplateDefinition id="988880" name="Numberic-Tester" usage="Unit-Test" status="Production" numColumns="6" maxRows="32" >
+		<QualificationRule qualificationType="">
+		</QualificationRule>
+		<ColumnDefinition colNum="1" description="Integer" attributeMap="">
+			<Presentation title="Integer">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>150</ColWidth>
+			</Presentation>
+			<DataSpec type="Integer" multipleSelect="No" allowBlank="No" >
+				<MinValue>-1000</MinValue>
+				<MaxValue>10000000</MaxValue>
+			</DataSpec>
+			<DeploymentRule>
+if 
+	Borrower.CreditScore == %column 1% and
+	Borrower.CreditScore between %column 2% and
+	Borrower.Debt == %column 3% and
+	Borrower.Debt between %column 4% and
+	Borrower.Income == %column 5% and
+	Borrower.Income between %column 6% and
+    aetest.FunctionName in ["|Transaction|", "|Borrower.Income|", %column 3%, "some-value", %cellValue%, 11111.22]
+then
+	pe_action(active, "%activationDate%", expire, "%expirationDate%", function_name, numeric_field_test)
+
+			</DeploymentRule>
+			<Message channel="default">math test message.
+			</Message>			
+		</ColumnDefinition>
+		<ColumnDefinition colNum="2" description="Integer Range" attributeMap="">
+			<Presentation title="Integer Range">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>200</ColWidth>
+			</Presentation>
+			<DataSpec type="IntegerRange" multipleSelect="No" allowBlank="Yes" >
+			</DataSpec>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="3" attributeMap="">
+			<Presentation title="Float">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>150</ColWidth>
+			</Presentation>
+			<DataSpec type="Float" multipleSelect="No" allowBlank="No" >
+				<MinValue>-2000</MinValue>
+			</DataSpec>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="4" attributeMap="">
+			<Presentation title="Float Range">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>200</ColWidth>
+			</Presentation>
+			<DataSpec type="FloatRange" multipleSelect="No" allowBlank="Yes" >
+				<MinValue>-50000</MinValue>
+			</DataSpec>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="5" attributeMap="">
+			<Presentation title="Currency">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>150</ColWidth>
+			</Presentation>
+			<DataSpec type="Currency" multipleSelect="No" allowBlank="No" >
+				<MinValue>0</MinValue>
+			</DataSpec>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="6" attributeMap="">
+			<Presentation title="Currency Range">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>200</ColWidth>
+			</Presentation>
+			<DataSpec type="CurrencyRange" multipleSelect="No" allowBlank="Yes" >
+				<MinValue>0</MinValue>
+			</DataSpec>
+		</ColumnDefinition>
+	</GridTemplateDefinition>
+	
+<!-- -->	
+	<GridTemplateDefinition id="999994" name="Rule-Tester" usage="Unit-Test" status="Production" numColumns="4" maxRows="7" >
+		<ColumnDefinition colNum="1" description="Doc Type" attributeMap="Transaction.DocumentationType">
+			<Presentation title="Doc Type">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="EnumList" multipleSelect="No" allowBlank="Yes" >
+			</DataSpec>
+			<Message channel="default">Because documentation type is %column 1%, %column 4%
+			</Message>
+			<DeploymentRule>
+				if exists Group with (exists Transaction with (DocumentationType == %column 1%)) then reject(message_text, "%column 4%")
+			</DeploymentRule>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="2" description="citizenship" attributeMap="Borrower.Citizenship">
+			<Presentation title="Citizenship">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="EnumList" multipleSelect="No" allowBlank="Yes" >
+			</DataSpec>
+			<Message channel="default">Because borrower is %column 2%, %column 3%
+			</Message>
+			<DeploymentRule>
+				if exists Borrower with (Citizenship in %column 2%) then reject(message_text, "%column 4%")
+			</DeploymentRule>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="3" description="newly-added" attributeMap="Borrower.Citizenship">
+			<Presentation title="NewColumn-Multi-Citizenship">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="EnumList" multipleSelect="Yes" allowBlank="Yes" >
+			</DataSpec>
+			<Message channel="default">Because borrower is %column 3%, %column 3%
+			</Message>
+			<DeploymentRule>
+				if exists Group with (Transaction.DocumentationType == %column 1% and Borrower.Citizenship in %column 3%) and 
+				Transaction.DocumentationType == %column 1% then reject(message_text, "%column 4%")
+			</DeploymentRule>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="4" description="message text" attributeMap="">
+			<Presentation title="Message Text">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>150</ColWidth>
+			</Presentation>
+			<DataSpec type="String" multipleSelect="No" allowBlank="No" >
+			</DataSpec>
+			<Message channel="default">%column 4%
+			</Message>
+			<DeploymentRule>
+				if LoanApplication.Status in %cellValue% then reject(message_text, "%column 4%")
+			</DeploymentRule>
+		</ColumnDefinition>
+	</GridTemplateDefinition>
+<!-- -->
+
+	<ParameterTemplateDefinition id="200100" name="First Parameter Template" status="Production" maxRows="10" >
+		<Description>This is the first parameter template.</Description>
+		<ColumnDefinition colNum="1" description="Doc Type" attributeMap="Parameter.DocumentationType">
+			<Presentation title="Documentation Type">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>180</ColWidth>
+			</Presentation>
+			<DataSpec type="EnumList" multipleSelect="No" allowBlank="No" >
+			</DataSpec>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="2" description="Occupancy" attributeMap="Parameter.Occupancy">
+			<Presentation title="Occupancy">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="EnumList" multipleSelect="No" allowBlank="Yes" >
+			</DataSpec>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="3" description="Global Max Loan Limit" attributeMap="Parameter.LoanLimit">
+			<Presentation title="Global Max Loan Limit">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="Float" multipleSelect="No" allowBlank="Yes">
+				<MinValue>0</MinValue>
+				<MaxValue>100000000</MaxValue>
+			</DataSpec>
+		</ColumnDefinition>
+	</ParameterTemplateDefinition>
+
+	<ParameterTemplateDefinition id="200200" name="Second Parameter Template" status="Production" maxRows="99" >
+		<Description>This is the first parameter template.</Description>
+		<ColumnDefinition colNum="1" description="Global Max Loan Limit" attributeMap="Parameter.DocumentationType">
+			<Presentation title="DocumentationType">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>180</ColWidth>
+			</Presentation>
+			<DataSpec type="EnumList" multipleSelect="No" allowBlank="Yes" >
+			</DataSpec>
+		</ColumnDefinition>
+		<ColumnDefinition colNum="2" description="Global OveragePercent" attributeMap="Parameter.OveragePercent">
+			<Presentation title="Global Overage Percent">
+				<Font>arial</Font>
+				<Color>automatic</Color>
+				<ColWidth>100</ColWidth>
+			</Presentation>
+			<DataSpec type="Float" multipleSelect="No" allowBlank="Yes">
+				<MinValue>0</MinValue>
+				<MaxValue>100000000</MaxValue>
+			</DataSpec>
+		</ColumnDefinition>
+	</ParameterTemplateDefinition>
+
+
+</EditorDefinitions>

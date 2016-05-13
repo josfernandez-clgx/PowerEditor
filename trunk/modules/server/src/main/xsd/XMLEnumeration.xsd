@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ==========================================================================
+	
+	XML Schema for XML Enumeration Source XML File. 
+	
+	(c) 2008 MDA MindBox, Inc.
+	============================================================================-->
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" jaxb:version="2.1"  elementFormDefault="qualified">
+	<xsd:annotation>
+		<xsd:appinfo>
+			<jaxb:schemaBindings>
+			</jaxb:schemaBindings>
+		</xsd:appinfo>
+	</xsd:annotation>
+
+	<xsd:element name="PowerEditorEnumeration">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="EnumValue" type="EnumValueType" minOccurs="1" maxOccurs="unbounded" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:complexType name="EnumValueType">
+		<xsd:sequence>
+			<!-- Value stored in PE KB and used in generated rules. -->
+			<xsd:element name="Value" type="xsd:string" minOccurs="1" maxOccurs="1" />
+			<!-- Value displayed in UI for user selection. -->
+			<xsd:element name="DisplayLabel" type="xsd:string" minOccurs="0" />
+			<!-- Indicates if this value is not supported. -->
+			<xsd:element name="Inactive" type="xsd:boolean" minOccurs="0" />
+			<!-- Selector value for this enuemration value, if selector is supported. -->
+			<xsd:element name="SelectorValue" type="xsd:string" minOccurs="0" />
+		</xsd:sequence>
+	</xsd:complexType>
+</xsd:schema>

@@ -1,0 +1,672 @@
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="1.0" xml:lang="EN"
+	xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc" jaxb:extensionBindingPrefixes="xjc"
+	jaxb:version="2.0">
+
+	<xsd:annotation>
+		<xsd:documentation xml:lang="en">
+			XML Schema defining the structure of PowerEditor Data XML files.
+			Copyright 2004 MindBox, LLC.
+			All rights reserved.
+
+			VERSION.......: 1.1
+			LAST-UPDATED..: 2013-09-24
+		</xsd:documentation>
+		<xsd:appinfo>
+			<jaxb:globalBindings>
+				<jaxb:javaType name="int" xmlType="xsd:integer" />
+				<jaxb:javaType name="int" xmlType="xsd:positiveInteger" />
+				<xjc:javaType name="java.lang.Boolean" xmlType="xsd:boolean" adapter="com.mindbox.pe.common.jaxb.XmlBooleanAdapter" />
+				<xjc:javaType name="java.util.Date" xmlType="xsd:dateTime" adapter="com.mindbox.pe.common.jaxb.XmlDateAdapter" />
+			</jaxb:globalBindings>
+		</xsd:appinfo>
+	</xsd:annotation>
+
+	<xsd:element name="powereditor-data">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="meta-data" type="MetaDataElement" minOccurs="0" maxOccurs="1" />
+				<xsd:element name="type-enum-data" type="TypeEnumDataElement" minOccurs="0" maxOccurs="1" />
+				<xsd:element name="date-data" type="DateDataElement" minOccurs="0" maxOccurs="1" />
+				<xsd:element name="next-id-data" type="NextIDDataElement" minOccurs="0" maxOccurs="1" />
+				<xsd:element name="entity-data" type="EntityDataElement" minOccurs="0" maxOccurs="1" />
+				<xsd:element name="filter-data" type="FilterDataElement" minOccurs="0" maxOccurs="1" />
+				<xsd:element name="security-data" type="SecurityDataElement" minOccurs="0" maxOccurs="1" />
+				<xsd:element name="guideline-action-data" type="GuidelineActionDataElement" minOccurs="0" maxOccurs="1" />
+				<xsd:element name="test-condition-data" type="TestConditionDataElement" minOccurs="0" maxOccurs="1" />
+				<xsd:element name="template-data" type="TemplateDataElement" minOccurs="0" maxOccurs="1" />
+				<xsd:element name="grid-data" type="GridDataElement" minOccurs="0" maxOccurs="1" />
+				<xsd:element name="message-data" type="MessageDataElement" minOccurs="0" maxOccurs="1" />
+				<xsd:element name="cbr-data" type="CBRDataElement" minOccurs="0" maxOccurs="1" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:complexType name="MetaDataElement">
+		<xsd:sequence>
+			<xsd:element name="pe-data">
+				<xsd:complexType>
+					<xsd:attribute name="PowerEditor-version" type="xsd:string" />
+					<xsd:attribute name="PowerEditor-build" type="xsd:string" />
+					<xsd:attribute name="date-exported" type="xsd:dateTime" />
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="user-data">
+				<xsd:complexType>
+					<xsd:attribute name="user-name" type="xsd:string" />
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="system-data">
+				<xsd:complexType>
+					<xsd:attribute name="java-version" type="xsd:string" />
+					<xsd:attribute name="database" type="xsd:string" />
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:complexType name="ContextElement">
+		<xsd:sequence>
+			<xsd:element ref="entity-link" minOccurs="0" maxOccurs="unbounded" />
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:element name="entity-link">
+		<xsd:complexType>
+			<xsd:attribute name="id" type="xsd:positiveInteger" use="required" />
+			<xsd:attribute name="type" type="xsd:string" use="required" />
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="activation-dates">
+		<xsd:complexType>
+			<xsd:sequence>
+       <!-- @deprecated; use effectiveDateID instead -->
+				<xsd:element name="activation-date" type="xsd:dateTime" minOccurs="0" />
+       <!-- @deprecated; use expirationDateID instead -->
+				<xsd:element name="expiration-date" type="xsd:dateTime" minOccurs="0" />
+			</xsd:sequence>
+			<xsd:attribute name="effectiveDateID" type="xsd:positiveInteger" />
+			<xsd:attribute name="expirationDateID" type="xsd:positiveInteger" />
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:complexType name="PropertyElement">
+		<xsd:attribute name="name" type="xsd:string" use="required" />
+		<xsd:attribute name="value" type="xsd:string" use="required" />
+	</xsd:complexType>
+
+<!--================= EntityData Element Declaration =======================-->
+
+	<xsd:complexType name="EntityBase">
+		<xsd:sequence>
+			<xsd:element name="property" type="PropertyElement" minOccurs="1" maxOccurs="unbounded" />
+		</xsd:sequence>
+		<xsd:attribute name="id" type="xsd:positiveInteger" use="required" />
+		<xsd:attribute name="type" type="xsd:string" use="required" />
+	</xsd:complexType>
+
+	<xsd:complexType name="EntityDataElement">
+		<xsd:sequence>
+			<xsd:element name="category" minOccurs="0" maxOccurs="unbounded">
+				<xsd:complexType>
+					<xsd:complexContent>
+						<xsd:extension base="EntityBase">
+							<xsd:sequence>
+								<xsd:element name="parent" maxOccurs="unbounded">
+									<xsd:complexType>
+										<xsd:sequence>
+											<xsd:element name="parentID" type="xsd:positiveInteger" />
+											<xsd:element ref="activation-dates" minOccurs="0" />
+										</xsd:sequence>
+									</xsd:complexType>
+								</xsd:element>
+							</xsd:sequence>
+						</xsd:extension>
+					</xsd:complexContent>
+				</xsd:complexType>
+			</xsd:element>
+
+			<xsd:element name="entity" minOccurs="0" maxOccurs="unbounded">
+				<xsd:complexType>
+					<xsd:complexContent>
+						<xsd:extension base="EntityBase">
+							<xsd:sequence>
+								<xsd:element name="association" minOccurs="0" maxOccurs="unbounded">
+									<xsd:complexType>
+										<xsd:sequence>
+											<xsd:element ref="entity-link" />
+											<xsd:element ref="activation-dates" minOccurs="0" />
+										</xsd:sequence>
+									</xsd:complexType>
+								</xsd:element>
+							</xsd:sequence>
+							<xsd:attribute name="parentID" type="xsd:integer" default="-1" />
+						</xsd:extension>
+					</xsd:complexContent>
+				</xsd:complexType>
+			</xsd:element>
+
+		</xsd:sequence>
+	</xsd:complexType>
+
+
+<!--================= FilterData Element Declaration =======================-->
+
+	<xsd:complexType name="FilterDataElement">
+		<xsd:sequence>
+			<xsd:element name="filter" minOccurs="0" maxOccurs="unbounded">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="criteria" />
+					</xsd:sequence>
+					<xsd:attribute name="id" type="xsd:positiveInteger" use="required" />
+					<xsd:attribute name="type" type="xsd:string" use="required" />
+					<xsd:attribute name="name" type="xsd:string" use="required" />
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+
+
+<!--================= NextID Element Declaration =======================-->
+
+	<xsd:complexType name="NextIDDataElement">
+		<xsd:sequence>
+			<xsd:element name="next-id" minOccurs="0" maxOccurs="unbounded">
+				<xsd:complexType>
+					<xsd:attribute name="type" type="xsd:string" use="required" />
+					<xsd:attribute name="seed" type="xsd:positiveInteger" use="required" />
+					<xsd:attribute name="cache" type="xsd:positiveInteger" default="1" />
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+
+<!--================= DateData Element Declaration =======================-->
+
+	<xsd:complexType name="DateDataElement">
+		<xsd:sequence>
+			<xsd:element name="DateElement" minOccurs="0" maxOccurs="unbounded">
+				<xsd:complexType>
+					<xsd:attribute name="id" type="xsd:positiveInteger" use="required" />
+					<xsd:attribute name="name" type="xsd:string" use="required" />
+					<xsd:attribute name="date" type="xsd:dateTime" use="required" />
+					<xsd:attribute name="description" type="xsd:string" />
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+  
+<!--================= TypeEnum Element Declaration =======================-->
+
+	<xsd:complexType name="TypeEnumDataElement">
+		<xsd:sequence>
+			<xsd:element name="type-enum" minOccurs="0" maxOccurs="unbounded">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="type" type="xsd:string" />
+						<xsd:element name="enum-id" type="xsd:integer" />
+						<xsd:element name="enum-value" type="xsd:string" />
+						<xsd:element name="display-label" type="xsd:string" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+  
+<!--================= Security Data Element Declaration =======================-->
+
+	<xsd:complexType name="SecurityDataElement">
+		<xsd:sequence>
+			<xsd:element name="privileges" type="PrivilegesElement" />
+			<xsd:element name="roles" type="RolesElement" />
+			<xsd:element name="users" type="UsersElement" />
+		</xsd:sequence>
+	</xsd:complexType>
+
+
+	<xsd:complexType name="PrivilegesElement">
+		<xsd:sequence>
+			<xsd:element name="privilege" minOccurs="1" maxOccurs="unbounded">
+				<xsd:complexType>
+					<xsd:attribute name="id" type="xsd:positiveInteger" use="required" />
+					<xsd:attribute name="name" type="xsd:string" use="required" />
+					<xsd:attribute name="displayName" type="xsd:string" />
+					<xsd:attribute name="privilegeType" type="xsd:positiveInteger" use="required" />
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:complexType name="RolesElement">
+		<xsd:sequence>
+			<xsd:element name="role" minOccurs="1" maxOccurs="unbounded">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="privilege-link" type="xsd:positiveInteger" minOccurs="1" maxOccurs="unbounded" />
+					</xsd:sequence>
+					<xsd:attribute name="id" type="xsd:positiveInteger" use="required" />
+					<xsd:attribute name="name" type="xsd:string" use="required" />
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:complexType name="UsersElement">
+		<xsd:sequence>
+			<xsd:element name="user" minOccurs="1" maxOccurs="unbounded">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="user-password" maxOccurs="unbounded">
+							<xsd:complexType>
+								<xsd:attribute name="encryptedPassword" type="xsd:string" use="required" />
+								<xsd:attribute name="passwordChangeDate" type="xsd:dateTime" use="required" />
+							</xsd:complexType>
+						</xsd:element>
+						<xsd:element name="role-link" type="xsd:positiveInteger" minOccurs="0" maxOccurs="unbounded" />
+						<xsd:element ref="entity-link" minOccurs="0" maxOccurs="unbounded" />
+					</xsd:sequence>
+					<xsd:attribute name="id" type="xsd:string" use="required" />
+					<xsd:attribute name="name" type="xsd:string" use="required" />
+					<xsd:attribute name="status" type="UserStatusAttribute" default="Active" />
+					<xsd:attribute name="passwordChangeRequired" type="xsd:boolean" />
+					<xsd:attribute name="failedLoginCounter" type="xsd:nonNegativeInteger" default="0" />
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:simpleType name="UserStatusAttribute">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="Active" />
+			<xsd:enumeration value="Inactive" />
+			<xsd:enumeration value="Lockout" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+
+<!--================= Grid Data Element Declaration =======================-->
+
+	<xsd:complexType name="GridDataElement">
+		<xsd:sequence>
+			<xsd:element name="grid" minOccurs="0" maxOccurs="unbounded">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="context" type="ContextElement" />
+						<xsd:element name="column-names">
+							<xsd:complexType>
+								<xsd:sequence>
+									<xsd:element name="column" type="xsd:string" minOccurs="1" maxOccurs="unbounded" />
+								</xsd:sequence>
+							</xsd:complexType>
+						</xsd:element>
+						<xsd:element name="activation" type="GridActivationElement" minOccurs="1" maxOccurs="unbounded" />
+					</xsd:sequence>
+					<xsd:attribute name="type" type="GridTypeAttribute" use="required" />
+					<xsd:attribute name="templateID" type="xsd:positiveInteger" use="required" />
+					<xsd:attribute name="gridTag" type="xsd:integer" use="required" />
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+
+<!-- this restriction will be remove if when PE supports generic templates -->
+	<xsd:simpleType name="GridTypeAttribute">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="parameter" />
+			<xsd:enumeration value="guideline" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:complexType name="GridActivationElement">
+		<xsd:sequence>
+			<xsd:element ref="activation-dates" />
+			<xsd:element name="grid-values" minOccurs="0">    <!-- minOccurs=0 for empty grid -->
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="row" minOccurs="0" maxOccurs="unbounded">
+							<xsd:complexType>
+								<xsd:sequence>
+									<xsd:element name="cell-value" type="xsd:string" minOccurs="0" maxOccurs="unbounded" />
+								</xsd:sequence>
+							</xsd:complexType>
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="comment" type="xsd:string" minOccurs="0" />
+		</xsd:sequence>
+		<xsd:attribute name="id" type="xsd:positiveInteger" use="required" />
+		<xsd:attribute name="status" type="xsd:string" use="required" />
+		<xsd:attribute name="parentID" type="xsd:integer" default="-1" />
+		<xsd:attribute name="statusChangedOn" type="xsd:dateTime" />
+		<xsd:attribute name="createdOn" type="xsd:dateTime" />
+	</xsd:complexType>
+
+
+<!--================= Message Data Element Declaration =======================-->
+
+	<xsd:complexType name="MessageDataElement">
+		<xsd:sequence>
+			<xsd:element name="message" minOccurs="0" maxOccurs="unbounded">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element ref="activation-dates" />
+						<xsd:element name="text" type="xsd:string" />
+					</xsd:sequence>
+					<xsd:attribute name="id" type="xsd:positiveInteger" />
+					<xsd:attribute name="templateID" type="xsd:positiveInteger" />
+					<xsd:attribute name="columnID" type="xsd:integer" default="-1" />
+					<xsd:attribute name="entityID" type="xsd:integer" />
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+
+
+<!--================= Template Data Element Declaration =======================-->
+
+	<xsd:complexType name="TemplateDataElement">
+		<xsd:sequence>
+			<xsd:element name="guideline-template" minOccurs="0" maxOccurs="unbounded">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="comment" type="xsd:string" minOccurs="0" />
+						<xsd:element name="complete-cols" type="xsd:string" minOccurs="0" />
+						<xsd:element name="consistent-cols" type="xsd:string" minOccurs="0" />
+						<xsd:element name="description" type="xsd:string" minOccurs="0" />
+						<xsd:element name="columns" minOccurs="0">
+							<xsd:complexType>
+								<xsd:sequence>
+									<xsd:element name="column" type="TemplateColumnElement" minOccurs="0" maxOccurs="unbounded" />
+								</xsd:sequence>
+							</xsd:complexType>
+						</xsd:element>
+						<xsd:element name="rules" type="TemplateRuleSet" minOccurs="1" />
+					</xsd:sequence>
+					<xsd:attribute name="fitToScreen" type="xsd:boolean" />
+					<xsd:attribute name="id" type="xsd:positiveInteger" use="required" />
+					<xsd:attribute name="maxRows" type="xsd:positiveInteger" use="required" />
+					<xsd:attribute name="name" type="xsd:string" use="required" />
+					<xsd:attribute name="parentID" type="xsd:integer" default="-1" />
+					<xsd:attribute name="status" type="xsd:string" use="required" />
+					<xsd:attribute name="usage" type="xsd:string" use="required" />
+					<xsd:attribute name="version" type="xsd:string" use="required" />
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:complexType name="TemplateColumnElement">
+		<xsd:sequence>
+			<xsd:element name="color" type="xsd:string" minOccurs="0" />
+			<xsd:element name="description" type="xsd:string" minOccurs="0" />
+			<xsd:element name="font" type="xsd:string" minOccurs="0" />
+			<xsd:element name="width" type="xsd:positiveInteger" minOccurs="0" />
+			<xsd:element name="column-messages" type="ColumnMessages" minOccurs="0" />
+			<xsd:element name="dataspec" type="DataSpecElement" />
+		</xsd:sequence>
+		<xsd:attribute name="attributeMap" type="xsd:string" />
+		<xsd:attribute name="id" type="xsd:positiveInteger" use="required" />
+		<xsd:attribute name="name" type="xsd:string" />
+		<xsd:attribute name="title" type="xsd:string" use="required" />
+		<xsd:attribute name="usage" type="xsd:string" use="optional" />
+	</xsd:complexType>
+
+	<xsd:complexType name="DataSpecElement">
+		<xsd:sequence>
+			<xsd:element name="max-value" type="xsd:string" minOccurs="0" />
+			<xsd:element name="min-value" type="xsd:string" minOccurs="0" />
+			<xsd:element name="precision" type="xsd:integer" minOccurs="0" />
+			<xsd:element name="enum-type" type="xsd:string" minOccurs="0" />
+			<xsd:element name="enum-attribute" type="xsd:string" minOccurs="0" />
+			<xsd:element name="enum-source-name" type="xsd:string" minOccurs="0" />
+			<xsd:element name="enum-selector-column" type="xsd:string" minOccurs="0" />
+			<xsd:element name="enum-value" type="xsd:string" minOccurs="0" maxOccurs="unbounded" />
+			<xsd:element name="attribute-item" minOccurs="0" maxOccurs="unbounded">
+				<xsd:complexType>
+					<xsd:attribute name="displayValue" type="xsd:string" use="required" />
+					<xsd:attribute name="name" type="xsd:string" use="required" />
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="allow-category" type="xsd:boolean" minOccurs="0" />
+			<xsd:element name="allow-entity" type="xsd:boolean" minOccurs="0" />
+			<xsd:element name="entity-type" type="xsd:string" minOccurs="0" />
+		</xsd:sequence>
+		<xsd:attribute name="allowBlank" type="xsd:boolean" default="true" />
+		<xsd:attribute name="multipleSelect" type="xsd:boolean" default="false" />
+		<xsd:attribute name="showLhsAttribute" type="xsd:boolean" default="false" />
+		<xsd:attribute name="sortEnumValue" type="xsd:boolean" default="false" />
+		<xsd:attribute name="type" type="xsd:string" use="required" />
+	</xsd:complexType>
+
+	<xsd:complexType name="TemplateRuleSet">
+		<xsd:sequence>
+			<xsd:element name="rule" type="TemplateRuleElement" minOccurs="1" maxOccurs="unbounded" />
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:complexType name="TemplateRuleElement">
+		<xsd:sequence>
+			<xsd:element name="description" type="xsd:string" minOccurs="0" />
+			<xsd:element name="definition" type="xsd:string" minOccurs="1" />
+			<xsd:element name="precondition" minOccurs="0" maxOccurs="unbounded">
+				<xsd:complexType>
+					<xsd:attribute name="columnID" type="xsd:integer" default="-1" />
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="messages" minOccurs="0">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="message" type="GuidelineMessageElement" minOccurs="0" maxOccurs="unbounded" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+		<xsd:attribute name="id" type="xsd:positiveInteger" use="required" />
+		<xsd:attribute name="name" type="xsd:string" />
+		<xsd:attribute name="ruleSetID" type="xsd:integer" use="optional" />
+		<xsd:attribute name="usage" type="xsd:string" use="required" />
+	</xsd:complexType>
+
+	<xsd:complexType name="GuidelineMessageElement">
+		<xsd:sequence>
+			<xsd:element name="message-text" type="xsd:string" />
+		</xsd:sequence>
+		<xsd:attribute name="entityID" type="xsd:integer" />
+		<xsd:attribute name="conditionalDelimiter" type="xsd:string" />
+		<xsd:attribute name="conditionalFinalDelimiter" type="xsd:string" />
+	</xsd:complexType>
+
+	<xsd:complexType name="ColumnMessages">
+		<xsd:sequence>
+			<xsd:element name="column-message" minOccurs="0" maxOccurs="unbounded">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="message-text" type="xsd:string" minOccurs="1" />
+					</xsd:sequence>
+					<xsd:attribute name="cellSelection" type="xsd:string" />
+					<xsd:attribute name="enumDelimiter" type="xsd:string" />
+					<xsd:attribute name="enumFinalDelimiter" type="xsd:string" />
+					<xsd:attribute name="enumPrefix" type="xsd:string" />
+					<xsd:attribute name="rangeStyle" type="xsd:string" />
+					<xsd:attribute name="type" type="xsd:string" use="required" />
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+ 
+ 
+<!-- Guideline Action & Test Condition elements -->
+
+	<xsd:complexType name="GuidelineActionDataElement">
+		<xsd:sequence>
+			<xsd:element name="guideline-action" minOccurs="0" maxOccurs="unbounded">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="deployment-rule" type="xsd:string" minOccurs="1" />
+						<xsd:element name="description" type="xsd:string" minOccurs="0" />
+						<xsd:element name="usage" type="xsd:string" minOccurs="0" maxOccurs="unbounded" />
+						<xsd:element name="parameters" type="ActionParameters" />
+					</xsd:sequence>
+					<xsd:attribute name="id" type="xsd:positiveInteger" use="required" />
+					<xsd:attribute name="name" type="xsd:string" use="required" />
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:complexType name="ActionParameters">
+		<xsd:sequence>
+			<xsd:element name="parameter" minOccurs="0" maxOccurs="unbounded">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="data-string" type="xsd:string" minOccurs="0" />
+						<xsd:element name="description" type="xsd:string" minOccurs="0" />
+					</xsd:sequence>
+					<xsd:attribute name="deployType" type="xsd:string" use="required" />
+					<xsd:attribute name="id" type="xsd:positiveInteger" use="required" />
+					<xsd:attribute name="name" type="xsd:string" use="required" />
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:complexType name="TestConditionDataElement">
+		<xsd:sequence>
+			<xsd:element name="test-condition" minOccurs="0" maxOccurs="unbounded">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="deployment-rule" type="xsd:string" minOccurs="1" />
+						<xsd:element name="description" type="xsd:string" minOccurs="0" />
+						<xsd:element name="parameters" type="ActionParameters" />
+					</xsd:sequence>
+					<xsd:attribute name="id" type="xsd:positiveInteger" use="required" />
+					<xsd:attribute name="name" type="xsd:string" use="required" />
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:complexType name="CBRDataElement">
+		<xsd:sequence>
+			<xsd:element name="cbr-case-base" minOccurs="0" maxOccurs="unbounded" type="CBRCaseBaseElement" />
+			<xsd:element name="cbr-case" minOccurs="0" maxOccurs="unbounded" type="CBRCaseElement" />
+			<xsd:element name="cbr-attribute" minOccurs="0" maxOccurs="unbounded" type="CBRAttributeElement" />
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:complexType name="CBRCaseBaseElement">
+		<xsd:sequence>
+			<xsd:element ref="activation-dates" />
+			<xsd:element name="case-class">
+				<xsd:complexType>
+					<xsd:attribute name="id" type="xsd:positiveInteger" use="required" />
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="description" type="xsd:string" />
+			<xsd:element name="index-file" type="xsd:string" />
+			<xsd:element name="match-threshold" type="xsd:integer" />
+			<xsd:element name="maximum-matches" type="xsd:integer" />
+			<xsd:element name="naming-attribute" type="xsd:string" />
+			<xsd:element name="scoring-function">
+				<xsd:complexType>
+					<xsd:attribute name="id" type="xsd:positiveInteger" use="required" />
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+		<xsd:attribute name="id" type="xsd:positiveInteger" use="required" />
+		<xsd:attribute name="name" type="xsd:string" use="required" />
+	</xsd:complexType>
+
+	<xsd:complexType name="CBRCaseElement">
+		<xsd:sequence>
+			<xsd:element ref="activation-dates" />
+			<xsd:element name="attribute-values">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="attribute-value" type="CBRAttributeValueElement" minOccurs="0" maxOccurs="unbounded" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="case-actions">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="case-action" minOccurs="0" maxOccurs="unbounded">
+							<xsd:complexType>
+								<xsd:attribute name="id" type="xsd:positiveInteger" use="required" />
+							</xsd:complexType>
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="case-base">
+				<xsd:complexType>
+					<xsd:attribute name="id" type="xsd:positiveInteger" use="required" />
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="description" type="xsd:string" />
+		</xsd:sequence>
+		<xsd:attribute name="id" type="xsd:positiveInteger" use="required" />
+		<xsd:attribute name="name" type="xsd:string" use="required" />
+	</xsd:complexType>
+
+
+	<xsd:complexType name="CBRAttributeValueElement">
+		<xsd:sequence>
+			<xsd:element name="attribute">
+				<xsd:complexType>
+					<xsd:attribute name="id" type="xsd:positiveInteger" use="required" />
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="description" type="xsd:string" />
+			<xsd:element name="match-contribution" type="xsd:integer" />
+			<xsd:element name="mismatch-penalty" type="xsd:integer" />
+		</xsd:sequence>
+		<xsd:attribute name="id" type="xsd:positiveInteger" use="required" />
+		<xsd:attribute name="value" type="xsd:string" use="required" />
+	</xsd:complexType>
+
+	<xsd:complexType name="CBRAttributeElement">
+		<xsd:sequence>
+			<xsd:element name="absence-penalty" type="xsd:integer" />
+			<xsd:element name="attribute-type">
+				<xsd:complexType>
+					<xsd:attribute name="id" type="xsd:positiveInteger" use="required" />
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="case-base">
+				<xsd:complexType>
+					<xsd:attribute name="id" type="xsd:positiveInteger" use="required" />
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="enum-values">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="enum-value" minOccurs="0" maxOccurs="unbounded">
+							<xsd:complexType>
+								<xsd:attribute name="id" type="xsd:positiveInteger" use="required" />
+								<xsd:attribute name="name" type="xsd:string" use="required" />
+							</xsd:complexType>
+						</xsd:element>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="description" type="xsd:string" />
+			<xsd:element name="highest-value" type="xsd:double" />
+			<xsd:element name="lowest-value" type="xsd:double" />
+			<xsd:element name="match-contribution" type="xsd:integer" />
+			<xsd:element name="match-interval" type="xsd:double" />
+			<xsd:element name="mismatch-penalty" type="xsd:integer" />
+			<xsd:element name="value-range">
+				<xsd:complexType>
+					<xsd:attribute name="id" type="xsd:positiveInteger" use="required" />
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+		<xsd:attribute name="id" type="xsd:positiveInteger" use="required" />
+		<xsd:attribute name="name" type="xsd:string" use="required" />
+	</xsd:complexType>
+
+</xsd:schema>
+	

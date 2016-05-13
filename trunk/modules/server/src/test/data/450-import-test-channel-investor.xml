@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!-- Version: 1.0 - Generated on Wed Apr 19 15:41:47 EDT 2006 -->
+<powereditor-data>
+  <next-id-data>
+    <next-id type="Filter" seed="315" cache="3"/>
+    <next-id type="Grid" seed="32141" cache="20"/>
+    <next-id type="Product" seed="10536" cache="3"/>
+    <next-id type="SEQUENTIAL" seed="1166" cache="1"/>
+    <next-id type="SimpleEntity" seed="20541" cache="5"/>
+  </next-id-data>
+  <entity-data>
+    <entity id="2" type="channel" parentID="-1">
+      <property name="name" value="New Wholesale"/>
+      <property name="isBase" value="false"/>
+      <association>
+        <entity-link id="399" type="product"/>
+        <activation-dates>
+          <activation-date>2006-01-01T00:00:00</activation-date>
+        </activation-dates>
+      </association>
+    </entity>
+    <entity id="20035" type="channel" parentID="-1">
+      <property name="name" value="New Deep Discount"/>
+      <property name="isBase" value="false"/>
+    </entity>
+    <entity id="1" type="channel" parentID="-1">
+      <property name="name" value="New Retail"/>
+      <property name="isBase" value="false"/>
+    </entity>
+    <entity id="20225" type="investor" parentID="-1">
+      <property name="name" value="New Government Investor"/>
+      <property name="description" value="New Gov. Investor description"/>
+      <association>
+        <entity-link id="20035" type="channel"/>
+        <activation-dates>
+          <activation-date>2005-10-01T00:00:00</activation-date>
+        </activation-dates>
+      </association>
+    </entity>
+    <entity id="1" type="investor" parentID="-1">
+      <property name="name" value="New MB Investor"/>
+      <property name="description" value="MB Investor desc"/>
+    </entity>
+  </entity-data>
+</powereditor-data>

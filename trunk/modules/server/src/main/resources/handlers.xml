@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jws:handler-chains xmlns:jws="http://java.sun.com/xml/ns/javaee">
+<!-- Note:  The '*" denotes a wildcard. -->
+
+	<jws:handler-chain name="MyHandlerChain">
+		<!--jws:handler>
+			<jws:handler-class>com.mindbox.pe.server.webservices.PowerEditorAPISecurityHandler</jws:handler-class>
+		</jws:handler-->
+	</jws:handler-chain>
+</jws:handler-chains>
+
+
