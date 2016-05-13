@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>com.mindbox.pe</groupId>
 		<artifactId>powereditor-pom</artifactId>
-		<version>5.9.6</version>
+		<version>5.9.6-SNAPSHOT</version>
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
 	<artifactId>pe-wsclient</artifactId>
