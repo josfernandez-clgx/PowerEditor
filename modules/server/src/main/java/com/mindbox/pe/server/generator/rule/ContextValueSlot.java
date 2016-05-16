@@ -1,7 +1,7 @@
 package com.mindbox.pe.server.generator.rule;
 
 /**
- * A concrete implementation of {@link ValueSlot} of {@link ValueSlot#CONTEXT}.
+ * A concrete implementation of {@link ValueSlot} of {@link ValueSlot.Type#CONTEXT}.
  * The {@link ValueSlot#getSlotValue()} method of this returns <code>null</code>.
  * @since 5.1.0
  */

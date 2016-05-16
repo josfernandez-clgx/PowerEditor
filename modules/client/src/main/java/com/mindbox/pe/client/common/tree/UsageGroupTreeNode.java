@@ -13,6 +13,12 @@ import com.mindbox.pe.xsd.config.GuidelineTab;
  */
 public final class UsageGroupTreeNode extends AbstractDataTreeNode implements SelectableTreeNode {
 
+	private boolean selected;
+
+	public UsageGroupTreeNode(TreeNode parent, GuidelineTab tabConfig) {
+		super(parent, tabConfig);
+	}
+
 	public UsageGroupTreeNode(TreeNode parent, UsageGroupTreeNode source) {
 		this(parent, source.getGuidelineTab());
 		// copy children
@@ -22,19 +28,8 @@ public final class UsageGroupTreeNode extends AbstractDataTreeNode implements Se
 		}
 	}
 
-	/**
-	 *
-	 */
-	public UsageGroupTreeNode(TreeNode parent, GuidelineTab tabConfig) {
-		super(parent, tabConfig);
-	}
-
 	public final GuidelineTab getGuidelineTab() {
 		return GuidelineTab.class.cast(super.data);
-	}
-
-	public String toString() {
-		return getGuidelineTab().getDisplayName();
 	}
 
 	@Override
@@ -47,5 +42,8 @@ public final class UsageGroupTreeNode extends AbstractDataTreeNode implements Se
 		this.selected = flag;
 	}
 
-	private boolean selected;
+	@Override
+	public String toString() {
+		return getGuidelineTab().getDisplayName();
+	}
 }

@@ -10,12 +10,13 @@ import com.mindbox.pe.model.grid.ParameterGrid;
 public class FetchParameterGridRequest extends SessionRequest<ListResponse<ParameterGrid>> {
 
 	private static final long serialVersionUID = 2004010516420000L;
-	
-	private final int templateID; 
-	
+
+	private final int templateID;
+
 	/**
-	 * @param userID
-	 * @param sessionID
+	 * @param userID userID
+	 * @param sessionID sessionID
+	 * @param templateID templateID
 	 */
 	public FetchParameterGridRequest(String userID, String sessionID, int templateID) {
 		super(userID, sessionID);
@@ -25,5 +26,5 @@ public class FetchParameterGridRequest extends SessionRequest<ListResponse<Param
 	public int getTemplateID() {
 		return templateID;
 	}
-	
+
 }

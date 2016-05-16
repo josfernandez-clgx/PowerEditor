@@ -24,21 +24,24 @@ public class GridDataResponse extends ListResponse<ProductGrid> {
 
 	private final GridTemplate template;
 	private final String displayString;
-	
+
 	/**
-	 * @param resultList
+	 * 
+	 * @param template template
+	 * @param resultList resultList
+	 * @param contextDisplayString contextDisplayString
 	 */
 	public GridDataResponse(GridTemplate template, List<ProductGrid> resultList, String contextDisplayString) {
 		super(resultList);
 		this.template = template;
-		this.displayString= contextDisplayString;
+		this.displayString = contextDisplayString;
+	}
+
+	public String getDisplayString() {
+		return displayString;
 	}
 
 	public GridTemplate getTemplate() {
 		return template;
-	}
-	
-	public String getDisplayString() {
-		return displayString;
 	}
 }

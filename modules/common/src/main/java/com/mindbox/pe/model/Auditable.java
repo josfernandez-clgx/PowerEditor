@@ -4,13 +4,13 @@ public interface Auditable {
 
 	Auditable deepCopy();
 
-	int getID();
+	String getAuditDescription();
 
 	/**
 	 * Used in the ChangedElement@name attribute.
-	 * @return
+	 * @return name
 	 */
 	String getAuditName();
 
-	String getAuditDescription();
+	int getID();
 }

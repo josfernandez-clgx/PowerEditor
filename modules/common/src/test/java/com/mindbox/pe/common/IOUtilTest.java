@@ -95,7 +95,7 @@ public class IOUtilTest {
 			IOUtil.transferBytes(sourceFileChannel, targetFileChannel);
 
 			final String content = IOUtil.readAsStringUtf8(targetFile);
-			assertEquals(String.format("Test file 1 for IOUtil.transferBytes method: 1234567890.Test file 2 for IOUtil.transferBytes method.%n"), content);
+			assertEquals("Test file 1 for IOUtil.transferBytes method: 1234567890.Test file 2 for IOUtil.transferBytes method.\n", content);
 		}
 		finally {
 			IOUtil.close(sourceFileChannel, sourceInputStream, targetFileChannel, targetFileOutputStream);

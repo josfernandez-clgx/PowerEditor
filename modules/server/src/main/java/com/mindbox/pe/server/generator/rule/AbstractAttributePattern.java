@@ -20,11 +20,11 @@ public abstract class AbstractAttributePattern implements AttributePattern {
 
 	/**
 	 * Equivalent to <code>AbstractAttributePattern(attributeName, varName,hasValueSlot,valueText,valueSlot, false)</code>.
-	 * @param attributeName
-	 * @param varName
-	 * @param hasValueSlot
-	 * @param valueText
-	 * @param valueSlot
+	 * @param attributeName attributeName
+	 * @param varName varName
+	 * @param hasValueSlot hasValueSlot
+	 * @param valueText valueText
+	 * @param valueSlot valueSlot
 	 */
 	protected AbstractAttributePattern(String attributeName, String varName, boolean hasValueSlot, String valueText, ValueSlot valueSlot) {
 		this(attributeName, varName, hasValueSlot, valueText, valueSlot, false);
@@ -45,48 +45,6 @@ public abstract class AbstractAttributePattern implements AttributePattern {
 	public boolean canBeSkipped() {
 		return skippable;
 	}
-	
-	@Override
-	public void setCanBeSkipped(boolean value) {
-		this.skippable = value;
-	}
-	
-	public final String getAttributeName() {
-		return attributeName;
-	}
-
-	public final String getVariableName() {
-		return variableName;
-	}
-
-	public final ValueSlot getValueSlot() {
-		return valueSlot;
-	}
-
-	public final String getValueText() {
-		return valueText;
-	}
-
-	public boolean hasSameValue(AttributePattern pattern) {
-		if (hasValueSlot) {
-			return pattern.hasValueSlot() && UtilBase.isSame(valueSlot, pattern.getValueSlot());
-		}
-		else {
-			return UtilBase.isSame(valueText, pattern.getValueText());
-		}
-	}
-
-	public final boolean hasValueSlot() {
-		return hasValueSlot;
-	}
-
-	public boolean isEmpty() {
-		return !hasValueSlot && (UtilBase.isEmpty(valueText) || variableName.equals(valueText));
-	}
-
-	public boolean isMoreRestrictive(AttributePattern pattern) {
-		return pattern.isEmpty() && !this.isEmpty();
-	}
 
 	/**
 	 * Checks equality based on {@link #getVariableName()}.
@@ -95,6 +53,7 @@ public abstract class AbstractAttributePattern implements AttributePattern {
 	 *                           and its variableName is equal to variableName of this; 
 	 *                           <code>false</code>, otherwise
 	 */
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
 		if (obj instanceof AttributePattern) {
@@ -105,10 +64,62 @@ public abstract class AbstractAttributePattern implements AttributePattern {
 		}
 	}
 
+	@Override
+	public final String getAttributeName() {
+		return attributeName;
+	}
+
+	@Override
+	public final ValueSlot getValueSlot() {
+		return valueSlot;
+	}
+
+	@Override
+	public final String getValueText() {
+		return valueText;
+	}
+
+	@Override
+	public final String getVariableName() {
+		return variableName;
+	}
+
+	@Override
 	public int hashCode() {
 		return hashCode;
 	}
 
+	@Override
+	public boolean hasSameValue(AttributePattern pattern) {
+		if (hasValueSlot) {
+			return pattern.hasValueSlot() && UtilBase.isSame(valueSlot, pattern.getValueSlot());
+		}
+		else {
+			return UtilBase.isSame(valueText, pattern.getValueText());
+		}
+	}
+
+	@Override
+	public final boolean hasValueSlot() {
+		return hasValueSlot;
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return !hasValueSlot && (UtilBase.isEmpty(valueText) || variableName.equals(valueText));
+	}
+
+	@Override
+	public boolean isMoreRestrictive(AttributePattern pattern) {
+		return pattern.isEmpty() && !this.isEmpty();
+	}
+
+	@Override
+	public void setCanBeSkipped(boolean value) {
+		this.skippable = value;
+	}
+
+	@Override
 	public String toString() {
 		return getClass().getName() + "[attr=" + attributeName + ",var=" + variableName + ",text=" + valueText + ",slot=" + valueSlot + ']';
 	}

@@ -2,7 +2,7 @@ package com.mindbox.pe.server.generator.rule;
 
 
 /**
- * A concrete implementation of {@link ValueSlot} of {@link ValueSlot#RULE_NAME}.
+ * A concrete implementation of {@link ValueSlot} of {@link ValueSlot.Type#RULE_NAME}.
  * The {@link ValueSlot#getSlotValue()} method of this returns <code>null</code>.
  * @author Geneho Kim
  * @since 5.1.0

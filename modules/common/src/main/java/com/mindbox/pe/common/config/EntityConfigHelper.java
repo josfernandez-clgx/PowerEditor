@@ -19,7 +19,7 @@ public class EntityConfigHelper {
 
 	/**
 	 * 
-	 * @param typeID
+	 * @param typeID typeID
 	 * @return category type definition with id of <code>typeID</code>, if found; <code>null</code>, otherwise
 	 * @since PowerEditor 3.1.0
 	 */
@@ -34,7 +34,7 @@ public class EntityConfigHelper {
 
 	/**
 	 * 
-	 * @param type
+	 * @param type type
 	 * @return null if not found
 	 */
 	public EntityType findEntityTypeDefinition(GenericEntityType type) {
@@ -43,7 +43,7 @@ public class EntityConfigHelper {
 
 	/**
 	 * 
-	 * @param id
+	 * @param id id
 	 * @return null if not found
 	 */
 	public EntityType findEntityTypeDefinition(int id) {
@@ -79,7 +79,7 @@ public class EntityConfigHelper {
 
 	/**
 	 * 
-	 * @param type
+	 * @param type type
 	 * @return category type definition for <code>type</code>, if found; <code>null</code>, otherwise
 	 * @since PowerEditor 3.1.0
 	 */
@@ -121,6 +121,7 @@ public class EntityConfigHelper {
 
 	/**
 	 * Tests if this has the specified property group definition.
+	 * @param genericEntityType entity type
 	 * @param groupName the name of property group to check for
 	 * @return <code>true</code> if this has <code>groupName</code> property group; <code>false</code>, otherwise
 	 * @since PowerEditor 4.3.1

@@ -19,7 +19,7 @@ public class AeReferenceValue extends AbstractAeValue {
 	private final List<String> nameList;
 
 	/**
-	 * @param node
+	 * @param node node
 	 */
 	public AeReferenceValue(Node node) {
 		super(node);
@@ -34,6 +34,7 @@ public class AeReferenceValue extends AbstractAeValue {
 		return nameList.toArray(new String[0]);
 	}
 
+	@Override
 	public String toString() {
 		StringBuilder buff = new StringBuilder("Reference[");
 		if (!nameList.isEmpty()) {

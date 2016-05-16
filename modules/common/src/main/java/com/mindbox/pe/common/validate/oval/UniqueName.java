@@ -11,12 +11,13 @@ import net.sf.oval.configuration.annotation.Constraint;
  * Checks that the value is a valid category type id.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target( { ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER })
+@Target({ ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER })
 @Constraint(checkWith = UniqueNameCheck.class)
 public @interface UniqueName {
 
 	/**
 	 * Default validation failure message.
+	 * @return default failure message
 	 */
 	String message() default "violated.UniqueName";
 }

@@ -24,8 +24,10 @@ import com.mindbox.pe.model.domain.DomainView;
  */
 public final class DomainModel implements DomainClassProvider {
 
+	private static DomainModel instance = null;
+
 	/**
-	 * Format XML string for &,>,<,',"
+	 * Format XML string for &amp;,&gt;,&lt;,',"
 	 * @param str string to be formatted
 	 * @return formatted string
 	 */
@@ -39,13 +41,15 @@ public final class DomainModel implements DomainClassProvider {
 		return str;
 	}
 
-	private static DomainModel instance = null;
+	public static DomainModel getInstance() {
+		if (instance == null) throw new IllegalStateException("Initialize this first with MainFrame");
+		return instance;
+	}
 
 	/**
 	 * Initialize the singleton instance.
 	 * @throws ServerException on error while getting domain model from the server
 	 * @throws IOException on I/O error
-	 * @throws ClassNotFoundException if a required Java class is not found in the classpath
 	 */
 	public static void initInstance() throws ServerException, IOException {
 		initInstance(DefaultDomainRetrieverProxy.getInstance());
@@ -63,11 +67,6 @@ public final class DomainModel implements DomainClassProvider {
 		}
 	}
 
-	public static DomainModel getInstance() {
-		if (instance == null) throw new IllegalStateException("Initialize this first with MainFrame");
-		return instance;
-	}
-
 
 	private List<DomainClass> domainClassList;
 	private final Map<String, List<DomainClassLink>> domainLinkMap;
@@ -76,7 +75,6 @@ public final class DomainModel implements DomainClassProvider {
 	 * Constructor.
 	 * @throws ServerException on error while getting domain model from the server
 	 * @throws IOException on I/O error
-	 * @throws ClassNotFoundException if a required Java class is not found in the classpath
 	 */
 	private DomainModel(DomainRetrieverProxy domainRetrieverProxy) throws ServerException, IOException {
 		this.domainClassList = Collections.synchronizedList(new ArrayList<DomainClass>());
@@ -146,13 +144,8 @@ public final class DomainModel implements DomainClassProvider {
 		domainClassList.add(domClass);
 	}
 
-	private void processClassLinkage(DomainClassLink link) {
-		List<DomainClassLink> list = domainLinkMap.get(link.getParentName());
-		if (list == null) {
-			list = new LinkedList<DomainClassLink>();
-			domainLinkMap.put(link.getParentName(), list);
-		}
-		list.add(link);
+	public void clearAll() {
+		domainClassList.clear();
 	}
 
 	public List<DomainClass> getChildClasses(String name) {
@@ -172,49 +165,6 @@ public final class DomainModel implements DomainClassProvider {
 	}
 
 	/**
-	 * This method returns list of domain classes
-	 * @return list of domain classes.
-	 */
-	public List<DomainClass> getDomainClasses() {
-		return Collections.unmodifiableList(domainClassList);
-	}
-
-	public void clearAll() {
-		domainClassList.clear();
-	}
-
-	/**
-	 * Return domain class for the given class name
-	 * @param className name of the domain class
-	 * @return domain class
-	 */
-	public DomainClass getDomainClass(String className) {
-		DomainClass domClass = null;
-		for (int i = 0; i < domainClassList.size(); i++) {
-			domClass = domainClassList.get(i);
-			if (domClass.getName().equalsIgnoreCase(className)) {
-				return domClass;
-			}
-		}
-		return null;
-	}
-
-	public DomainAttribute getDomainAttribute(String attributeMap) {
-		String[] strs = attributeMap.split("\\.");
-		if (strs.length == 2) {
-			DomainClass dc = getDomainClass(strs[0]);
-			if (dc != null) {
-				return dc.getDomainAttribute(strs[1]);
-			}
-		}
-		return null;
-	}
-
-	public boolean isEmpty() {
-		return domainClassList.isEmpty();
-	}
-
-	/**
 	 * Return domain class index in list of indexes.
 	 * @param className name of domain class
 	 * @return domain class index
@@ -229,6 +179,55 @@ public final class DomainModel implements DomainClassProvider {
 		}
 
 		return -1;
+	}
+
+	public DomainAttribute getDomainAttribute(String attributeMap) {
+		String[] strs = attributeMap.split("\\.");
+		if (strs.length == 2) {
+			DomainClass dc = getDomainClass(strs[0]);
+			if (dc != null) {
+				return dc.getDomainAttribute(strs[1]);
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Return domain class for the given class name
+	 * @param className name of the domain class
+	 * @return domain class
+	 */
+	@Override
+	public DomainClass getDomainClass(String className) {
+		DomainClass domClass = null;
+		for (int i = 0; i < domainClassList.size(); i++) {
+			domClass = domainClassList.get(i);
+			if (domClass.getName().equalsIgnoreCase(className)) {
+				return domClass;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * This method returns list of domain classes
+	 * @return list of domain classes.
+	 */
+	public List<DomainClass> getDomainClasses() {
+		return Collections.unmodifiableList(domainClassList);
+	}
+
+	public boolean isEmpty() {
+		return domainClassList.isEmpty();
+	}
+
+	private void processClassLinkage(DomainClassLink link) {
+		List<DomainClassLink> list = domainLinkMap.get(link.getParentName());
+		if (list == null) {
+			list = new LinkedList<DomainClassLink>();
+			domainLinkMap.put(link.getParentName(), list);
+		}
+		list.add(link);
 	}
 
 }

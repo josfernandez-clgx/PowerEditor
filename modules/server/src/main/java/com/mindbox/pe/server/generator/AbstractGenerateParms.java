@@ -45,14 +45,6 @@ public abstract class AbstractGenerateParms implements GenerationParams {
 	private final int id;
 	private DateSynonym sunrise, sunset;
 
-	/**
-	 * 
-	 * @param gridtemplate
-	 * @param columnNo
-	 * @param rowNum
-	 * @param rowDataList
-	 * @param status
-	 */
 	public AbstractGenerateParms(int id, DateSynonym sunrise, DateSynonym sunset, GridTemplate gridtemplate, int columnNo, int rowNum, List<Object> rowDataList, String status) {
 		if (gridtemplate == null) {
 			throw new IllegalArgumentException("template cannot be null");
@@ -239,6 +231,7 @@ public abstract class AbstractGenerateParms implements GenerationParams {
 		return gridTemplate;
 	}
 
+	@Override
 	public abstract TemplateUsageType getUsage();
 
 	public boolean hasEntitySpecificMessage() {
@@ -329,7 +322,15 @@ public abstract class AbstractGenerateParms implements GenerationParams {
 
 	@Override
 	public String toString() {
-		return String.format("%s[name=%s,rowNum=%d,col=%d,status=%s;sunrise=%s,sunset=%s]", getClass().getSimpleName(), name, getRowNum(), columnNo, status, getSunrise(), getSunrise());
+		return String.format(
+				"%s[name=%s,rowNum=%d,col=%d,status=%s;sunrise=%s,sunset=%s]",
+				getClass().getSimpleName(),
+				name,
+				getRowNum(),
+				columnNo,
+				status,
+				getSunrise(),
+				getSunrise());
 	}
 
 }

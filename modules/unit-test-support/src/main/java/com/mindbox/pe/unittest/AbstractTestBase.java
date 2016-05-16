@@ -7,7 +7,6 @@ import org.apache.log4j.Logger;
  * 
  * @author Gene Kim
  * @author MindBox, Inc
- * @since
  */
 public abstract class AbstractTestBase {
 

@@ -10,10 +10,12 @@ public class CloneGuidelineRequest extends SessionRequest<AbstractSimpleResponse
 	private static final long serialVersionUID = 200896917262591341L;
 
 	private final int oldTemplateID, newTemplateID;
-	
+
 	/**
-	 * @param userID
-	 * @param sessionID
+	 * @param userID userID
+	 * @param sessionID sessionID
+	 * @param oldTemplateID oldTemplateID
+	 * @param newTemplateID newTemplateID
 	 */
 	public CloneGuidelineRequest(String userID, String sessionID, int oldTemplateID, int newTemplateID) {
 		super(userID, sessionID);
@@ -24,6 +26,7 @@ public class CloneGuidelineRequest extends SessionRequest<AbstractSimpleResponse
 	public int getNewTemplateID() {
 		return newTemplateID;
 	}
+
 	public int getOldTemplateID() {
 		return oldTemplateID;
 	}

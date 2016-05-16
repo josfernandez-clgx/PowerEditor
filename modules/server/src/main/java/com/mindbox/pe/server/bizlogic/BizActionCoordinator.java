@@ -146,13 +146,11 @@ public class BizActionCoordinator {
 	 * Creates a new named date synonym for the specified date. This saves the new date synonym in
 	 * DB and in server cache.
 	 * 
-	 * @param date
-	 *            date for the date synonym
-	 * @param user
-	 *            user
+	 * @param date date for the date synonym
+	 * @param user user
 	 * @return newly created date synonym with proper unique id
-	 * @throws ServletActionException
-	 *             on error
+	 * @throws ServletActionException on error
+	 * @throws DataValidationFailedException on data validation error
 	 */
 	public static DateSynonym createNewDateSynonym(Date date, User user) throws ServletActionException, DataValidationFailedException {
 		if (date == null) return null;
@@ -177,7 +175,7 @@ public class BizActionCoordinator {
 	}
 
 	/**
-	 * @param ruleset
+	 * @param ruleset ruleset
 	 * @return GenericEntityIdentity
 	 * @since 3.0.0
 	 */
@@ -293,8 +291,8 @@ public class BizActionCoordinator {
 
 	/**
 	 * Convenience method to wrap validation violations with a {@link DataValidationFailedException}.
-	 * @param objectToValidate
-	 * @throws DataValidationFailedException
+	 * @param objectToValidate objectToValidate
+	 * @throws DataValidationFailedException on error
 	 * @see ValidationViolation
 	 * @see DataValidator
 	 */
@@ -319,6 +317,17 @@ public class BizActionCoordinator {
 		this.userDataUpdater = ServiceProviderFactory.getUserManagementProvider();
 		this.parameterUpdater = new ParameterUpdater();
 		this.clearFailedLoginCounterWorkManager = new ClearFailedLoginCounterWorkManager();
+	}
+
+	public void clearFailedLoginCounter(final String userId, final User requester) throws ServletActionException {
+		logger.debug(String.format(">>> clearFailedLoginCounter: %s, by %s", userId, requester.getUserID()));
+		try {
+			updateFailedLoginCounter(userId, 0);
+		}
+		catch (Exception ex) {
+			logger.error("Failed to clear failed login counter " + userId, ex);
+			throw new ServletActionException("ServerError", ex.getMessage());
+		}
 	}
 
 	public int clone(GenericEntity entity, boolean copyPolicies, User user, boolean releaseLocks) throws ServletActionException {
@@ -406,11 +415,11 @@ public class BizActionCoordinator {
 	/**
 	 * Clone the CBR Case Base.
 	 * 
-	 * @param oldCaseBaseID
-	 * @param newCaseBaseName
-	 * @param user
+	 * @param oldCaseBaseID oldCaseBaseID
+	 * @param newCaseBaseName newCaseBaseName
+	 * @param user user
 	 * @return int
-	 * @throws ServletActionException
+	 * @throws ServletActionException on error
 	 * @author Inna Nill
 	 * @since PowerEditor 4.1.0
 	 */
@@ -473,8 +482,9 @@ public class BizActionCoordinator {
 							attrVal = attrValIter.next();
 							int attrValID = DBIdGenerator.getInstance().nextSequentialID();
 							attrVal.setID(attrValID);
-							logger.debug("   *** WHEN CREATING NEW attribute values, old ID = " + attrVal.getAttribute().getID() + " and associated attributeIDMapping mapped new attribute = "
-									+ attributeIDMapping.get(new Integer(attrVal.getAttribute().getID())));
+							logger.debug(
+									"   *** WHEN CREATING NEW attribute values, old ID = " + attrVal.getAttribute().getID()
+											+ " and associated attributeIDMapping mapped new attribute = " + attributeIDMapping.get(new Integer(attrVal.getAttribute().getID())));
 							attrVal.setAttribute(attributeIDMapping.get(new Integer(attrVal.getAttribute().getID())));
 						}
 						allItemsToClone.add(newCase);
@@ -764,9 +774,9 @@ public class BizActionCoordinator {
 	/**
 	 * Deletes a compatiblity. First finds the cached compatibility which will contain the correct sequence
 	 * of keys which is nessesssry for the DB operation.  
-	 * @param compData
-	 * @param user
-	 * @throws ServletActionException
+	 * @param compData compData
+	 * @param user user
+	 * @throws ServletActionException on error
 	 * @since 3.0.0 
 	 */
 	public void delete(GenericEntityCompatibilityData compData, User user) throws ServletActionException {
@@ -782,7 +792,11 @@ public class BizActionCoordinator {
 					cachedCompData.getGenericEntityType().getID(),
 					cachedCompData.getAssociableID());
 
-			EntityManager.getInstance().removeEntityCompatibility(cachedCompData.getSourceType(), cachedCompData.getSourceID(), cachedCompData.getGenericEntityType(), cachedCompData.getAssociableID());
+			EntityManager.getInstance().removeEntityCompatibility(
+					cachedCompData.getSourceType(),
+					cachedCompData.getSourceID(),
+					cachedCompData.getGenericEntityType(),
+					cachedCompData.getAssociableID());
 			AuditLogger.getInstance().logDelete(compData, user.getUserID());
 		}
 		catch (SQLException ex) {
@@ -802,12 +816,14 @@ public class BizActionCoordinator {
 			List<GridTemplate> allTemplates = GuidelineTemplateManager.getInstance().getAllTemplates();
 			for (GridTemplate template : allTemplates) {
 				RuleDefinition ruleDef = template.getRuleDefinition();
-				if (ruleDef != null && ruleDef.getActionTypeID() == actionID) throw new SQLException("Action \"" + actionDef.getName() + "\' is used by template \"" + template.getName() + "\"");
+				if (ruleDef != null && ruleDef.getActionTypeID() == actionID)
+					throw new SQLException("Action \"" + actionDef.getName() + "\' is used by template \"" + template.getName() + "\"");
 				List<GridTemplateColumn> columns = template.getColumns();
 				for (Iterator<GridTemplateColumn> it2 = columns.iterator(); it2.hasNext();) {
 					GridTemplateColumn column = it2.next();
 					ruleDef = column.getRuleDefinition();
-					if (ruleDef != null && ruleDef.getActionTypeID() == actionID) throw new SQLException("Action \"" + actionDef.getName() + "\' is used by template \"" + template.getName() + "\"");
+					if (ruleDef != null && ruleDef.getActionTypeID() == actionID)
+						throw new SQLException("Action \"" + actionDef.getName() + "\' is used by template \"" + template.getName() + "\"");
 				}
 			}
 
@@ -859,9 +875,9 @@ public class BizActionCoordinator {
 	/**
 	 * Delete the case with the given case id.
 	 * 
-	 * @param cbrCaseID
-	 * @param user
-	 * @throws ServletActionException
+	 * @param cbrCaseID cbrCaseID
+	 * @param user user
+	 * @throws ServletActionException on error
 	 * @author Inna Nill
 	 * @since PowerEditor 4.1.0
 	 */
@@ -892,9 +908,9 @@ public class BizActionCoordinator {
 	/**
 	 * Delete CBR Case base
 	 * 
-	 * @param cbrCaseBaseID
-	 * @param user
-	 * @throws ServletActionException
+	 * @param cbrCaseBaseID cbrCaseBaseID
+	 * @param user user
+	 * @throws ServletActionException on error
 	 * @author Inna Nill
 	 * @since PowerEditor 4.1.0
 	 */
@@ -1273,7 +1289,8 @@ public class BizActionCoordinator {
 					if (ruleDef != null) {
 						for (Iterator<TestCondition> it3 = ruleDef.getTestConditions().iterator(); it3.hasNext();) {
 							TestCondition tc = it3.next();
-							if (tc.getTestType().getId() == testID) throw new SQLException("Test \"" + actionDef.getName() + "\' is used by template \"" + template.getName() + "\"");
+							if (tc.getTestType().getId() == testID)
+								throw new SQLException("Test \"" + actionDef.getName() + "\' is used by template \"" + template.getName() + "\"");
 						}
 					}
 
@@ -1322,17 +1339,6 @@ public class BizActionCoordinator {
 		}
 	}
 
-	public void clearFailedLoginCounter(final String userId, final User requester) throws ServletActionException {
-		logger.debug(String.format(">>> clearFailedLoginCounter: %s, by %s", userId, requester.getUserID()));
-		try {
-			updateFailedLoginCounter(userId, 0);
-		}
-		catch (Exception ex) {
-			logger.error("Failed to clear failed login counter " + userId, ex);
-			throw new ServletActionException("ServerError", ex.getMessage());
-		}
-	}
-
 
 	public void enableUser(String userId, User requester) throws ServletActionException {
 		logger.debug(String.format(">>> enabledUser: %s, by %s", userId, requester.getUserID()));
@@ -1353,10 +1359,10 @@ public class BizActionCoordinator {
 	}
 
 	/**
-	 * @param type1
-	 * @param type2
+	 * @param type1 type1
+	 * @param type2 type2
 	 * @return list of compatible entities
-	 * @throws ServletActionException
+	 * @throws ServletActionException on error
 	 * @since 3.0.0
 	 */
 	public List<GenericEntityCompatibilityData> fetchCompatibilityData(GenericEntityType type1, GenericEntityType type2) throws ServletActionException {
@@ -1406,10 +1412,10 @@ public class BizActionCoordinator {
 
 	/**
 	 * 
-	 * @param usageType
-	 * @param deployRule
+	 * @param usageType usageType
+	 * @param deployRule deployRule
 	 * @return the action type definition
-	 * @throws ServletActionException
+	 * @throws ServletActionException on error
 	 */
 	public ActionTypeDefinition findActionTypeDefinitionWithDeploymentRule(TemplateUsageType usageType, String deployRule) throws ServletActionException {
 		logger.debug(">>> findActionTypeDefinitionWithDeploymentRule: " + usageType + "," + deployRule);
@@ -1417,7 +1423,8 @@ public class BizActionCoordinator {
 		// look for all action types, not just those associated with the specified usage type
 		List<ActionTypeDefinition> actionTypeList = GuidelineFunctionManager.getInstance().getAllActionTypes();
 		for (ActionTypeDefinition element : actionTypeList) {
-			if ((Util.isEmpty(element.getDeploymentRule()) && deployRuleToCheck.length() == 0) || (element.getDeploymentRule() != null && element.getDeploymentRule().trim().equals(deployRuleToCheck))) {
+			if ((Util.isEmpty(element.getDeploymentRule()) && deployRuleToCheck.length() == 0)
+					|| (element.getDeploymentRule() != null && element.getDeploymentRule().trim().equals(deployRuleToCheck))) {
 				// if element is not associated with the usage type, link them together
 				if (!element.hasUsageType(usageType)) {
 					element.addUsageType(usageType);
@@ -1466,7 +1473,7 @@ public class BizActionCoordinator {
 	 * Gets a new id for merge for the specified object class.
 	 * 
 	 * @return new id
-	 * @throws SapphireException
+	 * @throws SapphireException on error
 	 *             on error
 	 */
 	public int generateNewIDForMerge() throws SapphireException {
@@ -1494,6 +1501,7 @@ public class BizActionCoordinator {
 		if (reportDir.isDirectory()) {
 			File[] files = reportDir.listFiles(new FileFilter() {
 
+				@Override
 				public boolean accept(File path) {
 					if (path == null) return false;
 					return path.isFile() && path.getName().toUpperCase().endsWith(".RPT") && !path.getName().toUpperCase().startsWith("POLICY-SUMMARY-REPORT");
@@ -1814,12 +1822,12 @@ public class BizActionCoordinator {
 	/**
 	 * Persist the specified action definition and updates action cache accordingly.
 	 * 
-	 * @param actionDef
+	 * @param actionDef actionDef
 	 *            the action to save
-	 * @param user
+	 * @param user user
 	 * @return the new action ID
-	 * @throws ServletActionException
-	 * @throws ServletActionException
+	 * @throws ServletActionException on error
+	 * @throws ServletActionException on error
 	 *             if actionDef conains a rule that is not parsable; when this is thrown, the
 	 *             actionDef will not be inserted or updated
 	 */
@@ -1858,10 +1866,10 @@ public class BizActionCoordinator {
 	/**
 	 * Save the CBR Case.
 	 * 
-	 * @param cbrCase
-	 * @param user
+	 * @param cbrCase cbrCase
+	 * @param user user
 	 * @return New ID of the new cbr case.
-	 * @throws ServletActionException
+	 * @throws ServletActionException on error
 	 * @author Inna Nill
 	 * @since PowerEditor 4.1.0
 	 */
@@ -1882,10 +1890,10 @@ public class BizActionCoordinator {
 	/**
 	 * Save the CBR Case Base.
 	 * 
-	 * @param cbrCaseBase
-	 * @param user
+	 * @param cbrCaseBase cbrCaseBase
+	 * @param user user
 	 * @return int
-	 * @throws ServletActionException
+	 * @throws ServletActionException on error
 	 * @author Inna Nill
 	 * @since PowerEditor 4.1.0
 	 */
@@ -1954,11 +1962,12 @@ public class BizActionCoordinator {
 	}
 
 	/**
-	 * 
-	 * @param entity
-	 * @param user
+	 * @param entity entity
+	 * @param validate validate
+	 * @param user user
 	 * @return the entity id
-	 * @throws ServletActionException
+	 * @throws ServletActionException on error
+	 * @throws DataValidationFailedException on data validation error
 	 * @since PowerEditor 3.0.0
 	 */
 	public int save(GenericEntity entity, boolean validate, User user) throws ServletActionException, DataValidationFailedException {
@@ -2014,10 +2023,8 @@ public class BizActionCoordinator {
 		}
 	}
 
-	/** @throws DataValidationFailedException 
-	 * @since 3.0.0 */
 	public void save(GenericEntityCompatibilityData newCompData, User user) throws ServletActionException, DataValidationFailedException {
-		// TBD: Place to fix TT 1262
+		// TODO: Place to fix TT 1262
 		validateData(newCompData);
 		try {
 			GenericEntityCompatibilityData copyOfCache = EntityManager.getInstance().isCached(newCompData);
@@ -2224,7 +2231,11 @@ public class BizActionCoordinator {
 			User cachedUser = SecurityCacheManager.getInstance().getUser(userID);
 			if (cachedUser == null) {
 				logger.debug("save(User): inserting new user...");
-				userDataUpdater.insertUser(userID, userToSave.getName(), userToSave.getStatus(), true, // new user. ensure that flag for resetPWD is true
+				userDataUpdater.insertUser(
+						userID,
+						userToSave.getName(),
+						userToSave.getStatus(),
+						true, // new user. ensure that flag for resetPWD is true
 						0, // since new password, there are no inavlid attempts
 						toIDs(userToSave.getRoles()),
 						userToSave.getPasswordHistory(),
@@ -2236,7 +2247,11 @@ public class BizActionCoordinator {
 			else {
 				LockManager.getInstance().getExistingLock(PeDataType.USER_DATA, userID, requester);
 				logger.debug("save(User): updating user table...");
-				userDataUpdater.updateUser(userID, userToSave.getName(), userToSave.getStatus(), userToSave.getPasswordChangeRequired(),//next 3 depend on whether save request comes from password reset controller or normal save
+				userDataUpdater.updateUser(
+						userID,
+						userToSave.getName(),
+						userToSave.getStatus(),
+						userToSave.getPasswordChangeRequired(), //next 3 depend on whether save request comes from password reset controller or normal save
 						userToSave.getFailedLoginCounter(),
 						toIDs(userToSave.getRoles()),
 						userToSave.getPasswordHistory(),
@@ -2353,9 +2368,9 @@ public class BizActionCoordinator {
 				while (it2.hasNext()) {
 					GridTemplate template = it2.next();
 					RuleDefinition rule = template.getRuleDefinition();
-					if (rule != null && rule.getActionTypeID() == actionFromCache.getID())
-						throw new ServletActionException("ServerError", "Template \"" + template.getName() + "\" has usage type \"" + ut.getDisplayName()
-								+ "\" which cannot be removed from this action.");
+					if (rule != null && rule.getActionTypeID() == actionFromCache.getID()) throw new ServletActionException(
+							"ServerError",
+							"Template \"" + template.getName() + "\" has usage type \"" + ut.getDisplayName() + "\" which cannot be removed from this action.");
 				}
 			}
 		}

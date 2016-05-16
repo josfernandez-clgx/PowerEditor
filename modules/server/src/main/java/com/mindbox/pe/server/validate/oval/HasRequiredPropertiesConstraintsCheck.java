@@ -4,10 +4,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.oval.Validator;
-import net.sf.oval.context.OValContext;
-import net.sf.oval.exception.OValException;
-
 import com.mindbox.pe.common.UtilBase;
 import com.mindbox.pe.common.validate.oval.HasRequiredProperties;
 import com.mindbox.pe.common.validate.oval.ServerConstraintCheck;
@@ -15,6 +11,10 @@ import com.mindbox.pe.model.GenericEntity;
 import com.mindbox.pe.model.GenericEntityType;
 import com.mindbox.pe.server.config.ConfigurationManager;
 import com.mindbox.pe.xsd.config.EntityProperty;
+
+import net.sf.oval.Validator;
+import net.sf.oval.context.OValContext;
+import net.sf.oval.exception.OValException;
 
 /**
  * OVal contraint check for {@link HasRequiredProperties} annotation.
@@ -26,7 +26,11 @@ public class HasRequiredPropertiesConstraintsCheck implements ServerConstraintCh
 
 	/**
 	 * @param validatedObject must be {@link GenericEntity}; if not, this returns <code>false</code>
-	 * @param valueToValidate must be <code>Map<String,Object></code>; if not this returns <code>false</code>
+	 * @param valueToValidate must be <code>Map&lt;String,Object&gt;</code>; if not this returns <code>false</code>
+	 * @param arg2 context
+	 * @param validator validator
+	 * @param messageVarMap message var map
+	 * @return true if valid; false, otherwise
 	 */
 	@Override
 	public boolean isValid(Object validatedObject, Object valueToValidate, OValContext arg2, Validator validator, Map<String, String> messageVarMap) throws OValException {

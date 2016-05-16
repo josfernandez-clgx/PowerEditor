@@ -11,7 +11,6 @@ import com.mindbox.pe.xsd.config.ServerConfig.Deployment;
  * 
  * @author Gene Kim
  * @author MindBox, Inc
- * @since 
  */
 public final class ServerConfigHelper {
 
@@ -28,8 +27,8 @@ public final class ServerConfigHelper {
 		private final int monitorIntervalInSeconds;
 		private final String validationQuery;
 
-		private DBConfig(Class<?> providerClass, String driver, String conn, String user, Password pwd, int maxConn, String guidelineRuleProviderClass, String userManagementProviderClass,
-				int monitorIntervalInSeconds, String validationQuery) {
+		private DBConfig(Class<?> providerClass, String driver, String conn, String user, Password pwd, int maxConn, String guidelineRuleProviderClass,
+				String userManagementProviderClass, int monitorIntervalInSeconds, String validationQuery) {
 			this.providerClass = providerClass;
 			this.driver = driver;
 			this.connection = conn;

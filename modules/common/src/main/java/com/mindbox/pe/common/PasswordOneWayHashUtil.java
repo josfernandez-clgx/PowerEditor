@@ -17,31 +17,6 @@ public final class PasswordOneWayHashUtil {
 	 */
 	public static final String HASH_ALGORITHM_MD5 = "MD5";
 
-	/**
-	 * Public method called to convert a string to one way hash. Currently only MD5 hash is supported.
-	 * Use {@link #HASH_ALGORITHM_MD5}.
-	 * @author vineet khosla
-	 * @since PowerEditor 5.1
-	 * @param clearTextPassword
-	 * @param algorithm
-	 * @return one way hash string if <code>clearTextPassword</code> is not <code>null</code> and is not empty; <code>null</code>, otherwise
-	 * @throws UnsupportedOperationException is thrown if algorithm requested is anything other than {@link #HASH_ALGORITHM_MD5}
-	 * @throws NullPointerException if <code>algorithm</code> is <code>null</code>
-	 */
-	public static String convertToOneWayHash(String clearTextPassword, String algorithm) {
-		if (algorithm.equalsIgnoreCase(HASH_ALGORITHM_MD5)) {
-			try {
-				return convertToMD5Hash(clearTextPassword);
-			}
-			catch (NoSuchAlgorithmException e) {
-				throw new UnsupportedOperationException(e.getMessage());
-			}
-		}
-		else {
-			throw new UnsupportedOperationException("THIS ALGORITHM IS NOT CURRENTLY SUPPORTED");
-		}
-	}
-
 	private static String convertToMD5Hash(String data) throws NoSuchAlgorithmException {
 		if (data == null || data.equals("")) return null;
 
@@ -61,6 +36,30 @@ public final class PasswordOneWayHashUtil {
 		catch (NoSuchAlgorithmException nsae) {
 		}
 		return data;
+	}
+
+	/**
+	 * Public method called to convert a string to one way hash. Currently only MD5 hash is supported.
+	 * Use {@link #HASH_ALGORITHM_MD5}.
+	 * @since PowerEditor 5.1
+	 * @param clearTextPassword clearTextPassword
+	 * @param algorithm algorithm
+	 * @return one way hash string if <code>clearTextPassword</code> is not <code>null</code> and is not empty; <code>null</code>, otherwise
+	 * @throws UnsupportedOperationException is thrown if algorithm requested is anything other than {@link #HASH_ALGORITHM_MD5}
+	 * @throws NullPointerException if <code>algorithm</code> is <code>null</code>
+	 */
+	public static String convertToOneWayHash(String clearTextPassword, String algorithm) {
+		if (algorithm.equalsIgnoreCase(HASH_ALGORITHM_MD5)) {
+			try {
+				return convertToMD5Hash(clearTextPassword);
+			}
+			catch (NoSuchAlgorithmException e) {
+				throw new UnsupportedOperationException(e.getMessage());
+			}
+		}
+		else {
+			throw new UnsupportedOperationException("THIS ALGORITHM IS NOT CURRENTLY SUPPORTED");
+		}
 	}
 
 	private PasswordOneWayHashUtil() {

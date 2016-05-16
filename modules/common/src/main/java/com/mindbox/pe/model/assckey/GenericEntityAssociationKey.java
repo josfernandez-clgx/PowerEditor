@@ -1,10 +1,10 @@
 package com.mindbox.pe.model.assckey;
 
-import net.sf.oval.constraint.NotNull;
-
 import com.mindbox.pe.model.DateSynonym;
 import com.mindbox.pe.model.GenericEntityType;
 import com.mindbox.pe.model.Persistent;
+
+import net.sf.oval.constraint.NotNull;
 
 
 /**
@@ -19,20 +19,24 @@ public class GenericEntityAssociationKey extends AbstractTimedAssociationKey imp
 	@NotNull
 	private final GenericEntityType type;
 
+	public GenericEntityAssociationKey(GenericEntityAssociationKey source) {
+		super(source);
+		this.type = source.type;
+	}
+
 	/**
 	 * @param type the generic entity type
-	 * @param associableID
-	 * @param effDate
-	 * @param expDate
+	 * @param associableID associableID
+	 * @param effDate effDate
+	 * @param expDate expDate
 	 */
 	public GenericEntityAssociationKey(GenericEntityType type, int associableID, DateSynonym effDate, DateSynonym expDate) {
 		super(associableID, effDate, expDate);
 		this.type = type;
 	}
 
-	public GenericEntityAssociationKey(GenericEntityAssociationKey source) {
-		super(source);
-		this.type = source.type;
+	public GenericEntityType getGenericEntityType() {
+		return type;
 	}
 
 	/**
@@ -40,18 +44,17 @@ public class GenericEntityAssociationKey extends AbstractTimedAssociationKey imp
 	 * This method exists just to make this class implement the {@link Persistent} interface.
 	 * @return 0
 	 */
+	@Override
 	public final int getID() {
 		return 0;
 	}
 
-	public GenericEntityType getGenericEntityType() {
-		return type;
-	}
-
+	@Override
 	public void setEffectiveDate(DateSynonym effectiveDate) {
 		super.setEffectiveDate(effectiveDate);
 	}
 
+	@Override
 	public void setExpirationDate(DateSynonym expirationDate) {
 		super.setExpirationDate(expirationDate);
 	}

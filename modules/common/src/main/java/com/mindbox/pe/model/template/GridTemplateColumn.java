@@ -34,14 +34,6 @@ public class GridTemplateColumn extends AbstractTemplateColumn implements RuleMe
 	private final MessageConfiguration messageConfig;
 	private final List<ColumnMessageFragmentDigest> messageFragmentDigestList;
 
-	public GridTemplateColumn(int id, String name, String desc, int width, TemplateUsageType usageType) {
-		super(id, name, desc, width, usageType);
-		messageContainer = new DefaultMessageContainer();
-		messageFragmentDigestList = new ArrayList<ColumnMessageFragmentDigest>();
-		messageFragmentTextList = new ColumnMessageFragmentList();
-		messageConfig = new MessageConfiguration();
-	}
-
 	public GridTemplateColumn() {
 		this(-1, "", null, 100, null);
 	}
@@ -49,7 +41,7 @@ public class GridTemplateColumn extends AbstractTemplateColumn implements RuleMe
 	/**
 	 * Create a new instance of this that is an exact copy of the source.
 	 * This performs deep-copy.
-	 * @param source
+	 * @param source source
 	 * @since PowerEditor 4.3.2
 	 */
 	public GridTemplateColumn(GridTemplateColumn source) {
@@ -75,47 +67,49 @@ public class GridTemplateColumn extends AbstractTemplateColumn implements RuleMe
 	}
 
 	/**
-	 * For migration use only
-	 * @return rule definition string
-	 * @since PowerEditor 4.0
+	 * 
+	 * @param id id
+	 * @param name name
+	 * @param desc desc
+	 * @param width width
+	 * @param usageType usageType
 	 */
-	public String getRuleDefinitionString() {
-		return ruleDefinitionString;
+	public GridTemplateColumn(int id, String name, String desc, int width, TemplateUsageType usageType) {
+		super(id, name, desc, width, usageType);
+		messageContainer = new DefaultMessageContainer();
+		messageFragmentDigestList = new ArrayList<ColumnMessageFragmentDigest>();
+		messageFragmentTextList = new ColumnMessageFragmentList();
+		messageConfig = new MessageConfiguration();
 	}
 
 	/**
-	 * For migration use only
-	 * @param ruleDefinitionString the rule definition string
-	 * @since PowerEditor 4.0
+	 * The given MessageFragmentDigest can get added to both to the ColumnMessageFragmentList
+	 * and the list of MessageConfiguration, depending in the values of the
+	 * given MessageFragmentDigest.
+	 * 
+	 * This methode gets called from the TemplateXMLDigester
+	 * @param msgDigest msgDigest
+	 * @throws ParseException on parser error
+	 * @since PowerEditor 3.3.0
 	 */
-	public void setRuleDefinitionString(String ruleDefinitionString) {
-		this.ruleDefinitionString = ruleDefinitionString;
+	public void addColumnMessageFragment(ColumnMessageFragmentDigest msgDigest) throws ParseException {
+		messageFragmentDigestList.add(msgDigest);
+		if (msgDigest.getText() != null) {
+			messageFragmentTextList.addText(msgDigest.getType(), msgDigest.getText(), msgDigest.getCellSelection());
+		}
+		messageConfig.updateMessageDigest(msgDigest);
 	}
 
 	/**
 	 * Added for digest support.
 	 * @since PowerEditor 3.2.0
 	 */
+	@Override
 	public void addMessageDigest(TemplateMessageDigest digest) {
 		messageContainer.addMessageDigest(digest);
 	}
 
-	public void removeMessageDigest(TemplateMessageDigest digest) {
-		messageContainer.removeMessageDigest(digest);
-	}
-
-	public boolean hasMessageDigest() {
-		return messageContainer.hasMessageDigest();
-	}
-
-	public List<TemplateMessageDigest> getAllMessageDigest() {
-		return messageContainer.getAllMessageDigest();
-	}
-
-	public TemplateMessageDigest findMessageForEntity(int channelID) {
-		return messageContainer.findMessageForEntity(channelID);
-	}
-
+	@Override
 	public void adjustChangedColumnReferences(final int originalColNo, final int newColNo) {
 		if (ruleDefinition != null) {
 			ruleDefinition.adjustChangedColumnReferences(originalColNo, newColNo);
@@ -138,6 +132,7 @@ public class GridTemplateColumn extends AbstractTemplateColumn implements RuleMe
 		}
 	}
 
+	@Override
 	public void adjustDeletedColumnReferences(int colNo) {
 		if (ruleDefinition != null) ruleDefinition.adjustDeletedColumnReferences(colNo);
 		for (Iterator<TemplateMessageDigest> iter = messageContainer.getAllMessageDigest().iterator(); iter.hasNext();) {
@@ -157,87 +152,55 @@ public class GridTemplateColumn extends AbstractTemplateColumn implements RuleMe
 		}
 	}
 
+	@Override
 	public boolean containsColumnReference(int colNo) {
 		return false;
 	}
 
-	/**
-	 * @return Returns the ruleDefinition.
-	 */
-	public RuleDefinition getRuleDefinition() {
-		return ruleDefinition;
+	@Override
+	public TemplateMessageDigest findMessageForEntity(int channelID) {
+		return messageContainer.findMessageForEntity(channelID);
 	}
 
-	/**
-	 * @param ruleDefinition The ruleDefinition to set.
-	 */
-	public void setRuleDefinition(RuleDefinition ruleDefinition) {
-		this.ruleDefinition = ruleDefinition;
-	}
-
-	private void setColumnNumber(int colNo) {
-		super.setID(colNo);
-	}
-
-	/**
-	 * Added for digest support.
-	 * @param str
-	 * @since PowerEditor 3.2.0
-	 */
-	public void setColNum(String str) {
-		try {
-			setColumnNumber(Integer.parseInt(str));
-		}
-		catch (Exception ex) {
-		}
-	}
-
-	/**
-	 * The given MessageFragmentDigest can get added to both to the ColumnMessageFragmentList
-	 * and the list of MessageConfiguration, depending in the values of the
-	 * given MessageFragmentDigest.
-	 * 
-	 * This methode gets called from the TemplateXMLDigester
-	 * @since PowerEditor 3.3.0
-	 */
-	public void addColumnMessageFragment(ColumnMessageFragmentDigest msgDigest) throws ParseException {
-		messageFragmentDigestList.add(msgDigest);
-		if (msgDigest.getText() != null) {
-			messageFragmentTextList.addText(msgDigest.getType(), msgDigest.getText(), msgDigest.getCellSelection());
-		}
-		messageConfig.updateMessageDigest(msgDigest);
-	}
-
-	/**
-	 * Update the column message fragment.
-	 * @param msgDigest
-	 */
-	public void updateColumnMessageFragmentText(ColumnMessageFragmentDigest msgDigest) throws ParseException {
-		messageFragmentTextList.updateText(msgDigest.getType(), msgDigest.getText(), msgDigest.getCellSelection());
-		messageConfig.updateMessageDigest(msgDigest);
-		for (ColumnMessageFragmentDigest columnMessageFragmentDigest : messageFragmentDigestList) {
-			if (columnMessageFragmentDigest.getType() == msgDigest.getType() && columnMessageFragmentDigest.getCellSelection() == msgDigest.getCellSelection()) {
-				columnMessageFragmentDigest.copyFrom(msgDigest);
-				return;
-			}
-		}
-	}
-
-	public boolean hasMessageFragmentDigest() {
-		return !messageFragmentDigestList.isEmpty();
+	@Override
+	public List<TemplateMessageDigest> getAllMessageDigest() {
+		return messageContainer.getAllMessageDigest();
 	}
 
 	public List<ColumnMessageFragmentDigest> getAllMessageFragmentDigests() {
 		return Collections.unmodifiableList(messageFragmentDigestList);
 	}
 
-	public void removeMessageFragmentDigest(ColumnMessageFragmentDigest digest) {
-		messageFragmentDigestList.remove(digest);
-		messageConfig.removeMessageDigest(digest);
+	private ColumnMessageFragmentDigest getAnyMessageFragmentDigest() {
+		for (ColumnMessageFragmentDigest element : messageFragmentDigestList) {
+			if (element.getType() == MessageConfigType.ANY) {
+				return element;
+			}
+		}
+		return null;
 	}
 
 	public MessageConfiguration getMessageConfiguration() {
 		return messageConfig;
+	}
+
+	private ColumnMessageFragmentDigest getMessageFragmentDigest(EnumValues<?> enumVal) {
+		boolean isExclusion = enumVal.isSelectionExclusion();
+		boolean isMultiSelect = enumVal.size() > 1;
+		// check exact match first
+		for (ColumnMessageFragmentDigest element : messageFragmentDigestList) {
+			if (element.getType() == MessageConfigType.ENUM && element.getCellSelection() != null
+					&& element.getCellSelection() == ConfigUtil.getCellSelectionType(isExclusion, isMultiSelect)) {
+				return element;
+			}
+		}
+		// check for default enum message fragment
+		for (ColumnMessageFragmentDigest element : messageFragmentDigestList) {
+			if (element.getType() == MessageConfigType.ENUM && element.getCellSelection() != null && element.getCellSelection() == CellSelectionType.DEFAULT) {
+				return element;
+			}
+		}
+		return null;
 	}
 
 	public ColumnMessageFragmentDigest getMessageFragmentDigest(Object cellValue) {
@@ -252,33 +215,6 @@ public class GridTemplateColumn extends AbstractTemplateColumn implements RuleMe
 		return (digest == null ? getAnyMessageFragmentDigest() : digest);
 	}
 
-	private ColumnMessageFragmentDigest getAnyMessageFragmentDigest() {
-		for (ColumnMessageFragmentDigest element : messageFragmentDigestList) {
-			if (element.getType() == MessageConfigType.ANY) {
-				return element;
-			}
-		}
-		return null;
-	}
-
-	private ColumnMessageFragmentDigest getMessageFragmentDigest(EnumValues<?> enumVal) {
-		boolean isExclusion = enumVal.isSelectionExclusion();
-		boolean isMultiSelect = enumVal.size() > 1;
-		// check exact match first
-		for (ColumnMessageFragmentDigest element : messageFragmentDigestList) {
-			if (element.getType() == MessageConfigType.ENUM && element.getCellSelection() != null && element.getCellSelection() == ConfigUtil.getCellSelectionType(isExclusion, isMultiSelect)) {
-				return element;
-			}
-		}
-		// check for default enum message fragment
-		for (ColumnMessageFragmentDigest element : messageFragmentDigestList) {
-			if (element.getType() == MessageConfigType.ENUM && element.getCellSelection() != null && element.getCellSelection() == CellSelectionType.DEFAULT) {
-				return element;
-			}
-		}
-		return null;
-	}
-
 	private ColumnMessageFragmentDigest getMessageFragmentDigestForRange() {
 		for (ColumnMessageFragmentDigest element : messageFragmentDigestList) {
 			if (element.getType() == MessageConfigType.RANGE) {
@@ -288,16 +224,103 @@ public class GridTemplateColumn extends AbstractTemplateColumn implements RuleMe
 		return null;
 	}
 
-	public String getUnparsedMessage(Object cellValue) {
-		return messageFragmentTextList.getUnparsedMessage(cellValue);
-	}
-
 	public Message getParsedMessage(Object cellValue) {
 		return messageFragmentTextList.getParsedMessage(cellValue);
 	}
 
+	/**
+	 * @return Returns the ruleDefinition.
+	 */
+	@Override
+	public RuleDefinition getRuleDefinition() {
+		return ruleDefinition;
+	}
+
+	/**
+	 * For migration use only
+	 * @return rule definition string
+	 * @since PowerEditor 4.0
+	 */
+	public String getRuleDefinitionString() {
+		return ruleDefinitionString;
+	}
+
+	public String getUnparsedMessage(Object cellValue) {
+		return messageFragmentTextList.getUnparsedMessage(cellValue);
+	}
+
+	@Override
 	public boolean hasEntitySpecificMessage() {
 		return messageContainer.hasEntitySpecificMessage();
+	}
+
+	@Override
+	public boolean hasMessageDigest() {
+		return messageContainer.hasMessageDigest();
+	}
+
+	public boolean hasMessageFragmentDigest() {
+		return !messageFragmentDigestList.isEmpty();
+	}
+
+	@Override
+	public void removeMessageDigest(TemplateMessageDigest digest) {
+		messageContainer.removeMessageDigest(digest);
+	}
+
+	public void removeMessageFragmentDigest(ColumnMessageFragmentDigest digest) {
+		messageFragmentDigestList.remove(digest);
+		messageConfig.removeMessageDigest(digest);
+	}
+
+	/**
+	 * Added for digest support.
+	 * @param str str
+	 * @since PowerEditor 3.2.0
+	 */
+	public void setColNum(String str) {
+		try {
+			setColumnNumber(Integer.parseInt(str));
+		}
+		catch (Exception ex) {
+		}
+	}
+
+	private void setColumnNumber(int colNo) {
+		super.setID(colNo);
+	}
+
+	/**
+	 * @param ruleDefinition The ruleDefinition to set.
+	 */
+	@Override
+	public void setRuleDefinition(RuleDefinition ruleDefinition) {
+		this.ruleDefinition = ruleDefinition;
+	}
+
+	/**
+	 * For migration use only
+	 * @param ruleDefinitionString the rule definition string
+	 * @since PowerEditor 4.0
+	 */
+	public void setRuleDefinitionString(String ruleDefinitionString) {
+		this.ruleDefinitionString = ruleDefinitionString;
+	}
+
+	/**
+	 * Update the column message fragment.
+	 * @param msgDigest msgDigest
+	 * @throws ParseException on parser error
+	 */
+	public void updateColumnMessageFragmentText(ColumnMessageFragmentDigest msgDigest) throws ParseException {
+		messageFragmentTextList.updateText(msgDigest.getType(), msgDigest.getText(), msgDigest.getCellSelection());
+		messageConfig.updateMessageDigest(msgDigest);
+		for (ColumnMessageFragmentDigest columnMessageFragmentDigest : messageFragmentDigestList) {
+			if (columnMessageFragmentDigest.getType() == msgDigest.getType() && columnMessageFragmentDigest.getCellSelection() == msgDigest.getCellSelection()) {
+				columnMessageFragmentDigest.copyFrom(msgDigest);
+				return;
+			}
+		}
 	}
 
 }

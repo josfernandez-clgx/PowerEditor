@@ -105,23 +105,23 @@ public interface ValueSlot extends FunctionArgument {
 	}
 
 	/**
-	 * Gets the type of this.
-	 * @return type
-	 */
-	Type getType();
-
-	/**
-	 * Gets a type-specific slot value of this.
-	 * For {@link #COLUMN_REFERENCE}, this returns an instance of java.lang.Integer.
-	 * @return slot value
-	 */
-	Object getSlotValue();
-
-	/**
 	 * Gets the text for this slot.
 	 * This is an optional text only used for certain conditions, such as math expressions and test conditions in LHS.
 	 * @return slot text in the format supported by <code>java.lang.MessageFormat</code>, where {0} is the place holder for the slot value; 
 	 *         may be <code>null</code>, if not to be used
 	 */
 	String getSlotText();
+
+	/**
+	 * Gets a type-specific slot value of this.
+	 * For COLUMN_REFERENCE, this returns an instance of java.lang.Integer.
+	 * @return slot value
+	 */
+	Object getSlotValue();
+
+	/**
+	 * Gets the type of this.
+	 * @return type
+	 */
+	Type getType();
 }

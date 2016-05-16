@@ -19,8 +19,11 @@ import com.mindbox.pe.server.model.TimeSlice;
 /**
  * Helper that generates string formatted for LHS patterns.
  * <p>
- * This is resposible for writing the part of the following ARTScript patter in <font color="read">red</font>:<br>
- * <code>(PE:symbol-attr </code><font color="read"><code>?symbolattribute &:(eq ?symbolattribute SubstantiallyRehabilitated))</font><code>)</code>
+ * This is resposible for writing the part of the following ARTScript patter in:
+ * </p>
+ * <p>
+ * <code>(PE:symbol-attr ?symbolattribute &amp;:(eq ?symbolattribute SubstantiallyRehabilitated))</code>
+ * </p>
  */
 public class LHSValueHelper {
 
@@ -43,13 +46,16 @@ public class LHSValueHelper {
 	 * Returns the specified value slot formatted for LHS pattern value.
 	 * This should include the attribute variable name in the returned string.
 	 * @param patternValueSlot pattern value slot
+	 * @param generateParams generateParams
 	 * @param attribVarName attribute variable name
-	 * @param timeSlice time slice
+	 * @param timeSlices time slices
+	 * @param messageContextType messageContextType
+	 * @param messageContextEntityID messageContextEntityID
 	 * @return string representing formatted valueObj and optional comment string
 	 * @throws RuleGenerationException on error
 	 */
-	public ValueAndComment generateValue(PatternValueSlot patternValueSlot, GuidelineGenerateParams generateParams, String attribVarName, TimeSlice[] timeSlices, GenericEntityType messageContextType,
-			int messageContextEntityID) throws RuleGenerationException {
+	public ValueAndComment generateValue(PatternValueSlot patternValueSlot, GuidelineGenerateParams generateParams, String attribVarName, TimeSlice[] timeSlices,
+			GenericEntityType messageContextType, int messageContextEntityID) throws RuleGenerationException {
 		return getValueSlotHelper(patternValueSlot).generateValue(patternValueSlot, generateParams, attribVarName, timeSlices, messageContextType, messageContextEntityID);
 	}
 

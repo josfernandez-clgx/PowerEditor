@@ -18,11 +18,13 @@ import com.mindbox.pe.model.domain.DomainViewDigest;
 
 /**
  * Domain XML Digester.
- * Usage:<ol>
+ * Usage:
+ * <ol>
  * <li>Get an instance of this</li>
  * <li>Call {@link #reset} method to initialize internal state</li>
  * <li>Call {@link #digestDomainXML(Reader)} once per domain definition XML file</li>
  * <li>Call {@link #getAllObjects()} to retrieve parsed (digested) objects</li>
+ * </ol>
  * @author Geneho Kim
  * @author MindBox
  * @since PowerEditor 3.2.0
@@ -46,12 +48,14 @@ public class DomainXMLDigester {
 		this.objectList = new LinkedList<Object>();
 	}
 
-	public synchronized void reset() {
-		objectList.clear();
-	}
-
 	public void addObject(Object obj) {
 		objectList.add(obj);
+	}
+
+	public void digestDomainXML(Reader reader) throws IOException, SAXException {
+		Digester digester = getDigester();
+		digester.push(this);
+		digester.parse(reader);
 	}
 
 	public synchronized List<Object> getAllObjects() {
@@ -63,54 +67,53 @@ public class DomainXMLDigester {
 		digester.setValidating(false);
 
 		digester.addObjectCreate("DomainModel/DomainClass", DomainClass.class);
-		digester.addSetProperties("DomainModel/DomainClass", 
-				new String[]{"Name","DeployLabel","DisplayLabel","AllowRuleUsage","HasMultiplicity"},
-				new String[]{"name","deployLabel","displayLabel","allowRuleUsage","hasMultiplicity"});
+		digester.addSetProperties(
+				"DomainModel/DomainClass",
+				new String[] { "Name", "DeployLabel", "DisplayLabel", "AllowRuleUsage", "HasMultiplicity" },
+				new String[] { "name", "deployLabel", "displayLabel", "allowRuleUsage", "hasMultiplicity" });
 		digester.addSetNext("DomainModel/DomainClass", "addObject");
 
 		digester.addObjectCreate("DomainModel/DomainClass/DomainClassLink", DomainClassLink.class);
-		digester.addSetProperties("DomainModel/DomainClass/DomainClassLink",
-				new String[]{"ParentClassName","ChildClassName","DeployValue","HasMultiplicity"},
-				new String[]{"parentName","childName","deployValueName","hasMultiplicity"});
+		digester.addSetProperties(
+				"DomainModel/DomainClass/DomainClassLink",
+				new String[] { "ParentClassName", "ChildClassName", "DeployValue", "HasMultiplicity" },
+				new String[] { "parentName", "childName", "deployValueName", "hasMultiplicity" });
 		digester.addSetNext("DomainModel/DomainClass/DomainClassLink", "addDomainClassLink");
-		
+
 		digester.addFactoryCreate("DomainModel/DomainClass/DomainAttribute", DomainAttributeFactory.class);
-		digester.addSetProperties("DomainModel/DomainClass/DomainAttribute",
-				new String[]{"Name","DeployType","DeployLabel","DisplayLabel","AllowRuleUsage","ContextlessLabel","Precision"},
-				new String[]{"name","deployTypeString","deployLabel","displayLabel","allowRuleUsage","contextlessLabel","precision"});
+		digester.addSetProperties(
+				"DomainModel/DomainClass/DomainAttribute",
+				new String[] { "Name", "DeployType", "DeployLabel", "DisplayLabel", "AllowRuleUsage", "ContextlessLabel", "Precision" },
+				new String[] { "name", "deployTypeString", "deployLabel", "displayLabel", "allowRuleUsage", "contextlessLabel", "precision" });
 		digester.addSetNext("DomainModel/DomainClass/DomainAttribute", "addDomainAttribute");
-		
+
 		digester.addObjectCreate("DomainModel/DomainClass/DomainAttribute/DomainView", DomainViewDigest.class);
-		digester.addSetProperties("DomainModel/DomainClass/DomainAttribute/DomainView",
-				new String[]{"ViewType"},
-				new String[]{"viewType"});
+		digester.addSetProperties("DomainModel/DomainClass/DomainAttribute/DomainView", new String[] { "ViewType" }, new String[] { "viewType" });
 		digester.addSetNext("DomainModel/DomainClass/DomainAttribute/DomainView", "addDomainViewDigest");
-		
+
 		digester.addObjectCreate("DomainModel/DomainClass/DomainAttribute/EnumValue", EnumValue.class);
-		digester.addSetProperties("DomainModel/DomainClass/DomainAttribute/EnumValue",
-				new String[]{"DeployID","DeployValue","DisplayLabel","Inactive"},
-				new String[]{"deployID","deployValue","displayLabel","inactive"});
+		digester.addSetProperties(
+				"DomainModel/DomainClass/DomainAttribute/EnumValue",
+				new String[] { "DeployID", "DeployValue", "DisplayLabel", "Inactive" },
+				new String[] { "deployID", "deployValue", "displayLabel", "inactive" });
 		digester.addSetNext("DomainModel/DomainClass/DomainAttribute/EnumValue", "addEnumValue");
 
 		digester.addObjectCreate("DomainModel/DomainClass/DomainTranslation", DomainTranslation.class);
-		digester.addSetProperties("DomainModel/DomainClass/DomainTranslation",
-				new String[]{"Name","AttributeType","LinkPath","DisplayLabel","ContextlessLabel"},
-				new String[]{"name","attributeType","linkPath","displayLabel","contextlessLabel"});
+		digester.addSetProperties(
+				"DomainModel/DomainClass/DomainTranslation",
+				new String[] { "Name", "AttributeType", "LinkPath", "DisplayLabel", "ContextlessLabel" },
+				new String[] { "name", "attributeType", "linkPath", "displayLabel", "contextlessLabel" });
 		digester.addSetNext("DomainModel/DomainClass/DomainTranslation", "addDomainTranslation");
-		
+
 		digester.addObjectCreate("DomainModel/DomainClass/DomainTranslation/DomainView", DomainViewDigest.class);
-		digester.addSetProperties("DomainModel/DomainClass/DomainTranslation/DomainView",
-				new String[]{"ViewType"},
-				new String[]{"viewType"});
+		digester.addSetProperties("DomainModel/DomainClass/DomainTranslation/DomainView", new String[] { "ViewType" }, new String[] { "viewType" });
 		digester.addSetNext("DomainModel/DomainClass/DomainTranslation/DomainView", "addDomainViewDigest");
-		
+
 		return digester;
 	}
-	
-	public void digestDomainXML(Reader reader) throws IOException, SAXException {
-		Digester digester = getDigester();
-		digester.push(this);
-		digester.parse(reader);
+
+	public synchronized void reset() {
+		objectList.clear();
 	}
 
 }

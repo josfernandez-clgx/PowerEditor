@@ -27,12 +27,9 @@ import com.mindbox.pe.xsd.config.GuidelineTab;
  * 
  * @author Gene Kim
  * @author MindBox, Inc
- * @since 
  */
 public class GuidelineContextDetailPanel extends AbstractContextDetailPanel {
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = -3951228734910107454L;
 
 	private final List<GuidelineTab> tabConfigs;
@@ -50,6 +47,7 @@ public class GuidelineContextDetailPanel extends AbstractContextDetailPanel {
 		tab.setFocusable(false);
 		tab.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		tab.addChangeListener(new ChangeListener() {
+			@Override
 			public void stateChanged(ChangeEvent e) {
 				templatePanel.clearTemplates();
 			}

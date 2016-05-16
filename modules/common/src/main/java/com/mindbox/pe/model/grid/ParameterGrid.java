@@ -26,20 +26,15 @@ public final class ParameterGrid extends AbstractGrid<ParameterTemplateColumn> {
 	private String cellValueStr;
 
 	/**
-	 * @param gridID
-	 * @param templateID
+	 * 
+	 * @param gridID gridID
+	 * @param templateID templateID
+	 * @param effDate effDate
+	 * @param expDate expDate
 	 */
 	public ParameterGrid(int gridID, int templateID, DateSynonym effDate, DateSynonym expDate) {
 		super(gridID, templateID, effDate, expDate);
 		cellValueStr = "";
-	}
-
-	/**
-	 * @param grid
-	 */
-	public ParameterGrid(ParameterGrid grid, DateSynonym effDate, DateSynonym expDate) {
-		super(grid, effDate, expDate);
-		this.cellValueStr = grid.getCellValues();
 	}
 
 	private ParameterGrid(ParameterGrid source) {
@@ -51,21 +46,40 @@ public final class ParameterGrid extends AbstractGrid<ParameterTemplateColumn> {
 		this.cellValueStr = source.cellValueStr;
 	}
 
+	/**
+	 * 
+	 * @param grid grid
+	 * @param effDate effDate
+	 * @param expDate expDate
+	 */
+	public ParameterGrid(ParameterGrid grid, DateSynonym effDate, DateSynonym expDate) {
+		super(grid, effDate, expDate);
+		this.cellValueStr = grid.getCellValues();
+	}
+
+	@Override
+	public void clearValues() {
+		this.cellValueStr = "";
+	}
+
+	// not used by Parameter grid.
+	@Override
+	public void copyCellValue(GridValueContainable source) {
+		// noop
+	}
+
+	@Override
 	public Auditable deepCopy() {
 		return new ParameterGrid(this);
 	}
 
-	public boolean isParameterGrid() {
-		return true;
-	}
-
-	protected boolean hasSameCellValues(AbstractGrid<ParameterTemplateColumn> abstractgrid) {
-		if (abstractgrid instanceof ParameterGrid) {
-			return isSame(((ParameterGrid) abstractgrid).getCellValues(), getCellValues());
+	private String[] extractColumnNames() {
+		List<String> list = new ArrayList<String>();
+		for (int i = 1; i <= getTemplate().getNumColumns(); i++) {
+			AbstractTemplateColumn element = getTemplate().getColumn(i);
+			list.add(element.getName());
 		}
-		else {
-			return false;
-		}
+		return list.toArray(new String[0]);
 	}
 
 	public final String[][] getCellArrays() {
@@ -84,60 +98,6 @@ public final class ParameterGrid extends AbstractGrid<ParameterTemplateColumn> {
 		}
 
 		return as;
-	}
-
-	public final void setDataList(List<List<Object>> list) {
-		if (list == null) {
-			cellValueStr = "";
-			setNumRows(0);
-			return;
-		}
-		setNumRows(list.size());
-		StringBuilder stringbuffer = new StringBuilder();
-		for (int i = 0; i < list.size(); i++) {
-			List<Object> list1 = list.get(i);
-			for (int j = 0; j < list1.size(); j++) {
-				boolean flag1 = false;
-				if (list1.size() - 1 == j) flag1 = true;
-				Object obj = list1.get(j);
-				stringbuffer.append(obj == null ? "" : (obj instanceof Date ? Constants.THREADLOCAL_FORMAT_DATE_TIME_SEC.get().format((Date) obj) : obj.toString()));
-				if (!flag1) stringbuffer.append("|");
-			}
-
-			boolean flag = false;
-			if (list.size() - 1 == i) flag = true;
-			if (!flag) stringbuffer.append("~");
-		}
-
-		cellValueStr = stringbuffer.toString();
-		setNumRows(list.size());
-	}
-
-	public final Object[][] getDataObjects() {
-		int i = getNumRows();
-		int j = getColumnCount();
-		List<Object[]> list = new ArrayList<Object[]>(i);
-		for (StringTokenizer st = new StringTokenizer(getCellValues(), "~", false); st.hasMoreTokens();) {
-			List<String> list1 = new ArrayList<String>(j);
-			String s = st.nextToken();
-			StringTokenizer st1 = new StringTokenizer(s, "|", true);
-			boolean flag = false;
-			while (st1.hasMoreTokens()) {
-				String s1 = st1.nextToken();
-				if (!flag) {
-					if (s1.equals("|"))
-						s1 = "";
-					else
-						flag = true;
-					list1.add(s1);
-				}
-				else {
-					flag = false;
-				}
-			}
-			list.add(list1.toArray(new Object[0]));
-		}
-		return list.toArray(new Object[0][0]);
 	}
 
 	public final String getCellValue(int i, int j) throws InvalidDataException {
@@ -174,49 +134,7 @@ public final class ParameterGrid extends AbstractGrid<ParameterTemplateColumn> {
 		return defaultValue;
 	}
 
-	public final String getCellValues() {
-		return cellValueStr;
-	}
-
-	public final void setCellValues(String s) {
-		cellValueStr = s;
-	}
-
-	public String toString() {
-		return "ParameterGrid" + super.toString();
-	}
-
-	public String toDetailString() {
-		return "ParameterGrid[{" + super.toString() + "}";
-	}
-
-	// not used by Parameter grid.
-	public boolean hasSameCellValues(GridValueContainable valueContainer) {
-		return false;
-	}
-
-	public boolean isEmpty() {
-		return cellValueStr == null || cellValueStr.length() == 0;
-	}
-
-	// not used by Parameter grid.
-	public void copyCellValue(GridValueContainable source) {
-		// noop
-	}
-
-	public String[] getColumnNames() {
-		return extractColumnNames();
-	}
-
-	private String[] extractColumnNames() {
-		List<String> list = new ArrayList<String>();
-		for (int i = 1; i <= getTemplate().getNumColumns(); i++) {
-			AbstractTemplateColumn element = getTemplate().getColumn(i);
-			list.add(element.getName());
-		}
-		return list.toArray(new String[0]);
-	}
-
+	@Override
 	public Object getCellValue(int row, String columnName) {
 		try {
 			return getCellValueObject(row, toColumnNumber(columnName), null);
@@ -225,6 +143,128 @@ public final class ParameterGrid extends AbstractGrid<ParameterTemplateColumn> {
 			Logger.getLogger(getClass()).warn(e);
 			return null;
 		}
+	}
+
+	@Override
+	public Object getCellValueObject(int i, int j, Object defaultValue) throws InvalidDataException {
+		String value = getCellValue(i, j, null);
+		return (value == null ? defaultValue : value);
+	}
+
+	public final String getCellValues() {
+		return cellValueStr;
+	}
+
+	@Override
+	public String[] getColumnNames() {
+		return extractColumnNames();
+	}
+
+	@Override
+	public final Object[][] getDataObjects() {
+		int i = getNumRows();
+		int j = getColumnCount();
+		List<Object[]> list = new ArrayList<Object[]>(i);
+		for (StringTokenizer st = new StringTokenizer(getCellValues(), "~", false); st.hasMoreTokens();) {
+			List<String> list1 = new ArrayList<String>(j);
+			String s = st.nextToken();
+			StringTokenizer st1 = new StringTokenizer(s, "|", true);
+			boolean flag = false;
+			while (st1.hasMoreTokens()) {
+				String s1 = st1.nextToken();
+				if (!flag) {
+					if (s1.equals("|"))
+						s1 = "";
+					else
+						flag = true;
+					list1.add(s1);
+				}
+				else {
+					flag = false;
+				}
+			}
+			list.add(list1.toArray(new Object[0]));
+		}
+		return list.toArray(new Object[0][0]);
+	}
+
+	@Override
+	protected boolean hasSameCellValues(AbstractGrid<ParameterTemplateColumn> abstractgrid) {
+		if (abstractgrid instanceof ParameterGrid) {
+			return isSame(((ParameterGrid) abstractgrid).getCellValues(), getCellValues());
+		}
+		else {
+			return false;
+		}
+	}
+
+	// not used by Parameter grid.
+	@Override
+	public boolean hasSameCellValues(GridValueContainable valueContainer) {
+		return false;
+	}
+
+	@Override
+	public boolean hasSameRow(int row, String[] columns, int targeRow, GridValueContainable valueContainable) {
+		//return false for parameter grid
+		return false;
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return cellValueStr == null || cellValueStr.length() == 0;
+	}
+
+	@Override
+	public boolean isEmptyRow(int row) {
+		// return false for parameter grid
+		return false;
+	}
+
+	@Override
+	public boolean isParameterGrid() {
+		return true;
+	}
+
+	public final void setCellValues(String s) {
+		cellValueStr = s;
+	}
+
+	public final void setDataList(List<List<Object>> list) {
+		if (list == null) {
+			cellValueStr = "";
+			setNumRows(0);
+			return;
+		}
+		setNumRows(list.size());
+		StringBuilder stringbuffer = new StringBuilder();
+		for (int i = 0; i < list.size(); i++) {
+			List<Object> list1 = list.get(i);
+			for (int j = 0; j < list1.size(); j++) {
+				boolean flag1 = false;
+				if (list1.size() - 1 == j) flag1 = true;
+				Object obj = list1.get(j);
+				stringbuffer.append(obj == null ? "" : (obj instanceof Date ? Constants.THREADLOCAL_FORMAT_DATE_TIME_SEC.get().format((Date) obj) : obj.toString()));
+				if (!flag1) stringbuffer.append("|");
+			}
+
+			boolean flag = false;
+			if (list.size() - 1 == i) flag = true;
+			if (!flag) stringbuffer.append("~");
+		}
+
+		cellValueStr = stringbuffer.toString();
+		setNumRows(list.size());
+	}
+
+	@Override
+	public void setValue(int rowID, int col, Object value) {
+		// not used by Parameter grid.
+	}
+
+	@Override
+	public void setValue(int rowID, String columnName, Object value) {
+		// not used by Parameter grid.
 	}
 
 	private int toColumnNumber(String columnName) {
@@ -237,32 +277,12 @@ public final class ParameterGrid extends AbstractGrid<ParameterTemplateColumn> {
 		return -1;
 	}
 
-	public Object getCellValueObject(int i, int j, Object defaultValue) throws InvalidDataException {
-		String value = getCellValue(i, j, null);
-		return (value == null ? defaultValue : value);
-	}
-
-	public void setValue(int rowID, String columnName, Object value) {
-		// not used by Parameter grid.
-	}
-
-	public void setValue(int rowID, int col, Object value) {
-		// not used by Parameter grid.
-	}
-
-	public void clearValues() {
-		this.cellValueStr = "";
+	public String toDetailString() {
+		return "ParameterGrid[{" + super.toString() + "}";
 	}
 
 	@Override
-	public boolean hasSameRow(int row, String[] columns, int targeRow, GridValueContainable valueContainable) {
-		//return false for parameter grid
-		return false;
-	}
-
-	@Override
-	public boolean isEmptyRow(int row) {
-		// return false for parameter grid
-		return false;
+	public String toString() {
+		return "ParameterGrid" + super.toString();
 	}
 }

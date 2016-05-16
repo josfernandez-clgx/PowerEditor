@@ -26,26 +26,32 @@ public interface UserDataProvider {
 	 * @return <code>true</code> if user objects are to be cached; <code>false</code>, otherwise
 	 */
 	boolean cacheUserObjects();
-	
+
 	/**
 	 * Gets a list of roles of the specified user.
 	 * 
 	 * This is not used if {@link #cacheUserObjects()} returns <code>true</code>.
 	 * So, only provide a meaningful implementation of this if and only if
 	 * {@link #cacheUserObjects()} returns <code>false</code>.
-	 * @param userID
+	 * @param userID userID
 	 * @return a list of {@link Role} objects
-	 * @throws UnsupportedOperationException if this is not supported
+	 * @throws SQLException on error
 	 */
 	List<Role> getRoles(String userID) throws SQLException;
-	
+
+	void loadAllPrivileges(UserSecurityDataHolder dataHolder) throws SQLException;
+
+	void loadAllPrivilegesToRoles(UserSecurityDataHolder dataHolder) throws SQLException;
+
+	void loadAllRoles(UserSecurityDataHolder dataHolder) throws SQLException;
+
 	/**
 	 * Loads all users from the data source into the specified data holder.
 	 * 
 	 * This is not used if {@link #cacheUserObjects()} returns <code>false</code>.
 	 * So, only provide a meaningful implementation of this if and only if
 	 * {@link #cacheUserObjects()} returns <code>true</code>.
-	 * @param dataHolder
+	 * @param dataHolder dataHolder
 	 * @throws SQLException on data source error
 	 * @throws ParseException on parse error
 	 * @throws UnsupportedOperationException if this is not supported
@@ -58,16 +64,10 @@ public interface UserDataProvider {
 	 * This is not used if {@link #cacheUserObjects()} returns <code>false</code>.
 	 * So, only provide a meaningful implementation of this if and only if
 	 * {@link #cacheUserObjects()} returns <code>true</code>.
-	 * @param dataHolder
-	 * @throws SQLException
+	 * @param dataHolder dataHolder
+	 * @throws SQLException on error
 	 * @throws UnsupportedOperationException if this is not supported
 	 */
 	void loadAllUsersToRoles(UserSecurityDataHolder dataHolder) throws SQLException;
-	
-	void loadAllPrivileges(UserSecurityDataHolder dataHolder) throws SQLException;
-	
-	void loadAllRoles(UserSecurityDataHolder dataHolder) throws SQLException;
-	
-	void loadAllPrivilegesToRoles(UserSecurityDataHolder dataHolder) throws SQLException;
-	
+
 }

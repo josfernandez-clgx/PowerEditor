@@ -6,18 +6,15 @@ package com.mindbox.pe.model;
  * @since PowerEditor 1.0
  */
 public abstract class AbstractIDNameDescriptionObject extends AbstractIDNameObject {
-	
+
 	private static final long serialVersionUID = 2003052016150200L;
 
 
 	private String desc = null;
 
-	/**
-	 * Constructs a new KeyedNameDescription with the specified id and empty name and description.
-	 */
-	protected AbstractIDNameDescriptionObject(String name, String desc) {
-		super(name);
-		this.desc = desc;
+	protected AbstractIDNameDescriptionObject(AbstractIDNameDescriptionObject source) {
+		super(source);
+		this.desc = source.desc;
 	}
 
 	/**
@@ -30,15 +27,21 @@ public abstract class AbstractIDNameDescriptionObject extends AbstractIDNameObje
 		super(id, name);
 		this.desc = desc;
 	}
-	
-	protected AbstractIDNameDescriptionObject(AbstractIDNameDescriptionObject source) {
-		super(source);
-		this.desc = source.desc;
+
+	/**
+	 * Constructs a new KeyedNameDescription with the specified id and empty name and description.
+	 * @param name name
+	 * @param desc desc
+	 */
+	protected AbstractIDNameDescriptionObject(String name, String desc) {
+		super(name);
+		this.desc = desc;
 	}
 
+	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof AbstractIDNameDescriptionObject) {
-			return (super.equals(obj) && desc.equals(((AbstractIDNameDescriptionObject)obj).desc));
+			return (super.equals(obj) && desc.equals(((AbstractIDNameDescriptionObject) obj).desc));
 		}
 		else {
 			return false;
@@ -48,15 +51,17 @@ public abstract class AbstractIDNameDescriptionObject extends AbstractIDNameObje
 	public final String getDescription() {
 		return desc;
 	}
-	
-	public final void setName(String name) {
-		super.setName(name);
-	}
-	
+
 	public final void setDescription(String desc) {
 		this.desc = desc;
 	}
-	
+
+	@Override
+	public final void setName(String name) {
+		super.setName(name);
+	}
+
+	@Override
 	public String toString() {
 		return super.toString() + "[desc=" + desc + "]";
 	}

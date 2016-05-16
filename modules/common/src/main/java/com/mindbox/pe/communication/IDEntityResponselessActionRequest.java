@@ -21,15 +21,15 @@ public class IDEntityResponselessActionRequest extends AbstractEntityIDActionReq
 	private final int actionType;
 
 	/**
-	 * @param userID
-	 * @param sessionID
-	 * @param entityID
-	 * @param entityType
+	 * @param userID userID
+	 * @param sessionID sessionID
+	 * @param entityID entityID
+	 * @param entityType entityType
 	 * @param actionType defined in {@link SessionRequest} 
 	 */
 	public IDEntityResponselessActionRequest(String userID, String sessionID, int entityID, PeDataType entityType, int actionType) {
 		super(userID, sessionID, entityID, entityType, false);
-		this.actionType= actionType;
+		this.actionType = actionType;
 	}
 
 	public int getActionType() {

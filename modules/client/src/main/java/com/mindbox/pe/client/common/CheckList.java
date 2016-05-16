@@ -81,7 +81,7 @@ public class CheckList<T> extends JList<T> {
 
 	/**
 	 * Override this to customize text displayed for each item in this list.
-	 * @param obj 
+	 * @param obj object
 	 * @return string representation of <code>obj</code>
 	 */
 	protected String getListText(T obj) {

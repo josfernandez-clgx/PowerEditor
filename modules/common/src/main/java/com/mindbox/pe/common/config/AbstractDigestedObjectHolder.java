@@ -16,7 +16,7 @@ import java.util.Set;
 
 /**
  * Contains objects created by Digester.
- * This is a serializable version of {@link com.mindbox.pe.server.imexport.digest.AbstractObjectHolder}, 
+ * This is a serializable version of com.mindbox.pe.server.imexport.digest.AbstractObjectHolder, 
  * which must reside in its package. So, instead of using it, this class is introduced 
  * as a serializable version so that PE server can pass this to the client.
  * 
@@ -25,13 +25,27 @@ import java.util.Set;
  * @since PowerEditor 3.0.0
  */
 public abstract class AbstractDigestedObjectHolder implements Serializable {
-	
+
 	private static final long serialVersionUID = 200404150000L;
 
-	private final Map<Class<?>,List<Object>> objectMap;
+	private final Map<Class<?>, List<Object>> objectMap;
 
 	public AbstractDigestedObjectHolder() {
-		objectMap = new HashMap<Class<?>,List<Object>>();
+		objectMap = new HashMap<Class<?>, List<Object>>();
+	}
+
+	public final void addObject(Object object) {
+		getList(object.getClass()).add(object);
+	}
+
+	public final void addObjects(Collection<?> objects) {
+		for (Object object : objects) {
+			addObject(object);
+		}
+	}
+
+	public final Set<Class<?>> getClassKeySet() {
+		return Collections.unmodifiableSet(objectMap.keySet());
 	}
 
 	private List<Object> getList(Class<?> c) {
@@ -45,19 +59,10 @@ public abstract class AbstractDigestedObjectHolder implements Serializable {
 		}
 	}
 
-	public final void addObject(Object object) {
-		getList(object.getClass()).add(object);
-	}
-
-	public final void addObjects(Collection<?> objects) {
-		for (Object object : objects) {
-			addObject(object);
-		}
-	}
-	
 	/**
 	 * Gets a list of objects of the specified class as an unmodifible list.
-	 * @param c
+	 * @param <T> type
+	 * @param c class
 	 * @return list of those objects that are instances of <code>c</code>
 	 */
 	@SuppressWarnings("unchecked")
@@ -70,8 +75,9 @@ public abstract class AbstractDigestedObjectHolder implements Serializable {
 	 * Gets a list of objects of the specified class.
 	 * If <code>comparator</code> is not <code>null</code>, this returns the list sorted using the specified comparator;
 	 * otherwise, this is identical to {@link #getObjects(Class)}. 
-	 * @param c
-	 * @param comparator
+	 * @param <T> type
+	 * @param c class
+	 * @param comparator comparator
 	 * @return list of those objects that are instances of <code>c</code>
 	 */
 	@SuppressWarnings("unchecked")
@@ -86,10 +92,6 @@ public abstract class AbstractDigestedObjectHolder implements Serializable {
 		}
 	}
 
-	public final Set<Class<?>> getClassKeySet() {
-		return Collections.unmodifiableSet(objectMap.keySet());
-	}
-	
 	protected final void removeObjects(Class<?> c) {
 		objectMap.remove(c);
 	}

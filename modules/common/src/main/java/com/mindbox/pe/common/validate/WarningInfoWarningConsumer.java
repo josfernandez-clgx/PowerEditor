@@ -20,10 +20,12 @@ public class WarningInfoWarningConsumer implements WarningConsumer {
 	private List<WarningInfo> warningList = new LinkedList<WarningInfo>();
 
 
+	@Override
 	public void addWarning(int level, String message) {
 		addWarning(level, message, null);
 	}
 
+	@Override
 	public void addWarning(int level, String message, String resource) {
 		synchronized (warningList) {
 			warningList.add(new WarningInfo(level, message, resource));
@@ -36,14 +38,15 @@ public class WarningInfoWarningConsumer implements WarningConsumer {
 		}
 	}
 
-	public boolean hasWarnings() {
+	public void clearWarnings() {
 		synchronized (warningList) {
-			return !warningList.isEmpty();
+			warningList.clear();
 		}
 	}
 
 	/**
 	 * Gets list of {@link WarningInfo} objects.
+	 * @return warning info list
 	 */
 	public List<WarningInfo> getAllWarnings() {
 		synchronized (warningList) {
@@ -51,9 +54,9 @@ public class WarningInfoWarningConsumer implements WarningConsumer {
 		}
 	}
 
-	public void clearWarnings() {
+	public boolean hasWarnings() {
 		synchronized (warningList) {
-			warningList.clear();
+			return !warningList.isEmpty();
 		}
 	}
 }

@@ -11,15 +11,8 @@ import com.mindbox.pe.model.GenericEntity;
  */
 public class GenericEntitySelectionTable extends IDNameObjectSelectionTable<GenericEntitySelectionTableModel, GenericEntity> {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -3951228734910107454L;
 
-	/**
-		 * @param tableModel
-		 * @param canSelectMultiple
-		 */
 	public GenericEntitySelectionTable(GenericEntitySelectionTableModel tableModel, boolean canSelectMultiple) {
 		super(tableModel, canSelectMultiple);
 	}

@@ -29,7 +29,8 @@ import com.mindbox.pe.model.exceptions.CanceledException;
  * Any component you add to this, using one of <code>add</code> methods, <code>addTab</code> methods, 
  * or <code>insertTab</code> methods, must implement {@link PowerEditorTabPanel},
  * in order for the component to be notified when a tab change occurs.
- * <p>
+ * </p>
+ * <div>
  * When a tab change is detected, 
  * <ol>
  * <li>Check if the component of the previous tab (the tab that was visible when a tab change is detected)
@@ -42,19 +43,36 @@ import com.mindbox.pe.model.exceptions.CanceledException;
  * </li>
  * <li>Tab selection changes, as usual.</li>
  * </ol>
- * <b>Usage</b><br/>
+ * </div>
+ * <b>Usage</b>
+ * <p>
  * Use this class as you would <code>javax.swing.JTabbedPane</code>.
  * Just make sure the component you add as a tab to this implements {@link PowerEditorTabPanel}.
+ * </p>
  * @author kim
  * @author MindBox
  * @since PowerEditor 4.0.0
  * @see PowerEditorTabPanel
  */
 public class PowerEditorTab extends JTabbedPane {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3951228734910107454L;
+	private class SelectionModel extends DefaultSingleSelectionModel {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -3951228734910107454L;
+
+		@Override
+		protected void fireStateChanged() {
+			super.fireStateChanged();
+		}
+
+		@Override
+		public void setSelectedIndex(int arg0) {
+			if (processTabChange()) {
+				super.setSelectedIndex(arg0);
+			}
+		}
+	}
 
 	public static class Test {
 
@@ -85,22 +103,10 @@ public class PowerEditorTab extends JTabbedPane {
 	}
 
 
-	private class SelectionModel extends DefaultSingleSelectionModel {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -3951228734910107454L;
-
-		protected void fireStateChanged() {
-			super.fireStateChanged();
-		}
-
-		public void setSelectedIndex(int arg0) {
-			if (processTabChange()) {
-				super.setSelectedIndex(arg0);
-			}
-		}
-	}
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3951228734910107454L;
 
 	public PowerEditorTab() {
 		super();
@@ -120,12 +126,6 @@ public class PowerEditorTab extends JTabbedPane {
 	private void addListener() {
 		//getModel().addChangeListener(new TabChangeL());
 		super.setModel(new SelectionModel());
-	}
-
-	/**
-	 * This does nothing.
-	 */
-	public final void setModel(SingleSelectionModel arg0) {
 	}
 
 	/**
@@ -182,5 +182,12 @@ public class PowerEditorTab extends JTabbedPane {
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * This does nothing.
+	 */
+	@Override
+	public final void setModel(SingleSelectionModel arg0) {
 	}
 }

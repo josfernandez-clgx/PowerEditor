@@ -28,13 +28,26 @@ import com.mindbox.pe.model.grid.ParameterGrid;
  * @author MindBox
  */
 public class ParameterContextDialog extends JPanel {
-	/**
-	 * 
-	 */
+	private class StatusComboL implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			String status = statusField.getSelectedEnumValueValue();
+			if (!ClientUtil.checkPermissionByPrivilegeName(PrivilegeConstants.PRIV_EDIT_PRODUCTION_DATA) && ClientUtil.isHighestStatus(status)) {
+				if (actDateField.getValue() == null || actDateField.getValue().getDate().before(new Date())) {
+					ClientUtil.getInstance().showErrorDialog("msg.error.statuschange.activate", new Object[] { ClientUtil.getHighestStatusDisplayLabel() });
+					statusField.setSelectedIndex(0);
+				}
+				else if (!ClientUtil.getInstance().showConfirmation("msg.confirm.statuschange.parameter.hightest", new Object[] { ClientUtil.getHighestStatusDisplayLabel() })) {
+					statusField.setSelectedIndex(0);
+				}
+			}
+		}
+	}
+
 	private static final long serialVersionUID = -3951228734910107454L;
 
 	/**
-	 * @param paramContext
+	 * @param originalGrid paramContext
 	 * @return Object[2]{ParameterGrid,Boolean} - Boolean is set to true if expiration of the source
 	 *         is to be set
 	 */
@@ -62,6 +75,24 @@ public class ParameterContextDialog extends JPanel {
 		}
 	}
 
+	/**
+	 * @param paramContext paramContext
+	 * @author Inna Nill
+	 * @author MindBox, LLC
+	 * @since PowerEditor 4.2
+	 */
+	public static void editParameterGrid(ParameterGrid paramContext) {
+		ParameterContextDialog dialog = new ParameterContextDialog(paramContext, true);
+		int option = -1;
+		do {
+			option = JOptionPane.showConfirmDialog(ClientUtil.getApplet(), dialog, "New Parameter", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+		} while (option == JOptionPane.OK_OPTION && !validate(dialog));
+		if (option == JOptionPane.OK_OPTION) {
+			dialog.updateFromFields();
+		}
+	}
+
 	public static ParameterGrid newParameterGrid() {
 		ParameterContextDialog dialog = new ParameterContextDialog(null, true);
 		int option = -1;
@@ -85,7 +116,8 @@ public class ParameterContextDialog extends JPanel {
 			ClientUtil.getInstance().showWarning("msg.warning.no.activation.date", new Object[] { ClientUtil.getHighestStatusDisplayLabel() });
 			return false;
 		}
-		else if (ClientUtil.isHighestStatus((String) dialog.statusField.getSelectedEnumValueValue()) && (dialog.actDateField == null || dialog.actDateField.getDate().before(new Date()))) {
+		else if (ClientUtil.isHighestStatus((String) dialog.statusField.getSelectedEnumValueValue())
+				&& (dialog.actDateField == null || dialog.actDateField.getDate().before(new Date()))) {
 			ClientUtil.getInstance().showWarning("msg.error.statuschange.activate", new Object[] { ClientUtil.getHighestStatusDisplayLabel() });
 			return false;
 		}
@@ -94,29 +126,12 @@ public class ParameterContextDialog extends JPanel {
 		}
 	}
 
-	/**
-	 * @param paramContext
-	 * @author Inna Nill
-	 * @author MindBox, LLC
-	 * @since PowerEditor 4.2
-	 */
-	public static void editParameterGrid(ParameterGrid paramContext) {
-		ParameterContextDialog dialog = new ParameterContextDialog(paramContext, true);
-		int option = -1;
-		do {
-			option = JOptionPane.showConfirmDialog(ClientUtil.getApplet(), dialog, "New Parameter", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-
-		} while (option == JOptionPane.OK_OPTION && !validate(dialog));
-		if (option == JOptionPane.OK_OPTION) {
-			dialog.updateFromFields();
-		}
-	}
-
 	private ParameterGrid paramContext;
 	private boolean allowEdit = false;
 	private final DateSelectorComboField actDateField, expDateField;
 	private final TypeEnumValueComboBox statusField;
 	private final JCheckBox adjustCheckbox;
+
 	private final GuidelineContextPanel contextPanel;
 
 	private ParameterContextDialog(ParameterGrid paramGrid, boolean allowEdit) {
@@ -213,21 +228,6 @@ public class ParameterContextDialog extends JPanel {
 		paramContext.setStatus(status);
 		ClientUtil.setContext(paramContext, contextPanel.getGuidelineContexts());
 		return true;
-	}
-
-	private class StatusComboL implements ActionListener {
-		public void actionPerformed(ActionEvent event) {
-			String status = statusField.getSelectedEnumValueValue();
-			if (!ClientUtil.checkPermissionByPrivilegeName(PrivilegeConstants.PRIV_EDIT_PRODUCTION_DATA) && ClientUtil.isHighestStatus(status)) {
-				if (actDateField.getValue() == null || actDateField.getValue().getDate().before(new Date())) {
-					ClientUtil.getInstance().showErrorDialog("msg.error.statuschange.activate", new Object[] { ClientUtil.getHighestStatusDisplayLabel() });
-					statusField.setSelectedIndex(0);
-				}
-				else if (!ClientUtil.getInstance().showConfirmation("msg.confirm.statuschange.parameter.hightest", new Object[] { ClientUtil.getHighestStatusDisplayLabel() })) {
-					statusField.setSelectedIndex(0);
-				}
-			}
-		}
 	}
 
 

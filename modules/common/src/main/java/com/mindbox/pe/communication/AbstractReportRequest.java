@@ -24,10 +24,10 @@ public abstract class AbstractReportRequest<T extends ResponseComm> extends Sess
 
 	/**
 	 * Creates a new instance of this.
-	 * @param userID
-	 * @param sessionID
-	 * @param reportSpec
-	 * @param guidelinList set to <code>null</code> if reportSpec is of type {@link com.mindbox.pe.model.report.CustomReportSpec}
+	 * @param userID userID
+	 * @param sessionID sessionID
+	 * @param reportSpec reportSpec
+	 * @param guidelineList set to <code>null</code> if reportSpec is of type {@link com.mindbox.pe.model.report.CustomReportSpec}
 	 */
 	protected AbstractReportRequest(String userID, String sessionID, AbstractReportSpec reportSpec, List<GuidelineReportData> guidelineList) {
 		super(userID, sessionID);

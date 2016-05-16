@@ -68,7 +68,10 @@ public final class GuidelineTemplateManager extends AbstractCacheManager {
 							grid.setValue(
 									r,
 									col.getName(),
-									col.convertToCellValue(currCellValue.toString(), DomainManager.getInstance(), ConfigurationManager.getInstance().getEnumerationSourceConfigHelper()));
+									col.convertToCellValue(
+											currCellValue.toString(),
+											DomainManager.getInstance(),
+											ConfigurationManager.getInstance().getEnumerationSourceConfigHelper()));
 						}
 					}
 				}
@@ -153,7 +156,8 @@ public final class GuidelineTemplateManager extends AbstractCacheManager {
 		// 1. check attributeMap first
 		for (int i = 1; i <= template.getNumColumns(); i++) {
 			AbstractTemplateColumn column = template.getColumn(i);
-			if (column.getMAClassName() != null && column.getMAClassName().equalsIgnoreCase(className) && column.getMAAttributeName() != null && column.getMAAttributeName().equalsIgnoreCase(attrName)) {
+			if (column.getMAClassName() != null && column.getMAClassName().equalsIgnoreCase(className) && column.getMAAttributeName() != null
+					&& column.getMAAttributeName().equalsIgnoreCase(attrName)) {
 				logger.debug("<<< getColumnNumFor(on-attrMap): " + i);
 				return i;
 			}
@@ -199,8 +203,8 @@ public final class GuidelineTemplateManager extends AbstractCacheManager {
 	/**
 	 * Gets the privilege string for the specified template.
 	 * 
-	 * @param templateID
-	 * @param flag
+	 * @param templateID templateID
+	 * @param viewOnly view only
 	 * @return the privilege string for <code>templateID</code>, if found; <code>null</code>, otherwise
 	 */
 	public String getTemplatePermission(int templateID, boolean viewOnly) {
@@ -214,7 +218,7 @@ public final class GuidelineTemplateManager extends AbstractCacheManager {
 
 	/**
 	 * 
-	 * @param templateIDs
+	 * @param templateIDs templateIDs
 	 * @return list of templates
 	 * @since PowerEditor 4.3.6
 	 */
@@ -232,7 +236,7 @@ public final class GuidelineTemplateManager extends AbstractCacheManager {
 
 	/**
 	 * 
-	 * @param usages
+	 * @param usages usages
 	 * @return list of templates for <code>usages</code>
 	 * @since PowerEditor 4.3.6
 	 */
@@ -273,7 +277,7 @@ public final class GuidelineTemplateManager extends AbstractCacheManager {
 
 	/**
 	 * 
-	 * @param usages
+	 * @param usages usages
 	 * @return list of templates for <code>usages</code>
 	 * @since PowerEditor 4.3.6
 	 */

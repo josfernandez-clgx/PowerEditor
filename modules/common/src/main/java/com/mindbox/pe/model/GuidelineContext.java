@@ -17,11 +17,13 @@ import com.mindbox.pe.common.UtilBase;
  */
 public final class GuidelineContext implements Serializable {
 
+	private static final long serialVersionUID = 2003071022559000L;
+
 	/**
 	 * Tests if the two guideline context arrays represent the same set of guideline context elements.
 	 * @param gc1 guideline context array 1
 	 * @param gc2 guideline context array 2
-	 * @return <code>true</code> if <code>gc1<code> and <code>gc2</code> presetnt the same set of guideline context elements; <code>false</code>, otherwise
+	 * @return <code>true</code> if <code>gc1</code> and <code>gc2</code> presetnt the same set of guideline context elements; <code>false</code>, otherwise
 	 * @since PowerEditor 4.2.0
 	 */
 	public static boolean isIdentical(GuidelineContext[] gc1, GuidelineContext[] gc2) {
@@ -29,12 +31,12 @@ public final class GuidelineContext implements Serializable {
 		if (gc1 == null || gc2 == null) return false;
 		if (gc1.length != gc2.length) return false;
 		for (int i = 0; i < gc1.length; i++) {
-			if (!gc1[i].isContainedIn(gc2)) { return false; }
+			if (!gc1[i].isContainedIn(gc2)) {
+				return false;
+			}
 		}
 		return true;
 	}
-
-	private static final long serialVersionUID = 2003071022559000L;
 
 	/**
 	 * Added for generic entity support
@@ -48,13 +50,21 @@ public final class GuidelineContext implements Serializable {
 		this(genericEntityType, -1);
 	}
 
+	private GuidelineContext(GenericEntityType genericEntityType, int genericCategoryType) {
+		this.genericEntityType = genericEntityType;
+		this.genericCategoryType = genericCategoryType;
+	}
+
 	public GuidelineContext(int genericCategoryType) {
 		this(null, genericCategoryType);
 	}
 
-	private GuidelineContext(GenericEntityType genericEntityType, int genericCategoryType) {
-		this.genericEntityType = genericEntityType;
-		this.genericCategoryType = genericCategoryType;
+	public int getGenericCategoryType() {
+		return genericCategoryType;
+	}
+
+	public GenericEntityType getGenericEntityType() {
+		return genericEntityType;
 	}
 
 	public GenericEntityType getGenericEntityTypeForContext() {
@@ -66,10 +76,14 @@ public final class GuidelineContext implements Serializable {
 		}
 	}
 
+	public int[] getIDs() {
+		return entityIDs;
+	}
+
 	public boolean hasCategoryContext() {
 		return genericCategoryType > -1;
 	}
-	
+
 	/**
 	 * Tests if this is contained in the specified guideline context array.
 	 * Note: this is good for equalify test, but not for sub-context test.
@@ -80,16 +94,17 @@ public final class GuidelineContext implements Serializable {
 	public boolean isContainedIn(GuidelineContext[] contexts) {
 		if (contexts == null) return false;
 		for (int i = 0; i < contexts.length; i++) {
-			if (contexts[i].genericEntityType == this.genericEntityType
-					&& contexts[i].genericCategoryType == this.genericCategoryType && UtilBase.equals(contexts[i].entityIDs, this.entityIDs)) { 
-				return true; 
+			if (contexts[i].genericEntityType == this.genericEntityType && contexts[i].genericCategoryType == this.genericCategoryType
+					&& UtilBase.equals(contexts[i].entityIDs, this.entityIDs)) {
+				return true;
 			}
 		}
 		return false;
 	}
 
-	public int getGenericCategoryType() {
-		return genericCategoryType;
+	public void setIDs(int[] ids) {
+		if (ids == null) throw new NullPointerException("ids cannot be null");
+		entityIDs = ids;
 	}
 
 	public void setIDs(Persistent[] selections) {
@@ -101,23 +116,8 @@ public final class GuidelineContext implements Serializable {
 		entityIDs = ids;
 	}
 
-	public void setIDs(int[] ids) {
-		if (ids == null) throw new NullPointerException("ids cannot be null");
-		entityIDs = ids;
-	}
-
-	public int[] getIDs() {
-		return entityIDs;
-	}
-
+	@Override
 	public String toString() {
 		return "GuidelineContext[" + genericEntityType + ":size=" + entityIDs.length + " ]";
-	}
-
-	/**
-	 * @return Returns the genericEntityType.
-	 */
-	public GenericEntityType getGenericEntityType() {
-		return genericEntityType;
 	}
 }

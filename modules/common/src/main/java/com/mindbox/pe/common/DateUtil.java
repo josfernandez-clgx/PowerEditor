@@ -82,6 +82,7 @@ public final class DateUtil {
 	}
 
 	/**
+	 * @param d date
 	 * @return Number of complete 24 hour timespans since d.  If d is in the future, the result will be negative (or zero if d is less than one day in the future).
 	 * @throws NullPointerException if passwordChangeDate is null.
 	 */

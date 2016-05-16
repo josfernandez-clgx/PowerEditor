@@ -7,14 +7,14 @@ import java.util.Set;
  * Provides Set operations.
  * @author Gene Kim
  * @author MindBox, Inc
- * @since 
  */
 public final class SetOperations {
 
 	/**
 	 * 
-	 * @param set1
-	 * @param set2
+	 * @param <T> element type
+	 * @param set1 set1
+	 * @param set2 set2
 	 * @return the set which is an intersection of set1 and set2
 	 */
 	public static <T> Set<T> intersection(Set<T> set1, Set<T> set2) {
@@ -26,11 +26,11 @@ public final class SetOperations {
 		}
 		return set;
 	}
-	
+
 	/**
-	 * 
-	 * @param set1
-	 * @param set2
+	 * @param <T> element type
+	 * @param set1 set1
+	 * @param set2 set2
 	 * @return the set which is a union of set1 and set2.
 	 */
 	public static <T> Set<T> union(Set<T> set1, Set<T> set2) {

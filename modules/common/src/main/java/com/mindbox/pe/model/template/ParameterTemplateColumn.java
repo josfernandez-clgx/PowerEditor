@@ -20,12 +20,11 @@ public class ParameterTemplateColumn extends AbstractTemplateColumn {
 	}
 
 	/**
-	 * @param id
-	 * @param name
-	 * @param desc
-	 * @param width
-	 * @param dataSpec
-	 * @param mappedAttr
+	 * @param id id 
+	 * @param name name
+	 * @param desc desc
+	 * @param width width
+	 * @param usageType usage type
 	 */
 	public ParameterTemplateColumn(int id, String name, String desc, int width, TemplateUsageType usageType) {
 		super(id, name, desc, width, usageType);
@@ -35,17 +34,9 @@ public class ParameterTemplateColumn extends AbstractTemplateColumn {
 		super(source);
 	}
 
-	public String toString() {
-		return "ParameterTempColumn[" + getID() + "," + getName() + ",attr=" + super.getMappedAttribute() + "]";
-	}
-
-	private void setColumnNumber(int colNo) {
-		super.setID(colNo);
-	}
-
 	/**
 	 * Added for digest support.
-	 * @param str
+	 * @param str string
 	 * @since PowerEditor 3.2.0
 	 */
 	public void setColNum(String str) {
@@ -54,5 +45,14 @@ public class ParameterTemplateColumn extends AbstractTemplateColumn {
 		}
 		catch (Exception ex) {
 		}
+	}
+
+	private void setColumnNumber(int colNo) {
+		super.setID(colNo);
+	}
+
+	@Override
+	public String toString() {
+		return "ParameterTempColumn[" + getID() + "," + getName() + ",attr=" + super.getMappedAttribute() + "]";
 	}
 }

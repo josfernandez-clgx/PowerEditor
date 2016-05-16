@@ -26,9 +26,6 @@ public class DomainWithAttributeTreeNode extends RootTreeNode {
 
 	private TreeNode parent = null;
 
-	/**
-	 *  
-	 */
 	public DomainWithAttributeTreeNode(DomainClass dc, TreeNode parent) {
 		super(dc);
 		this.parent = parent;
@@ -44,9 +41,8 @@ public class DomainWithAttributeTreeNode extends RootTreeNode {
 	protected void addChildren() {
 		for (Iterator<DomainAttribute> iter = ((DomainClass) data).getDomainAttributes().iterator(); iter.hasNext();) {
 			DomainAttribute childClass = (DomainAttribute) iter.next();
-			if (childClass.hasDomainView(DomainView.POLICY_EDITOR)
-					|| childClass.hasDomainView(DomainView.TEMPLATE_EDITOR)) {
-				addChild(new AttributeTreeNode(childClass, this),true);
+			if (childClass.hasDomainView(DomainView.POLICY_EDITOR) || childClass.hasDomainView(DomainView.TEMPLATE_EDITOR)) {
+				addChild(new AttributeTreeNode(childClass, this), true);
 			}
 		}
 	}
@@ -55,19 +51,19 @@ public class DomainWithAttributeTreeNode extends RootTreeNode {
 		for (Iterator<DomainAttribute> iter = ((DomainClass) data).getDomainAttributes().iterator(); iter.hasNext();) {
 			DomainAttribute childClass = (DomainAttribute) iter.next();
 			boolean viewable = false;
-			if (genericDataTypes == null) viewable = true;
+			if (genericDataTypes == null)
+				viewable = true;
 			else {
 				DeployType dt = childClass.getDeployType();
 				int genericDataType = DataTypeCompatibilityValidator.getGenericDataType(dt);
-				for (int i = 0; i < genericDataTypes.length; i++) 
+				for (int i = 0; i < genericDataTypes.length; i++)
 					if (genericDataTypes[i] == genericDataType) {
 						viewable = true;
 						break;
 					}
 			}
-			if (viewable && (childClass.hasDomainView(DomainView.POLICY_EDITOR)
-					|| childClass.hasDomainView(DomainView.TEMPLATE_EDITOR))) {	
-				addChild(new AttributeTreeNode(childClass, this),true);
+			if (viewable && (childClass.hasDomainView(DomainView.POLICY_EDITOR) || childClass.hasDomainView(DomainView.TEMPLATE_EDITOR))) {
+				addChild(new AttributeTreeNode(childClass, this), true);
 			}
 		}
 	}
@@ -81,10 +77,12 @@ public class DomainWithAttributeTreeNode extends RootTreeNode {
 	 * 
 	 * @see javax.swing.tree.TreeNode#getParent()
 	 */
+	@Override
 	public final TreeNode getParent() {
 		return parent;
 	}
 
+	@Override
 	public String toString() {
 		return ((DomainClass) data).getDisplayLabel();
 	}

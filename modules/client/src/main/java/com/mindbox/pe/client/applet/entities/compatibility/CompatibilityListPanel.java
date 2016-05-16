@@ -29,13 +29,9 @@ import com.mindbox.pe.model.assckey.GenericEntityCompatibilityData;
  * @since PowerEditor 3.0.0
  */
 public class CompatibilityListPanel extends PanelBase {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3951228734910107454L;
-
 	private class AddL extends AbstractThreadedActionAdapter {
 
+		@Override
 		public void performAction(ActionEvent event) throws Exception {
 			if (prevType1 != null && prevType2 != null) {
 				GenericEntityCompatibilityData data = GenericEntityCompatibilityEditDialog.newCompatibilityData(prevType1, prevType2);
@@ -58,19 +54,9 @@ public class CompatibilityListPanel extends PanelBase {
 		}
 	}
 
-	private class RemoveL extends AbstractThreadedActionAdapter {
-
-		public void performAction(ActionEvent event) throws Exception {
-			GenericEntityCompatibilityData data = getSelectedCompatibilityData();
-			if (data != null && ClientUtil.getInstance().showConfirmation("msg.question.delete.compatibility")) {
-				ClientUtil.getCommunicator().delete(data);
-				selectionTableModel.removeData(data);
-			}
-		}
-	}
-
 	private class EditL extends AbstractThreadedActionAdapter {
 
+		@Override
 		public void performAction(ActionEvent event) throws Exception {
 			GenericEntityCompatibilityData data = getSelectedCompatibilityData();
 			int row = selectionTable.getSelectedRow();
@@ -83,23 +69,43 @@ public class CompatibilityListPanel extends PanelBase {
 		}
 	}
 
+	private class RemoveL extends AbstractThreadedActionAdapter {
+
+		@Override
+		public void performAction(ActionEvent event) throws Exception {
+			GenericEntityCompatibilityData data = getSelectedCompatibilityData();
+			if (data != null && ClientUtil.getInstance().showConfirmation("msg.question.delete.compatibility")) {
+				ClientUtil.getCommunicator().delete(data);
+				selectionTableModel.removeData(data);
+			}
+		}
+	}
+
+	private final class ShowDateNameL extends AbstractThreadedActionAdapter {
+
+		@Override
+		public void performAction(ActionEvent e) {
+			selectionTable.refresh(dateNameCheckbox.isSelected());
+		}
+	}
+
 	private class TableSelectionL implements ListSelectionListener {
 
+		@Override
 		public void valueChanged(ListSelectionEvent arg0) {
 			setEnabledSelectionAwares(selectionTable.getSelectedRow() > -1);
 		}
 	}
 
+	private static final long serialVersionUID = -3951228734910107454L;
 	private final CompatibilitySelectionTable selectionTable;
 	private final CompatibilitySelectionTableModel selectionTableModel;
 	private final JButton addButton, editButton, removeButton;
 	private GenericEntityType prevType1, prevType2 = null;
 	private final JCheckBox dateNameCheckbox;
+
 	private final boolean readOnly;
 
-	/**
-	 *  
-	 */
 	public CompatibilityListPanel(boolean readOnly) {
 		super();
 		this.readOnly = readOnly;
@@ -126,18 +132,6 @@ public class CompatibilityListPanel extends PanelBase {
 		return selectionTable.getSelectedDataObject();
 	}
 
-	private int matchingRowInView(String type1CellVal, String type2CellVal) {
-		for (int row = 0; row < selectionTable.getRowCount(); row++) {
-			String col1Val = (String) selectionTableModel.getValueAt(row, 0);
-			String col2Val = (String) selectionTableModel.getValueAt(row, 1);
-			if ((UtilBase.nullSafeEquals(type1CellVal, col1Val) && UtilBase.nullSafeEquals(type2CellVal, col2Val))
-					|| (UtilBase.nullSafeEquals(type1CellVal, col2Val) && UtilBase.nullSafeEquals(type2CellVal, col1Val))) {
-				return selectionTable.convertRowIndexToView(row);
-			}
-		}
-		return -1;
-	}
-
 	private void initPanel() {
 		JPanel btnPanel = UIFactory.createJPanel(new FlowLayout(FlowLayout.LEFT, 3, 3));
 		if (!readOnly) {
@@ -155,9 +149,16 @@ public class CompatibilityListPanel extends PanelBase {
 		setBorder(UIFactory.createTitledBorder(ClientUtil.getInstance().getLabel("label.entity.compatibility")));
 	}
 
-	private void refresh() throws Exception {
-		List<GenericEntityCompatibilityData> list = ClientUtil.getCommunicator().fetchCompatibilityData(prevType1, prevType2);
-		selectionTable.setData(prevType1, prevType2, list.toArray(new GenericEntityCompatibilityData[0]));
+	private int matchingRowInView(String type1CellVal, String type2CellVal) {
+		for (int row = 0; row < selectionTable.getRowCount(); row++) {
+			String col1Val = (String) selectionTableModel.getValueAt(row, 0);
+			String col2Val = (String) selectionTableModel.getValueAt(row, 1);
+			if ((UtilBase.nullSafeEquals(type1CellVal, col1Val) && UtilBase.nullSafeEquals(type2CellVal, col2Val))
+					|| (UtilBase.nullSafeEquals(type1CellVal, col2Val) && UtilBase.nullSafeEquals(type2CellVal, col1Val))) {
+				return selectionTable.convertRowIndexToView(row);
+			}
+		}
+		return -1;
 	}
 
 	public synchronized void populateData(GenericEntityType type1, GenericEntityType type2, GenericEntityCompatibilityData[] data) {
@@ -171,6 +172,12 @@ public class CompatibilityListPanel extends PanelBase {
 		addButton.setEnabled(true);
 	}
 
+	private void refresh() throws Exception {
+		List<GenericEntityCompatibilityData> list = ClientUtil.getCommunicator().fetchCompatibilityData(prevType1, prevType2);
+		selectionTable.setData(prevType1, prevType2, list.toArray(new GenericEntityCompatibilityData[0]));
+	}
+
+	@Override
 	public void setEnabled(boolean enabled) {
 		addButton.setEnabled(enabled);
 		removeButton.setEnabled(enabled);
@@ -181,13 +188,6 @@ public class CompatibilityListPanel extends PanelBase {
 	private void setEnabledSelectionAwares(boolean enabled) {
 		removeButton.setEnabled(enabled);
 		editButton.setEnabled(enabled);
-	}
-
-	private final class ShowDateNameL extends AbstractThreadedActionAdapter {
-
-		public void performAction(ActionEvent e) {
-			selectionTable.refresh(dateNameCheckbox.isSelected());
-		}
 	}
 
 }

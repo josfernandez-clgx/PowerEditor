@@ -48,7 +48,7 @@ public class UtilBase {
 
 	/**
 	 * Constructs privilege display name
-	 * @param privilege
+	 * @param privilege privilege
 	 * @return String
 	 */
 	public static String constructEditGuidelinePrivilege_DisplayName(String privilege) {
@@ -57,7 +57,7 @@ public class UtilBase {
 
 	/**
 	 * Constructs privilege name
-	 * @param privilege
+	 * @param privilege privilege
 	 * @return String
 	 */
 	public static String constructEditGuidelinePrivilege_Name(String privilege) {
@@ -66,7 +66,7 @@ public class UtilBase {
 
 	/**
 	 * Constructs privilege display name
-	 * @param privilege
+	 * @param privilege privilege
 	 * @return String
 	 */
 	public static String constructEditTemplatesPrivilege_DisplayName(String privilege) {
@@ -75,7 +75,7 @@ public class UtilBase {
 
 	/**
 	 * Constructs privilege name
-	 * @param privilege
+	 * @param privilege privilege
 	 * @return String
 	 */
 	public static String constructEditTemplatesPrivilege_Name(String privilege) {
@@ -84,7 +84,7 @@ public class UtilBase {
 
 	/**
 	 * Constructs privilege display name
-	 * @param privilege
+	 * @param privilege privilege
 	 * @return String
 	 */
 	public static String constructViewGuidelinePrivilege_DisplayName(String privilege) {
@@ -93,14 +93,14 @@ public class UtilBase {
 
 	/**
 	 * A UsageTypes configured with like this... 
-	 * <UsageType name="Global-Qualify" displayName="Global Qualify" privilege="Qualification"/>
+	 * &lt;sageType name="Global-Qualify" displayName="Global Qualify" privilege="Qualification"/&gt;
 	 * will have 4 privileges
 	 * "EditQualification", "EditQualificationTemplates", "ViewQualification", "ViewQualificationTemplates". 
 	 * Display name will be
 	 * "Edit Qualification Guidelines", "Edit Qualification Templates", "View Qualification Guidelines", "View Qualification Templates".  
 	 * All 8 constructXXXX methods accomplish the above mentioned
 	 * 
-	 * @param privilege
+	 * @param privilege privilege
 	 * @return String
 	 */
 	public static String constructViewGuidelinePrivilege_Name(String privilege) {
@@ -109,7 +109,7 @@ public class UtilBase {
 
 	/**
 	 * Constructs privilege display name
-	 * @param privilege
+	 * @param privilege privilege
 	 * @return String
 	 */
 	public static String constructViewTemplatesPrivilege_DisplayName(String privilege) {
@@ -118,7 +118,7 @@ public class UtilBase {
 
 	/**
 	 * Constructs privilege name
-	 * @param privilege
+	 * @param privilege privilege
 	 * @return String
 	 */
 	public static String constructViewTemplatesPrivilege_Name(String privilege) {
@@ -126,8 +126,8 @@ public class UtilBase {
 	}
 
 	/**
-	 * @param subcontents 
-	 * @param container
+	 * @param subcontents subcontents
+	 * @param container container
 	 * @return true if every ID in subcontents is a member of container  
 	 */
 	public static boolean contains(int[] subcontents, int[] container) {
@@ -199,8 +199,8 @@ public class UtilBase {
 	/**
 	 * Compares a char array to input String and returns true if a member of
 	 * char array is present in the string
-	 * @param chr
-	 * @param str
+	 * @param chr chr
+	 * @param str str
 	 * @return boolean
 	 */
 	public static final boolean hasIllegalCharacters(char[] chr, String str) {
@@ -238,7 +238,7 @@ public class UtilBase {
 
 	/**
 	 * Tests if the specified int array is null or empty.
-	 * @param intArray
+	 * @param intArray intArray
 	 * @return <code>true</code> if <code>intArray</code> is null or empty; <code>false</code>, otherwise
 	 * @since PowerEditor 4.3.6
 	 */
@@ -291,8 +291,8 @@ public class UtilBase {
 	 * Tests if the specified value is a member of the specified string array.
 	 * Equivalent to <code>isMember(value, set, false)</code>.
 	 * @param value can be <code>null</code>
-	 * @param set
-	 * @return
+	 * @param set set
+	 * @return true if member; false, otherwise
 	 * @throws NullPointerException if <code>value</code> is null, or <code>set</code> is <code>null</code>
 	 */
 	public static final boolean isMember(String value, String[] set) {
@@ -332,8 +332,8 @@ public class UtilBase {
 	 * This assumes each list contains no more than one unique objects.
 	 * 
 	 * @param <T> any type
-	 * @param list1
-	 * @param list2
+	 * @param list1 list1
+	 * @param list2 list2
 	 * @return <code>true</code> if <code>list1</code> and <code>list2</code> contains the same elements
 	 */
 	public static final <T> boolean isSameCollection(Collection<T> list1, Collection<T> list2) {
@@ -407,7 +407,9 @@ public class UtilBase {
 	 * Gets a new map that has key-value reversed from the source map.
 	 * That is, if source has a mapping of key-&gt;value, the returned map
 	 * will have a mapping of value-&gt;key.
-	 * @param source
+	 * @param <T1> key type
+	 * @param <T2> value type
+	 * @param source source
 	 * @return reversed map of <code>source</code>
 	 */
 	public static <T1, T2> Map<T2, T1> reverseMapping(Map<T1, T2> source) {

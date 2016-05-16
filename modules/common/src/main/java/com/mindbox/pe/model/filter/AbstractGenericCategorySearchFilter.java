@@ -2,9 +2,9 @@ package com.mindbox.pe.model.filter;
 
 import java.io.Serializable;
 
-import com.mindbox.pe.model.PeDataType;
 import com.mindbox.pe.model.GenericCategory;
 import com.mindbox.pe.model.GenericEntityType;
+import com.mindbox.pe.model.PeDataType;
 
 /**
  * @author Gene Kim
@@ -18,30 +18,30 @@ public abstract class AbstractGenericCategorySearchFilter implements SearchFilte
 	protected final int categoryType;
 	protected final boolean rootOnly;
 
-	/**
-	 *  
-	 */
 	protected AbstractGenericCategorySearchFilter(int categoryType, boolean rootOnly) {
 		super();
 		this.categoryType = categoryType;
 		this.rootOnly = rootOnly;
 	}
 
-	public boolean isAcceptable(GenericCategory object) {
-		if (object == null) throw new NullPointerException();
-		return (!rootOnly || object.isRoot());
-	}
-
 	public final int getCategoryType() {
 		return categoryType;
 	}
 
+	@Override
 	public PeDataType getEntityType() {
 		return null;
 	}
 
+	@Override
 	public GenericEntityType getGenericEntityType() {
 		return null;
+	}
+
+	@Override
+	public boolean isAcceptable(GenericCategory object) {
+		if (object == null) throw new NullPointerException();
+		return (!rootOnly || object.isRoot());
 	}
 
 }

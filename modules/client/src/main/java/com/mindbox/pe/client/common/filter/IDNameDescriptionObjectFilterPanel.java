@@ -20,32 +20,16 @@ import com.mindbox.pe.model.filter.SearchFilter;
  * @since PowerEditor 1.10.0
  */
 public class IDNameDescriptionObjectFilterPanel<T extends AbstractIDNameDescriptionObject, B extends ButtonPanel> extends IDNameObjectFilterPanel<T, B> {
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = -3951228734910107454L;
 
 	private JTextField descField;
 
-	/**
-	 * 
-	 * @param selectionPanel
-	 * @param filterEntityType
-	 * @param hideManagementButtons
-	 */
 	public IDNameDescriptionObjectFilterPanel(AbstractSelectionPanel<T, B> selectionPanel, PeDataType filterEntityType, boolean hideManagementButtons) {
 		super(selectionPanel, filterEntityType, hideManagementButtons);
 	}
 
-	protected final String getDescFieldText() {
-		return descField.getText();
-	}
-
-	protected void clearSearchFields() {
-		super.clearSearchFields();
-		this.descField.setText("");
-	}
-
+	@Override
 	protected void addComponents(GridBagLayout bag, GridBagConstraints c) {
 		super.addComponents(bag, c);
 		this.descField = new JTextField(10);
@@ -59,6 +43,17 @@ public class IDNameDescriptionObjectFilterPanel<T extends AbstractIDNameDescript
 		addComponent(this, bag, c, descField);
 	}
 
+	@Override
+	protected void clearSearchFields() {
+		super.clearSearchFields();
+		this.descField.setText("");
+	}
+
+	protected final String getDescFieldText() {
+		return descField.getText();
+	}
+
+	@Override
 	protected SearchFilter<T> getSearchFilterFromFields() {
 		NameDescriptionSearchFilter<T> filter = new NameDescriptionSearchFilter<T>(super.filterEntityType);
 		filter.setNameCriterion(getNameFieldText());

@@ -34,19 +34,19 @@ public abstract class AbstractMessageConfigSet<V> implements Serializable {
 		return cellSelectionMessageMap.get(CellSelectionType.DEFAULT);
 	}
 
-	public final V getEnumConfig(final CellSelectionType cellSelectionType) {
-		return cellSelectionMessageMap.get(cellSelectionType);
-	}
-
 	/**
 	 * Returns the enum config object appropriate to the given parameters
-	 * @param isExclusion: Did the enum cell value have 'exclude selections' checked
-	 * @param isMultiSelect: Were there more than one cell-values selected.	 
+	 * @param isExclusion Did the enum cell value have 'exclude selections' checked
+	 * @param isMultiSelect Were there more than one cell-values selected.	 
 	 * @return The appropriate enum config object
 	 */
 	public final V getEnumConfig(boolean isExclusion, boolean isMultiSelect) {
 		final V result = cellSelectionMessageMap.get(ConfigUtil.getCellSelectionType(isExclusion, isMultiSelect));
 		return result == null ? cellSelectionMessageMap.get(CellSelectionType.DEFAULT) : result;
+	}
+
+	public final V getEnumConfig(final CellSelectionType cellSelectionType) {
+		return cellSelectionMessageMap.get(cellSelectionType);
 	}
 
 	/**
@@ -101,7 +101,9 @@ public abstract class AbstractMessageConfigSet<V> implements Serializable {
 	/**
 	 * Given a msgDigest object, udpates the list.
 	 * If the msgDigest is a default, just override defaults.
-	 * @param config
+	 * @param key key
+	 * @param config config
+	 * @param cellSelectionType cell selection type
 	 */
 	protected final void updateConfig(final MessageConfigType key, V config, final CellSelectionType cellSelectionType) {
 		if (key == null) {

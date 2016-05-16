@@ -18,27 +18,28 @@ import com.mindbox.pe.server.parser.jtb.rule.syntaxtree.Node;
 public class AeCreateSequenceValue extends AbstractAeValue {
 
 	private final List<AbstractAeValue> valueList;
-	
+
 	/**
-	 * @param node
+	 * @param node node
 	 */
 	public AeCreateSequenceValue(Node node) {
 		super(node);
 		this.valueList = new LinkedList<AbstractAeValue>();
 	}
-	
+
 	public void addValue(AbstractAeValue value) {
 		this.valueList.add(value);
 	}
-	
+
 	public void clearValues() {
 		this.valueList.clear();
 	}
-	
+
 	public AbstractAeValue[] getValues() {
 		return valueList.toArray(new AbstractAeValue[0]);
 	}
-	
+
+	@Override
 	public String toString() {
 		StringBuilder buff = new StringBuilder();
 		buff.append("$create[");

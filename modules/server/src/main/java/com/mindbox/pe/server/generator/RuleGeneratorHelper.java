@@ -111,15 +111,16 @@ public class RuleGeneratorHelper {
 		@Override
 		protected FormatterFactory initialValue() {
 			// ignore precision by default
-			return new DefaultFormatterFactory(ConfigurationManager.getInstance().getPowerEditorConfiguration().getRuleGeneration().isIgnorePrecision() == null
-					|| ConfigurationManager.getInstance().getPowerEditorConfiguration().getRuleGeneration().isIgnorePrecision().booleanValue());
+			return new DefaultFormatterFactory(
+					ConfigurationManager.getInstance().getPowerEditorConfiguration().getRuleGeneration().isIgnorePrecision() == null
+							|| ConfigurationManager.getInstance().getPowerEditorConfiguration().getRuleGeneration().isIgnorePrecision().booleanValue());
 		}
 	};
 
 	private static RuleGeneratorHelper instance = null;
 
-	static void addActionParamDefinitionAndRuleParam(FunctionTypeDefinition actionDef, CompoundRuleElement<FunctionParameter> ruleAction, int paramID, GridTemplate template, int columnNo,
-			boolean addActionParamDefinition) {
+	static void addActionParamDefinitionAndRuleParam(FunctionTypeDefinition actionDef, CompoundRuleElement<FunctionParameter> ruleAction, int paramID, GridTemplate template,
+			int columnNo, boolean addActionParamDefinition) {
 		AbstractTemplateColumn column = template.getColumn(columnNo);
 		String paramName = (column == null ? "Param-" + paramID : column.getTitle());
 		if (addActionParamDefinition) {
@@ -203,9 +204,9 @@ public class RuleGeneratorHelper {
 	 * Appends a quoted string if the specified flag is true.
 	 * If <code>asString</code> is <code>false</code> and <code>value</code> is already quoted,
 	 * this stripped off the quotes.
-	 * @param value
-	 * @param asString
-	 * @return quoted value if <code>asString</code> is <code>true</code>; unquoted value, otherwise
+	 * @param buff buffer
+	 * @param value value
+	 * @param asString asString
 	 */
 	public static void appendFormattedForStringType(StringBuilder buff, String value, boolean asString) {
 		if (value == null) {
@@ -271,7 +272,8 @@ public class RuleGeneratorHelper {
 		return buff.toString();
 	}
 
-	public static DomainAttribute findDomainAttributeForContextElement(ControlPatternConfigHelper controlPatternConfig, DomainClass dc, String contextElementType) throws RuleGenerationException {
+	public static DomainAttribute findDomainAttributeForContextElement(ControlPatternConfigHelper controlPatternConfig, DomainClass dc, String contextElementType)
+			throws RuleGenerationException {
 		DomainAttribute da = dc.getDomainAttribute(controlPatternConfig.findAttributeNameForContextElement(contextElementType));
 		if (da == null) {
 			throw new RuleGenerationException("Domain attribute of name " + contextElementType + " not found for " + dc);
@@ -307,9 +309,8 @@ public class RuleGeneratorHelper {
 
 	/**
 	 * Gets the string formatted for category argument of context match function.
-	 * @param type
 	 * @param groupList list of collections of Integers
-	 * @return
+	 * @return formatted string
 	 */
 	public static String formatForContextMatchFunctionCategoryArg(List<Collection<Integer>> groupList) {
 		StringBuilder buff = new StringBuilder();
@@ -335,7 +336,7 @@ public class RuleGeneratorHelper {
 
 	/**
 	 * Formats the specified value for excluded object.
-	 * 
+	 * @param value value
 	 * @return formatted for excluded object, first character of which is &amp;
 	 */
 	public static String formatForExcludedObject(String value) {
@@ -355,7 +356,7 @@ public class RuleGeneratorHelper {
 	}
 
 	/**
-	 * @param unformattedString
+	 * @param unformattedString unformattedString
 	 * @return modified String which is compliant with ARTScript
 	 */
 	public static String formatForSprintf(String unformattedString) {
@@ -387,8 +388,8 @@ public class RuleGeneratorHelper {
 	 * Makes sure the returned string is quoted if the specified flag is true, and vice versa.
 	 * If <code>asString</code> is <code>false</code> and <code>value</code> is already quoted,
 	 * this stripped off the quotes.
-	 * @param value
-	 * @param asString
+	 * @param value value
+	 * @param asString asString
 	 * @return quoted value if <code>asString</code> is <code>true</code>; unquoted value, otherwise
 	 */
 	public static String formatForStringType(String value, boolean asString) {
@@ -402,9 +403,9 @@ public class RuleGeneratorHelper {
 	 * specified arguments. Equivalent to
 	 * <code>generateActionTypeDeploymentRule(template, columnNo, aeRule, false, null, null)</code>.
 	 * 
-	 * @param template
-	 * @param columnNo
-	 * @param aeRule
+	 * @param template template
+	 * @param columnNo columnNo
+	 * @param aeRule aeRule
 	 * @return
 	 */
 	private static String generateActionTypeDeploymentRule(GridTemplate template, int columnNo, AeRule aeRule) {
@@ -413,12 +414,12 @@ public class RuleGeneratorHelper {
 
 	/**
 	 * 
-	 * @param template
-	 * @param columnNo
-	 * @param aeRule
-	 * @param generateParamDefinitions
-	 * @param actionDef
-	 * @param ruleAction
+	 * @param template template
+	 * @param columnNo columnNo
+	 * @param aeRule aeRule
+	 * @param generateParamDefinitions generateParamDefinitions
+	 * @param actionDef actionDef
+	 * @param ruleAction ruleAction
 	 * @return
 	 */
 	private static String generateActionTypeDeploymentRule(GridTemplate template, int columnNo, AeRule aeRule, boolean generateParamDefinitions, boolean generateRuleParams,
@@ -430,7 +431,8 @@ public class RuleGeneratorHelper {
 		for (Iterator<AbstractAeValue> iter = aeRule.getActionParms().iterator(); iter.hasNext();) {
 			AbstractAeValue element = iter.next();
 			if (element instanceof AeColumnValue) {
-				if (generateRuleParams) addActionParamDefinitionAndRuleParam(actionDef, ruleAction, paramID, template, ((AeColumnValue) element).getColumnNumber(), generateParamDefinitions);
+				if (generateRuleParams)
+					addActionParamDefinitionAndRuleParam(actionDef, ruleAction, paramID, template, ((AeColumnValue) element).getColumnNumber(), generateParamDefinitions);
 				buff.append("\"%parameter " + paramID + "%\"");
 				++paramID;
 			}
@@ -524,7 +526,6 @@ public class RuleGeneratorHelper {
 
 	/**
 	 * @param entity cannot be <code>null</code>
-	 * @param usageType
 	 * @return string value for the specified generic entity for rule generation
 	 * @throws NullPointerException if <code>entity</code> is <code>null</code>
 	 */
@@ -603,7 +604,8 @@ public class RuleGeneratorHelper {
 		return getFormatterFactoryForCurrentThread().getRuleDateFormat().parse(str);
 	}
 
-	public static final String replaceColumnReferenceInDynamicString(DynamicStringValue dsValue, GridTemplate template, GridValueContainable gridData, int row) throws InvalidDataException {
+	public static final String replaceColumnReferenceInDynamicString(DynamicStringValue dsValue, GridTemplate template, GridValueContainable gridData, int row)
+			throws InvalidDataException {
 		String text = dsValue.toString();
 		Pattern pattern = Pattern.compile("%column ([0-9]+)%");
 		Matcher matcher = pattern.matcher(text);
@@ -691,8 +693,8 @@ public class RuleGeneratorHelper {
 		}
 	}
 
-	private static RuleAction toRuleAction(GridTemplate template, int columnNo, String ruleName, AeRule aeRule, MutableBoolean wasActionCreated, User user) throws ServletActionException,
-			ParseException {
+	private static RuleAction toRuleAction(GridTemplate template, int columnNo, String ruleName, AeRule aeRule, MutableBoolean wasActionCreated, User user)
+			throws ServletActionException, ParseException {
 		Logger logger = Logger.getLogger(RuleGeneratorHelper.class);
 		logger.debug(">>> toRuleAction: " + template.getID() + ", " + columnNo + ", " + ruleName);
 

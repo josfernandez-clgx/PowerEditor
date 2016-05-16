@@ -161,7 +161,7 @@ public final class ClientUtil extends UtilBase implements GuidelineActionProvide
 
 	/**
 	 * Returns true if Edit privilege exists on an EntityType
-	 * @param entityTypeDef
+	 * @param entityTypeDef entityTypeDefClientUtil
 	 * @return boolean
 	 * @since 5.0.0
 	 */
@@ -178,7 +178,7 @@ public final class ClientUtil extends UtilBase implements GuidelineActionProvide
 	/**
 	 * Extracts UsageType from GridTemplate and returns true if Edit Template privilege
 	 * exists for that UsageType's privilege
-	 * @param template
+	 * @param template templateClientUtil
 	 * @return boolean
 	 * @since 5.0.0 
 	 */
@@ -188,7 +188,7 @@ public final class ClientUtil extends UtilBase implements GuidelineActionProvide
 
 	/**
 	 * returns true if Edit Template privilege exists for this UsageType's privilege
-	 * @param usageType
+	 * @param usageType usageTypeClientUtil
 	 * @return boolean
 	 * @since 5.0.0 
 	 */
@@ -201,7 +201,7 @@ public final class ClientUtil extends UtilBase implements GuidelineActionProvide
 	 * Calls {@link com.mindbox.pe.client.MainApplication#checkPermissionByPrivilegeName(String)}
 	 * Given the privilege name, this returns true if that permission exists
 	 * for the role the current user has logged in as
-	 * @param str
+	 * @param str strClientUtil
 	 * @return boolean
 	 * @since 5.0.0 (replaces checkPermission(String str))
 	 */
@@ -235,7 +235,8 @@ public final class ClientUtil extends UtilBase implements GuidelineActionProvide
 		Set<Privilege> privSet = ClientUtil.getUserSession().getPrivileges();
 		for (Iterator<Privilege> iter1 = privSet.iterator(); iter1.hasNext();) {
 			Privilege priv = iter1.next();
-			if (priv.getPrivilegeType() == PrivilegeConstants.USAGE_TYPE_PRIV && priv.getDisplayString().indexOf(PrivilegeConstants.VIEW_AND_EDIT_USAGE_GUIDELINE_PRIV_DISPLAY_NAME_SUFFIX) >= 0) {
+			if (priv.getPrivilegeType() == PrivilegeConstants.USAGE_TYPE_PRIV
+					&& priv.getDisplayString().indexOf(PrivilegeConstants.VIEW_AND_EDIT_USAGE_GUIDELINE_PRIV_DISPLAY_NAME_SUFFIX) >= 0) {
 				return true;
 			}
 		}
@@ -263,7 +264,7 @@ public final class ClientUtil extends UtilBase implements GuidelineActionProvide
 
 	/**
 	 * Returns true if either View or Edit privilege on an EntityType exists
-	 * @param entityTypeDef
+	 * @param entityTypeDef entityTypeDefClientUtil
 	 * @return boolean
 	 * @since 5.0.0
 	 */
@@ -278,48 +279,24 @@ public final class ClientUtil extends UtilBase implements GuidelineActionProvide
 		}
 	}
 
-	/**
-	 * Calls {@link com.mindbox.pe.client.MainApplication#checkViewOrEditGuidelinePermission(com.mindbox.pe.common.config.GuidelineTab)}
-	 * @param gtConfig
-	 * @return boolean
-	 */
 	public static boolean checkViewOrEditGuidelinePermission(GuidelineTab gtConfig) {
 		return instance.parent.checkViewOrEditGuidelinePermission(gtConfig);
-
 	}
 
-	/**
-	 * Calls {@link com.mindbox.pe.client.MainApplication#checkViewOrEditGuidelinePermissionOnUsageType(com.mindbox.pe.model.TemplateUsageType)}
-	 * @param usageType
-	 * @return boolean
-	 * @since 5.0.0 
-	 */
 	public static boolean checkViewOrEditGuidelinePermissionOnUsageType(TemplateUsageType usageType) {
 		return instance.parent.checkViewOrEditGuidelinePermissionOnUsageType(usageType);
 	}
 
-	/**
-	 * Calls {@link com.mindbox.pe.client.MainApplication#checkViewOrEditTemplatePermission(com.mindbox.pe.common.config.GuidelineTab)}
-	 * @param gtConfig
-	 * @return boolean
-	 */
 	public static boolean checkViewOrEditTemplatePermission(GuidelineTab gtConfig) {
 		return instance.parent.checkViewOrEditTemplatePermission(gtConfig);
 	}
 
-	/**
-	 * Calls {@link com.mindbox.pe.client.MainApplication#checkViewOrEditTemplatePermissionOnUsageType(com.mindbox.pe.model.TemplateUsageType)}
-	 * @param usageType
-	 * @return boolean
-	 * @since 5.0.0 
-	 */
 	public static boolean checkViewOrEditTemplatePermissionOnUsageType(TemplateUsageType usageType) {
 		return instance.parent.checkViewOrEditTemplatePermissionOnUsageType(usageType);
 	}
 
 	/**
 	 * Clears cached items in this class.
-	 *
 	 */
 	public static void clearCache() {
 		if (instance != null) {
@@ -328,7 +305,6 @@ public final class ClientUtil extends UtilBase implements GuidelineActionProvide
 			}
 		}
 	}
-
 
 	public static void executeAsScript(String urlStr) throws IOException {
 		Runtime.getRuntime().exec(new String[] { "explorer", '"' + urlStr + '"' });//Runtime.getRuntime().exec(urlStr);
@@ -487,7 +463,7 @@ public final class ClientUtil extends UtilBase implements GuidelineActionProvide
 
 	/**
 	 * Reads the content of the specified file.
-	 * @param file
+	 * @param file fileClientUtil
 	 * @return String
 	 * @throws IOException on I/O error
 	 */
@@ -530,6 +506,7 @@ public final class ClientUtil extends UtilBase implements GuidelineActionProvide
 
 	/**
 	 * Log4j Logger default instance for MPE applet.
+	 * @return logger
 	 */
 	public static final Logger getLogger() {
 		if (logger == null) {
@@ -735,20 +712,6 @@ public final class ClientUtil extends UtilBase implements GuidelineActionProvide
 		ClientUtil.getLogger().debug("<-- ClientUtil()");
 	}
 
-	public synchronized void initializeTimeOutController(final long timeOutInSeconds) {
-		final List<Long> notificationIntervals = new ArrayList<Long>();
-		if (timeOutInSeconds > 60) {
-			notificationIntervals.add(60L); // warning at 1 min
-		}
-		if (timeOutInSeconds > 300) {
-			notificationIntervals.add(300L); // warning at 5 mins
-		}
-		if (timeOutInSeconds > 600) {
-			notificationIntervals.add(600L); // warning at 10 mins
-		}
-		timeOutController = new TimeOutController(timeOutInSeconds, notificationIntervals, TimeUnit.SECONDS);
-	}
-
 	/**
 	 * Download a file from PE server on the the specified path on the local machine.
 	 * @param sourceFile the file path on the server
@@ -770,14 +733,16 @@ public final class ClientUtil extends UtilBase implements GuidelineActionProvide
 
 	/**
 	 * 
-	 * @param cause
+	 * @param cause causeClientUtil
 	 * @return message text from the specified error response
 	 * @since PowerEditor 4.2.0
 	 */
 	private String generateDetailMessage(ErrorResponse cause) {
 		if (cause.hasMessageResource()) {
 			try {
-				String message = cause.getErrorResourceParams() == null ? getMessage(cause.getErrorResourceKey()) : getMessage(cause.getErrorResourceKey(), cause.getErrorResourceParams());
+				String message = cause.getErrorResourceParams() == null
+						? getMessage(cause.getErrorResourceKey())
+						: getMessage(cause.getErrorResourceKey(), cause.getErrorResourceParams());
 				return message;
 			}
 			catch (Exception ex) {
@@ -789,6 +754,7 @@ public final class ClientUtil extends UtilBase implements GuidelineActionProvide
 		}
 	}
 
+	@Override
 	public ActionTypeDefinition getActionType(int id) {
 		try {
 			return (ActionTypeDefinition) getCommunicator().fetch(id, PeDataType.GUIDELINE_ACTION, false);
@@ -797,10 +763,6 @@ public final class ClientUtil extends UtilBase implements GuidelineActionProvide
 			handleRuntimeException(ex);
 			return null;
 		}
-	}
-
-	public synchronized TimeOutController getTimeOutController() {
-		return timeOutController;
 	}
 
 	public String getErrorMessage(ServerException ex) {
@@ -844,7 +806,7 @@ public final class ClientUtil extends UtilBase implements GuidelineActionProvide
 	 * Gets the label for the specified key.
 	 * This returns the specified default, if the value of key is not found.
 	 * @param s the key
-	 * @param defaultVal
+	 * @param defaultVal defaultValClientUtil
 	 * @return value of <code>s</code>, if found; <code>defaultValue</code>, otherwise
 	 * @since 3.0.0
 	 */
@@ -872,6 +834,7 @@ public final class ClientUtil extends UtilBase implements GuidelineActionProvide
 			return s1;
 	}
 
+	@Override
 	public TestTypeDefinition getTestType(int id) {
 		try {
 			return (TestTypeDefinition) getCommunicator().fetch(id, PeDataType.GUIDELINE_TEST_CONDITION, false);
@@ -882,6 +845,9 @@ public final class ClientUtil extends UtilBase implements GuidelineActionProvide
 		}
 	}
 
+	public synchronized TimeOutController getTimeOutController() {
+		return timeOutController;
+	}
 
 	protected URL getURL(JApplet japplet, String s) {
 		URL url = japplet.getCodeBase();
@@ -897,8 +863,23 @@ public final class ClientUtil extends UtilBase implements GuidelineActionProvide
 		return url1;
 	}
 
+
 	public String getValueLiteral(String s) {
 		return valuesBundle.getString(s);
+	}
+
+	public synchronized void initializeTimeOutController(final long timeOutInSeconds) {
+		final List<Long> notificationIntervals = new ArrayList<Long>();
+		if (timeOutInSeconds > 60) {
+			notificationIntervals.add(60L); // warning at 1 min
+		}
+		if (timeOutInSeconds > 300) {
+			notificationIntervals.add(300L); // warning at 5 mins
+		}
+		if (timeOutInSeconds > 600) {
+			notificationIntervals.add(600L); // warning at 10 mins
+		}
+		timeOutController = new TimeOutController(timeOutInSeconds, notificationIntervals, TimeUnit.SECONDS);
 	}
 
 	private ImageIcon makeImageIcon(final JApplet japplet, final String s) {
@@ -923,7 +904,7 @@ public final class ClientUtil extends UtilBase implements GuidelineActionProvide
 	 * Resets cached type enum value map.
 	 * <b>Note:</b> This must be called before calling other methods that uses cached type enum values.
 	 * 
-	 * @param map
+	 * @param map mapClientUtil
 	 */
 	public synchronized void resetCachedTypeEnumValueMap(Map<String, List<TypeEnumValue>> map) {
 		EntityModelCacheFactory.getInstance().setCacheTypeEnumValueMap(map);
@@ -953,6 +934,7 @@ public final class ClientUtil extends UtilBase implements GuidelineActionProvide
 			JPanel bp = UIFactory.createFlowLayoutPanelCenterAlignment(4, 4);
 			bp.add(UIFactory.createJButton("button.close", null, new ActionListener() {
 
+				@Override
 				public void actionPerformed(ActionEvent e) {
 					dialog.setVisible(false);
 					dialog.dispose();
@@ -986,7 +968,7 @@ public final class ClientUtil extends UtilBase implements GuidelineActionProvide
 
 	/**
 	 * Confirm with cancel option.
-	 * @param key
+	 * @param key keyClientUtil
 	 * @return <code>null</code> on cancel
 	 */
 	public Boolean showConfirmationWithCancel(String key) {
@@ -1004,8 +986,8 @@ public final class ClientUtil extends UtilBase implements GuidelineActionProvide
 
 	/**
 	 * Confirm with cancel option.
-	 * @param key
-	 * @param params
+	 * @param key keyClientUtil
+	 * @param params paramsClientUtil
 	 * @return null on cancel
 	 */
 	public Boolean showConfirmationWithCancel(String key, Object... params) {
@@ -1022,7 +1004,15 @@ public final class ClientUtil extends UtilBase implements GuidelineActionProvide
 	}
 
 	public Boolean showCustomConfirmationWithCancel(String key, Object[] options, Object defaultOption) {
-		int result = JOptionPane.showOptionDialog(applet, getMessage(key), getLabel("d.title.question"), JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, defaultOption);
+		int result = JOptionPane.showOptionDialog(
+				applet,
+				getMessage(key),
+				getLabel("d.title.question"),
+				JOptionPane.YES_NO_CANCEL_OPTION,
+				JOptionPane.QUESTION_MESSAGE,
+				null,
+				options,
+				defaultOption);
 		if (result == JOptionPane.CANCEL_OPTION) {
 			return null;
 		}

@@ -20,8 +20,10 @@ public abstract class AbstractGenericCategoryActionRequest<T extends ResponseCom
 	protected final int categoryType;
 
 	/**
-	 * @param userID
-	 * @param sessionID
+	 * @param userID userID
+	 * @param sessionID sessionID
+	 * @param categoryID categoryID
+	 * @param categoryType categoryType
 	 */
 	public AbstractGenericCategoryActionRequest(String userID, String sessionID, int categoryID, int categoryType) {
 		super(userID, sessionID);

@@ -20,17 +20,11 @@ import com.mindbox.pe.model.exceptions.CanceledException;
  */
 public class CBRCaseBaseTab extends PowerEditorTab implements PowerEditorTabPanel {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -3951228734910107454L;
 	private CBRCaseBase caseBase = null;
 	private CBRCaseBaseAttributesManagementPanel cbAttPanel;
 	private CBRCaseManagementPanel casePanel;
 
-	/**
-	 * 
-	 */
 	public CBRCaseBaseTab(CBRCaseBase cb, boolean readOnly) {
 		super();
 		caseBase = cb;
@@ -61,21 +55,24 @@ public class CBRCaseBaseTab extends PowerEditorTab implements PowerEditorTabPane
 		this.addChangeListener(detailPanel);
 	}
 
+	@Override
+	public void discardChanges() {
+		if (cbAttPanel.hasUnsavedChanges()) cbAttPanel.discardChanges();
+		if (casePanel.hasUnsavedChanges()) casePanel.discardChanges();
+	}
+
 	public CBRCaseBase getCBRCaseBase() {
 		return caseBase;
 	}
 
+	@Override
 	public boolean hasUnsavedChanges() {
 		return cbAttPanel.hasUnsavedChanges() || casePanel.hasUnsavedChanges();
 	}
 
+	@Override
 	public void saveChanges() throws CanceledException, ServerException {
 		if (cbAttPanel.hasUnsavedChanges()) cbAttPanel.saveChanges();
 		if (casePanel.hasUnsavedChanges()) casePanel.saveChanges();
-	}
-
-	public void discardChanges() {
-		if (cbAttPanel.hasUnsavedChanges()) cbAttPanel.discardChanges();
-		if (casePanel.hasUnsavedChanges()) casePanel.discardChanges();
 	}
 }

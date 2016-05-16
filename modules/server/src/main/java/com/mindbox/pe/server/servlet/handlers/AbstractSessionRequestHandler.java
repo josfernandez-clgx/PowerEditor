@@ -69,6 +69,8 @@ public abstract class AbstractSessionRequestHandler<T extends SessionRequest<?>>
 	/** 
 	 * Override to return a valid privilege string.
 	 * This returns <code>null</code>.
+	 * @param request request
+	 * @return <code>null</code>
 	 */
 	protected String getRequiredPrivilegeName(T request) {
 		return null;

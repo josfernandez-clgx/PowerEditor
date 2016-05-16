@@ -11,53 +11,57 @@ import com.mindbox.pe.model.Persistent;
  */
 public class GenericEntityBasicSearchFilter extends AbstractGenericEntitySearchFilter {
 
-    private static final long serialVersionUID = 2004042370001L;
+	private static final long serialVersionUID = 2004042370001L;
 
-    
-    protected String nameCriterion = null;
-    protected int parentIDCriterion = Persistent.UNASSIGNED_ID;
 
-    /**
-     *  
-     */
-    public GenericEntityBasicSearchFilter(GenericEntityType entityType) {
-        super(entityType);
-    }
+	protected String nameCriterion = null;
+	protected int parentIDCriterion = Persistent.UNASSIGNED_ID;
 
-    /**
-     * @return the name criteria
-     */
-    public final String getNameCriterion() {
-        return nameCriterion;
-    }
+	/**
+	 * 
+	 * @param entityType entityType
+	 */
+	public GenericEntityBasicSearchFilter(GenericEntityType entityType) {
+		super(entityType);
+	}
 
-    /**
-     * @param string
-     *            the new name criteria
-     */
-    public final void setNameCriterion(String string) {
-        nameCriterion = string;
-    }
+	/**
+	 * @return the name criteria
+	 */
+	public final String getNameCriterion() {
+		return nameCriterion;
+	}
 
-    public boolean isAcceptable(GenericEntity object) {
-    	if (!super.isAcceptable(object)) return false;
-        if (nameCriterion != null && !contains(object.getName(), this.nameCriterion)) { return false; }
-        if (parentIDCriterion > -1 && object.getParentID() != parentIDCriterion) { return false; }
-        return true;
-    }
+	/**
+	 * @return Returns the parentIDCriteria
+	 */
+	public final int getParentIDCriteria() {
+		return parentIDCriterion;
+	}
 
-    /**
-     * @return Returns the parentIDCriteria
-     */
-    public final int getParentIDCriteria() {
-        return parentIDCriterion;
-    }
+	@Override
+	public boolean isAcceptable(GenericEntity object) {
+		if (!super.isAcceptable(object)) return false;
+		if (nameCriterion != null && !contains(object.getName(), this.nameCriterion)) {
+			return false;
+		}
+		if (parentIDCriterion > -1 && object.getParentID() != parentIDCriterion) {
+			return false;
+		}
+		return true;
+	}
 
-    /**
-     * @param parentIDCriteria
-     *            The parentIDCriteria to set
-     */
-    public final void setParentIDCriteria(int parentIDCriteria) {
-        this.parentIDCriterion = parentIDCriteria;
-    }
+	/**
+	 * @param string the new name criteria
+	 */
+	public final void setNameCriterion(String string) {
+		nameCriterion = string;
+	}
+
+	/**
+	 * @param parentIDCriteria The parentIDCriteria to set
+	 */
+	public final void setParentIDCriteria(int parentIDCriteria) {
+		this.parentIDCriterion = parentIDCriteria;
+	}
 }

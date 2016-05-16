@@ -9,30 +9,28 @@ import com.mindbox.pe.common.ui.NumberTextField;
  *
  */
 public class NumberOrTextField extends NumberTextField {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -3951228734910107454L;
 
 	/**
-	 * @param size
+	 * @param size size
 	 */
 	public NumberOrTextField(int size) {
 		super(size);
 	}
 
 	/**
-	 * @param size
-	 * @param value
+	 * @param size size
+	 * @param value value
 	 */
 	public NumberOrTextField(int size, int value) {
 		super(size, value);
 	}
 
 	/**
-	 * @param size
-	 * @param value
-	 * @param nullValue
+	 * @param size size
+	 * @param value value
+	 * @param nullValue nullValue
+	 * @param negativeAllowed negative allowed flag
 	 */
 	public NumberOrTextField(int size, int value, int nullValue, boolean negativeAllowed) {
 		super(size, value, nullValue, negativeAllowed);

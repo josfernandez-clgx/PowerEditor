@@ -19,43 +19,33 @@ import com.mindbox.pe.model.assckey.MutableTimedAssociationKey;
  */
 public interface GenericEntityDataUpdater {
 
-    /**
-     * 
-     * @param id
-     * @param name
-     * @param parent
-     * @param categoryType
-     * @throws SQLException
-     * @since PowerEditor 3.1.0
-     */
-    void addCategory(int id, String name, int categoryType, MutableTimedAssociationKey[] parentAssocations) throws SQLException;
-    
-    void updateCategory(int id, String name, int categoryType, MutableTimedAssociationKey[] parentAssocations) throws SQLException;
-    
-    void deleteGenericEntity(int id, int type) throws SQLException;
+	/**
+	 * 
+	 * @param id id
+	 * @param name name
+	 * @param categoryType categoryType
+	 * @param parentAssocations parent associations
+	 * @throws SQLException on error
+	 * @since PowerEditor 3.1.0
+	 */
+	void addCategory(int id, String name, int categoryType, MutableTimedAssociationKey[] parentAssocations) throws SQLException;
 
-    void insertGenericEntity(int id, int type, String name, int parentID, Map<String,Object> propertyMap, int categoryType, MutableTimedAssociationKey[] categoryAssociations) throws SQLException;
+	void deleteAllEntityCompatibility(int entityType1, int entityID1) throws SQLException;
 
-    void updateGenericEntity(int id, int type, String name, int parentID, Map<String,Object> propertyMap, int categoryType, MutableTimedAssociationKey[] categoryAssociations) throws SQLException;
+	void deleteEntityCompatibility(int entityType1, int entityID1, int entityType2, int entityID2) throws SQLException;
 
-    void insertEntityCompatibility(
-            int entityType1,
-            int entityID1,
-            int entityType2,
-            int entityID2,
-            DateSynonym effectiveDate,
-            DateSynonym expirationDate) throws SQLException;
+	void deleteGenericEntity(int id, int type) throws SQLException;
 
-    void updateEntityCompatibility(
-            int entityType1,
-            int entityID1,
-            int entityType2,
-            int entityID2,
-            DateSynonym effectiveDate,
-            DateSynonym expirationDate) throws SQLException;
+	void insertEntityCompatibility(int entityType1, int entityID1, int entityType2, int entityID2, DateSynonym effectiveDate, DateSynonym expirationDate) throws SQLException;
 
-    void deleteEntityCompatibility(int entityType1, int entityID1, int entityType2, int entityID2) throws SQLException;
-    
-    void deleteAllEntityCompatibility(int entityType1, int entityID1) throws SQLException;
+	void insertGenericEntity(int id, int type, String name, int parentID, Map<String, Object> propertyMap, int categoryType, MutableTimedAssociationKey[] categoryAssociations)
+			throws SQLException;
+
+	void updateCategory(int id, String name, int categoryType, MutableTimedAssociationKey[] parentAssocations) throws SQLException;
+
+	void updateEntityCompatibility(int entityType1, int entityID1, int entityType2, int entityID2, DateSynonym effectiveDate, DateSynonym expirationDate) throws SQLException;
+
+	void updateGenericEntity(int id, int type, String name, int parentID, Map<String, Object> propertyMap, int categoryType, MutableTimedAssociationKey[] categoryAssociations)
+			throws SQLException;
 
 }

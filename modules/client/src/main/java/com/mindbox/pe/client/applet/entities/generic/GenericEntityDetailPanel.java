@@ -81,9 +81,6 @@ public class GenericEntityDetailPanel extends AbstractDetailPanel<GenericEntity,
 	private JTabbedPane tab;
 	private CategoryType categoryDef;
 
-	/**
-	 * @param entityType
-	 */
 	public GenericEntityDetailPanel(GenericEntityType entityType) {
 		super(entityType);
 	}

@@ -21,17 +21,6 @@ public class ServletActionException extends ServerException {
 
 	/**
 	 * 
-	 * @param resourceKey
-	 * @param msg
-	 */
-	public ServletActionException(String resourceKey, String msg) {
-		super(msg);
-		this.resourceKey = resourceKey;
-		this.params = new Object[] { msg};
-	}
-
-	/**
-	 * 
 	 * @param resourceKey message key
 	 * @param params parameters to the message; all elements must implement <code>java.io.Serializable</code>; can be <code>null</code>
 	 */
@@ -39,6 +28,17 @@ public class ServletActionException extends ServerException {
 		super(resourceKey);
 		this.resourceKey = resourceKey;
 		this.params = params;
+	}
+
+	/**
+	 * 
+	 * @param resourceKey resourceKeyReportGenerato
+	 * @param msg msgReportGenerato
+	 */
+	public ServletActionException(String resourceKey, String msg) {
+		super(msg);
+		this.resourceKey = resourceKey;
+		this.params = new Object[] { msg };
 	}
 
 	public String getResourceKey() {

@@ -38,6 +38,8 @@ public class RuleEngineMapper {
 			{ "BaseRate", "PRICING_BASE_RATE" },
 			{ "CreditRating", "CREDIT_RATING" } };
 
+	private static String QUOTE = "\"";
+
 	private static String getRuleset(String templateType, TemplateUsageType usageType) {
 		if (ConfigurationManager.getInstance().getRuleGenerationConfigHelper(usageType).isPEActionOn()) {
 			return templateType.toUpperCase();
@@ -57,58 +59,48 @@ public class RuleEngineMapper {
 		return "UNKNOWN";
 	}
 
-	private File mDeployDir;
-
-	private Hashtable<String, PrintWriter> mRuleWriters;
-
-	private Hashtable<String, PrintWriter> mObjectWriters;
-
-	private PrintWriter mErrorWriter;
-
-	private int mRuleNum;
-
-	private int mActionNum;
-
-	private Hashtable<String, List<String>> mInstanceNames;
-
-	private int mVarNum;
-
-	private static String QUOTE = "\"";
-
+	private File deployDir;
+	private Hashtable<String, PrintWriter> ruleWriters;
+	private Hashtable<String, PrintWriter> objectWriters;
+	private PrintWriter errorWriter;
+	private int ruleNum;
+	private int actionNum;
+	private Hashtable<String, List<String>> instanceNames;
+	private int varNumber;
 	private final Logger logger = Logger.getLogger(RuleEngineMapper.class);
 
 	public RuleEngineMapper() {
-		mDeployDir = null;
-		mErrorWriter = null;
-		mRuleNum = 0;
-		mActionNum = 0;
-		mInstanceNames = new Hashtable<String, List<String>>();
-		mVarNum = 0;
+		deployDir = null;
+		errorWriter = null;
+		ruleNum = 0;
+		actionNum = 0;
+		instanceNames = new Hashtable<String, List<String>>();
+		varNumber = 0;
 		init();
 		initWriters();
 	}
 
 	public void closeWriters() {
 		PrintWriter writer;
-		for (Enumeration<PrintWriter> writers = mRuleWriters.elements(); writers.hasMoreElements(); writer.close())
+		for (Enumeration<PrintWriter> writers = ruleWriters.elements(); writers.hasMoreElements(); writer.close())
 			writer = writers.nextElement();
 
 		//PrintWriter writer;
-		for (Enumeration<PrintWriter> writers = mObjectWriters.elements(); writers.hasMoreElements(); writer.close())
+		for (Enumeration<PrintWriter> writers = objectWriters.elements(); writers.hasMoreElements(); writer.close())
 			writer = writers.nextElement();
 
-		if (mErrorWriter != null) mErrorWriter.close();
+		if (errorWriter != null) errorWriter.close();
 	}
 
 	public String generateActionName() {
-		mActionNum++;
-		return "action-" + mActionNum;
+		actionNum++;
+		return "action-" + actionNum;
 	}
 
 	public String generateAEVariable(String pAttribute) {
 		// all PLAN_EVALUATION objects need to have same object variable (plan-eval)
 		if (!pAttribute.equals("PLAN_EVALUATION")) {
-			return makeAEVariable(pAttribute + "-" + ++mVarNum);
+			return makeAEVariable(pAttribute + "-" + ++varNumber);
 		}
 		else {
 			return makeAEVariable("plan-eval");
@@ -116,10 +108,10 @@ public class RuleEngineMapper {
 	}
 
 	public String generateInstanceName(String pClassName) {
-		List<String> insts = mInstanceNames.get(pClassName);
+		List<String> insts = instanceNames.get(pClassName);
 		if (insts == null) {
 			insts = new java.util.ArrayList<String>();
-			mInstanceNames.put(pClassName, insts);
+			instanceNames.put(pClassName, insts);
 		}
 		int numInsts = insts.size();
 		String newName = makeAEName(pClassName) + "-" + ++numInsts;
@@ -133,18 +125,18 @@ public class RuleEngineMapper {
 	}
 
 	public String generateRuleName() {
-		mRuleNum++;
-		return "Rule" + mRuleNum;
+		ruleNum++;
+		return "Rule" + ruleNum;
 	}
 
 	public PrintWriter getErrorWriter() {
-		PrintWriter writer = mErrorWriter;
+		PrintWriter writer = errorWriter;
 		if (writer != null) return writer;
 		String filename = "errors.art";
 		try {
-			File outfile = new File(mDeployDir, filename);
+			File outfile = new File(deployDir, filename);
 			writer = new PrintWriter(new BufferedWriter(new FileWriter(outfile)));
-			mErrorWriter = writer;
+			errorWriter = writer;
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -157,13 +149,13 @@ public class RuleEngineMapper {
 	}
 
 	public PrintWriter getObjectWriter(String pRuleset) {
-		PrintWriter writer = mObjectWriters.get(pRuleset);
+		PrintWriter writer = objectWriters.get(pRuleset);
 		if (writer != null) return writer;
 		String filename = pRuleset + "-instances.art";
 		try {
-			File outfile = new File(mDeployDir, filename);
+			File outfile = new File(deployDir, filename);
 			writer = new PrintWriter(new BufferedWriter(new FileWriter(outfile)));
-			mObjectWriters.put(pRuleset, writer);
+			objectWriters.put(pRuleset, writer);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -186,13 +178,13 @@ public class RuleEngineMapper {
 	}
 
 	public PrintWriter getRuleWriter(String pRuleset) {
-		PrintWriter writer = mRuleWriters.get(pRuleset);
+		PrintWriter writer = ruleWriters.get(pRuleset);
 		if (writer != null) return writer;
 		String filename = pRuleset + "-rules.art";
 		try {
-			File outfile = new File(mDeployDir, filename);
+			File outfile = new File(deployDir, filename);
 			writer = new PrintWriter(new BufferedWriter(new FileWriter(outfile)));
-			mRuleWriters.put(pRuleset, writer);
+			ruleWriters.put(pRuleset, writer);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -220,12 +212,12 @@ public class RuleEngineMapper {
 			if (!outDir.exists()) {
 				boolean couldCreate = outDir.mkdirs();
 				if (!couldCreate) {
-					logger.info("Could not create necessary directories: " + mDeployDir);
+					logger.info("Could not create necessary directories: " + deployDir);
 					return false;
 				}
 				logger.info("Succeeded in creating dirs for: " + outDir);
 			}
-			mDeployDir = outDir;
+			deployDir = outDir;
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -235,8 +227,8 @@ public class RuleEngineMapper {
 	}
 
 	public void initWriters() {
-		mRuleWriters = new Hashtable<String, PrintWriter>();
-		mObjectWriters = new Hashtable<String, PrintWriter>();
+		ruleWriters = new Hashtable<String, PrintWriter>();
+		objectWriters = new Hashtable<String, PrintWriter>();
 	}
 
 	private String makeAEName(String pStr) {
@@ -302,14 +294,18 @@ public class RuleEngineMapper {
 	 * Return the mapped name of the investor.  In this case,
 	 * return what was passed in.
 	 * SGS - 5/7/03
+	 * @param investor investor
+	 * @return name
+	 * @deprecated Investor no longer user
 	 */
-	public String mapInvestorName(String pInvestor) {
-		return pInvestor;
+	@Deprecated
+	public String mapInvestorName(String investor) {
+		return investor;
 	}
 
 	public void reInitRuleVariables() {
-		mInstanceNames.clear();
-		mVarNum = 0;
+		instanceNames.clear();
+		varNumber = 0;
 	}
 
 	private String stripQuotes(String pInputString) {

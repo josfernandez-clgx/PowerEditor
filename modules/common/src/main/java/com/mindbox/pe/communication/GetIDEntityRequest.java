@@ -14,10 +14,11 @@ public class GetIDEntityRequest extends AbstractEntityIDActionRequest<SingleEnti
 
 
 	/**
-	 * @param userID
-	 * @param sessionID
-	 * @param entityID
-	 * @param entityType
+	 * @param userID userID
+	 * @param sessionID sessionID
+	 * @param entityID entityID
+	 * @param entityType entityType
+	 * @param lockEntity lockEntity
 	 */
 	public GetIDEntityRequest(String userID, String sessionID, int entityID, PeDataType entityType, boolean lockEntity) {
 		super(userID, sessionID, entityID, entityType, lockEntity);

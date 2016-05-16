@@ -9,14 +9,12 @@ import com.mindbox.pe.model.AbstractIDNameDescriptionObject;
  * @since PowerEditor 1.0
  */
 public class IDNameDescriptionObjectSelectionTableModel<D extends AbstractIDNameDescriptionObject> extends IDNameObjectSelectionTableModel<D> {
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = -3951228734910107454L;
 
 	/**
 	 * Create new IDName Object selection table model with the specified column names.
-	 * @param columnNames
+	 * @param columnNames columnNames
 	 */
 	public IDNameDescriptionObjectSelectionTableModel(String... columnNames) {
 		super(columnNames);

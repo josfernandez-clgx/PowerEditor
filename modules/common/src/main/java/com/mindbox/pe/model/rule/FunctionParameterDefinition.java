@@ -17,19 +17,19 @@ public class FunctionParameterDefinition extends AbstractIDNameObject {
 	private String paramDataString = null;
 
 	/**
-	 * @param id
-	 * @param name
-	 */
-	public FunctionParameterDefinition(int id, String name) {
-		super(id, name);
-	}
-
-	/**
 	 * Added for digest support.
 	 * @since PowerEditor 3.2.0
 	 */
 	public FunctionParameterDefinition() {
 		super(-1, "");
+	}
+
+	/**
+	 * @param id id
+	 * @param name name
+	 */
+	public FunctionParameterDefinition(int id, String name) {
+		super(id, name);
 	}
 
 	public void copyFrom(FunctionParameterDefinition paramDef) {
@@ -38,13 +38,45 @@ public class FunctionParameterDefinition extends AbstractIDNameObject {
 		this.deployType = paramDef.deployType;
 		this.paramDataString = paramDef.paramDataString;
 	}
-	
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof FunctionParameterDefinition) {
+			return this.getID() == ((FunctionParameterDefinition) obj).getID();
+		}
+		else {
+			return false;
+		}
+	}
+
+	public DeployType getDeployType() {
+		return deployType;
+	}
+
 	/**
 	 * @return the paramDataString
 	 * @since PowerEditor 4.0.0
 	 */
 	public String getParamDataString() {
 		return paramDataString;
+	}
+
+	public void setDeployType(DeployType type) {
+		deployType = type;
+	}
+
+	/**
+	 * Added for digest support.
+	 * @param type type
+	 * @since PowerEditor 3.2.0
+	 */
+	public void setDeployTypeString(String type) {
+		setDeployType(DeployType.valueOf(type));
+	}
+
+	@Override
+	public void setName(String name) {
+		super.setName(name);
 	}
 
 	/**
@@ -55,36 +87,8 @@ public class FunctionParameterDefinition extends AbstractIDNameObject {
 		this.paramDataString = paramDataString;
 	}
 
-	public DeployType getDeployType() {
-		return deployType;
-	}
-
-	public void setDeployType(DeployType type) {
-		deployType = type;
-	}
-
-	/**
-	 * Added for digest support.
-	 * @since PowerEditor 3.2.0
-	 */
-	public void setDeployTypeString(String type) {
-		setDeployType(DeployType.valueOf(type));
-	}
-
-	public boolean equals(Object obj) {
-		if (obj instanceof FunctionParameterDefinition) {
-			return this.getID() == ((FunctionParameterDefinition) obj).getID();
-		}
-		else {
-			return false;
-		}
-	}
-
+	@Override
 	public String toString() {
 		return "Param[" + getID() + "," + getName() + "," + deployType + "]";
-	}
-
-	public void setName(String name) {
-		super.setName(name);
 	}
 }

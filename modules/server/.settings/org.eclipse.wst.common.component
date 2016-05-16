@@ -7,9 +7,6 @@
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/resources"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/target/generated-sources/xjc"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/target/generated-sources/wsimport"/>
-        <dependent-module archiveName="pe-common-5.9.6-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/pe-common/pe-common">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
         <property name="java-output-path" value="/pe-server/target/classes"/>
         <property name="context-root" value="powereditor-5.9.6-SNAPSHOT"/>
     </wb-module>

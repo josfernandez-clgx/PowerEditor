@@ -13,7 +13,7 @@ public final class AllGenericEntitySearchFilter extends AbstractGenericEntitySea
 	private static final long serialVersionUID = 8625570456209713503L;
 
 	/**
-	 * @param entityType
+	 * @param entityType entityType
 	 */
 	public AllGenericEntitySearchFilter(GenericEntityType entityType) {
 		super(entityType);

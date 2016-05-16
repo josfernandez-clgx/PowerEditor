@@ -11,24 +11,23 @@ public abstract class AbstractDataTreeNode extends RootTreeNode {
 
 	private TreeNode parent;
 
-	/**
-	 * @param data
-	 */
 	protected AbstractDataTreeNode(TreeNode parent, Object data) {
 		super(data);
 		this.parent = parent;
 	}
 
-	public final TreeNode getParent() {
-		return parent;
+	@Override
+	public void clear() {
+		super.clear();
+		this.parent = null;
 	}
 
 	public final Object getData() {
 		return super.data;
 	}
-	
-	public void clear() {
-		super.clear();
-		this.parent = null;
+
+	@Override
+	public final TreeNode getParent() {
+		return parent;
 	}
 }

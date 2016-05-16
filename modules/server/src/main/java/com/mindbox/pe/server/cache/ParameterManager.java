@@ -34,77 +34,29 @@ public final class ParameterManager extends AbstractCacheManager {
 		return instance;
 	}
 
+	/**
+	 * @param template template
+	 * @param gridList parameter grid list; length must be >= 1
+	 * @param String username. Not sure if it's used.
+	 * @return the list of guideline report data objects
+	 */
+	private static List<GuidelineReportData> toGuidelineReportData(ParameterTemplate template, List<ParameterGrid> gridList) {
+		List<GuidelineReportData> retList = new ArrayList<GuidelineReportData>();
+		int templateID = template.getID();
+		for (Iterator<ParameterGrid> iter = gridList.iterator(); iter.hasNext();) {
+			ParameterGrid grid = iter.next();
+			GuidelineReportData data = new GuidelineReportData(templateID, template.getName(), grid, true);
+			data.setStatus(grid.getStatus());
+			retList.add(data);
+		}
+		return retList;
+	}
+
 	private final Map<Integer, ParameterGrid> gridMap;
 
-	/**
-	 * 
-	 */
 	private ParameterManager() {
 		super();
 		this.gridMap = Collections.synchronizedMap(new HashMap<Integer, ParameterGrid>());
-	}
-
-	public void startLoading() {
-		this.gridMap.clear();
-	}
-
-	public void finishLoading() {
-	}
-
-	/**
-	 * Tests if the specifie date synonym is used by at least one parameter grid.
-	 * @param dateSynonym
-	 * @return <code>true</code> if <code>dateSynonym</code> is used by at least one parameter grid; 
-	 *         <code>false</code>, otherwise
-	 * @throws NullPointerException if <code>dateSynonym</code> is <code>null</code>
-	 */
-	public boolean isInUse(DateSynonym dateSynonym) {
-		if (dateSynonym == null) throw new NullPointerException("dateSynonym cannot be null");
-		for (Iterator<ParameterGrid> iter = gridMap.values().iterator(); iter.hasNext();) {
-			ParameterGrid grid = iter.next();
-			if (dateSynonym.equals(grid.getEffectiveDate()) || dateSynonym.equals(grid.getExpirationDate())) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Removes the specified generic category from all context.
-	 * 
-	 * @param categoryType
-	 *            category type
-	 * @param categoryID
-	 *            category id
-	 */
-	public void removeCategoryFromAllContext(int categoryType, int categoryID) {
-		GenericEntityType type = ConfigurationManager.getInstance().getEntityConfigHelper().findEntityTypeForCategoryType(categoryType);
-		if (type != null) {
-			for (Iterator<ParameterGrid> iter = gridMap.values().iterator(); iter.hasNext();) {
-				ParameterGrid grid = iter.next();
-				grid.removeGenericCategoryID(type, categoryID);
-			}
-		}
-	}
-
-	public void removeEntityFromAllContext(GenericEntityType type, int entityID) {
-		for (Iterator<ParameterGrid> iter = gridMap.values().iterator(); iter.hasNext();) {
-			ParameterGrid grid = iter.next();
-			if (grid.hasGenericEntityContext(type) && UtilBase.isMember(entityID, grid.getGenericEntityIDs(type))) {
-				grid.removeGenericEntityID(type, entityID);
-			}
-		}
-	}
-
-	public void addParameterGrid(int gridID, int templateID, String cellValue, int numRows, DateSynonym effDate, DateSynonym expDate, String status) {
-
-		ParameterGrid grid = new ParameterGrid(gridID, templateID, effDate, expDate);
-		grid.setCellValues(cellValue);
-		grid.setNumRows(numRows);
-		grid.setStatus(status);
-		grid.setTemplate(ParameterTemplateManager.getInstance().getTemplate(templateID));
-
-		gridMap.put(new Integer(gridID), grid);
 	}
 
 	public boolean addGridContext(int gridID, GenericEntityType type, int entityID) {
@@ -130,6 +82,20 @@ public final class ParameterManager extends AbstractCacheManager {
 		else {
 			return false;
 		}
+	}
+
+	public void addParameterGrid(int gridID, int templateID, String cellValue, int numRows, DateSynonym effDate, DateSynonym expDate, String status) {
+
+		ParameterGrid grid = new ParameterGrid(gridID, templateID, effDate, expDate);
+		grid.setCellValues(cellValue);
+		grid.setNumRows(numRows);
+		grid.setStatus(status);
+		grid.setTemplate(ParameterTemplateManager.getInstance().getTemplate(templateID));
+
+		gridMap.put(new Integer(gridID), grid);
+	}
+
+	public void finishLoading() {
 	}
 
 	public ParameterGrid getGrid(int gridID) {
@@ -158,37 +124,6 @@ public final class ParameterManager extends AbstractCacheManager {
 		return list;
 	}
 
-	public List<GuidelineReportData> searchParameters(List<ParameterTemplate> templateList) {
-		List<GuidelineReportData> retList = new ArrayList<GuidelineReportData>();
-		for (Iterator<ParameterTemplate> iter = templateList.iterator(); iter.hasNext();) {
-			ParameterTemplate template = iter.next();
-			retList.addAll(toGuidelineReportData(template, getGrids(template.getID())));
-		}
-
-		return retList;
-	}
-
-	/**
-	 * @param <link>ParameterTemplate
-	 *            </link> template
-	 * @param gridList
-	 *            parameter grid list; length must be >= 1
-	 * @param String
-	 *            username. Not sure if it's used.
-	 * @return the list of guideline report data objects
-	 */
-	private static List<GuidelineReportData> toGuidelineReportData(ParameterTemplate template, List<ParameterGrid> gridList) {
-		List<GuidelineReportData> retList = new ArrayList<GuidelineReportData>();
-		int templateID = template.getID();
-		for (Iterator<ParameterGrid> iter = gridList.iterator(); iter.hasNext();) {
-			ParameterGrid grid = iter.next();
-			GuidelineReportData data = new GuidelineReportData(templateID, template.getName(), grid, true);
-			data.setStatus(grid.getStatus());
-			retList.add(data);
-		}
-		return retList;
-	}
-
 	public void insertIntoCache(int gridID, int templateID, String cellValue, int numRows, DateSynonym effDate, DateSynonym expDate, String status, GuidelineContext[] context) {
 		ParameterGrid grid = new ParameterGrid(gridID, templateID, effDate, expDate);
 		grid.setCellValues(cellValue);
@@ -199,21 +134,65 @@ public final class ParameterManager extends AbstractCacheManager {
 		gridMap.put(new Integer(gridID), grid);
 	}
 
+	/**
+	 * Tests if the specifie date synonym is used by at least one parameter grid.
+	 * @param dateSynonym dateSynonym
+	 * @return <code>true</code> if <code>dateSynonym</code> is used by at least one parameter grid; 
+	 *         <code>false</code>, otherwise
+	 * @throws NullPointerException if <code>dateSynonym</code> is <code>null</code>
+	 */
+	public boolean isInUse(DateSynonym dateSynonym) {
+		if (dateSynonym == null) throw new NullPointerException("dateSynonym cannot be null");
+		for (Iterator<ParameterGrid> iter = gridMap.values().iterator(); iter.hasNext();) {
+			ParameterGrid grid = iter.next();
+			if (dateSynonym.equals(grid.getEffectiveDate()) || dateSynonym.equals(grid.getExpirationDate())) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Removes the specified generic category from all context.
+	 * 
+	 * @param categoryType categoryType
+	 * @param categoryID categoryID
+	 */
+	public void removeCategoryFromAllContext(int categoryType, int categoryID) {
+		GenericEntityType type = ConfigurationManager.getInstance().getEntityConfigHelper().findEntityTypeForCategoryType(categoryType);
+		if (type != null) {
+			for (Iterator<ParameterGrid> iter = gridMap.values().iterator(); iter.hasNext();) {
+				ParameterGrid grid = iter.next();
+				grid.removeGenericCategoryID(type, categoryID);
+			}
+		}
+	}
+
+	public void removeEntityFromAllContext(GenericEntityType type, int entityID) {
+		for (Iterator<ParameterGrid> iter = gridMap.values().iterator(); iter.hasNext();) {
+			ParameterGrid grid = iter.next();
+			if (grid.hasGenericEntityContext(type) && UtilBase.isMember(entityID, grid.getGenericEntityIDs(type))) {
+				grid.removeGenericEntityID(type, entityID);
+			}
+		}
+	}
+
 	public void removeGridFromCache(int gridID) {
 		gridMap.remove(new Integer(gridID));
 	}
 
-	/**
-	 * Update context of the specified grid.
-	 * 
-	 * @since PowerEditor 4.2.0
-	 */
-	public void updateGridContext(int gridID, GuidelineContext[] context) {
-		Integer key = new Integer(gridID);
-		if (gridMap.containsKey(key)) {
-			ParameterGrid grid = gridMap.get(key);
-			ServerContextUtil.setContext(grid, context);
+	public List<GuidelineReportData> searchParameters(List<ParameterTemplate> templateList) {
+		List<GuidelineReportData> retList = new ArrayList<GuidelineReportData>();
+		for (Iterator<ParameterTemplate> iter = templateList.iterator(); iter.hasNext();) {
+			ParameterTemplate template = iter.next();
+			retList.addAll(toGuidelineReportData(template, getGrids(template.getID())));
 		}
+
+		return retList;
+	}
+
+	public void startLoading() {
+		this.gridMap.clear();
 	}
 
 	public void updateCache(ParameterGrid grid) {
@@ -229,6 +208,20 @@ public final class ParameterManager extends AbstractCacheManager {
 		}
 		else {
 			gridMap.put(key, grid);
+		}
+	}
+
+	/**
+	 * Update context of the specified grid.
+	 * @param gridID gridID
+	 * @param context context
+	 * @since PowerEditor 4.2.0
+	 */
+	public void updateGridContext(int gridID, GuidelineContext[] context) {
+		Integer key = new Integer(gridID);
+		if (gridMap.containsKey(key)) {
+			ParameterGrid grid = gridMap.get(key);
+			ServerContextUtil.setContext(grid, context);
 		}
 	}
 }

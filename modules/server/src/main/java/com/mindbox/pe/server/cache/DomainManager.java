@@ -66,7 +66,7 @@ public class DomainManager extends AbstractCacheManager implements DomainClassPr
 
 	/**
 	 * Finds the specified domain attribute of among domain classes.
-	 * @param contextlessLabel
+	 * @param contextlessLabel contextlessLabel
 	 * @return the specified domain attribute, if found; <code>null</code>, otherwise
 	 * @since PowerEditor 3.2.0
 	 */
@@ -88,8 +88,8 @@ public class DomainManager extends AbstractCacheManager implements DomainClassPr
 	 * Finds the specified domain attribute of the speified domain class.
 	 * This first checks contextless label of each attribute that matches <code>contextlessLabel</code>.
 	 * If none found, this then checks against name of each attribute of Class <code>className</code>.
-	 * @param className
-	 * @param contextlessLabel
+	 * @param className className
+	 * @param contextlessLabel contextlessLabel
 	 * @return the specified domain attribute, if found; <code>null</code>, otherwise
 	 * @since PowerEditor 3.2.0
 	 */
@@ -128,7 +128,7 @@ public class DomainManager extends AbstractCacheManager implements DomainClassPr
 
 	/**
 	 * Finds the specified domain translation of among domain classes.
-	 * @param contextlessLabel
+	 * @param contextlessLabel contextlessLabel
 	 * @return the specified domain translation, if found; <code>null</code>, otherwise
 	 * @since PowerEditor 3.2.0
 	 */
@@ -148,8 +148,8 @@ public class DomainManager extends AbstractCacheManager implements DomainClassPr
 
 	/**
 	 * Finds the specified domain translation of the speified domain class.
-	 * @param className
-	 * @param contextlessLabel
+	 * @param className className
+	 * @param contextlessLabel contextlessLabel
 	 * @return the specified domain translation, if found; <code>null</code>, otherwise
 	 * @since PowerEditor 3.2.0
 	 */
@@ -254,7 +254,6 @@ public class DomainManager extends AbstractCacheManager implements DomainClassPr
 					List<String> deployValueList = new LinkedList<String>();
 					EnumValue[] values = attribute.getEnumValues();
 					List<EnumValue> enumValueList = new LinkedList<EnumValue>();
-					//					String key = domainClass.getName() + "." + attribute.getName();
 					for (int i = 0; i < values.length; i++) {
 						logger.debug("finishLoading: --> " + values[i]);
 						if (!values[i].isValidForDomainEnumValue()) {
@@ -327,6 +326,7 @@ public class DomainManager extends AbstractCacheManager implements DomainClassPr
 		return null;
 	}
 
+	@Override
 	public DomainClass getDomainClass(String s) {
 		if (s == null) {
 			logger.debug("<<< getDomainClass: null for arg1 is null");
@@ -383,8 +383,9 @@ public class DomainManager extends AbstractCacheManager implements DomainClassPr
 
 	/**
 	 * Tests if the specified domain attribute has enumeration values.
-	 * @param className
-	 * @param attrname
+	 * @param className className
+	 * @param attrname attrname
+	 * @return true if values exist; false, otherwise
 	 */
 	public boolean hasEnumerationValues(String className, String attrname) {
 		DomainAttribute da = getDomainAttribute(className, attrname);

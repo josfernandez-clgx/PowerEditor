@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.TreeMap;
 
-
 /**
  * Import specification.
  * @author Geneho Kim
@@ -19,7 +18,6 @@ public final class ImportSpec implements Serializable {
 
 	/**
 	 * Creates a new import spec.
-	 * @param importRequestType must be one of {@link #IMPORT_DATA_REQUEST},{@link #IMPORT_ADHOC_ACTIONS_REQUEST}, {@link #IMPORT_TEMPLATES_REQUEST}
 	 * @param merge merge indicator
 	 */
 	public ImportSpec(boolean merge) {
@@ -29,11 +27,10 @@ public final class ImportSpec implements Serializable {
 
 	/**
 	 * Convenience contructor for a single file content.
-	 * Equalivalent to <code>new ImportSpec(importRequestType,merge);addContent(filename,xmlContent);</code>.
-	 * @param filename
-	 * @param xmlContent
-	 * @param importRequestType 
-	 * @param merge
+	 * Equalivalent to <code>new ImportSpec(merge); addContent(filename,xmlContent);</code>.
+	 * @param filename filename
+	 * @param xmlContent XML content
+	 * @param merge merge flag
 	 */
 	public ImportSpec(String filename, String xmlContent, boolean merge) {
 		this(merge);
@@ -43,12 +40,11 @@ public final class ImportSpec implements Serializable {
 	/**
 	 * Convenience contructor for two single file contents.
 	 * Equalivalent to <code>new ImportSpec(importRequestType,merge);addContent(filename1,xmlContent1);addContent(filename2,xmlContent2);</code>.
-	 * @param filename1
-	 * @param xmlContent1
-	 * @param filename2
-	 * @param xmlContent2
-	 * @param importRequestType
-	 * @param merge
+	 * @param filename1 filename 1
+	 * @param xmlContent1 xmlContent 1
+	 * @param filename2 filename 2
+	 * @param xmlContent2 xmlContent 2
+	 * @param merge merge flag
 	 */
 	public ImportSpec(String filename1, String xmlContent1, String filename2, String xmlContent2, boolean merge) {
 		this(merge);
@@ -60,18 +56,19 @@ public final class ImportSpec implements Serializable {
 		contentMap.put(filename, content);
 	}
 
-	public boolean isMerge() {
-		return merge;
+	public String getContent(String filename) {
+		return contentMap.get(filename);
 	}
 
 	public String[] getFilenames() {
 		return contentMap.keySet().toArray(new String[0]);
 	}
 
-	public String getContent(String filename) {
-		return contentMap.get(filename);
+	public boolean isMerge() {
+		return merge;
 	}
 
+	@Override
 	public String toString() {
 		return "ImportSpec[merge=" + merge + ",fileSize=" + contentMap.size() + "]";
 	}

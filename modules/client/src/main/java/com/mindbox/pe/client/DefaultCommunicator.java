@@ -115,12 +115,6 @@ public final class DefaultCommunicator implements Communicator {
 	private final String sessionID;
 	private final Logger logger;
 
-	/**
-	 * Constructs a new default communication for the specified frame base.
-	 * 
-	 * @param frameBase
-	 *            the root frame
-	 */
 	public DefaultCommunicator(MainApplication frameBase) {
 		this.logger = Logger.getLogger(Communicator.class);
 		this.userID = frameBase.getUserID();
@@ -156,15 +150,6 @@ public final class DefaultCommunicator implements Communicator {
 		return response.getPersistentID();
 	}
 
-	/**
-	 * Clone case bases.
-	 * @param oldCaseBaseID
-	 * @param newCaseBaseName
-	 * @return New Case Base ID.
-	 * @throws ServerException
-	 * @author Inna Nill
-	 * @since PowerEditor 4.1.0
-	 */
 	@Override
 	public int cloneCaseBases(int oldCaseBaseID, String newCaseBaseName) throws ServerException {
 		CloneCBRRequest request = new CloneCBRRequest(userID, sessionID, oldCaseBaseID, newCaseBaseName);

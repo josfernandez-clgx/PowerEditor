@@ -3,8 +3,8 @@ package com.mindbox.pe.model.filter;
 import java.util.Map;
 
 import com.mindbox.pe.model.AbstractIDNameDescriptionObject;
-import com.mindbox.pe.model.PeDataType;
 import com.mindbox.pe.model.GenericEntityType;
+import com.mindbox.pe.model.PeDataType;
 
 /**
  * 
@@ -19,27 +19,27 @@ public class NameDescriptionFilterSpec<T extends AbstractIDNameDescriptionObject
 	private String descCriterion = null;
 
 	/**
-	 * @param entityType
-	 *            the entity type
-	 * @param name
-	 *            the name of this filter spec
-	 */
-	public NameDescriptionFilterSpec(PeDataType entityType, GenericEntityType genericEntityType, String name) {
-		super(entityType, genericEntityType, name);
-	}
-
-	/**
-	 * @param entityType
-	 *            the entity type
-	 * @param filterID
-	 *            the ID of this filter spec
-	 * @param name
-	 *            the name of this filter spec
+	 * 
+	 * @param entityType entityType
+	 * @param genericEntityType genericEntityType
+	 * @param filterID filterID
+	 * @param name name
 	 */
 	public NameDescriptionFilterSpec(PeDataType entityType, GenericEntityType genericEntityType, int filterID, String name) {
 		super(entityType, genericEntityType, filterID, name);
 	}
 
+	/**
+	 * 
+	 * @param entityType entityType
+	 * @param genericEntityType genericEntityType
+	 * @param name name
+	 */
+	public NameDescriptionFilterSpec(PeDataType entityType, GenericEntityType genericEntityType, String name) {
+		super(entityType, genericEntityType, name);
+	}
+
+	@Override
 	public SearchFilter<T> asSearchFilter() {
 		NameDescriptionSearchFilter<T> filter = new NameDescriptionSearchFilter<T>(super.getEntityType());
 		if (getNameCriterion() != null) {
@@ -59,8 +59,7 @@ public class NameDescriptionFilterSpec<T extends AbstractIDNameDescriptionObject
 	}
 
 	/**
-	 * @param string
-	 *            new description filter criterion
+	 * @param string new description filter criterion
 	 */
 	public final void setDescCriterion(String string) {
 		descCriterion = string;
@@ -72,6 +71,7 @@ public class NameDescriptionFilterSpec<T extends AbstractIDNameDescriptionObject
 		descCriterion = paramMap.get("desc");
 	}
 
+	@Override
 	public String toParamString() {
 		if (descCriterion != null && descCriterion.length() > 0) {
 			return super.toParamString() + "desc" + FIELD_ASSIGNMENT + descCriterion + PARAMETER_SEPARATOR;

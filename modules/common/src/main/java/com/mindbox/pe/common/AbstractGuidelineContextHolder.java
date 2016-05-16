@@ -18,10 +18,10 @@ import com.mindbox.pe.model.GuidelineContext;
  * Abstract implementation of {@link com.mindbox.pe.common.GuidelineContextHolder}. This uses
  * various model objects in javax.swing package to maintain context elements. This does not provide
  * any GUI elements for manaing guideline context; use
- * {@link com.mindbox.pe.client.common.context.GuidelineContextPanel}, instead.
+ * com.mindbox.pe.client.common.context.GuidelineContextPanel, instead.
  * <p>
  * This is abstract; use concrete implementation for client or server.
- * 
+ * </p>
  * @author Gene Kim
  * @author MindBox
  * @since PowerEditor 4.2.0

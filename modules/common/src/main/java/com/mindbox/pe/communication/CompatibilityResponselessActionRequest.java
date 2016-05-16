@@ -10,19 +10,18 @@ import com.mindbox.pe.model.assckey.GenericEntityCompatibilityData;
 public class CompatibilityResponselessActionRequest extends SessionRequest<AbstractSimpleResponse> {
 
 	private static final long serialVersionUID = -7214646112247171318L;
-	
+
 	private final int actionType;
 	private final GenericEntityCompatibilityData data;
 
 	/**
 	 * 
-	 * @param userID
-	 * @param sessionID
-	 * @param data
-	 * @param actionType
+	 * @param userID userID
+	 * @param sessionID sessionID
+	 * @param data data
+	 * @param actionType actionType
 	 */
-	public CompatibilityResponselessActionRequest(String userID, String sessionID, GenericEntityCompatibilityData data,
-			int actionType) {
+	public CompatibilityResponselessActionRequest(String userID, String sessionID, GenericEntityCompatibilityData data, int actionType) {
 		super(userID, sessionID);
 		this.actionType = actionType;
 		this.data = data;

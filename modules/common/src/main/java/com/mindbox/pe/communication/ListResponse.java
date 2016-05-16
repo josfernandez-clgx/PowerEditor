@@ -5,6 +5,7 @@ import java.util.List;
 /**
  * 
  * @since PowerEditor 1.0
+ * @param <T> list element type
  */
 public class ListResponse<T> extends ResponseComm {
 
@@ -13,7 +14,7 @@ public class ListResponse<T> extends ResponseComm {
 	private final List<T> resultList;
 
 	/**
-	 * 
+	 * @param resultList result list
 	 */
 	public ListResponse(List<T> resultList) {
 		super();

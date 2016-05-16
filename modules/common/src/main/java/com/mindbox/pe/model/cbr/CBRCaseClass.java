@@ -18,25 +18,28 @@ public class CBRCaseClass extends AbstractCBRConfigClass {
 	private static final long serialVersionUID = 20041005135800L;
 
 	public CBRCaseClass() {
-		super(UNASSIGNED_ID, "","");
-	}	
+		super(UNASSIGNED_ID, "", "");
+	}
+
 	/**
 	 * Constructor that takes 2 params
-	 * @param symbol
-	 * @param displayName
+	 * @param id id
+	 * @param symbol symbol
+	 * @param displayName displayName
 	 */
 	public CBRCaseClass(int id, String symbol, String displayName) {
 		super(id, symbol, displayName);
 	}
-	
+
 	/**
 	 * Copy
-	 * @param caseClass
+	 * @param caseClass caseClass
 	 */
 	public synchronized void copyFrom(CBRCaseClass caseClass) {
 		super.copyFrom(caseClass);
 	}
-	
+
+	@Override
 	public String toString() {
 		return super.toString() + "   CBRCaseClass[]";
 	}

@@ -21,8 +21,10 @@ public abstract class AbstractGenericEntityActionRequest<T extends ResponseComm>
 	protected final GenericEntityType type;
 
 	/**
-	 * @param userID
-	 * @param sessionID
+	 * @param userID userID
+	 * @param sessionID sessionID
+	 * @param entityID entityID
+	 * @param type entity type
 	 */
 	public AbstractGenericEntityActionRequest(String userID, String sessionID, int entityID, GenericEntityType type) {
 		super(userID, sessionID);

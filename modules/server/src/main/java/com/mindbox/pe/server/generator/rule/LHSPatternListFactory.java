@@ -21,9 +21,9 @@ import com.mindbox.pe.server.model.DomainClassLinkPattern;
  * Factory for {@link LHSPatternList}.
  * Usage:
  * <ol><li>Create a new instance; e.g., <code>new LHSPatternListFactory(helper);</code></li>
- * <li>Call {@link #produce(RuleDefinition)}</li>
+ * <li>Call {@link #produce(RuleDefinition, TemplateUsageType)}</li>
  * </ol>
- * This is not thread-safe. At most one invocation of {@link #produce(RuleDefinition)} on the same object is allowed. 
+ * This is not thread-safe. At most one invocation of {@link #produce(RuleDefinition, TemplateUsageType)} on the same object is allowed. 
  *
  */
 public final class LHSPatternListFactory {
@@ -31,8 +31,8 @@ public final class LHSPatternListFactory {
 
 	/**
 	 * 
-	 * @param condition
-	 * @return
+	 * @param condition condition
+	 * @return reference
 	 * @throws IllegalArgumentException if condition doesn't contain a refernece in value
 	 */
 	private static Reference extractReferenceValue(Condition condition) {
@@ -62,31 +62,6 @@ public final class LHSPatternListFactory {
 		this.objectPatternFactory = new ObjectPatternFactory(helper);
 		this.attributePatternFactory = new AttributePatternFactory(helper);
 		this.testPatternFactory = new FunctionCallPatternFactory(helper, true);
-	}
-
-	public LHSPatternList produce(RuleDefinition ruleDefinition, TemplateUsageType usageType) throws RuleGenerationException {
-		logger.debug(">>> produce: " + usageType + "; " + ruleDefinition);
-		this.usageType = usageType;
-
-		LHSPatternList patternList = new OptimizingLHSPatternList(LHSPatternList.TYPE_AND);
-		if (!ruleDefinition.isEmpty()) {
-			process(patternList, ruleDefinition.getRootElement(), null);
-		}
-		logger.debug("    produce: processing control pattern...");
-		// Insert control pattern
-		ObjectPattern objectPattern = objectPatternFactory.createControlPattern(usageType);
-		if (objectPattern != null) {
-			patternList.insert(objectPattern, true);
-		}
-
-		logger.debug("    produce: processing request pattern...");
-		// Insert request pattern
-		objectPattern = objectPatternFactory.createRequestPattern(usageType);
-		if (objectPattern != null) {
-			patternList.insert(objectPattern, true);
-		}
-		logger.debug("<<< produce: size = " + patternList.size());
-		return patternList;
 	}
 
 	private void process(LHSPatternList parentPatternList, CompoundLHSElement elements, String objectVarOverride) throws RuleGenerationException {
@@ -123,6 +98,62 @@ public final class LHSPatternListFactory {
 		}
 	}
 
+	private void process(LHSPatternList patternList, Condition condition, String objectVarOverride) throws RuleGenerationException {
+		logger.debug(">>> process(Condition): " + condition);
+		ObjectPattern objectPattern = objectPatternFactory.createObjectPattern(condition, usageType, objectVarOverride);
+
+		if (condition.hasReferenceValue()) {
+			// create an object pattern for the referenced reference
+			Reference referenceValue = extractReferenceValue(condition);
+			ObjectPattern refObjectPattern = objectPatternFactory.createSingleAttrbiuteObjectPattern(referenceValue);
+			AttributePattern refAttributePattern = refObjectPattern.get(0);
+			if (!condition.getReference().getClassName().equalsIgnoreCase(referenceValue.getClassName())
+					|| OptimizingObjectPattern.hasConflictingAttributePattern(objectPattern, refAttributePattern)) {
+				// if parent is NOT or OR and condition's value is attribute ref, wrap patterns with AND
+				if ((patternList.getType() == LHSPatternList.TYPE_OR || patternList.getType() == LHSPatternList.TYPE_NOT)) {
+					// write AND wrapper
+					LHSPatternList andPatternList = new OptimizingLHSPatternList(LHSPatternList.TYPE_AND);
+					andPatternList.append(refObjectPattern);
+					andPatternList.append(objectPattern);
+					patternList.append(andPatternList);
+					refObjectPattern.addMustBeBeforeVariable(objectPattern.getVariableName());
+				}
+				else {
+					patternList.append(objectPattern);
+					patternList.insertBefore(refObjectPattern, objectPattern.getVariableName());
+					refObjectPattern.addMustBeBeforeVariable(objectPattern.getVariableName());
+				}
+			}
+			else {
+				objectPattern.insert(refAttributePattern);
+				patternList.append(objectPattern);
+			}
+		}
+		else {
+			patternList.append(objectPattern);
+		}
+	}
+
+	private void process(LHSPatternList patternList, ExistExpression existExpression, LHSPatternList patternListToAddNextedElementsInExist) throws RuleGenerationException {
+		logger.debug(">>> process(ExistExpression): " + existExpression);
+		ObjectPattern objectPattern = objectPatternFactory.createEmptyObjectPattern(existExpression);
+		patternList.append(objectPattern);
+
+		// add link attribute pattern/object patterms for each child of the exist expression
+		processChildLinkPatterns(objectPattern, existExpression.getClassName(), existExpression.getCompoundLHSElement(), patternList);
+
+		// process elements in the exist expression
+		process(
+				patternListToAddNextedElementsInExist,
+				existExpression.getCompoundLHSElement(),
+				(existExpression.getObjectName() == null ? null : "?" + existExpression.getObjectName()));
+	}
+
+	private void process(LHSPatternList patternList, TestCondition testCondition) throws RuleGenerationException {
+		FunctionCallPattern testPattern = testPatternFactory.createFunctionCallPattern(testCondition, usageType, patternList);
+		patternList.append(testPattern);
+	}
+
 	private void process_aux(LHSPatternList patternListToAddElements, CompoundLHSElement elements, String objectVarOverride) throws RuleGenerationException {
 		for (int i = 0; i < elements.size(); ++i) {
 			RuleElement element = elements.get(i);
@@ -149,19 +180,8 @@ public final class LHSPatternListFactory {
 		}
 	}
 
-	private void process(LHSPatternList patternList, ExistExpression existExpression, LHSPatternList patternListToAddNextedElementsInExist) throws RuleGenerationException {
-		logger.debug(">>> process(ExistExpression): " + existExpression);
-		ObjectPattern objectPattern = objectPatternFactory.createEmptyObjectPattern(existExpression);
-		patternList.append(objectPattern);
-
-		// add link attribute pattern/object patterms for each child of the exist expression
-		processChildLinkPatterns(objectPattern, existExpression.getClassName(), existExpression.getCompoundLHSElement(), patternList);
-
-		// process elements in the exist expression
-		process(patternListToAddNextedElementsInExist, existExpression.getCompoundLHSElement(), (existExpression.getObjectName() == null ? null : "?" + existExpression.getObjectName()));
-	}
-
-	private void processChildLinkPatterns(ObjectPattern objectPattern, String parentClassName, CompoundLHSElement childElements, LHSPatternList patternList) throws RuleGenerationException {
+	private void processChildLinkPatterns(ObjectPattern objectPattern, String parentClassName, CompoundLHSElement childElements, LHSPatternList patternList)
+			throws RuleGenerationException {
 		for (int i = 0; i < childElements.size(); i++) {
 			RuleElement element = childElements.get(i);
 			logger.debug("... processChildLinkPatterns: childElement = " + element);
@@ -184,7 +204,8 @@ public final class LHSPatternListFactory {
 
 	}
 
-	private void processChildLinkPatterns(ObjectPattern objectPattern, String parentClassName, String childClassName, String objectName, LHSPatternList patternList) throws RuleGenerationException {
+	private void processChildLinkPatterns(ObjectPattern objectPattern, String parentClassName, String childClassName, String objectName, LHSPatternList patternList)
+			throws RuleGenerationException {
 		if (parentClassName.equalsIgnoreCase(childClassName)) return;
 		logger.debug(">>> processChildLinkPatterns: " + parentClassName + "," + childClassName + ",object=" + objectName);
 		DomainClassLink[] dcLinks = helper.getLinkage(childClassName, parentClassName);
@@ -217,43 +238,28 @@ public final class LHSPatternListFactory {
 		}
 	}
 
-	private void process(LHSPatternList patternList, TestCondition testCondition) throws RuleGenerationException {
-		FunctionCallPattern testPattern = testPatternFactory.createFunctionCallPattern(testCondition, usageType, patternList);
-		patternList.append(testPattern);
-	}
+	public LHSPatternList produce(RuleDefinition ruleDefinition, TemplateUsageType usageType) throws RuleGenerationException {
+		logger.debug(">>> produce: " + usageType + "; " + ruleDefinition);
+		this.usageType = usageType;
 
-	private void process(LHSPatternList patternList, Condition condition, String objectVarOverride) throws RuleGenerationException {
-		logger.debug(">>> process(Condition): " + condition);
-		ObjectPattern objectPattern = objectPatternFactory.createObjectPattern(condition, usageType, objectVarOverride);
+		LHSPatternList patternList = new OptimizingLHSPatternList(LHSPatternList.TYPE_AND);
+		if (!ruleDefinition.isEmpty()) {
+			process(patternList, ruleDefinition.getRootElement(), null);
+		}
+		logger.debug("    produce: processing control pattern...");
+		// Insert control pattern
+		ObjectPattern objectPattern = objectPatternFactory.createControlPattern(usageType);
+		if (objectPattern != null) {
+			patternList.insert(objectPattern, true);
+		}
 
-		if (condition.hasReferenceValue()) {
-			// create an object pattern for the referenced reference
-			Reference referenceValue = extractReferenceValue(condition);
-			ObjectPattern refObjectPattern = objectPatternFactory.createSingleAttrbiuteObjectPattern(referenceValue);
-			AttributePattern refAttributePattern = refObjectPattern.get(0);
-			if (!condition.getReference().getClassName().equalsIgnoreCase(referenceValue.getClassName()) || OptimizingObjectPattern.hasConflictingAttributePattern(objectPattern, refAttributePattern)) {
-				// if parent is NOT or OR and condition's value is attribute ref, wrap patterns with AND
-				if ((patternList.getType() == LHSPatternList.TYPE_OR || patternList.getType() == LHSPatternList.TYPE_NOT)) {
-					// write AND wrapper
-					LHSPatternList andPatternList = new OptimizingLHSPatternList(LHSPatternList.TYPE_AND);
-					andPatternList.append(refObjectPattern);
-					andPatternList.append(objectPattern);
-					patternList.append(andPatternList);
-					refObjectPattern.addMustBeBeforeVariable(objectPattern.getVariableName());
-				}
-				else {
-					patternList.append(objectPattern);
-					patternList.insertBefore(refObjectPattern, objectPattern.getVariableName());
-					refObjectPattern.addMustBeBeforeVariable(objectPattern.getVariableName());
-				}
-			}
-			else {
-				objectPattern.insert(refAttributePattern);
-				patternList.append(objectPattern);
-			}
+		logger.debug("    produce: processing request pattern...");
+		// Insert request pattern
+		objectPattern = objectPatternFactory.createRequestPattern(usageType);
+		if (objectPattern != null) {
+			patternList.insert(objectPattern, true);
 		}
-		else {
-			patternList.append(objectPattern);
-		}
+		logger.debug("<<< produce: size = " + patternList.size());
+		return patternList;
 	}
 }

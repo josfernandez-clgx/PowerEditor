@@ -58,7 +58,7 @@ public final class LineagePatternConfigHelper {
 
 	/**
 	 * Gets the lineage pattern config for the specified prefix.
-	 * @param prefix
+	 * @param prefix prefix
 	 * @return the lineage pattern config for <code>prefix</code>
 	 */
 	public List<RuleGenerationLHS.Pattern> getLineagePatternConfigs(final String prefix) {

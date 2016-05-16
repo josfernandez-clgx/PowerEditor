@@ -36,6 +36,7 @@ import com.mindbox.pe.model.template.TemplateMessageDigest;
  * <li>Call {@link #reset} method to initialize internal state</li>
  * <li>Call {@link #digestTemplateXML(Reader)} once per template definition XML file</li>
  * <li>Call {@link #getAllObjects()} to retrieve parsed (digested) objects</li>
+ * </ol>
  * @author Geneho Kim
  * @author MindBox
  * @since PowerEditor 3.2.0
@@ -59,12 +60,20 @@ public class TemplateXMLDigester {
 		this.objectList = new ArrayList<Object>();
 	}
 
-	public synchronized void reset() {
-		objectList.clear();
-	}
-
 	public void addObject(Object obj) {
 		objectList.add(obj);
+	}
+
+	public synchronized void digestTemplateXML(Reader reader) throws IOException, SAXException {
+		Digester digester = getDigester();
+		digester.push(this);
+		digester.parse(reader);
+	}
+
+	public synchronized void digestTemplateXML(String content/*Reader reader*/) throws IOException, SAXException {
+		StringReader reader = new StringReader(content);
+		digestTemplateXML(reader);
+		reader.close();
 	}
 
 	public synchronized List<Object> getAllObjects() {
@@ -77,7 +86,7 @@ public class TemplateXMLDigester {
 
 		// [1] rules for adhoc rule actions -------------------------------------------------
 		digester.addObjectCreate("EditorDefinitions/AdHocRuleAction", ActionTypeDefinition.class);
-		digester.addSetProperties("EditorDefinitions/AdHocRuleAction", new String[] { "id"}, new String[] { "idString"});
+		digester.addSetProperties("EditorDefinitions/AdHocRuleAction", new String[] { "id" }, new String[] { "idString" });
 		digester.addBeanPropertySetter("EditorDefinitions/AdHocRuleAction/Description", "description");
 		digester.addBeanPropertySetter("EditorDefinitions/AdHocRuleAction/DeploymentAction", "deploymentRule");
 		digester.addSetNext("EditorDefinitions/AdHocRuleAction", "addObject");
@@ -87,16 +96,15 @@ public class TemplateXMLDigester {
 		digester.addObjectCreate("EditorDefinitions/AdHocRuleAction/ParameterList/Parameter", FunctionParameterDefinition.class);
 		digester.addSetProperties(
 				"EditorDefinitions/AdHocRuleAction/ParameterList/Parameter",
-				new String[] { "paramNum", "deployType"},
-				new String[] { "idString", "deployTypeString"});
+				new String[] { "paramNum", "deployType" },
+				new String[] { "idString", "deployTypeString" });
 		digester.addSetNext("EditorDefinitions/AdHocRuleAction/ParameterList/Parameter", "addParameterDefinition");
 
 
 		// [2] rules for guideline templates (3.3 format) ------------------------------------
 
 		digester.addObjectCreate("EditorDefinitions/GridTemplateDefinition", GridTemplate.class);
-		digester.addSetProperties("EditorDefinitions/GridTemplateDefinition", new String[] { "id", "usage"}, new String[] { "idString",
-				"usageTypeString"});
+		digester.addSetProperties("EditorDefinitions/GridTemplateDefinition", new String[] { "id", "usage" }, new String[] { "idString", "usageTypeString" });
 		digester.addBeanPropertySetter("EditorDefinitions/GridTemplateDefinition/Description", "description");
 		digester.addBeanPropertySetter("EditorDefinitions/GridTemplateDefinition/QualificationRule/QualificationCondition", "ruleDefinitionString");
 		digester.addBeanPropertySetter("EditorDefinitions/GridTemplateDefinition/RuleExplanation", "ruleExplanation");
@@ -110,7 +118,7 @@ public class TemplateXMLDigester {
 		// [3] rules for guideline template columns (3.3 format) ----------------------------------
 
 		digester.addObjectCreate("EditorDefinitions/GridTemplateDefinition/ColumnDefinition", GridTemplateColumn.class);
-		digester.addSetProperties("EditorDefinitions/GridTemplateDefinition/ColumnDefinition", new String[] { "id"}, new String[] { "idString"});
+		digester.addSetProperties("EditorDefinitions/GridTemplateDefinition/ColumnDefinition", new String[] { "id" }, new String[] { "idString" });
 		digester.addBeanPropertySetter("EditorDefinitions/GridTemplateDefinition/ColumnDefinition/DeploymentRule", "ruleDefinitionString");
 		digester.addSetNext("EditorDefinitions/GridTemplateDefinition/ColumnDefinition", "addGridTemplateColumn");
 
@@ -148,16 +156,7 @@ public class TemplateXMLDigester {
 		return digester;
 	}
 
-	public synchronized void digestTemplateXML(String content/*Reader reader*/) throws IOException, SAXException {
-		StringReader reader = new StringReader(content);
-		digestTemplateXML(reader);
-		reader.close();
+	public synchronized void reset() {
+		objectList.clear();
 	}
-
-	public synchronized void digestTemplateXML(Reader reader) throws IOException, SAXException {
-		Digester digester = getDigester();
-		digester.push(this);
-		digester.parse(reader);
-	}
-
 }

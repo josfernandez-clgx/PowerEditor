@@ -17,12 +17,9 @@ import com.mindbox.pe.model.Persistent;
 public class SingleEntityResponse extends ResponseComm {
 
 	private static final long serialVersionUID = 20030616120020000L;
-	
+
 	private final Persistent object;
-	
-	/**
-	 * 
-	 */
+
 	public SingleEntityResponse(Persistent object) {
 		super();
 		this.object = object;

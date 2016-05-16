@@ -22,8 +22,10 @@ public abstract class AbstractEntityNameActionRequest<T extends ResponseComm> ex
 	protected final PeDataType entityType;
 
 	/**
-	 * @param userID
-	 * @param sessionID
+	 * @param userID userID
+	 * @param sessionID sessionID
+	 * @param name name
+	 * @param entityType entityType
 	 */
 	protected AbstractEntityNameActionRequest(String userID, String sessionID, String name, PeDataType entityType) {
 		super(userID, sessionID);
@@ -31,11 +33,11 @@ public abstract class AbstractEntityNameActionRequest<T extends ResponseComm> ex
 		this.entityType = entityType;
 	}
 
+	public PeDataType getEntityType() {
+		return entityType;
+	}
+
 	public String getName() {
 		return name;
-	}
-	
-	public PeDataType getEntityType() {
-		return entityType;	
 	}
 }

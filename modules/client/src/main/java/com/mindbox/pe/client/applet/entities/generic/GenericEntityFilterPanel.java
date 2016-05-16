@@ -36,15 +36,13 @@ import com.mindbox.pe.xsd.config.EntityType;
  * @since PowerEditor 3.0.0
  */
 public final class GenericEntityFilterPanel extends AbstractPersistedFilterPanel<GenericEntity, EntityManagementButtonPanel<GenericEntity>> {
+
 	private static final long serialVersionUID = -3951228734910107454L;
 
 	private JTextField nameField;
 	private Map<String, JComponent> propFieldMap;
 	private List<EntityProperty> propDefs;
 
-	/**
-	 * @param selectionPanel
-	 */
 	public GenericEntityFilterPanel(GenericEntityType type, AbstractSelectionPanel<GenericEntity, EntityManagementButtonPanel<GenericEntity>> selectionPanel) {
 		super(selectionPanel, type, false);
 	}

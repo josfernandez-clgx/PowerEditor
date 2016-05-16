@@ -27,8 +27,11 @@ public class ParameterTemplate extends AbstractTemplateCore<ParameterTemplateCol
 	}
 
 	/**
-	 * @param id
-	 * @param name
+	 * 
+	 * @param id id
+	 * @param name name
+	 * @param maxRow maxRow
+	 * @param desc desc
 	 */
 	public ParameterTemplate(int id, String name, int maxRow, String desc) {
 		super(id, name, null, maxRow, desc);
@@ -40,38 +43,43 @@ public class ParameterTemplate extends AbstractTemplateCore<ParameterTemplateCol
 		this.deployMethod = source.deployMethod;
 	}
 
+	@Override
+	protected void adjustChangedColumnReferences(int columnNo, int newColumnNo) {
+		// noop
+	}
+
+	@Override
+	protected void adjustDeletedColumnReferences(int columnNo) {
+		// noop
+	}
+
+	@Override
+	protected ParameterTemplateColumn createTemplateColumn(ParameterTemplateColumn source) {
+		ParameterTemplateColumn column = new ParameterTemplateColumn(source);
+		return column;
+	}
+
+	@Override
 	public Auditable deepCopy() {
 		return new ParameterTemplate(this);
 	}
 
+	@Override
 	public String getAuditDescription() {
 		return "parameter template '" + getName() + "'";
-	}
-	
-	public String getDeployScriptDetails() {
-		return deployScriptDetails;
 	}
 
 	public int getDeployMethod() {
 		return deployMethod;
 	}
 
+	public String getDeployScriptDetails() {
+		return deployScriptDetails;
+	}
+
 	public void setDeployScriptDetails(String details) {
 		this.deployScriptDetails = details;
 		this.deployMethod = RUN_SCRIPT_ONCE;
-	}
-
-	protected ParameterTemplateColumn createTemplateColumn(ParameterTemplateColumn source) {
-		ParameterTemplateColumn column = new ParameterTemplateColumn(source);
-		return column;
-	}
-
-	protected void adjustDeletedColumnReferences(int columnNo) {
-		// noop
-	}
-
-	protected void adjustChangedColumnReferences(int columnNo, int newColumnNo) {
-		// noop
 	}
 
 }

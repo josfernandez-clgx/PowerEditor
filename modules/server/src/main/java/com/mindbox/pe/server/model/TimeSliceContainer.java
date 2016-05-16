@@ -58,7 +58,7 @@ public class TimeSliceContainer {
 
 	/**
 	 * 
-	 * @param timeSlice
+	 * @param timeSlice timeSlice
 	 * @throws NullPointerException if <code>timeSlice</code> is <code>null</code>
 	 * @throws IllegalArgumentException if a time slice with the same name is found
 	 * @throws IllegalStateException if {@link #freeze()} has been called
@@ -104,7 +104,7 @@ public class TimeSliceContainer {
 	 * whatever {@link TimeSliceContainer#getApplicableTimeSlices(com.mindbox.pe.model.DateSynonym, com.mindbox.pe.model.DateSynonym)}
 	 * returns with sunrise and sunset date of <code>ruleParams</code>.
 	 * 
-	 * @param timeSliceContainer
+	 * @param entityDataHolder entityDataHolder
 	 * @param generationParams rule params
 	 * @return a list of {@link TimeSlice} arrays
 	 * @throws IllegalStateException if {@link #freeze()} has not been called
@@ -121,10 +121,13 @@ public class TimeSliceContainer {
 				Object cellValue = iter.next();
 				if (cellValue != null) {
 					if (cellValue instanceof CategoryOrEntityValue && !((CategoryOrEntityValue) cellValue).isForEntity()) {
-						dateSynonymSet.addAll(entityDataHolder.getDateSynonymsForChangesInCategoryRelationships(((CategoryOrEntityValue) cellValue).getEntityType().getCategoryType()));
+						dateSynonymSet.addAll(
+								entityDataHolder.getDateSynonymsForChangesInCategoryRelationships(((CategoryOrEntityValue) cellValue).getEntityType().getCategoryType()));
 					}
 					else if (cellValue instanceof CategoryOrEntityValues && ((CategoryOrEntityValues) cellValue).hasGenericCategoryReference()) {
-						dateSynonymSet.addAll(entityDataHolder.getDateSynonymsForChangesInCategoryRelationships(((CategoryOrEntityValue) ((CategoryOrEntityValues) cellValue).get(0)).getEntityType().getCategoryType()));
+						dateSynonymSet.addAll(
+								entityDataHolder.getDateSynonymsForChangesInCategoryRelationships(
+										((CategoryOrEntityValue) ((CategoryOrEntityValues) cellValue).get(0)).getEntityType().getCategoryType()));
 					}
 				}
 			}

@@ -19,10 +19,19 @@ public class ActionSelectionTableModel extends IDNameDescriptionObjectSelectionT
 
 	/**
 	 * Create new IDName Object selection table model with the specified column names.
-	 * @param columnNames
 	 */
 	public ActionSelectionTableModel() {
 		super(ClientUtil.getInstance().getLabel("label.name"), ClientUtil.getInstance().getLabel("label.desc"), ClientUtil.getInstance().getLabel("label.usage.types"));
+	}
+
+	private String getUsageTypesString(ActionTypeDefinition action) {
+		TemplateUsageType[] usages = (TemplateUsageType[]) action.getUsageTypes();
+		StringBuilder buff = new StringBuilder();
+		for (int i = 0; i < usages.length; i++) {
+			if (i != 0) buff.append(", ");
+			buff.append(usages[i].getDisplayName());
+		}
+		return buff.toString();
 	}
 
 	@Override
@@ -43,15 +52,5 @@ public class ActionSelectionTableModel extends IDNameDescriptionObjectSelectionT
 		default:
 			return value;
 		}
-	}
-
-	private String getUsageTypesString(ActionTypeDefinition action) {
-		TemplateUsageType[] usages = (TemplateUsageType[]) action.getUsageTypes();
-		StringBuilder buff = new StringBuilder();
-		for (int i = 0; i < usages.length; i++) {
-			if (i != 0) buff.append(", ");
-			buff.append(usages[i].getDisplayName());
-		}
-		return buff.toString();
 	}
 }

@@ -58,21 +58,25 @@ public class SecurityCacheManager extends AbstractCacheManager implements UserSe
 		templateSecurityMap.put(new Integer(i), gridtemplatesecurityinfo);
 	}
 
+	@Override
 	public void addPrivilege(int id, String name, String displayName, int privType) {
 		Privilege privilege = new Privilege(id, name, displayName, privType);
 		privilegeMap.put(new Integer(id), privilege);
 	}
 
+	@Override
 	public void addPrivilegeToRole(int privID, int roleID) {
 		Privilege privilege = getPrivilege(privID);
 		if (privilege != null) getRole(roleID).addPrivilege(privilege);
 	}
 
+	@Override
 	public void addRole(int id, String name) {
 		Role role = new Role(id, name, new ArrayList<Privilege>());
 		roleMapCache.put(new Integer(id), role);
 	}
 
+	@Override
 	public boolean addUser(String userID, String name, String status, boolean passwordChangeRequired, int failedLoginAttempts, List<UserPassword> passwordHistory) {
 		User user = new User(userID, name, status, passwordChangeRequired, failedLoginAttempts, null, passwordHistory);
 		userMap.put(userID, user);
@@ -80,6 +84,7 @@ public class SecurityCacheManager extends AbstractCacheManager implements UserSe
 		return true;
 	}
 
+	@Override
 	public void addUserToRole(String s, int roleID) {
 		getUser(s).add(getRole(roleID));
 	}
@@ -147,9 +152,10 @@ public class SecurityCacheManager extends AbstractCacheManager implements UserSe
 	/**
 	 * Given the privilege name, this returns true if that permission exists
 	 * for the role the current user has logged in as
-	 * @param userID
-	 * @param privilegeStr
+	 * @param userID userID
+	 * @param privilegeStr privilegeStr
 	 * @return true is privilege exists, false otherwise
+	 * @throws ServerException on error
 	 */
 	public boolean checkPermissionByPrivilegeName(String userID, String privilegeStr) throws ServerException {
 		List<Role> list = getRoles(userID);
@@ -197,8 +203,8 @@ public class SecurityCacheManager extends AbstractCacheManager implements UserSe
 
 	/**
 	 * 
-	 * @param userName
-	 * @return
+	 * @param userId userId
+	 * @return display name
 	 * @since 2012-04-08
 	 */
 	public String getDisplayName(String userId) {
@@ -247,7 +253,7 @@ public class SecurityCacheManager extends AbstractCacheManager implements UserSe
 	/**
 	 * Gets the role with the specified name.
 	 * 
-	 * @param roleName
+	 * @param roleName roleName
 	 *            the role name
 	 * @return role object with the specified name, if found; <code>null</code>,
 	 *         otherwise
@@ -267,7 +273,7 @@ public class SecurityCacheManager extends AbstractCacheManager implements UserSe
 
 	/**
 	 * Gets a list of roles of the specified user.
-	 * @param userID
+	 * @param userID userID
 	 * @return a list of {@link Role} objects
 	 * @throws ServerException on error
 	 * @throws NullPointerException if user cache is enabled and if the specified user id is not found
@@ -323,7 +329,7 @@ public class SecurityCacheManager extends AbstractCacheManager implements UserSe
 	/**
 	 * Tests if this contains the specified user id.
 	 * 
-	 * @param id
+	 * @param id id
 	 *            user id
 	 * @return <code>true</code> if <code>id</code> is valid;
 	 *         <code>false</code>, otherwise
@@ -370,6 +376,27 @@ public class SecurityCacheManager extends AbstractCacheManager implements UserSe
 		privilegeMap.clear();
 	}
 
+	public void startUserMonitorWork() {
+		if (ServiceProviderFactory.getUserManagementProvider().cacheUserObjects()) {
+			logInfo(logger, "---> startUserMonitorWork");
+
+			monitorUserScheduledFuture = USER_MONITOR_EXECUTOR_SERVICE.schedule(new UserMonitorWork(this), 10, TimeUnit.MINUTES);
+
+			logInfo(logger, "<--- startUserMonitorWork");
+		}
+	}
+
+	public void stopUserMonitorWork() {
+		if (ServiceProviderFactory.getUserManagementProvider().cacheUserObjects()) {
+			logInfo(logger, "---> stopUserMonitorWork");
+			if (monitorUserScheduledFuture != null) {
+				monitorUserScheduledFuture.cancel(true);
+			}
+			logInfo(logger, "<--- stopUserMonitorWork");
+		}
+	}
+
+	@Override
 	public String toString() {
 		String s = "";
 		s += "SecurityController with " + templateSecurityMap.size() + " SecurityInfo objects!";
@@ -397,26 +424,6 @@ public class SecurityCacheManager extends AbstractCacheManager implements UserSe
 		user.setPasswordHistory(userdata.getPasswordHistory());
 		user.setFailedLoginCounter(userdata.getFailedLoginCounter());
 		return true;
-	}
-
-	public void startUserMonitorWork() {
-		if (ServiceProviderFactory.getUserManagementProvider().cacheUserObjects()) {
-			logInfo(logger, "---> startUserMonitorWork");
-
-			monitorUserScheduledFuture = USER_MONITOR_EXECUTOR_SERVICE.schedule(new UserMonitorWork(this), 10, TimeUnit.MINUTES);
-
-			logInfo(logger, "<--- startUserMonitorWork");
-		}
-	}
-
-	public void stopUserMonitorWork() {
-		if (ServiceProviderFactory.getUserManagementProvider().cacheUserObjects()) {
-			logInfo(logger, "---> stopUserMonitorWork");
-			if (monitorUserScheduledFuture != null) {
-				monitorUserScheduledFuture.cancel(true);
-			}
-			logInfo(logger, "<--- stopUserMonitorWork");
-		}
 	}
 
 }

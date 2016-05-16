@@ -3,7 +3,7 @@ package com.mindbox.pe.server.generator.rule;
 import com.mindbox.pe.model.GenericEntityType;
 
 /**
- * A concrete implementation of {@link ValueSlot} of {@link ValueSlot#CATEGORY_NAME}.
+ * A concrete implementation of {@link ValueSlot} of {@link ValueSlot.Type#CATEGORY_NAME}.
  * The {@link ValueSlot#getSlotValue()} method of this returns an instance of {@link GenericEntityType}.
  * @author Geneho Kim
  * @since 5.1.0

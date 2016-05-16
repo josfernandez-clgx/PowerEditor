@@ -18,16 +18,16 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentListener;
 
+import com.mindbox.pe.client.applet.PowerEditorSwingTheme;
+import com.mindbox.pe.client.applet.UIFactory;
+import com.mindbox.pe.model.Constants;
+
 import mseries.Calendar.MDateChanger;
 import mseries.Calendar.MDefaultPullDownConstraints;
 import mseries.Calendar.MFieldListener;
 import mseries.ui.MChangeEvent;
 import mseries.ui.MChangeListener;
 import mseries.ui.MDateEntryField;
-
-import com.mindbox.pe.client.applet.PowerEditorSwingTheme;
-import com.mindbox.pe.client.applet.UIFactory;
-import com.mindbox.pe.model.Constants;
 
 
 /**
@@ -40,6 +40,7 @@ import com.mindbox.pe.model.Constants;
 public final class MDateDateField extends MDateEntryField {
 
 	private final class AllowSecondsInDateL implements MChangeListener {
+		@Override
 		public void valueChanged(MChangeEvent arg0) {
 			if (arg0.getType() == MChangeEvent.CHANGE) {
 				Calendar cal = Calendar.getInstance();
@@ -53,9 +54,11 @@ public final class MDateDateField extends MDateEntryField {
 	}
 
 	private final class ClearEmptyFieldL implements MFieldListener {
+		@Override
 		public void fieldEntered(FocusEvent arg0) {
 		}
 
+		@Override
 		public void fieldExited(FocusEvent arg0) {
 			String text = ((MDateDateField) arg0.getComponent()).getText();
 			if (text == null || text.trim().length() == 0) {
@@ -66,6 +69,7 @@ public final class MDateDateField extends MDateEntryField {
 	}
 
 	private final class ClearL implements ActionListener {
+		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			MDateDateField.this.setValue(null);
 		}
@@ -105,9 +109,9 @@ public final class MDateDateField extends MDateEntryField {
 	}
 
 	/**
-	 *
-	 * @param forTime
-	 * @param showClearButton
+	 * @param forTime forTime
+	 * @param showClearButton showClearButton
+	 * @param allowSecondsInDate allowSecondsInDate
 	 * @since PowerEditor 3.2.0
 	 */
 	public MDateDateField(boolean forTime, boolean showClearButton, boolean allowSecondsInDate) {
@@ -241,6 +245,7 @@ public final class MDateDateField extends MDateEntryField {
 		}
 	}
 
+	@Override
 	public Dimension getMinimumSize() {
 		Dimension size = getPreferredSize();
 		size.height -= 2;
@@ -257,6 +262,7 @@ public final class MDateDateField extends MDateEntryField {
 		return timeField;
 	}
 
+	@Override
 	public Date getValue() throws ParseException {
 		return super.getValue();
 	}
@@ -284,6 +290,7 @@ public final class MDateDateField extends MDateEntryField {
 		}
 	}
 
+	@Override
 	public void setEnabled(boolean enabled) {
 		super.setEnabled(enabled);
 		this.setEditable(enabled);
@@ -295,6 +302,7 @@ public final class MDateDateField extends MDateEntryField {
 		}
 	}
 
+	@Override
 	public void setValue(Date arg0) {
 		super.setValue(arg0);
 

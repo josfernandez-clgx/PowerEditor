@@ -11,13 +11,10 @@ public final class RuleGenerationException extends Exception {
 
 	private static final long serialVersionUID = -8480600759755413878L;
 
-	/**
-	 * @param errorMsg
-	 */
 	public RuleGenerationException(String errorMsg) {
 		super(errorMsg);
 	}
-	
+
 	public String getErrorMessage() {
 		return getMessage();
 	}

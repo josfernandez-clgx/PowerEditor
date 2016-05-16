@@ -16,32 +16,34 @@ public class UsagePhaseTask implements PhaseTask {
 
 	private static final long serialVersionUID = 2004060240003L;
 
-	
 	private final TemplateUsageType usageType;
-	
+
 	/**
 	 * 
-	 * @param usageType
+	 * @param usageType usageType
 	 * @throws NullPointerException if <code>usageType</code> is null
 	 */
 	public UsagePhaseTask(TemplateUsageType usageType) {
 		if (usageType == null) throw new NullPointerException("usageType cannot be null");
 		this.usageType = usageType;
 	}
-	
+
+	@Override
 	public String getName() {
 		return usageType.getDisplayName();
 	}
-	
-	public TemplateUsageType toUsageType() {
-		return usageType;
-	}
-	
+
+	@Override
 	public String getStorageName() {
 		return usageType.toString();
 	}
-	
+
+	@Override
 	public String toString() {
 		return getName();
+	}
+
+	public TemplateUsageType toUsageType() {
+		return usageType;
 	}
 }

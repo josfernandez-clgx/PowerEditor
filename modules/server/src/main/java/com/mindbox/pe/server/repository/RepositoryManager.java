@@ -16,14 +16,15 @@ public interface RepositoryManager {
 	public static class NotInitializedException extends RuntimeException {
 		private static final long serialVersionUID = 1L;
 	}
-	
+
+	void deinitialize();
+
 	/**
 	 * Call to initialize this repository manager.
 	 * This must be called prior to invoking other methods in this class.
 	 * @param initParam optional initialization parameter
+	 * @throws RepositoryException on error
 	 */
 	void initialize(Object initParam) throws RepositoryException;
-	
-	void deinitialize();
 }
 

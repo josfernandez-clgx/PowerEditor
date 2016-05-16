@@ -16,32 +16,9 @@ import com.mindbox.pe.model.rule.FunctionParameter;
  */
 public class FunctionTreeNode extends AbstractRuleTreeNode {
 
-	/**
-	 * @param data
-	 */
 	public FunctionTreeNode(TreeNode parent, FunctionCall data) {
 		super(parent, data);
 		refreshChildren_internal();
-	}
-	
-	public void refreshChildren() {
-
-		refreshChildren_internal();
-	}
-	
-	private void refreshChildren_internal() {
-		removeAllChildren();
-		for (int i = 0; i < getFunctionCall().size(); i++) {
-			addChild(new ActionParamTreeNode(this, (FunctionParameter)getFunctionCall().get(i)));
-		}
-	}
-
-	public FunctionCall getFunctionCall() {
-		return (FunctionCall) super.data;
-	}
-
-	public ActionParamTreeNode getActionParamNodeAt(int index) {
-		return (ActionParamTreeNode) super.getChildAt(index);
 	}
 
 	public String dispString() {
@@ -50,6 +27,26 @@ public class FunctionTreeNode extends AbstractRuleTreeNode {
 		}
 		else {
 			return "";
+		}
+	}
+
+	public ActionParamTreeNode getActionParamNodeAt(int index) {
+		return (ActionParamTreeNode) super.getChildAt(index);
+	}
+
+	public FunctionCall getFunctionCall() {
+		return (FunctionCall) super.data;
+	}
+
+	public void refreshChildren() {
+
+		refreshChildren_internal();
+	}
+
+	private void refreshChildren_internal() {
+		removeAllChildren();
+		for (int i = 0; i < getFunctionCall().size(); i++) {
+			addChild(new ActionParamTreeNode(this, (FunctionParameter) getFunctionCall().get(i)));
 		}
 	}
 

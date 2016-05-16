@@ -11,39 +11,44 @@ public abstract class AbstractMutableTimedAssociationKey extends AbstractTimedAs
 
 	private static final long serialVersionUID = 20061206100001L;
 
+	protected AbstractMutableTimedAssociationKey(AbstractMutableTimedAssociationKey source) {
+		super(source);
+	}
+
 	/**
 	 * Equivalent to <code>new AbstractMutableTimedAssociationKey(associableID, null, null)</code>
-	 * @param associableID
+	 * @param associableID associableID
 	 */
 	public AbstractMutableTimedAssociationKey(int associableID) {
 		this(associableID, null, null);
 	}
-	
+
 	public AbstractMutableTimedAssociationKey(int associableID, DateSynonym effDate, DateSynonym expDate) {
 		super(associableID, effDate, expDate);
 	}
 
-	protected AbstractMutableTimedAssociationKey(AbstractMutableTimedAssociationKey source) {
-		super(source);
-	}
-	
-	public final void setAssociableID(int id) {
-		super.setAssociableID(id);
-	}
-
-    public final void setEffectiveDate(DateSynonym effectiveDate) {
-        super.setEffectiveDate(effectiveDate);
-    }
-    
-    public final void setExpirationDate(DateSynonym expirationDate) {
-        super.setExpirationDate(expirationDate);
-    }
-
+	@Override
 	public boolean hasEffectiveDate() {
 		return super.getEffectiveDate() != null;
 	}
 
+	@Override
 	public boolean hasExpirationDate() {
 		return super.getExpirationDate() != null;
+	}
+
+	@Override
+	public final void setAssociableID(int id) {
+		super.setAssociableID(id);
+	}
+
+	@Override
+	public final void setEffectiveDate(DateSynonym effectiveDate) {
+		super.setEffectiveDate(effectiveDate);
+	}
+
+	@Override
+	public final void setExpirationDate(DateSynonym expirationDate) {
+		super.setExpirationDate(expirationDate);
 	}
 }

@@ -14,6 +14,15 @@ public abstract class AbstractAttributePatternList implements AttributePatternLi
 	// Be sure to use LinkedList to preserve the order (i.e., dont use ArrayList)
 	private final List<AttributePattern> list = new LinkedList<AttributePattern>();
 
+	/**
+	 * This blindly adds the specified attribute pattern to this.
+	 * Sub-classes should overwrite this to provide more meaningful implementation.
+	 */
+	@Override
+	public void add(AttributePattern attributePattern) throws RuleGenerationException {
+		list.add(attributePattern);
+	}
+
 	protected final boolean contains(AttributePattern attributePattern) {
 		if (attributePattern == null) throw new NullPointerException("attributePattern cannot be null");
 		return list.contains(attributePattern);
@@ -21,23 +30,45 @@ public abstract class AbstractAttributePatternList implements AttributePatternLi
 
 	/**
 	 * 
-	 * @param attributePattern
-	 * @return
+	 * @param attributePattern attributePattern
+	 * @return instance
 	 * @throws NullPointerException if <code>attributePattern</code> is <code>null</code>
 	 */
 	protected final AttributePattern find(AttributePattern attributePattern) {
 		if (attributePattern == null) throw new NullPointerException("attributePattern cannot be null");
 		for (Iterator<AttributePattern> iter = list.iterator(); iter.hasNext();) {
 			AttributePattern element = iter.next();
-			if (element.equals(attributePattern)) { return element; }
+			if (element.equals(attributePattern)) {
+				return element;
+			}
 		}
 		return null;
 	}
 
+	@Override
+	public final AttributePattern get(int index) {
+		return list.get(index);
+	}
+
+	@Override
+	public void insert(AttributePattern attributePattern) throws RuleGenerationException {
+		list.add(0, attributePattern);
+	}
+
+	@Override
+	public final boolean isEmpty() {
+		return list.isEmpty();
+	}
+
+	@Override
+	public final void remove(AttributePattern attributePattern) {
+		list.remove(attributePattern);
+	}
+
 	/**
 	 * 
-	 * @param oldPattern
-	 * @param newPattern
+	 * @param oldPattern oldPattern
+	 * @param newPattern newPattern
 	 * @throws NullPointerException if <code>oldPattern</code> or <code>newPattern</code> is <code>null</code>
 	 */
 	protected final void replace(AttributePattern oldPattern, AttributePattern newPattern) {
@@ -46,30 +77,7 @@ public abstract class AbstractAttributePatternList implements AttributePatternLi
 		if (list.contains(oldPattern)) list.set(list.indexOf(oldPattern), newPattern);
 	}
 
-	/**
-	 * This blindly adds the specified attribute pattern to this.
-	 * Sub-classes should overwrite this to provide more meaningful implementation.
-	 */
-	public void add(AttributePattern attributePattern) throws RuleGenerationException {
-		list.add(attributePattern);
-	}
-
-	public void insert(AttributePattern attributePattern) throws RuleGenerationException {
-		list.add(0, attributePattern);
-	}
-	
-	public final AttributePattern get(int index) {
-		return list.get(index);
-	}
-
-	public final void remove(AttributePattern attributePattern) {
-		list.remove(attributePattern);
-	}
-
-	public final boolean isEmpty() {
-		return list.isEmpty();
-	}
-
+	@Override
 	public final int size() {
 		return list.size();
 	}

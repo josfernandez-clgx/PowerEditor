@@ -36,12 +36,15 @@ public class GuidelineFunctionManager extends AbstractCacheManager {
 	 * Inserts the specified action definition to cache.
 	 * If the action contains a rule that generates a parse exception, the action
 	 * will NOT be stored in the cache.
-	 * @param actionDef the action definition to insert
+	 * @param <T> function type
+	 * @param functionDef the function definition to insert
+	 * @param actionMap actionMap
+	 * @param typeMap typeMap
 	 * @throws ParseException if <code>actionDef</code> contains an unparsable rule;
 	 *         when this happends, the action will not be stored in the cache
 	 */
-	private static <T extends FunctionTypeDefinition> void insertFunctionTypeDefinition(T functionDef, Map<Integer, Action> actionMap,
-			Map<Integer, T> typeMap) throws ParseException {
+	private static <T extends FunctionTypeDefinition> void insertFunctionTypeDefinition(T functionDef, Map<Integer, Action> actionMap, Map<Integer, T> typeMap)
+			throws ParseException {
 		Integer key = new Integer(functionDef.getID());
 		synchronized (typeMap) {
 			synchronized (actionMap) {
@@ -57,17 +60,27 @@ public class GuidelineFunctionManager extends AbstractCacheManager {
 		}
 	}
 
+	private static <T extends FunctionTypeDefinition> void removeFunctionTypeDefinition(int id, Map<Integer, Action> actionMap, Map<Integer, T> typeMap) {
+		Integer key = new Integer(id);
+		synchronized (typeMap) {
+			synchronized (actionMap) {
+				actionMap.remove(key);
+				typeMap.remove(key);
+			}
+		}
+	}
+
 	/**
 	 * Updates the specified action definition in the cache.
 	 * If the action contains a rule that generates a parse exception, 
 	 * the action in the cache will NOT be updated.
-	 * @param actionDef
+	 * @param actionDef actionDef
 	 * @return The cached function.
 	 * @throws ParseException if <code>actionDef</code> contains an unparsable rule;
 	 *         when this happends, the action in the cache will not be updated
 	 */
-	private static <T extends FunctionTypeDefinition> FunctionTypeDefinition updateFunctionTypeDefinition(T functionDef,
-			Map<Integer, Action> actionMap, Map<Integer, T> typeMap) throws ParseException {
+	private static <T extends FunctionTypeDefinition> FunctionTypeDefinition updateFunctionTypeDefinition(T functionDef, Map<Integer, Action> actionMap, Map<Integer, T> typeMap)
+			throws ParseException {
 		Integer key = new Integer(functionDef.getID());
 		synchronized (actionMap) {
 			T cachedFunction = typeMap.get(key);
@@ -85,104 +98,14 @@ public class GuidelineFunctionManager extends AbstractCacheManager {
 		}
 	}
 
-	private static <T extends FunctionTypeDefinition> void removeFunctionTypeDefinition(int id, Map<Integer, Action> actionMap, Map<Integer, T> typeMap) {
-		Integer key = new Integer(id);
-		synchronized (typeMap) {
-			synchronized (actionMap) {
-				actionMap.remove(key);
-				typeMap.remove(key);
-			}
-		}
-	}
-
-	/**
-	 * Gets the first action type definition with the specified name
-	 * @param name the name of action
-	 * @return the action type definition, if found; <code>null</code>, otherwise
-	 * @since PowerEditor 4.0
-	 */
-	private <T extends FunctionTypeDefinition> T getFunctionTypeDefinition(String name, Map<Integer, T> typeMap) {
-		if (name == null) return null;
-		synchronized (typeMap) {
-			for (Iterator<T> iter = typeMap.values().iterator(); iter.hasNext();) {
-				T element = iter.next();
-				if (element.getName().equals(name)) {
-					return element;
-				}
-			}
-		}
-		return null;
-	}
-
 	private final Map<Integer, ActionTypeDefinition> actionTypeMap = new HashMap<Integer, ActionTypeDefinition>();
-	private final Map<Integer, Action> actionTypeActionMap = new HashMap<Integer, Action>();
 
+	private final Map<Integer, Action> actionTypeActionMap = new HashMap<Integer, Action>();
 	private final Map<Integer, TestTypeDefinition> testTypeMap = new HashMap<Integer, TestTypeDefinition>();
+
 	private final Map<Integer, Action> testTypeActionMap = new HashMap<Integer, Action>();
 
-	
-	public void insertActionTypeDefinition(ActionTypeDefinition actionDef) throws ParseException {
-		insertFunctionTypeDefinition(actionDef, actionTypeActionMap, actionTypeMap);
-	}
-
-	public void insertTestTypeDefinition(TestTypeDefinition testDef) throws ParseException {
-		insertFunctionTypeDefinition(testDef, testTypeActionMap, testTypeMap);
-	}
-
-	/**
-	 * Updates the specified action definition in the cache.
-	 * If the action contains a rule that generates a parse exception, 
-	 * the action in the cache will NOT be updated.
-	 * @param actionDef
-	 * @throws ParseException if <code>actionDef</code> contains an unparsable rule;
-	 *         when this happends, the action in the cache will not be updated
-	 */
-	public void updateActionTypeDefinition(ActionTypeDefinition actionDef) throws ParseException {
-		FunctionTypeDefinition cachedFunction = updateFunctionTypeDefinition(actionDef, actionTypeActionMap, actionTypeMap);
-
-		// update after parsing
-		if (cachedFunction instanceof ActionTypeDefinition) {
-			((ActionTypeDefinition) cachedFunction).copyFrom(actionDef);
-			// reset cached rule definitions for all rules that use this action
-			GuidelineTemplateManager.getInstance().resetOldParserObjectTressForAction(actionDef.getID());
-		}
-	}
-
-	public void updateTestTypeDefinition(TestTypeDefinition testDef) throws ParseException {
-		FunctionTypeDefinition cachedFunction = updateFunctionTypeDefinition(testDef, testTypeActionMap, testTypeMap);
-
-		// update after parsing
-		if (cachedFunction instanceof TestTypeDefinition) {
-			((TestTypeDefinition) cachedFunction).copyFrom(testDef);
-		}
-	}
-
-	public void removeActionTypeDefinition(int id) {
-		removeFunctionTypeDefinition(id, actionTypeActionMap, actionTypeMap);
-	}
-
-	public void removeTestTypeDefinition(int id) {
-		removeFunctionTypeDefinition(id, testTypeActionMap, testTypeMap);
-	}
-
-	public ActionTypeDefinition getActionTypeDefinition(int id) {
-		synchronized (actionTypeMap) {
-			return actionTypeMap.get(new Integer(id));
-		}
-	}
-
-	public TestTypeDefinition getTestTypeDefinition(int id) {
-		synchronized (testTypeMap) {
-			return testTypeMap.get(new Integer(id));
-		}
-	}
-
-	public ActionTypeDefinition getActionTypeDefinition(String name) {
-		return getFunctionTypeDefinition(name, actionTypeMap);
-	}
-
-	public TestTypeDefinition getTestTypeDefinition(String name) {
-		return getFunctionTypeDefinition(name, testTypeMap);
+	public void finishLoading() {
 	}
 
 	public Action getActionObject(int actionTypeID) {
@@ -191,10 +114,14 @@ public class GuidelineFunctionManager extends AbstractCacheManager {
 		}
 	}
 
-	public Action getTestActionObject(int testTypeID) {
-		synchronized (testTypeActionMap) {
-			return testTypeActionMap.get(new Integer(testTypeID));
+	public ActionTypeDefinition getActionTypeDefinition(int id) {
+		synchronized (actionTypeMap) {
+			return actionTypeMap.get(new Integer(id));
 		}
+	}
+
+	public ActionTypeDefinition getActionTypeDefinition(String name) {
+		return getFunctionTypeDefinition(name, actionTypeMap);
 	}
 
 	public List<ActionTypeDefinition> getActionTypesForUsage(TemplateUsageType usage) {
@@ -226,6 +153,57 @@ public class GuidelineFunctionManager extends AbstractCacheManager {
 		}
 	}
 
+	/**
+	 * Gets the first action type definition with the specified name
+	 * @param name the name of action
+	 * @return the action type definition, if found; <code>null</code>, otherwise
+	 * @since PowerEditor 4.0
+	 */
+	private <T extends FunctionTypeDefinition> T getFunctionTypeDefinition(String name, Map<Integer, T> typeMap) {
+		if (name == null) return null;
+		synchronized (typeMap) {
+			for (Iterator<T> iter = typeMap.values().iterator(); iter.hasNext();) {
+				T element = iter.next();
+				if (element.getName().equals(name)) {
+					return element;
+				}
+			}
+		}
+		return null;
+	}
+
+	public Action getTestActionObject(int testTypeID) {
+		synchronized (testTypeActionMap) {
+			return testTypeActionMap.get(new Integer(testTypeID));
+		}
+	}
+
+	public TestTypeDefinition getTestTypeDefinition(int id) {
+		synchronized (testTypeMap) {
+			return testTypeMap.get(new Integer(id));
+		}
+	}
+
+	public TestTypeDefinition getTestTypeDefinition(String name) {
+		return getFunctionTypeDefinition(name, testTypeMap);
+	}
+
+	public void insertActionTypeDefinition(ActionTypeDefinition actionDef) throws ParseException {
+		insertFunctionTypeDefinition(actionDef, actionTypeActionMap, actionTypeMap);
+	}
+
+	public void insertTestTypeDefinition(TestTypeDefinition testDef) throws ParseException {
+		insertFunctionTypeDefinition(testDef, testTypeActionMap, testTypeMap);
+	}
+
+	public void removeActionTypeDefinition(int id) {
+		removeFunctionTypeDefinition(id, actionTypeActionMap, actionTypeMap);
+	}
+
+	public void removeTestTypeDefinition(int id) {
+		removeFunctionTypeDefinition(id, testTypeActionMap, testTypeMap);
+	}
+
 	public void startLoading() {
 		synchronized (actionTypeMap) {
 			synchronized (actionTypeActionMap) {
@@ -235,7 +213,32 @@ public class GuidelineFunctionManager extends AbstractCacheManager {
 		}
 	}
 
-	public void finishLoading() {
+	/**
+	 * Updates the specified action definition in the cache.
+	 * If the action contains a rule that generates a parse exception, 
+	 * the action in the cache will NOT be updated.
+	 * @param actionDef actionDef
+	 * @throws ParseException if <code>actionDef</code> contains an unparsable rule;
+	 *         when this happends, the action in the cache will not be updated
+	 */
+	public void updateActionTypeDefinition(ActionTypeDefinition actionDef) throws ParseException {
+		FunctionTypeDefinition cachedFunction = updateFunctionTypeDefinition(actionDef, actionTypeActionMap, actionTypeMap);
+
+		// update after parsing
+		if (cachedFunction instanceof ActionTypeDefinition) {
+			((ActionTypeDefinition) cachedFunction).copyFrom(actionDef);
+			// reset cached rule definitions for all rules that use this action
+			GuidelineTemplateManager.getInstance().resetOldParserObjectTressForAction(actionDef.getID());
+		}
+	}
+
+	public void updateTestTypeDefinition(TestTypeDefinition testDef) throws ParseException {
+		FunctionTypeDefinition cachedFunction = updateFunctionTypeDefinition(testDef, testTypeActionMap, testTypeMap);
+
+		// update after parsing
+		if (cachedFunction instanceof TestTypeDefinition) {
+			((TestTypeDefinition) cachedFunction).copyFrom(testDef);
+		}
 	}
 
 }

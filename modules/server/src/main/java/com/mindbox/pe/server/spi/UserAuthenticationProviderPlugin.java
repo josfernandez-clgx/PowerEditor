@@ -1,4 +1,5 @@
 package com.mindbox.pe.server.spi;
+
 public interface UserAuthenticationProviderPlugin extends UserAuthenticationProvider {
 
 	/**
@@ -10,6 +11,7 @@ public interface UserAuthenticationProviderPlugin extends UserAuthenticationProv
 	 * 
 	 * User authentication modules provided as part of the PowerEditor product
 	 * may return true or false as appropriate.
+	 * @return true if password stored externally; false, otherwise
 	 */
 	boolean arePasswordsStoredExternally();
 }

@@ -26,46 +26,15 @@ import com.mindbox.pe.model.table.EnumValues;
  */
 public class ConditionTreeNode extends AbstractRuleTreeNode {
 
-	private static final MessageFormat FORMAT_NOT_SELECTED =
-		new MessageFormat("<html><body><b>{0}</b>&nbsp;&nbsp;{1}&nbsp;&nbsp;<b><font color=\"blue\">{2}</font></b></body></html>");
-	private static final MessageFormat FORMAT_SELECTED =
-		new MessageFormat("<html><body><b>{0}</b>&nbsp;&nbsp;{1}&nbsp;&nbsp;<b><font color=\"blue\">{2}</font></b></body></html>");
+	private static final MessageFormat FORMAT_NOT_SELECTED = new MessageFormat(
+			"<html><body><b>{0}</b>&nbsp;&nbsp;{1}&nbsp;&nbsp;<b><font color=\"blue\">{2}</font></b></body></html>");
+	private static final MessageFormat FORMAT_SELECTED = new MessageFormat("<html><body><b>{0}</b>&nbsp;&nbsp;{1}&nbsp;&nbsp;<b><font color=\"blue\">{2}</font></b></body></html>");
 
-	
-	/**
-	 * @param data
-	 */
+
 	public ConditionTreeNode(TreeNode parent, Condition data) {
 		super(parent, data);
 	}
 
-	public Condition getCondition() {
-		return (Condition) super.data;
-	}
-
-	public boolean getAllowsChildren() {
-		return false;
-	}
-	
-
-	public String dispString(boolean selected) {
-		if (selected) {
-			return FORMAT_SELECTED.format(
-				new Object[] {
-					attRefDisplayString(getCondition().getReference()),
-					Condition.Aux.toOpStringForHTML(getCondition().getOp()),
-					getCondition().isUnary() ? "" :
-						(getCondition().getValue() == null ? "nil" : valueDisplayString(getCondition().getValue()))});
-		}
-		else {
-			return FORMAT_NOT_SELECTED.format(
-				new Object[] {
-						attRefDisplayString(getCondition().getReference()),
-					Condition.Aux.toOpStringForHTML(getCondition().getOp()),
-					getCondition().isUnary() ? "" :
-						(getCondition().getValue() == null ? "nil" : valueDisplayString(getCondition().getValue()))});
-		}
-	}
 	private String attRefDisplayString(Reference ref) {
 		if (ref != null && ref.getAttributeName() != null && ref.getClassName() != null) {
 			DomainClass dc = DomainModel.getInstance().getDomainClass(ref.getClassName());
@@ -76,19 +45,49 @@ public class ConditionTreeNode extends AbstractRuleTreeNode {
 		}
 		return "";
 	}
-	
+
+	@Override
+	public String dispString(boolean selected) {
+		if (selected) {
+			return FORMAT_SELECTED.format(
+					new Object[] {
+							attRefDisplayString(getCondition().getReference()),
+							Condition.Aux.toOpStringForHTML(getCondition().getOp()),
+							getCondition().isUnary() ? "" : (getCondition().getValue() == null ? "nil" : valueDisplayString(getCondition().getValue())) });
+		}
+		else {
+			return FORMAT_NOT_SELECTED.format(
+					new Object[] {
+							attRefDisplayString(getCondition().getReference()),
+							Condition.Aux.toOpStringForHTML(getCondition().getOp()),
+							getCondition().isUnary() ? "" : (getCondition().getValue() == null ? "nil" : valueDisplayString(getCondition().getValue())) });
+		}
+	}
+
+
+	@Override
+	public boolean getAllowsChildren() {
+		return false;
+	}
+
+	public Condition getCondition() {
+		return (Condition) super.data;
+	}
+
 	@SuppressWarnings("unchecked")
 	private String valueDisplayString(Value val) {
-		if (val instanceof Reference) return attRefDisplayString((Reference)val);
+		if (val instanceof Reference)
+			return attRefDisplayString((Reference) val);
 		else if (val instanceof MathExpressionValue) {
-			MathExpressionValue mathVal = (MathExpressionValue)val;
-			return ( mathVal.getColumnReference() == null ? (mathVal.getValue() == null ? "" : mathVal.getValue()) : 
-				mathVal.getColumnReference().toString()) + " " + mathVal.getOperator() + " " + attRefDisplayString(mathVal.getAttributeReference());
-			
+			MathExpressionValue mathVal = (MathExpressionValue) val;
+			return (mathVal.getColumnReference() == null ? (mathVal.getValue() == null ? "" : mathVal.getValue()) : mathVal.getColumnReference().toString()) + " "
+					+ mathVal.getOperator() + " " + attRefDisplayString(mathVal.getAttributeReference());
+
 		}
 		else if (val instanceof EnumValues) {
 			return MultiSelectEnumCellRenderer.toDisplayString((EnumValues<EnumValue>) val);
 		}
-		else return val.toString();
+		else
+			return val.toString();
 	}
 }

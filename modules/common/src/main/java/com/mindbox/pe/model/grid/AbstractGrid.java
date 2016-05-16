@@ -71,7 +71,7 @@ public abstract class AbstractGrid<C extends AbstractTemplateColumn> extends Abs
 	 * </ol>
 	 * This replaces old clone() method.
 	 * 
-	 * @param sourceGrid
+	 * @param sourceGrid sourceGrid
 	 *            source grid
 	 * @since PowerEditor 4.2.0
 	 */
@@ -86,13 +86,13 @@ public abstract class AbstractGrid<C extends AbstractTemplateColumn> extends Abs
 	 * Constructs a new instance copying the specified grid, differing in effective dating and the
 	 * template.
 	 * 
-	 * @param grid
+	 * @param grid grid
 	 *            source grid
-	 * @param template
+	 * @param template template
 	 *            the template
-	 * @param effDate
+	 * @param effDate effDate
 	 *            effective date
-	 * @param expDate
+	 * @param expDate expDate
 	 *            expiration date
 	 * @since PowerEditor 4.2.0
 	 */
@@ -107,11 +107,11 @@ public abstract class AbstractGrid<C extends AbstractTemplateColumn> extends Abs
 	/**
 	 * Constructs a new instance copying the specified grid, differing in effective dating.
 	 * 
-	 * @param grid
+	 * @param grid grid
 	 *            source grid
-	 * @param effDate
+	 * @param effDate effDate
 	 *            effective date
-	 * @param expDate
+	 * @param expDate expDate
 	 *            expiration date
 	 */
 	protected AbstractGrid(AbstractGrid<C> grid, DateSynonym effDate, DateSynonym expDate) {
@@ -159,8 +159,8 @@ public abstract class AbstractGrid<C extends AbstractTemplateColumn> extends Abs
 
 	/**
 	 * Assumes <code>type</code> and <code>ids</code> are not <code>null</code>.
-	 * @param type
-	 * @param ids
+	 * @param type type
+	 * @param ids ids
 	 */
 	private final void addGenericCategoryIDs_internal(GenericEntityType type, int[] ids) {
 		synchronized (genericCategoryMap) {
@@ -194,8 +194,8 @@ public abstract class AbstractGrid<C extends AbstractTemplateColumn> extends Abs
 
 	/**
 	 * Assumes <code>type</code> and <code>ids</code> are not <code>null</code>.
-	 * @param type
-	 * @param ids
+	 * @param type type
+	 * @param ids ids
 	 */
 	private final void addGenericEntityIDs_internal(GenericEntityType type, int[] ids) {
 		synchronized (genericEntityMap) {
@@ -566,7 +566,7 @@ public abstract class AbstractGrid<C extends AbstractTemplateColumn> extends Abs
 
 	/**
 	 * 
-	 * @param abstractgrid
+	 * @param abstractgrid abstractgrid
 	 * @return <code>true</code> if this has the same cell values as <code>abstractgrid</code>; <code>false</code>, otherwise;
 	 *         <code>false</code> if <code>abstractgrid</code> is <code>null</code>
 	 */
@@ -608,8 +608,8 @@ public abstract class AbstractGrid<C extends AbstractTemplateColumn> extends Abs
 
 	/**
 	 * 
-	 * @param abstractgrid
-	 * @param daysAgo
+	 * @param useDaysAgo useDaysAgo
+	 * @param daysAgo daysAgo
 	 * @return Whether the time range is appropriate.
 	 * @since PowerEditor 4.2.0
 	 */

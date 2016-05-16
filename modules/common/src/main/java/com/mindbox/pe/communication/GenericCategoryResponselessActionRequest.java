@@ -17,11 +17,11 @@ public class GenericCategoryResponselessActionRequest extends AbstractGenericCat
 
 	/**
 	 * 
-	 * @param userID
-	 * @param sessionID
-	 * @param categoryID
-	 * @param categoryType
-	 * @param actionType
+	 * @param userID userID
+	 * @param sessionID sessionID
+	 * @param categoryID categoryID
+	 * @param categoryType categoryType
+	 * @param actionType actionType
 	 */
 	public GenericCategoryResponselessActionRequest(String userID, String sessionID, int categoryID, int categoryType, int actionType) {
 		super(userID, sessionID, categoryID, categoryType);

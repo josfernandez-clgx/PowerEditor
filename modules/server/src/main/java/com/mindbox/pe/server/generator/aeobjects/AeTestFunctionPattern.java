@@ -10,7 +10,6 @@ import java.util.List;
 import com.mindbox.pe.server.parser.jtb.rule.syntaxtree.Node;
 
 
-
 /**
  * @author Geneho Kim
  * @author MindBox
@@ -20,9 +19,9 @@ public class AeTestFunctionPattern extends AbstractAeCondition {
 
 	private final List<AbstractAeValue> paramList;
 	private String functionName = null;
-	
+
 	/**
-	 * @param node
+	 * @param node node
 	 */
 	public AeTestFunctionPattern(Node node) {
 		super(node);
@@ -32,24 +31,26 @@ public class AeTestFunctionPattern extends AbstractAeCondition {
 	public void addParam(AbstractAeValue value) {
 		paramList.add(value);
 	}
-	
-	public AbstractAeValue getParamAt(int index) {
-		return paramList.get(index);
-	}
-	
-	public int size() {
-		return paramList.size();
-	}
 
 	public String getFunctionName() {
 		return functionName;
+	}
+
+	public AbstractAeValue getParamAt(int index) {
+		return paramList.get(index);
 	}
 
 	public void setFunctionName(String string) {
 		functionName = string;
 	}
 
+	@Override
+	public int size() {
+		return paramList.size();
+	}
+
+	@Override
 	public String toString() {
-		return "aetest["+functionName+"(size="+paramList.size()+")]";
+		return "aetest[" + functionName + "(size=" + paramList.size() + ")]";
 	}
 }

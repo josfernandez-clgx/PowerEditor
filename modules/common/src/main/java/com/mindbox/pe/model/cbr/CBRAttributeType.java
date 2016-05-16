@@ -11,7 +11,7 @@ package com.mindbox.pe.model.cbr;
 public class CBRAttributeType extends AbstractCBRConfigClass {
 
 	private static final long serialVersionUID = 20041006124800L;
-	
+
 	private int defaultMatchContribution;
 	private int defaultMismatchPenalty;
 	private int defaultAbsencePenalty;
@@ -20,14 +20,14 @@ public class CBRAttributeType extends AbstractCBRConfigClass {
 	private Boolean askForNumericRange;
 
 	public CBRAttributeType() {
-		super(UNASSIGNED_ID,"","");
+		super(UNASSIGNED_ID, "", "");
 	}
 
 	/**
 	 * Constructor
-	 * @param id
-	 * @param symbol
-	 * @param displayName
+	 * @param id id
+	 * @param symbol symbol
+	 * @param displayName displayName
 	 */
 	public CBRAttributeType(int id, String symbol, String displayName) {
 		super(id, symbol, displayName);
@@ -35,10 +35,10 @@ public class CBRAttributeType extends AbstractCBRConfigClass {
 
 	/**
 	 * Constructor
-	 * @param id
-	 * @param symbol
-	 * @param displayName
-	 * @param description
+	 * @param id id
+	 * @param symbol symbol
+	 * @param displayName displayName
+	 * @param description description
 	 */
 	public CBRAttributeType(int id, String symbol, String displayName, String description) {
 		super(id, symbol, displayName, description);
@@ -55,11 +55,68 @@ public class CBRAttributeType extends AbstractCBRConfigClass {
 	}
 
 	/**
+	 * @return Returns the askForMatchInterval.
+	 */
+	public Boolean getAskForMatchInterval() {
+		return askForMatchInterval;
+	}
+
+	/**
+	 * @return Returns the askForNumericRange.
+	 */
+	public Boolean getAskForNumericRange() {
+		return askForNumericRange;
+	}
+
+	/**
+	 * @return Returns the defaultAbsencePenalty.
+	 */
+	public int getDefaultAbsencePenalty() {
+		return defaultAbsencePenalty;
+	}
+
+	/**
 	 * @return Returns the default match contribution.
 	 */
 	public int getDefaultMatchContribution() {
 		return defaultMatchContribution;
 	}
+
+	/**
+	 * @return Returns the defaultMismatchPenalty.
+	 */
+	public int getDefaultMismatchPenalty() {
+		return defaultMismatchPenalty;
+	}
+
+	/**
+	 * @return Returns the defaultValueRange.
+	 */
+	public String getDefaultValueRange() {
+		return defaultValueRange;
+	}
+
+	/**
+	 * @param askForMatchInterval The askForMatchInterval to set.
+	 */
+	public void setAskForMatchInterval(Boolean askForMatchInterval) {
+		this.askForMatchInterval = askForMatchInterval;
+	}
+
+	/**
+	 * @param askForNumericRange The askForNumericRange to set.
+	 */
+	public void setAskForNumericRange(Boolean askForNumericRange) {
+		this.askForNumericRange = askForNumericRange;
+	}
+
+	/**
+	 * @param defaultAbsencePenalty The defaultAbsencePenalty to set.
+	 */
+	public void setDefaultAbsencePenalty(int defaultAbsencePenalty) {
+		this.defaultAbsencePenalty = defaultAbsencePenalty;
+	}
+
 	/**
 	 * @param defaultMatchContribution The defaultMatchContribution to set.
 	 */
@@ -68,74 +125,24 @@ public class CBRAttributeType extends AbstractCBRConfigClass {
 	}
 
 	/**
-	 * @return Returns the askForMatchInterval.
-	 */
-	public Boolean getAskForMatchInterval() {
-		return askForMatchInterval;
-	}
-	/**
-	 * @param askForMatchInterval The askForMatchInterval to set.
-	 */
-	public void setAskForMatchInterval(Boolean askForMatchInterval) {
-		this.askForMatchInterval = askForMatchInterval;
-	}
-	/**
-	 * @return Returns the askForNumericRange.
-	 */
-	public Boolean getAskForNumericRange() {
-		return askForNumericRange;
-	}
-	/**
-	 * @param askForNumericRange The askForNumericRange to set.
-	 */
-	public void setAskForNumericRange(Boolean askForNumericRange) {
-		this.askForNumericRange = askForNumericRange;
-	}
-	/**
-	 * @return Returns the defaultAbsencePenalty.
-	 */
-	public int getDefaultAbsencePenalty() {
-		return defaultAbsencePenalty;
-	}
-	/**
-	 * @param defaultAbsencePenalty The defaultAbsencePenalty to set.
-	 */
-	public void setDefaultAbsencePenalty(int defaultAbsencePenalty) {
-		this.defaultAbsencePenalty = defaultAbsencePenalty;
-	}
-	/**
-	 * @return Returns the defaultMismatchPenalty.
-	 */
-	public int getDefaultMismatchPenalty() {
-		return defaultMismatchPenalty;
-	}
-	/**
 	 * @param defaultMismatchPenalty The defaultMismatchPenalty to set.
 	 */
 	public void setDefaultMismatchPenalty(int defaultMismatchPenalty) {
 		this.defaultMismatchPenalty = defaultMismatchPenalty;
 	}
-	/**
-	 * @return Returns the defaultValueRange.
-	 */
-	public String getDefaultValueRange() {
-		return defaultValueRange;
-	}
+
 	/**
 	 * @param defaultValueRange The defaultValueRange to set.
 	 */
 	public void setDefaultValueRange(String defaultValueRange) {
 		this.defaultValueRange = defaultValueRange;
 	}
-	
+
+	@Override
 	public String toString() {
-		return super.toString() + ":   CBRAttributeType[" + 
-		",def match contribution=" + defaultMatchContribution +
-		",def mismatch penalty=" + defaultMismatchPenalty +
-		",def absense penalty=" + defaultAbsencePenalty +
-		",def value range=" + defaultValueRange +
-		",ask for match interval=" + askForMatchInterval +
-		",ask for numeric range=" +askForNumericRange + "]";
+		return super.toString() + ":   CBRAttributeType[" + ",def match contribution=" + defaultMatchContribution + ",def mismatch penalty=" + defaultMismatchPenalty
+				+ ",def absense penalty=" + defaultAbsencePenalty + ",def value range=" + defaultValueRange + ",ask for match interval=" + askForMatchInterval
+				+ ",ask for numeric range=" + askForNumericRange + "]";
 	}
 
 }

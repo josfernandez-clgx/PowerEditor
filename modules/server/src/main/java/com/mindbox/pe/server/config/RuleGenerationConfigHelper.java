@@ -88,7 +88,7 @@ public final class RuleGenerationConfigHelper {
 
 	/**
 	 * 
-	 * @param type
+	 * @param type type
 	 * @return the key attribute for <code>type</code>
 	 * @since 3.0.0
 	 */
@@ -235,7 +235,8 @@ public final class RuleGenerationConfigHelper {
 				switch (messageConfig.getType()) {
 				case CONDITIONAL:
 					messageConfiguration.setConditionalDelimiter(UtilBase.isEmpty(messageConfig.getConditionalDelimiter()) ? null : messageConfig.getConditionalDelimiter());
-					messageConfiguration.setConditionalFinalDelimiter(UtilBase.isEmpty(messageConfig.getConditionalFinalDelimiter()) ? null : messageConfig.getConditionalFinalDelimiter());
+					messageConfiguration.setConditionalFinalDelimiter(
+							UtilBase.isEmpty(messageConfig.getConditionalFinalDelimiter()) ? null : messageConfig.getConditionalFinalDelimiter());
 					break;
 				case ENUM:
 					if (messageConfig.getCellSelection() == null) {

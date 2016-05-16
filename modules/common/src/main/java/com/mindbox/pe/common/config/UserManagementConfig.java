@@ -18,7 +18,10 @@ public class UserManagementConfig implements Serializable {
 		return allowDelete;
 	}
 
-	/** @since 5.9.0 */
+	/**
+	 * @return true if copy button should be hiddend; false, otherwise 
+	 * @since 5.9.0 
+	 */
 	public boolean isHideCopyButton() {
 		return hideCopyButton;
 	}
@@ -47,7 +50,7 @@ public class UserManagementConfig implements Serializable {
 		this.allowDelete = allowDelete;
 	}
 
-	/** @since 5.9.0 */
+	// @since 5.9.0
 	public void setHideCopyButton(boolean hideCopyButton) {
 		this.hideCopyButton = hideCopyButton;
 	}

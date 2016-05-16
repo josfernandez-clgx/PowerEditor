@@ -37,6 +37,7 @@ public class MessageConfiguration extends ColumnMessageConfigSet implements Seri
 	 * objects in the list, since most are replaced when a new one is parsed.
 	 * However, a copy IS done of the default ColumnMessageFragmentDigest, since
 	 * this object is not replaced if a new one is parsed.
+	 * @param source source
 	 */
 	public MessageConfiguration(MessageConfiguration source) {
 		super(source);

@@ -17,13 +17,26 @@ public class SaveRequest extends SessionRequest<SaveResponse> {
 	private final boolean forClone;
 	private final boolean validate;
 
+	/**
+	 * 
+	 * @param userID userID
+	 * @param sessionID sessionID
+	 * @param object object
+	 * @param lockEntity lockEntity
+	 * @param forClone forClone
+	 */
 	public SaveRequest(String userID, String sessionID, Persistent object, boolean lockEntity, boolean forClone) {
 		this(userID, sessionID, object, lockEntity, forClone, true);
 	}
 
 	/**
-	 * @param userID
-	 * @param sessionID
+	 * 
+	 * @param userID userID
+	 * @param sessionID sessionID
+	 * @param object object
+	 * @param lockEntity lockEntity
+	 * @param forClone forClone
+	 * @param validate validate
 	 */
 	public SaveRequest(String userID, String sessionID, Persistent object, boolean lockEntity, boolean forClone, boolean validate) {
 		super(userID, sessionID);
@@ -33,12 +46,12 @@ public class SaveRequest extends SessionRequest<SaveResponse> {
 		this.validate = validate;
 	}
 
-	public Persistent getPersistent() {
-		return object;
-	}
-
 	public boolean doLockEntity() {
 		return lockEntity;
+	}
+
+	public Persistent getPersistent() {
+		return object;
 	}
 
 	public boolean isForClone() {
@@ -49,6 +62,7 @@ public class SaveRequest extends SessionRequest<SaveResponse> {
 		return validate;
 	}
 
+	@Override
 	public String toString() {
 		return "SaveRequest[" + object + ",lock?=" + lockEntity + ",clone?=" + forClone + "]";
 	}

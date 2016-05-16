@@ -23,10 +23,12 @@ public abstract class AbstractThreadedActionAdapter implements ActionListener {
 	protected AbstractThreadedActionAdapter() {
 	}
 
+	@Override
 	public void actionPerformed(final ActionEvent arg0) {
 		final MainApplication rootFrame = ClientUtil.getParent();
 		rootFrame.setCursor(UIFactory.getWaitCursor());
 		final SwingWorker worker = new SwingWorker() {
+			@Override
 			public Object construct() {
 				try {
 					performAction(arg0);
@@ -46,7 +48,8 @@ public abstract class AbstractThreadedActionAdapter implements ActionListener {
 	/**
 	 * Performs an action here.
 	 * Deleteion of <code>actionPerformed(ActionEvent event)</code> method.
-	 * @param event
+	 * @param event event
+	 * @throws Exception on error
 	 */
 	public abstract void performAction(ActionEvent event) throws Exception;
 }

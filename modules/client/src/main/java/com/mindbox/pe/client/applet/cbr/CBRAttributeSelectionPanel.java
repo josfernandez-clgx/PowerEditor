@@ -15,29 +15,32 @@ import com.mindbox.pe.model.cbr.CBRAttribute;
  * Window - Preferences - Java - Code Style - Code Templates
  */
 public class CBRAttributeSelectionPanel extends IDNameDescriptionObjectSelectionPanel<CBRAttribute, EntityManagementButtonPanel<CBRAttribute>> {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -3951228734910107454L;
 
-	/**
-	 * @param title
-	 * @param selectionTable
-	 */
-	public CBRAttributeSelectionPanel(String title, IDNameDescriptionObjectSelectionTable<CBRAttributeTableModel, CBRAttribute> selectionTable, CBRAttributeDetailPanel detailPanel, boolean readOnly) {
+	public CBRAttributeSelectionPanel(String title, IDNameDescriptionObjectSelectionTable<CBRAttributeTableModel, CBRAttribute> selectionTable, CBRAttributeDetailPanel detailPanel,
+			boolean readOnly) {
 		super(title, selectionTable, readOnly);
 		buttonPanel.setDetailPanel(detailPanel);
 	}
 
+	@Override
+	protected void createButtonPanel() {
+		this.buttonPanel = new EntityManagementButtonPanel<CBRAttribute>(
+				isReadOnly(),
+				this,
+				PeDataType.CBR_ATTRIBUTE,
+				ClientUtil.getInstance().getLabel("label.cbr.attribute"),
+				false,
+				true);
+	}
+
+	@Override
 	public void discardChanges() {
 		((EntityManagementButtonPanel<?>) this.buttonPanel).discardChanges();
 	}
 
+	@Override
 	public void setEnabledSelectionAwares(boolean enabled) {
 		((EntityManagementButtonPanel<?>) this.buttonPanel).setEnabledSelectionAwares(enabled);
-	}
-
-	protected void createButtonPanel() {
-		this.buttonPanel = new EntityManagementButtonPanel<CBRAttribute>(isReadOnly(), this, PeDataType.CBR_ATTRIBUTE, ClientUtil.getInstance().getLabel("label.cbr.attribute"), false, true);
 	}
 }

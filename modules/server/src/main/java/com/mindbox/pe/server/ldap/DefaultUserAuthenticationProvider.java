@@ -15,18 +15,16 @@ import com.mindbox.pe.server.spi.UserAuthenticationProvider;
 
 /**
  * A concrete implemenation of {@link UserAuthenticationProvider} that authenticates using LDAP connection authentication mechanism.
- * <p>
  * To use this class as the system {@link UserAuthenticationProvider}, configure:
- * <pre>
- <PowerEditorConfiguration>
-   <Server>
-     <Session>
-       <UserAuthenticationProviderClass>com.mindbox.pe.server.ldap.DefaultUserAuthenticationProvider</UserAuthenticationProviderClass>
-</pre>
+ * &lt;UserAuthenticationProviderClass&gt;com.mindbox.pe.server.ldap.DefaultUserAuthenticationProvider&lt;/UserAuthenticationProviderClass&gt;
  */
 public class DefaultUserAuthenticationProvider implements UserAuthenticationProvider {
 
 	private final Logger logger = Logger.getLogger(getClass());
+
+	private String asUserDN(String userId, String userDirDN) {
+		return ConfigurationManager.getInstance().getLdapConfig().getUserIDAttribute() + "=" + userId + (UtilBase.isEmpty(userDirDN) ? "" : "," + userDirDN);
+	}
 
 	@Override
 	public boolean authenticate(String userId, String password) throws Exception {
@@ -54,10 +52,6 @@ public class DefaultUserAuthenticationProvider implements UserAuthenticationProv
 			}
 		}
 		return false;
-	}
-
-	private String asUserDN(String userId, String userDirDN) {
-		return ConfigurationManager.getInstance().getLdapConfig().getUserIDAttribute() + "=" + userId + (UtilBase.isEmpty(userDirDN) ? "" : "," + userDirDN);
 	}
 
 	/**

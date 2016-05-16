@@ -40,17 +40,8 @@ import com.mindbox.pe.model.filter.CloneGenericEntityFilter;
 import com.mindbox.pe.model.filter.GenericEntityByCategoryFilter;
 
 public final class NavigationPanel extends JPanel implements IFilterSubpanel<GenericEntity> {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3951228734910107454L;
-
-	private static final int NON_CLONED_ID = -1;
 
 	private class NavigationTreeCellRenderer extends DefaultTreeCellRenderer {
-		/**
-		 * 
-		 */
 		private static final long serialVersionUID = -3951228734910107454L;
 
 		private NavigationTreeCellRenderer(String openIconStr, String closeIconStr) {
@@ -59,6 +50,7 @@ public final class NavigationPanel extends JPanel implements IFilterSubpanel<Gen
 			setLeafIcon(ClientUtil.getInstance().makeImageIcon(closeIconStr));
 		}
 
+		@Override
 		public Component getTreeCellRendererComponent(JTree jtree, Object obj, boolean flag, boolean flag1, boolean flag2, int i, boolean flag3) {
 			Object obj1 = ((DefaultMutableTreeNode) obj).getUserObject();
 			if (obj1 instanceof IDNameObject) obj1 = ((IDNameObject) obj1).getName();
@@ -66,6 +58,10 @@ public final class NavigationPanel extends JPanel implements IFilterSubpanel<Gen
 			return component;
 		}
 	}
+
+	private static final long serialVersionUID = -3951228734910107454L;
+
+	private static final int NON_CLONED_ID = -1;
 
 	private final boolean showCategories;
 	private final boolean showClones;
@@ -76,12 +72,6 @@ public final class NavigationPanel extends JPanel implements IFilterSubpanel<Gen
 	private JButton fetchButton = null;
 	private final MDateDateField dateField;
 
-	/**
-	 * 
-	 * @param displayCategories
-	 * @param displayClones
-	 * @param type
-	 */
 	public NavigationPanel(boolean displayCategories, boolean displayClones, GenericEntityType type, int categoryType) {
 		super();
 		this.showCategories = displayCategories;
@@ -92,9 +82,9 @@ public final class NavigationPanel extends JPanel implements IFilterSubpanel<Gen
 		UIFactory.setLookAndFeel(this);
 	}
 
-	public void build() {
-		initComponents();
-		addComponents();
+	@Override
+	public void addActionListener(ActionListener actionlistener) {
+		fetchButton.addActionListener(actionlistener);
 	}
 
 	private void addComponents() {
@@ -113,43 +103,9 @@ public final class NavigationPanel extends JPanel implements IFilterSubpanel<Gen
 		add(fetchButton, BorderLayout.SOUTH);
 	}
 
-	private Date getSelectedDate() {
-		return dateField.getDate();
-	}
-
-	private void initComponents() {
-		if (showCategories) {
-			categoryTree = new GenericCategorySelectionTree(categoryType, false, true, true);
-			categoryTree.setTreeCellRenderer(new NavigationTreeCellRenderer("image.node.category", "image.node.category"));
-			categoryTree.getTreeSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
-		}
-
-		if (showClones) {
-			cloneTree = new JTree(createCloneTreeModel());
-			cloneTree.setCellRenderer(new NavigationTreeCellRenderer("image.node.product", "image.node.product"));
-			cloneTree.putClientProperty("JTree.linestyle", "Angled");
-			cloneTree.setShowsRootHandles(true);
-			cloneTree.setRootVisible(false);
-			cloneTree.setRowHeight(18);
-			cloneTree.addTreeExpansionListener(new TreeExpansionListener() {
-
-				public void treeCollapsed(TreeExpansionEvent treeexpansionevent) {
-				}
-
-				public void treeExpanded(TreeExpansionEvent treeexpansionevent) {
-					TreePath treepath = treeexpansionevent.getPath();
-					NavigationNode navigationnode = (NavigationNode) treepath.getLastPathComponent();
-					if (!navigationnode.isExplored()) {
-						DefaultTreeModel defaulttreemodel = (DefaultTreeModel) cloneTree.getModel();
-						navigationnode.explore();
-						defaulttreemodel.nodeStructureChanged(navigationnode);
-					}
-				}
-			});
-			cloneTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-		}
-
-		fetchButton = UIFactory.createButton(ClientUtil.getInstance().getLabel("button.search." + entityType.toString(), "Search " + entityType.getDisplayName()), null, null, null);
+	public void build() {
+		initComponents();
+		addComponents();
 	}
 
 	private TreeModel createCloneTreeModel() {
@@ -163,22 +119,7 @@ public final class NavigationPanel extends JPanel implements IFilterSubpanel<Gen
 		return new DefaultTreeModel(rootnavigationnode);
 	}
 
-	private List<GenericEntity> filterCategoryProducts(int[] ids) throws ServerException {
-		return ClientUtil.getCommunicator().search(new GenericEntityByCategoryFilter(entityType, ids, getSelectedDate(), true));
-	}
-
-	private List<GenericEntity> filterProductClones(int id) throws ServerException {
-		return ClientUtil.getCommunicator().search(new CloneGenericEntityFilter(entityType, id, true));
-	}
-
-	public void addActionListener(ActionListener actionlistener) {
-		fetchButton.addActionListener(actionlistener);
-	}
-
-	public Insets getInsets() {
-		return new Insets(2, 2, 2, 2);
-	}
-
+	@Override
 	public List<GenericEntity> doFilter() throws ServerException {
 		boolean fetchForCategories = true;
 		TreePath[] selectionPaths = null;
@@ -245,6 +186,64 @@ public final class NavigationPanel extends JPanel implements IFilterSubpanel<Gen
 			}
 			return filterProductClones(((IDNameObject) ((NavigationNode) selectionPaths[0].getLastPathComponent()).getUserObject()).getID());
 		}
+	}
+
+	private List<GenericEntity> filterCategoryProducts(int[] ids) throws ServerException {
+		return ClientUtil.getCommunicator().search(new GenericEntityByCategoryFilter(entityType, ids, getSelectedDate(), true));
+	}
+
+	private List<GenericEntity> filterProductClones(int id) throws ServerException {
+		return ClientUtil.getCommunicator().search(new CloneGenericEntityFilter(entityType, id, true));
+	}
+
+	@Override
+	public Insets getInsets() {
+		return new Insets(2, 2, 2, 2);
+	}
+
+	private Date getSelectedDate() {
+		return dateField.getDate();
+	}
+
+	private void initComponents() {
+		if (showCategories) {
+			categoryTree = new GenericCategorySelectionTree(categoryType, false, true, true);
+			categoryTree.setTreeCellRenderer(new NavigationTreeCellRenderer("image.node.category", "image.node.category"));
+			categoryTree.getTreeSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
+		}
+
+		if (showClones) {
+			cloneTree = new JTree(createCloneTreeModel());
+			cloneTree.setCellRenderer(new NavigationTreeCellRenderer("image.node.product", "image.node.product"));
+			cloneTree.putClientProperty("JTree.linestyle", "Angled");
+			cloneTree.setShowsRootHandles(true);
+			cloneTree.setRootVisible(false);
+			cloneTree.setRowHeight(18);
+			cloneTree.addTreeExpansionListener(new TreeExpansionListener() {
+
+				@Override
+				public void treeCollapsed(TreeExpansionEvent treeexpansionevent) {
+				}
+
+				@Override
+				public void treeExpanded(TreeExpansionEvent treeexpansionevent) {
+					TreePath treepath = treeexpansionevent.getPath();
+					NavigationNode navigationnode = (NavigationNode) treepath.getLastPathComponent();
+					if (!navigationnode.isExplored()) {
+						DefaultTreeModel defaulttreemodel = (DefaultTreeModel) cloneTree.getModel();
+						navigationnode.explore();
+						defaulttreemodel.nodeStructureChanged(navigationnode);
+					}
+				}
+			});
+			cloneTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+		}
+
+		fetchButton = UIFactory.createButton(
+				ClientUtil.getInstance().getLabel("button.search." + entityType.toString(), "Search " + entityType.getDisplayName()),
+				null,
+				null,
+				null);
 	}
 
 }

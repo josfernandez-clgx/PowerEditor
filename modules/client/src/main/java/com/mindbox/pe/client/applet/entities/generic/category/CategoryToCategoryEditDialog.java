@@ -25,94 +25,19 @@ import com.mindbox.pe.model.GenericCategory;
 import com.mindbox.pe.model.assckey.DefaultMutableTimedAssociationKey;
 import com.mindbox.pe.model.assckey.MutableTimedAssociationKey;
 
-
 /**
  * Category to category relationship dialog.
  * @author MindBox
  * @since PowerEditor 5.1.0
  */
 public class CategoryToCategoryEditDialog extends JPanel {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -3951228734910107454L;
-	private final DateSelectorComboField effDateEntryField;
-	private final DateSelectorComboField expDateEntryField;
-	private final GenericCategorySelectField parentCatField;
-	private final GenericCategory childCategory;
-	private final boolean addMode;
-	private JCheckBox autoAdjustCheckBox;
-
-	private CategoryToCategoryEditDialog(GenericCategory childCategory, MutableTimedAssociationKey key, boolean addMode) {
-		super();
-		this.addMode = addMode;
-		this.childCategory = childCategory;
-		effDateEntryField = new DateSelectorComboField(true, true, true);
-		expDateEntryField = new DateSelectorComboField(true, true, true);
-		parentCatField = new GenericCategorySelectField(childCategory.getType(), false);
-		parentCatField.setAllowDelete(false);
-
-		initDialog();
-
-		if (key != null) {
-			GenericCategory parentCategory = EntityModelCacheFactory.getInstance().getGenericCategory(childCategory.getType(), key.getAssociableID());
-			parentCatField.setValue(parentCategory);
-			effDateEntryField.setValue(key.getEffectiveDate());
-			expDateEntryField.setValue(key.getExpirationDate());
-		}
-	}
-
-	/**
-	 * Displays new category to catgory relationship dialog. Used to change the parent
-	 * category.
-	 */
-	/**
-	 * @param childCategory
-	 * @param autoExpire Mutable boolean object that is set by this method so the caller
-	 * knows if the auto expire option has been selected.
-	 * @param data
-	 * @return new relationship key.
-	 */
-	public static MutableTimedAssociationKey newParentCategory(GenericCategory childCategory, MutableBoolean autoExpire, MutableTimedAssociationKey data) {
-		CategoryToCategoryEditDialog dialog = new CategoryToCategoryEditDialog(childCategory, data, true);
-		dialog.parentCatField.requestFocus();
-
-		int option = JOptionPane.showConfirmDialog(
-				ClientUtil.getApplet(),
-				dialog,
-				ClientUtil.getInstance().getLabel("d.title.new.categorytocategory"),
-				JOptionPane.OK_CANCEL_OPTION,
-				JOptionPane.PLAIN_MESSAGE);
-
-		while ((option != JOptionPane.CANCEL_OPTION) && !dialog.isValid(dialog.effDateEntryField.getValue(), dialog.expDateEntryField.getValue(), null)) {
-			option = JOptionPane.showConfirmDialog(
-					ClientUtil.getApplet(),
-					dialog,
-					ClientUtil.getInstance().getLabel("d.title.new.categorytocategory"),
-					JOptionPane.OK_CANCEL_OPTION,
-					JOptionPane.PLAIN_MESSAGE);
-		}
-
-		if (option == JOptionPane.CANCEL_OPTION) {
-			return null;
-		}
-		else {
-			autoExpire.setState(dialog.autoAdjustCheckBox.isSelected());
-
-			MutableTimedAssociationKey newKey = new DefaultMutableTimedAssociationKey(
-					dialog.parentCatField.getGenericCategoryID(),
-					dialog.effDateEntryField.getValue(),
-					dialog.expDateEntryField.getValue());
-
-			return newKey;
-		}
-	}
 
 	/**
 	 * Displays edit category to catgory relationship dialog.
-	 * @param childCategory
-	 * @param key
-	 * @return
+	 * @param childCategory childCategory
+	 * @param key key
+	 * @return key
 	 */
 	public static MutableTimedAssociationKey editParentCategory(GenericCategory childCategory, MutableTimedAssociationKey key) {
 		CategoryToCategoryEditDialog dialog = new CategoryToCategoryEditDialog(childCategory, key, false);
@@ -151,6 +76,84 @@ public class CategoryToCategoryEditDialog extends JPanel {
 		}
 	}
 
+	/**
+	 * Displays new category to catgory relationship dialog. Used to change the parent
+	 * category.
+	 */
+	/**
+	 * @param childCategory childCategory
+	 * @param autoExpire Mutable boolean object that is set by this method so the caller
+	 * knows if the auto expire option has been selected.
+	 * @param data data
+	 * @return new relationship key.
+	 */
+	public static MutableTimedAssociationKey newParentCategory(GenericCategory childCategory, MutableBoolean autoExpire, MutableTimedAssociationKey data) {
+		CategoryToCategoryEditDialog dialog = new CategoryToCategoryEditDialog(childCategory, data, true);
+		dialog.parentCatField.requestFocus();
+
+		int option = JOptionPane.showConfirmDialog(
+				ClientUtil.getApplet(),
+				dialog,
+				ClientUtil.getInstance().getLabel("d.title.new.categorytocategory"),
+				JOptionPane.OK_CANCEL_OPTION,
+				JOptionPane.PLAIN_MESSAGE);
+
+		while ((option != JOptionPane.CANCEL_OPTION) && !dialog.isValid(dialog.effDateEntryField.getValue(), dialog.expDateEntryField.getValue(), null)) {
+			option = JOptionPane.showConfirmDialog(
+					ClientUtil.getApplet(),
+					dialog,
+					ClientUtil.getInstance().getLabel("d.title.new.categorytocategory"),
+					JOptionPane.OK_CANCEL_OPTION,
+					JOptionPane.PLAIN_MESSAGE);
+		}
+
+		if (option == JOptionPane.CANCEL_OPTION) {
+			return null;
+		}
+		else {
+			autoExpire.setState(dialog.autoAdjustCheckBox.isSelected());
+
+			MutableTimedAssociationKey newKey = new DefaultMutableTimedAssociationKey(
+					dialog.parentCatField.getGenericCategoryID(),
+					dialog.effDateEntryField.getValue(),
+					dialog.expDateEntryField.getValue());
+
+			return newKey;
+		}
+	}
+
+	private final DateSelectorComboField effDateEntryField;
+	private final DateSelectorComboField expDateEntryField;
+	private final GenericCategorySelectField parentCatField;
+	private final GenericCategory childCategory;
+
+	private final boolean addMode;
+
+	private JCheckBox autoAdjustCheckBox;
+
+	private CategoryToCategoryEditDialog(GenericCategory childCategory, MutableTimedAssociationKey key, boolean addMode) {
+		super();
+		this.addMode = addMode;
+		this.childCategory = childCategory;
+		effDateEntryField = new DateSelectorComboField(true, true, true);
+		expDateEntryField = new DateSelectorComboField(true, true, true);
+		parentCatField = new GenericCategorySelectField(childCategory.getType(), false);
+		parentCatField.setAllowDelete(false);
+
+		initDialog();
+
+		if (key != null) {
+			GenericCategory parentCategory = EntityModelCacheFactory.getInstance().getGenericCategory(childCategory.getType(), key.getAssociableID());
+			parentCatField.setValue(parentCategory);
+			effDateEntryField.setValue(key.getEffectiveDate());
+			expDateEntryField.setValue(key.getExpirationDate());
+		}
+	}
+
+	private void initDialog() {
+		layoutComponents();
+	}
+
 	private boolean isValid(DateSynonym effDate, DateSynonym expDate, MutableTimedAssociationKey oldKey) {
 		if (parentCatField.getGenericCategory() == null) {
 			ClientUtil.getInstance().showErrorDialog("msg.errors.required", "A parent category");
@@ -183,10 +186,6 @@ public class CategoryToCategoryEditDialog extends JPanel {
 				return true;
 			}
 		}
-	}
-
-	private void initDialog() {
-		layoutComponents();
 	}
 
 	private void layoutComponents() {

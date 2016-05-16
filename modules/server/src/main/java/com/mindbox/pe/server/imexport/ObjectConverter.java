@@ -98,8 +98,9 @@ public final class ObjectConverter {
 	/**
 	 * If there is a list of grids that have the same data as the specified grid list, merge context.
 	 * Each grid in the grid list must match for merge.
-	 * @param gridListList
-	 * @param gridList
+	 * @param <T> grid type
+	 * @param gridListList gridListList
+	 * @param gridList gridList
 	 * @throws NullPointerException if <code>gridListList</code> or <code>gridList</code> is <code>null</code>
 	 */
 	public static <T extends AbstractGrid<?>> void addAndMergeGridContextWithSameDataIfFound(List<List<T>> gridListList, List<T> gridList) {
@@ -158,9 +159,9 @@ public final class ObjectConverter {
 	/**
 	 * Generates a unique key for id map for the specified category type and id.
 	 * 
-	 * @param type
+	 * @param type type
 	 *            category type
-	 * @param id
+	 * @param id id
 	 *            category id
 	 * @return unique key
 	 */
@@ -264,9 +265,9 @@ public final class ObjectConverter {
 	/**
 	 * Generates a unique key for id map for the specified entity type and id.
 	 * 
-	 * @param type
+	 * @param type type
 	 *            entity type
-	 * @param id
+	 * @param id id
 	 *            category id
 	 * @return unique key
 	 */
@@ -281,9 +282,10 @@ public final class ObjectConverter {
 			throw new ImportException("No category defined for entity type " + category.getType());
 		}
 
-		final GenericCategory genericCategory = new GenericCategory((merge ? getRequiredMappedID(asCategoryIDMapKey(category.getType(), category.getId()), idMap) : category.getId()), getProperty(
-				category,
-				"name"), ctd.getTypeID().intValue());
+		final GenericCategory genericCategory = new GenericCategory(
+				(merge ? getRequiredMappedID(asCategoryIDMapKey(category.getType(), category.getId()), idMap) : category.getId()),
+				getProperty(category, "name"),
+				ctd.getTypeID().intValue());
 
 		// add parent associations
 		// post 5.0, multiple parents -- check this first
@@ -291,14 +293,18 @@ public final class ObjectConverter {
 			int parentId = getMappedID(asCategoryIDMapKey(category.getType(), parent.getParentID()), idMap, parent.getParentID());
 
 			if (parentId > -1) {
-				int effectiveDateId = parent.getActivationDates() == null || parent.getActivationDates().getEffectiveDateID() == null ? -1 : parent.getActivationDates().getEffectiveDateID();
+				int effectiveDateId = parent.getActivationDates() == null || parent.getActivationDates().getEffectiveDateID() == null
+						? -1
+						: parent.getActivationDates().getEffectiveDateID();
 				DateSynonym effectiveDateSynonym = DateSynonymManager.getInstance().getDateSynonym(findMappedDateSynonymID(effectiveDateId, dateSynonymIDMap));
 				// If no activation date, create a new one with a date one day earlier than the earliest date synonym
 				if (effectiveDateSynonym == null) {
 					effectiveDateSynonym = replacementDateSynonymProvider.getReplacementDateSynonymForImport();
 				}
 
-				int expirationDateId = parent.getActivationDates() == null || parent.getActivationDates().getExpirationDateID() == null ? -1 : parent.getActivationDates().getExpirationDateID();
+				int expirationDateId = parent.getActivationDates() == null || parent.getActivationDates().getExpirationDateID() == null
+						? -1
+						: parent.getActivationDates().getExpirationDateID();
 				DateSynonym expirationDateSynonym = DateSynonymManager.getInstance().getDateSynonym(findMappedDateSynonymID(expirationDateId, dateSynonymIDMap));
 
 				genericCategory.addParentKey(new DefaultMutableTimedAssociationKey(parentId, effectiveDateSynonym, expirationDateSynonym));
@@ -334,11 +340,13 @@ public final class ObjectConverter {
 		return cat;
 	}
 
-	public static GenericEntity asGenericEntity(final GenericEntityType type, final com.mindbox.pe.xsd.data.EntityDataElement.Entity entity, final boolean merge, final Map<String, Integer> idMap,
-			final Map<Integer, Integer> dateSynonymIDMap, final ReplacementDateSynonymProvider replacementDateSynonymProvider) throws ImportException {
-		final GenericEntity genericEntity = new GenericEntity((merge ? getRequiredMappedID(asEntityIDMapKey(type.toString(), entity.getId()), idMap) : entity.getId()), type, getProperty(
-				entity,
-				"name"));
+	public static GenericEntity asGenericEntity(final GenericEntityType type, final com.mindbox.pe.xsd.data.EntityDataElement.Entity entity, final boolean merge,
+			final Map<String, Integer> idMap, final Map<Integer, Integer> dateSynonymIDMap, final ReplacementDateSynonymProvider replacementDateSynonymProvider)
+			throws ImportException {
+		final GenericEntity genericEntity = new GenericEntity(
+				(merge ? getRequiredMappedID(asEntityIDMapKey(type.toString(), entity.getId()), idMap) : entity.getId()),
+				type,
+				getProperty(entity, "name"));
 		final Map<String, Object> propertyMap = new HashMap<String, Object>();
 
 		final EntityType entityTypeDef = ConfigurationManager.getInstance().getEntityConfigHelper().findEntityTypeDefinition(type);
@@ -365,20 +373,25 @@ public final class ObjectConverter {
 				if (EntityManager.getInstance().hasGenericCategory(catTypeDef.getTypeID().intValue(), assc.getEntityLink().getId())) {
 					int categoryId = getMappedID(asCategoryIDMapKey(catTypeDef.getName(), assc.getEntityLink().getId()), idMap, assc.getEntityLink().getId());
 
-					int effectiveDateId = assc.getActivationDates() == null || assc.getActivationDates().getEffectiveDateID() == null ? -1 : assc.getActivationDates().getEffectiveDateID();
+					int effectiveDateId = assc.getActivationDates() == null || assc.getActivationDates().getEffectiveDateID() == null
+							? -1
+							: assc.getActivationDates().getEffectiveDateID();
 					DateSynonym effectiveDateSynonym = DateSynonymManager.getInstance().getDateSynonym(findMappedDateSynonymID(effectiveDateId, dateSynonymIDMap));
 					// If no activation date, create a new one with a date one day earlier than the earliest date synonym
 					if (effectiveDateSynonym == null) {
 						effectiveDateSynonym = replacementDateSynonymProvider.getReplacementDateSynonymForImport();
 					}
 
-					int expirationDateId = assc.getActivationDates() == null || assc.getActivationDates().getExpirationDateID() == null ? -1 : assc.getActivationDates().getExpirationDateID();
+					int expirationDateId = assc.getActivationDates() == null || assc.getActivationDates().getExpirationDateID() == null
+							? -1
+							: assc.getActivationDates().getExpirationDateID();
 					DateSynonym expirationDateSynonym = DateSynonymManager.getInstance().getDateSynonym(findMappedDateSynonymID(expirationDateId, dateSynonymIDMap));
 
 					MutableTimedAssociationKey key = new DefaultMutableTimedAssociationKey(categoryId, effectiveDateSynonym, expirationDateSynonym);
 					if (!ConfigUtil.isCanBelongToMultipleCategories(entityTypeDef) && genericEntity.hasOverlappingCategoryAssociation(key)) {
-						throw new ImportException("Entities of type '" + entityTypeDef.getName() + "' can belong to only one category at a time. The entity " + genericEntity.getName()
-								+ " has an existing category association that overlaps with the category ID " + categoryId);
+						throw new ImportException(
+								"Entities of type '" + entityTypeDef.getName() + "' can belong to only one category at a time. The entity " + genericEntity.getName()
+										+ " has an existing category association that overlaps with the category ID " + categoryId);
 					}
 					else {
 						genericEntity.addCategoryAssociation(key);
@@ -393,8 +406,8 @@ public final class ObjectConverter {
 	}
 
 	public static List<ProductGrid> asGuidelineGridList(com.mindbox.pe.xsd.data.GridDataElement.Grid gridDigest, GuidelineContext[] context, boolean merge, User user,
-			Map<Integer, Integer> dateSynonymIDMap, Map<String, Integer> entityIDMap, ReplacementDateSynonymProvider replacementDateSynonymProvider) throws ImportException,
-			DataValidationFailedException {
+			Map<Integer, Integer> dateSynonymIDMap, Map<String, Integer> entityIDMap, ReplacementDateSynonymProvider replacementDateSynonymProvider)
+			throws ImportException, DataValidationFailedException {
 		final List<ProductGrid> gridList = new ArrayList<ProductGrid>();
 		for (final GridActivationElement element : gridDigest.getActivation()) {
 			logDebug(LOG, "Processing GridActivationElement %s (%s)", element.getId(), element);
@@ -422,7 +435,11 @@ public final class ObjectConverter {
 				effectiveDateSynonym = replacementDateSynonymProvider.getReplacementDateSynonymForImport();
 			}
 
-			final ProductGrid grid = new ProductGrid(gridID, template, effectiveDateSynonym, (actDates == null ? null : getExpirationDateSynonym(actDates, dateSynonymIDMap, user)));
+			final ProductGrid grid = new ProductGrid(
+					gridID,
+					template,
+					effectiveDateSynonym,
+					(actDates == null ? null : getExpirationDateSynonym(actDates, dateSynonymIDMap, user)));
 			setInvariants(grid, element, context, extractCellValues(GuidelineTemplateManager.getInstance().getTemplate(gridDigest.getTemplateID()), element, gridDigest));
 			fixEntityListColumnValues(grid, entityIDMap, merge);
 			// if not-merge and grid exists, overwrite rule ids from existing grid
@@ -435,8 +452,8 @@ public final class ObjectConverter {
 	}
 
 
-	public static List<ParameterGrid> asParameterGridList(com.mindbox.pe.xsd.data.GridDataElement.Grid gridDigest, GuidelineContext[] context, User user, Map<Integer, Integer> dateSynonymIDMap,
-			ReplacementDateSynonymProvider replacementDateSynonymProvider) throws ImportException, DataValidationFailedException {
+	public static List<ParameterGrid> asParameterGridList(com.mindbox.pe.xsd.data.GridDataElement.Grid gridDigest, GuidelineContext[] context, User user,
+			Map<Integer, Integer> dateSynonymIDMap, ReplacementDateSynonymProvider replacementDateSynonymProvider) throws ImportException, DataValidationFailedException {
 		final List<ParameterGrid> gridList = new ArrayList<ParameterGrid>();
 		for (final GridActivationElement element : gridDigest.getActivation()) {
 			final com.mindbox.pe.xsd.data.ActivationDates actDates = element.getActivationDates();
@@ -458,10 +475,11 @@ public final class ObjectConverter {
 				effectiveDateSynonym = replacementDateSynonymProvider.getReplacementDateSynonymForImport();
 			}
 			ParameterTemplate template = ParameterTemplateManager.getInstance().getTemplate(gridDigest.getTemplateID());
-			ParameterGrid grid = new ParameterGrid(element.getId(), gridDigest.getTemplateID(), effectiveDateSynonym, (actDates == null ? null : getExpirationDateSynonym(
-					actDates,
-					dateSynonymIDMap,
-					user)));
+			ParameterGrid grid = new ParameterGrid(
+					element.getId(),
+					gridDigest.getTemplateID(),
+					effectiveDateSynonym,
+					(actDates == null ? null : getExpirationDateSynonym(actDates, dateSynonymIDMap, user)));
 			setInvariants(grid, element, context, extractCellValues(template, element, gridDigest));
 			grid.setTemplate(template);
 			gridList.add(grid);
@@ -469,7 +487,8 @@ public final class ObjectConverter {
 		return gridList;
 	}
 
-	public static Role asRole(final com.mindbox.pe.xsd.data.RolesElement.Role roleDigest, final List<com.mindbox.pe.xsd.data.PrivilegesElement.Privilege> digestPrivList) throws ImportException {
+	public static Role asRole(final com.mindbox.pe.xsd.data.RolesElement.Role roleDigest, final List<com.mindbox.pe.xsd.data.PrivilegesElement.Privilege> digestPrivList)
+			throws ImportException {
 		// build list of model.Privilege objects for digested Role...
 		final List<Privilege> privList = new ArrayList<Privilege>();
 		for (final int privilegeID : roleDigest.getPrivilegeLink()) {
@@ -568,8 +587,8 @@ public final class ObjectConverter {
 		return true;
 	}
 
-	public static RuleDefinition convertToRuleDefinition(GridTemplate template, int colNo, String ruleName, String ruleString, MutableBoolean wasActionCreated, User user) throws ParseException,
-			SapphireException {
+	public static RuleDefinition convertToRuleDefinition(GridTemplate template, int colNo, String ruleName, String ruleString, MutableBoolean wasActionCreated, User user)
+			throws ParseException, SapphireException {
 		RuleParser.getInstance(new StringReader(ruleString));
 		DeploymentRule deploymentRule = RuleParser.parseDeploymentRule();
 
@@ -582,7 +601,7 @@ public final class ObjectConverter {
 	 * during the import process.
 	 * @author vineet khosla
 	 * @since PowerEditor 5.1
-	 * @param userPasswordList
+	 * @param userPasswordList userPasswordList
 	 * @return list of {@link com.mindbox.pe.model.admin.UserPassword}
 	 */
 	private static List<UserPassword> convertUserPassword(List<com.mindbox.pe.xsd.data.UsersElement.User.UserPassword> userPasswordList) {
@@ -594,14 +613,17 @@ public final class ObjectConverter {
 		return list;
 	}
 
-	private static String[][] extractCellValues(GridTemplate template, GridActivationElement activation, com.mindbox.pe.xsd.data.GridDataElement.Grid gridDigest) throws ImportException {
+	private static String[][] extractCellValues(GridTemplate template, GridActivationElement activation, com.mindbox.pe.xsd.data.GridDataElement.Grid gridDigest)
+			throws ImportException {
 		if (template == null) {
 			throw new ImportException("template not found");
 		}
 
 		if (LOG.isDebugEnabled()) {
 			LOG.debug(">>> extractCellValues: " + template + ", " + gridDigest);
-			LOG.debug("... extractCellValues: template usage type value = " + template.getUsageType().toString() + ", template usage display name = " + template.getUsageType().getDisplayName());
+			LOG.debug(
+					"... extractCellValues: template usage type value = " + template.getUsageType().toString() + ", template usage display name = "
+							+ template.getUsageType().getDisplayName());
 		}
 
 		if (activation.getGridValues() == null || activation.getGridValues().getRow() == null) {
@@ -638,7 +660,8 @@ public final class ObjectConverter {
 		}
 	}
 
-	private static String[][] extractCellValues(ParameterTemplate template, GridActivationElement activation, com.mindbox.pe.xsd.data.GridDataElement.Grid gridDigest) throws ImportException {
+	private static String[][] extractCellValues(ParameterTemplate template, GridActivationElement activation, com.mindbox.pe.xsd.data.GridDataElement.Grid gridDigest)
+			throws ImportException {
 		if (template == null) {
 			throw new ImportException("template not found");
 		}
@@ -666,23 +689,21 @@ public final class ObjectConverter {
 	 * <code>merge</code> is <code>true</code>, target ids will be mapped using the specified
 	 * id map.
 	 * 
-	 * @param type
-	 *            type of the specified generic entity
-	 * @param entity
-	 *            generic entity
-	 * @param merge
-	 *            merge flag
-	 * @param idMap
-	 *            id map; ignored if <code>merge</code> is <code>false</code>
+	 * @param type type of the specified generic entity
+	 * @param entity entity
+	 * @param merge  merge flag
+	 * @param idMap id map; ignored if <code>merge</code> is <code>false</code>
+	 * @param dateSynonymIDMap dateSynonymIDMap
+	 * @param replacementDateSynonymProvider replacementDateSynonymProvider
+	 * @param user user
 	 * @return list of {@link GenericEntityCompatibilityData} objects
-	 * @throws ImportException
-	 *             on error
-	 * @throws DataValidationFailedException 
+	 * @throws ImportException on error
+	 * @throws DataValidationFailedException on error
 	 * @since 4.5.0
 	 */
-	public static List<GenericEntityCompatibilityData> extractCompabilityLinks(final GenericEntityType type, final com.mindbox.pe.xsd.data.EntityDataElement.Entity entity, final boolean merge,
-			Map<String, Integer> idMap, final Map<Integer, Integer> dateSynonymIDMap, final ReplacementDateSynonymProvider replacementDateSynonymProvider, final User user) throws ImportException,
-			DataValidationFailedException {
+	public static List<GenericEntityCompatibilityData> extractCompabilityLinks(final GenericEntityType type, final com.mindbox.pe.xsd.data.EntityDataElement.Entity entity,
+			final boolean merge, Map<String, Integer> idMap, final Map<Integer, Integer> dateSynonymIDMap, final ReplacementDateSynonymProvider replacementDateSynonymProvider,
+			final User user) throws ImportException, DataValidationFailedException {
 		final List<GenericEntityCompatibilityData> resultList = new ArrayList<GenericEntityCompatibilityData>();
 		for (final com.mindbox.pe.xsd.data.EntityDataElement.Entity.Association assc : entity.getAssociation()) {
 			GenericEntityType targetType = GenericEntityType.forName(assc.getEntityLink().getType());
@@ -729,7 +750,8 @@ public final class ObjectConverter {
 		return GenericEntityType.forName(element.getType());
 	}
 
-	private static GuidelineContext fetchGuidelineContextForCategoryLink(List<EntityLink> contextList, GenericEntityType type, boolean merge, Map<String, Integer> entityIDMap) throws ImportException {
+	private static GuidelineContext fetchGuidelineContextForCategoryLink(List<EntityLink> contextList, GenericEntityType type, boolean merge, Map<String, Integer> entityIDMap)
+			throws ImportException {
 		List<Integer> intList = new ArrayList<Integer>();
 		for (final EntityLink element : contextList) {
 			final String typeStr = element.getType();
@@ -752,7 +774,8 @@ public final class ObjectConverter {
 		}
 	}
 
-	private static GuidelineContext fetchGuidelineContextForEntityLink(List<EntityLink> contextList, GenericEntityType type, boolean merge, Map<String, Integer> entityIDMap) throws ImportException {
+	private static GuidelineContext fetchGuidelineContextForEntityLink(List<EntityLink> contextList, GenericEntityType type, boolean merge, Map<String, Integer> entityIDMap)
+			throws ImportException {
 		List<Integer> intList = new ArrayList<Integer>();
 		for (final EntityLink element : contextList) {
 			if (type == fetchGenericEntityType(element)) {
@@ -809,8 +832,8 @@ public final class ObjectConverter {
 
 	/**
 	 * This modifies <code>value</code>.
-	 * @param value
-	 * @param entityIDMap
+	 * @param value value
+	 * @param entityIDMap entityIDMap
 	 * @param throwExceptionIfNotFound if set to <code>true</code> and the value is not found int he entityIDMap, an ImportException is thrown
 	 * @throws ImportException if <code>throwExceptionIfNotFound</code> is set to <code>true</code> and the value is not found in <code>entityIDMap</code>
 	 */
@@ -834,8 +857,8 @@ public final class ObjectConverter {
 
 	/**
 	 * This modifies <code>value</code>.
-	 * @param value
-	 * @param entityIDMap
+	 * @param value value
+	 * @param entityIDMap entityIDMap
 	 */
 	private static void fixGridCellValue(CategoryOrEntityValues value, Map<String, Integer> entityIDMap, boolean throwExceptionIfNotFound) throws ImportException {
 		if (value != null) {
@@ -875,8 +898,8 @@ public final class ObjectConverter {
 		}
 	}
 
-	private static DateSynonym getEffectiveDateSynonym(com.mindbox.pe.xsd.data.ActivationDates activationDates, Map<Integer, Integer> dateSynonymIDMap, User user) throws ImportException,
-			DataValidationFailedException {
+	private static DateSynonym getEffectiveDateSynonym(com.mindbox.pe.xsd.data.ActivationDates activationDates, Map<Integer, Integer> dateSynonymIDMap, User user)
+			throws ImportException, DataValidationFailedException {
 		if (activationDates.getEffectiveDateID() != null) {
 			return DateSynonymManager.getInstance().getDateSynonym(findMappedDateSynonymID(activationDates.getEffectiveDateID(), dateSynonymIDMap));
 		}
@@ -898,8 +921,8 @@ public final class ObjectConverter {
 		}
 	}
 
-	private static DateSynonym getExpirationDateSynonym(com.mindbox.pe.xsd.data.ActivationDates activationDates, Map<Integer, Integer> dateSynonymIDMap, User user) throws ImportException,
-			DataValidationFailedException {
+	private static DateSynonym getExpirationDateSynonym(com.mindbox.pe.xsd.data.ActivationDates activationDates, Map<Integer, Integer> dateSynonymIDMap, User user)
+			throws ImportException, DataValidationFailedException {
 		if (activationDates.getExpirationDateID() != null) {
 			return DateSynonymManager.getInstance().getDateSynonym(findMappedDateSynonymID(activationDates.getExpirationDateID(), dateSynonymIDMap));
 		}
@@ -1055,9 +1078,10 @@ public final class ObjectConverter {
 	/**
 	 * returns privilegeId's which did not match any privilege from the DB but are in the file to be imported
 	 * @since PowerEditor 5.0
-	 * @param roleDigest
+	 * @param roleDigest roleDigest
+	 * @param digestPrivList digestPrivListReportGenerato
 	 * @return List of unknown Privileges
-	 * @throws ImportException
+	 * @throws ImportException on error
 	 */
 	public static List<String> unknownPrivsForRole(com.mindbox.pe.xsd.data.RolesElement.Role roleDigest, List<com.mindbox.pe.xsd.data.PrivilegesElement.Privilege> digestPrivList)
 			throws ImportException {

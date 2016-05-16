@@ -50,7 +50,6 @@ import com.mindbox.pe.xsd.config.UserPasswordPolicies;
  * PE configuration manager.
  * @author Gene Kim
  * @author MindBox, Inc
- * @since
  */
 public final class ConfigurationManager {
 

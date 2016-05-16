@@ -81,8 +81,9 @@ public class MessageProcessor extends ObjectDepthFirst {
 			}
 		}
 		else if (range instanceof FloatRange) {
-			FloatFormatter formatter = ColumnDataSpecDigest.TYPE_CURRENCY_RANGE.equals(colDataSpec.getType()) ? new CurrencyFormatter(colDataSpec.getPrecision()) : new FloatFormatter(
-					colDataSpec.getPrecision());
+			FloatFormatter formatter = ColumnDataSpecDigest.TYPE_CURRENCY_RANGE.equals(colDataSpec.getType())
+					? new CurrencyFormatter(colDataSpec.getPrecision())
+					: new FloatFormatter(colDataSpec.getPrecision());
 
 			if (range.getFloor() != null) {
 				valStrs[0] = formatter.format(range.getFloor());
@@ -162,7 +163,9 @@ public class MessageProcessor extends ObjectDepthFirst {
 	}
 
 	private static void writeDouble(StringBuilder buffer, Number n, ColumnDataSpecDigest dataSpec) {
-		FloatFormatter formatter = ColumnDataSpecDigest.TYPE_CURRENCY.equals(dataSpec.getType()) ? new CurrencyFormatter(dataSpec.getPrecision()) : new FloatFormatter(dataSpec.getPrecision());
+		FloatFormatter formatter = ColumnDataSpecDigest.TYPE_CURRENCY.equals(dataSpec.getType())
+				? new CurrencyFormatter(dataSpec.getPrecision())
+				: new FloatFormatter(dataSpec.getPrecision());
 		buffer.append(formatter.format(n));
 	}
 
@@ -305,7 +308,7 @@ public class MessageProcessor extends ObjectDepthFirst {
 
 	/**
 	 * Writes a value for message.
-	 * @param gridColumn
+	 * @param gridColumn gridColumn
 	 * @param obj the value to write
 	 * @param buffer the target buffer
 	 * @param msgConfig the message configuration
@@ -382,7 +385,7 @@ public class MessageProcessor extends ObjectDepthFirst {
 
 	/**
 	 *
-	 * @param replaceColumnReference
+	 * @param replaceColumnReference replaceColumnReference
 	 * @since PowerEditor 4.1.1
 	 */
 	public MessageProcessor(boolean replaceColumnReference) {
@@ -450,6 +453,7 @@ public class MessageProcessor extends ObjectDepthFirst {
 	 * Builds the message output for the specified message object and the generateParams.
 	 * @param messageObj the message object
 	 * @param generateParams generate params
+	 * @param messageDigest message digest
 	 * @return the string message output
 	 */
 	public synchronized String process(Message messageObj, AbstractGenerateParms generateParams, TemplateMessageDigest messageDigest) {
@@ -503,6 +507,7 @@ public class MessageProcessor extends ObjectDepthFirst {
 		messageDigest = null;
 	}
 
+	@Override
 	public Object visit(CellValueLiteral n, Object argu) {
 		if (!(argu instanceof AbstractGenerateParms)) return null;
 
@@ -512,6 +517,7 @@ public class MessageProcessor extends ObjectDepthFirst {
 		return null;
 	}
 
+	@Override
 	public Object visit(ColumnLiteral n, Object argu) {
 		if (!(argu instanceof AbstractGenerateParms)) return null;
 
@@ -521,6 +527,7 @@ public class MessageProcessor extends ObjectDepthFirst {
 		return null;
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public Object visit(ColumnMessagesLiteral n, Object argu) {
 		if (!(argu instanceof AbstractGenerateParms)) {
@@ -589,6 +596,7 @@ public class MessageProcessor extends ObjectDepthFirst {
 		return null;
 	}
 
+	@Override
 	public Object visit(ColumnNumberList n, Object argu) {
 		if (!(argu instanceof AbstractGenerateParms)) return null;
 		AbstractGenerateParms generateParams = (AbstractGenerateParms) argu;
@@ -612,17 +620,20 @@ public class MessageProcessor extends ObjectDepthFirst {
 		return list;
 	}
 
+	@Override
 	public Object visit(FreeText n, Object argu) {
 		buff.append(n.f0.tokenImage);
 		return null;
 	}
 
+	@Override
 	public Object visit(NodeToken n, Object argu) {
 		// this print <INTEGER_LITERAL> Word
 		buff.append(n.tokenImage);
 		return null;
 	}
 
+	@Override
 	public Object visit(Reference domainAttributeReference, Object argu) {
 		if (argu instanceof AbstractGenerateParms && !UtilBase.isEmpty(domainAttributeReference.f1.tokenImage)) {
 			String[] nameParts = domainAttributeReference.f1.tokenImage.split("\\."); // n.f1 = domainClass.attributeName
@@ -637,8 +648,9 @@ public class MessageProcessor extends ObjectDepthFirst {
 			else {
 				if (attr.getDeployType() == DeployType.DATE) {
 					buff.append("%s");
-					argList.add("(format-julian-date " + AeMapper.getGuidelineInstance().generateAEVariable(attributeName, true) + " \""
-							+ ConfigurationManager.getInstance().getDefaultRuleGenerationConfigHelper().getMessageDateFormatAe() + "\")");
+					argList.add(
+							"(format-julian-date " + AeMapper.getGuidelineInstance().generateAEVariable(attributeName, true) + " \""
+									+ ConfigurationManager.getInstance().getDefaultRuleGenerationConfigHelper().getMessageDateFormatAe() + "\")");
 				}
 				else {
 					buff.append("%a");
@@ -649,6 +661,7 @@ public class MessageProcessor extends ObjectDepthFirst {
 		return null;
 	}
 
+	@Override
 	public Object visit(RuleNameLiteral n, Object argu) {
 		if (!(argu instanceof AbstractGenerateParms)) return null;
 
@@ -656,6 +669,7 @@ public class MessageProcessor extends ObjectDepthFirst {
 		return null;
 	}
 
+	@Override
 	public Object visit(SingleFreeChar n, Object argu) {
 		buff.append(((NodeToken) n.f0.choice).tokenImage);
 		return null;

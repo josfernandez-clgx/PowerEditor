@@ -32,97 +32,17 @@ public final class DomainClass extends AbstractDomainElement {
 		translationList = new ArrayList<DomainTranslation>();
 	}
 
-	/**
-	 * Tests if the specified domain class has at least one attribute with the specified domain view.
-	 * @param domainClass
-	 * @return <code>true</code> if <code>domainClass</code> has at least one attribute with the specified domain view;
-	 *         <code>false</code>, otherwise
-	 * @since PowerEditor 3.2.0
-	 */
-	public boolean hasDomainViewAttribute(DomainView domainView) {
-		for (DomainAttribute element : domainAttributeList) {
-			if (element.hasDomainView(domainView)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	public DomainAttribute getDomainAttribute(String attributeName) {
-		if (attributeName == null) return null;
-		String s1 = attributeName.toUpperCase();
-		DomainAttribute domainattribute = null;
-		for (int i = 0; i < domainAttributeList.size(); i++) {
-			domainattribute = domainAttributeList.get(i);
-			if (domainattribute.getName().equalsIgnoreCase(s1)) return domainattribute;
-		}
-		return null;
-	}
-
-	public void setPersistent(boolean flag) {
-		isPersistent = flag;
-	}
-
-	/**
-	 * Sets used in rules flag.
-	 * @param value
-	 */
-	public void setAllowRuleUsage(String value) {
-		usedInRules = (value != null && (value.equals("1") || Boolean.valueOf(value).booleanValue()));
-	}
-
-	/**
-	 * Sets mutiplicity flag.
-	 * @param value
-	 */
-	public void setHasMultiplicity(String value) {
-		isSingleton = !(value != null && (value.equals("1") || Boolean.valueOf(value).booleanValue()));
-	}
-
-	public boolean isSingleton() {
-		return isSingleton;
-	}
-
-	public List<DomainAttribute> getDomainAttributes() {
-		return domainAttributeList;
-	}
-
-	public boolean isPersistent() {
-		return isPersistent;
-	}
-
 	public void addDomainAttribute(DomainAttribute domainattribute) {
 		domainAttributeList.add(domainattribute);
 	}
 
 	/**
 	 * Add the specified class link to this.
-	 * @param link
+	 * @param link link
 	 * @since PowerEditor 3.2.0
 	 */
 	public void addDomainClassLink(DomainClassLink link) {
 		childClassLinkList.add(link);
-	}
-
-	/**
-	 * Gets all domain class links in this.
-	 * @return list of all domain class links
-	 * @since PowerEditor 3.2.0
-	 */
-	public List<DomainClassLink> getDomainClassLinks() {
-		return Collections.unmodifiableList(childClassLinkList);
-	}
-
-	/*
-	 * Tests if this has an attribute that represents a child class.
-	 */
-	public boolean hasChildClassAttribute() {
-		for (DomainAttribute element : domainAttributeList) {
-			if (element.getDeployType() == DeployType.RELATIONSHIP) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	/**
@@ -135,68 +55,11 @@ public final class DomainClass extends AbstractDomainElement {
 	}
 
 	/**
-	 * Gets all domain translations in this.
-	 * @return list of domain translations
-	 * @since PowerEditor 3.2.0
-	 */
-	public List<DomainTranslation> getDomainTranslations() {
-		return Collections.unmodifiableList(translationList);
-	}
-
-	/**
-	 * Finds the domain translation with the specified name.
-	 * @param name the name of domain translation to find
-	 * @return the domain translation, if found; <code>null</code>, otherwise
-	 */
-	public DomainTranslation getDomainTranslation(String name) {
-		for (DomainTranslation element : translationList) {
-			if (element.getName().equals(name)) {
-				return element;
-			}
-		}
-		return null;
-	}
-
-	public void setSuperClass(String s) {
-		superClassName = s;
-	}
-
-	public String getSuperClass() {
-		return superClassName;
-	}
-
-	/**
 	 * Tests if this can be used in rules.
 	 * @return used in rules flag
 	 */
 	public boolean allowRuleUsage() {
 		return usedInRules;
-	}
-
-	public void setDeployLabel(String s) {
-		deployLabel = s;
-	}
-
-	public String getDeployLabel() {
-		return deployLabel;
-	}
-
-	public String toString() {
-		StringBuilder buff = new StringBuilder();
-		buff.append("DomainClass[");
-		buff.append(getName());
-		buff.append(",");
-		buff.append(deployLabel);
-		buff.append(",");
-		buff.append(getDisplayLabel());
-		buff.append(",");
-		buff.append(usedInRules);
-		buff.append(",");
-		buff.append(isSingleton);
-		buff.append(",noAttr=");
-		buff.append(domainAttributeList.size());
-		buff.append("]");
-		return buff.toString();
 	}
 
 	/**
@@ -240,5 +103,143 @@ public final class DomainClass extends AbstractDomainElement {
 				this.translationList.add(element);
 			}
 		}
+	}
+
+	public String getDeployLabel() {
+		return deployLabel;
+	}
+
+	public DomainAttribute getDomainAttribute(String attributeName) {
+		if (attributeName == null) return null;
+		String s1 = attributeName.toUpperCase();
+		DomainAttribute domainattribute = null;
+		for (int i = 0; i < domainAttributeList.size(); i++) {
+			domainattribute = domainAttributeList.get(i);
+			if (domainattribute.getName().equalsIgnoreCase(s1)) return domainattribute;
+		}
+		return null;
+	}
+
+	public List<DomainAttribute> getDomainAttributes() {
+		return domainAttributeList;
+	}
+
+	/**
+	 * Gets all domain class links in this.
+	 * @return list of all domain class links
+	 * @since PowerEditor 3.2.0
+	 */
+	public List<DomainClassLink> getDomainClassLinks() {
+		return Collections.unmodifiableList(childClassLinkList);
+	}
+
+	/**
+	 * Finds the domain translation with the specified name.
+	 * @param name the name of domain translation to find
+	 * @return the domain translation, if found; <code>null</code>, otherwise
+	 */
+	public DomainTranslation getDomainTranslation(String name) {
+		for (DomainTranslation element : translationList) {
+			if (element.getName().equals(name)) {
+				return element;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Gets all domain translations in this.
+	 * @return list of domain translations
+	 * @since PowerEditor 3.2.0
+	 */
+	public List<DomainTranslation> getDomainTranslations() {
+		return Collections.unmodifiableList(translationList);
+	}
+
+	public String getSuperClass() {
+		return superClassName;
+	}
+
+	/*
+	 * Tests if this has an attribute that represents a child class.
+	 */
+	public boolean hasChildClassAttribute() {
+		for (DomainAttribute element : domainAttributeList) {
+			if (element.getDeployType() == DeployType.RELATIONSHIP) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Tests if the specified domain class has at least one attribute with the specified domain view.
+	 * @param domainView domainView
+	 * @return <code>true</code> if <code>domainClass</code> has at least one attribute with the specified domain view;
+	 *         <code>false</code>, otherwise
+	 * @since PowerEditor 3.2.0
+	 */
+	public boolean hasDomainViewAttribute(DomainView domainView) {
+		for (DomainAttribute element : domainAttributeList) {
+			if (element.hasDomainView(domainView)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean isPersistent() {
+		return isPersistent;
+	}
+
+	public boolean isSingleton() {
+		return isSingleton;
+	}
+
+	/**
+	 * Sets used in rules flag.
+	 * @param value value
+	 */
+	public void setAllowRuleUsage(String value) {
+		usedInRules = (value != null && (value.equals("1") || Boolean.valueOf(value).booleanValue()));
+	}
+
+	public void setDeployLabel(String s) {
+		deployLabel = s;
+	}
+
+	/**
+	 * Sets mutiplicity flag.
+	 * @param value value
+	 */
+	public void setHasMultiplicity(String value) {
+		isSingleton = !(value != null && (value.equals("1") || Boolean.valueOf(value).booleanValue()));
+	}
+
+	public void setPersistent(boolean flag) {
+		isPersistent = flag;
+	}
+
+	public void setSuperClass(String s) {
+		superClassName = s;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder buff = new StringBuilder();
+		buff.append("DomainClass[");
+		buff.append(getName());
+		buff.append(",");
+		buff.append(deployLabel);
+		buff.append(",");
+		buff.append(getDisplayLabel());
+		buff.append(",");
+		buff.append(usedInRules);
+		buff.append(",");
+		buff.append(isSingleton);
+		buff.append(",noAttr=");
+		buff.append(domainAttributeList.size());
+		buff.append("]");
+		return buff.toString();
 	}
 }

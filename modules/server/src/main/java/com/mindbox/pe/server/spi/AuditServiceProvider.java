@@ -18,7 +18,7 @@ public interface AuditServiceProvider extends PowerEditorServiceProvider {
 
 	/**
 	 * Persist the specified audit event.
-	 * @param auditDetail the audit event to persist
+	 * @param auditEvent the audit event to persist
 	 * @throws ServiceException on error
 	 */
 	void insert(AuditEvent auditEvent) throws ServiceException;

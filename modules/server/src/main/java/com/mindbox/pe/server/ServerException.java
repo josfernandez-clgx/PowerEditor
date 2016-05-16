@@ -10,16 +10,10 @@ public class ServerException extends SapphireException {
 
 	private static final long serialVersionUID = -7088621056400980252L;
 
-	/**
-	 * 
-	 */
 	public ServerException() {
 		super();
 	}
 
-	/**
-	 * @param msg
-	 */
 	public ServerException(String msg) {
 		super(msg);
 	}

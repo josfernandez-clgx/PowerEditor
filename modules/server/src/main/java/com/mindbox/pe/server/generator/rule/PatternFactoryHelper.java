@@ -17,9 +17,9 @@ public interface PatternFactoryHelper {
 	/**
 	 * Returns formatted variable name from the specified name and override.
 	 * If override is not <code>null</code>, this returns override.
-	 * @param name
-	 * @param override
-	 * @return
+	 * @param name name
+	 * @param override override
+	 * @return variable name
 	 */
 	String asVariableName(String name, String override);
 
@@ -35,8 +35,6 @@ public interface PatternFactoryHelper {
 
 	String getDeployLabelForClass(String className) throws RuleGenerationException;
 
-	boolean isStringDeployTypeForAttribute(Reference reference) throws RuleGenerationException;
-
 	Deployment getDeploymentConfig();
 
 	DomainClassLink[] getLinkage(String childName, String ancestorName);
@@ -44,6 +42,8 @@ public interface PatternFactoryHelper {
 	RuleGenerationConfigHelper getRuleGenerationConfiguration(TemplateUsageType usageType);
 
 	Action getTestActionObject(int testTypeID);
+
+	boolean isStringDeployTypeForAttribute(Reference reference) throws RuleGenerationException;
 
 	String makeAEName(String name);
 

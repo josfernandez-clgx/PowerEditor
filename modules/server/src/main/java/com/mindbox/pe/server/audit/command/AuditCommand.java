@@ -17,11 +17,11 @@ public interface AuditCommand {
 	 * Executes the command.
 	 * This may throw undeclared runtime exceptions.
 	 * @param auditStorage the audit storage
-	 * @throws AuditException
-	 * @throws ServiceException
+	 * @throws AuditException on error
+	 * @throws ServiceException on error
 	 */
 	void execute(AuditStorage auditStorage) throws AuditException, ServiceException;
-	
+
 	/**
 	 * Gets description of this.
 	 * This will be used to generate failure message.

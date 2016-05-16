@@ -10,13 +10,6 @@ public abstract class FunctionCall extends AbstractCompoundRuleElement<FunctionP
 	 */
 	private static final long serialVersionUID = 3656090025287504162L;
 
-	/**
-	 * @param dispName
-	 */
-	public FunctionCall(String dispName) {
-		super(dispName);
-	}
-
 	private FunctionTypeDefinition functionType = null;
 
 	public FunctionCall(FunctionCall funcall) {
@@ -28,25 +21,20 @@ public abstract class FunctionCall extends AbstractCompoundRuleElement<FunctionP
 		}
 	}
 
-	public FunctionTypeDefinition getFunctionType() {
-		return functionType;
+	/**
+	 * @param dispName dispName
+	 */
+	public FunctionCall(String dispName) {
+		super(dispName);
 	}
 
-	public void setFunctionType(FunctionTypeDefinition type) {
-		this.functionType = type;
-	}
-
-	public void clear() {
-		this.functionType = null;
-		super.setComment(null);
-		super.removeAll();
-	}
-
+	@Override
 	public void adjustChangedColumnReferences(int originalColNum, int newColNum) {
 		for (int i = 0; i < this.size(); i++)
 			this.get(i).adjustChangedColumnReferences(originalColNum, newColNum);
 	}
 
+	@Override
 	public void adjustDeletedColumnReferences(int colNo) {
 		for (int i = 0; i < this.size(); i++)
 			if (this.get(i).containsColumnReference(colNo)) {
@@ -57,5 +45,17 @@ public abstract class FunctionCall extends AbstractCompoundRuleElement<FunctionP
 			}
 	}
 
+	public void clear() {
+		this.functionType = null;
+		super.setComment(null);
+		super.removeAll();
+	}
 
+	public FunctionTypeDefinition getFunctionType() {
+		return functionType;
+	}
+
+	public void setFunctionType(FunctionTypeDefinition type) {
+		this.functionType = type;
+	}
 }

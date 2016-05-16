@@ -13,9 +13,6 @@ import javax.swing.tree.TreeNode;
  */
 public final class ThenTreeNode extends AbstractRuleTreeNode {
 
-	/**
-	 * @param parent the parent
-	 */
 	public ThenTreeNode(TreeNode parent) {
 		super(parent, null);
 	}
@@ -24,12 +21,13 @@ public final class ThenTreeNode extends AbstractRuleTreeNode {
 		return (ActionTreeNode) getChildAt(0);
 	}
 
-	public boolean hasActionNode() {
-		return super.getChildCount() > 0;
-	}
-
+	@Override
 	public boolean getAllowsChildren() {
 		return super.getChildCount() == 0;
+	}
+
+	public boolean hasActionNode() {
+		return super.getChildCount() > 0;
 	}
 
 }

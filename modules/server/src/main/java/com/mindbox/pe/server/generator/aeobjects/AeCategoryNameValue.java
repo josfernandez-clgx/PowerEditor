@@ -15,12 +15,13 @@ import com.mindbox.pe.server.parser.jtb.rule.syntaxtree.Node;
 public class AeCategoryNameValue extends AbstractAeValue {
 
 	/**
-	 * @param node
+	 * @param node node
 	 */
 	public AeCategoryNameValue(Node node) {
 		super(node);
 	}
-	
+
+	@Override
 	public String toString() {
 		return "%categoryName%";
 	}

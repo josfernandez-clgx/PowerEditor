@@ -11,14 +11,6 @@ import java.util.Date;
 public interface ParentAssociationKeySet extends MutableTimedAssociationKeySet {
 
 	/**
-	 * Tests if this has a parent as of the specified date.
-	 * @param date the date
-	 * @return <code>true</code> if this has a parent as of <code>date</code>; <code>false</code>, otherwise
-	 * @throws NullPointerException if <code>date</code> is <code>null</code>
-	 */
-	boolean hasParent(Date date);
-
-	/**
 	 * Gets the parent id for the specified date.
 	 * @param date the date
 	 * @return parent id, if found; -1, otherwise
@@ -30,9 +22,17 @@ public interface ParentAssociationKeySet extends MutableTimedAssociationKeySet {
 	 * Gets the parent association as of the specified date.
 	 * Note: this returns an instanceof {@link TimedAssociationKey}, not {@link MutableTimedAssociationKey}.
 	 * Otherwise you can modify content of this by mutating the returned instance.
-	 * @param date
+	 * @param date date
 	 * @return the parent association if found; <code>null</code>, otherwise
 	 * @throws NullPointerException if <code>date</code> is <code>null</code>
 	 */
 	TimedAssociationKey getParentAssociation(Date date);
+
+	/**
+	 * Tests if this has a parent as of the specified date.
+	 * @param date the date
+	 * @return <code>true</code> if this has a parent as of <code>date</code>; <code>false</code>, otherwise
+	 * @throws NullPointerException if <code>date</code> is <code>null</code>
+	 */
+	boolean hasParent(Date date);
 }

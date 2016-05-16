@@ -22,7 +22,8 @@ public final class GuidelineRule {
 
 	/**
 	 * Tests if the LHS of this rule contains a pattern that uses the specified reference.
-	 * @param reference
+	 * @param reference reference
+	 * @return true if has pattern; false, otherwise
 	 * @throws NullPointerException if reference is <code>null</code>
 	 */
 	public boolean hasPatternForReference(Reference reference) {

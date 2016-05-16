@@ -131,7 +131,8 @@ public class DefaultImportBusinessLogic implements ImportBusinessLogic {
 	}
 
 	@Override
-	public void importCBRAttribute(CBRAttributeElement attribute, boolean merge, final Map<String, Integer> cbrDataIdMap, final User user) throws DataValidationFailedException, ImportException {
+	public void importCBRAttribute(CBRAttributeElement attribute, boolean merge, final Map<String, Integer> cbrDataIdMap, final User user)
+			throws DataValidationFailedException, ImportException {
 		int id = attribute.getId();
 		try {
 			final CBRAttribute cbrAttribute = asCbrAttribute(attribute);
@@ -181,7 +182,8 @@ public class DefaultImportBusinessLogic implements ImportBusinessLogic {
 	}
 
 	@Override
-	public void importCBRCaseBase(CBRCaseBaseElement caseBaseElement, boolean merge, final Map<String, Integer> cbrDataIdMap, final User user) throws ImportException, DataValidationFailedException {
+	public void importCBRCaseBase(CBRCaseBaseElement caseBaseElement, boolean merge, final Map<String, Integer> cbrDataIdMap, final User user)
+			throws ImportException, DataValidationFailedException {
 		int id = caseBaseElement.getId();
 		try {
 			final CBRCaseBase cbrCaseBase = asCbrCaseBase(caseBaseElement);
@@ -242,9 +244,9 @@ public class DefaultImportBusinessLogic implements ImportBusinessLogic {
 
 	/**
 	 * 
-	 * @param entity
-	 * @param user
-	 * @throws ImportException
+	 * @param entity entity
+	 * @param user user
+	 * @throws ImportException on error
 	 * @since PowerEditor 3.0.0
 	 */
 	@Override
@@ -341,8 +343,8 @@ public class DefaultImportBusinessLogic implements ImportBusinessLogic {
 	}
 
 	@Override
-	public void importGuidelineAction(GuidelineAction guidelineAction, boolean merge, Map<String, Integer> actionIDMap, User user, boolean updateIfExist) throws ServletActionException,
-			ParseException, DataValidationFailedException {
+	public void importGuidelineAction(GuidelineAction guidelineAction, boolean merge, Map<String, Integer> actionIDMap, User user, boolean updateIfExist)
+			throws ServletActionException, ParseException, DataValidationFailedException {
 		logDebug(LOG, ">>> importGuidelineAction: %s,merge?=%b", guidelineAction, merge);
 		final ActionTypeDefinition actionDef = asActionTypeDefinition(guidelineAction);
 
@@ -487,10 +489,10 @@ public class DefaultImportBusinessLogic implements ImportBusinessLogic {
 
 	/**
 	 * Imports role 
-	 * @param role
-	 * @param unknownPrivsForRole
-	 * @param user
-	 * @throws ImportException
+	 * @param role role
+	 * @param unknownPrivsForRole unknownPrivsForRole
+	 * @param user user
+	 * @throws ImportException on error
 	 */
 	@Override
 	public void importRole(Role role, List<String> unknownPrivsForRole, User user) throws ImportException {
@@ -533,9 +535,9 @@ public class DefaultImportBusinessLogic implements ImportBusinessLogic {
 	/**
 	 * This updates it if the specified template already exists.
 	 * 
-	 * @param template
-	 * @param user
-	 * @throws ServletActionException
+	 * @param template template
+	 * @param user user
+	 * @throws ServletActionException on error
 	 */
 	@Override
 	public void importTemplate(GridTemplate template, boolean merge, Map<Integer, Integer> idMap, User user) throws ServletActionException {
@@ -594,8 +596,8 @@ public class DefaultImportBusinessLogic implements ImportBusinessLogic {
 	}
 
 	@Override
-	public void importTestCondition(TestCondition testCondition, boolean merge, Map<String, Integer> actionIDMap, User user, boolean updateIfExist) throws ServletActionException, ParseException,
-			DataValidationFailedException {
+	public void importTestCondition(TestCondition testCondition, boolean merge, Map<String, Integer> actionIDMap, User user, boolean updateIfExist)
+			throws ServletActionException, ParseException, DataValidationFailedException {
 		logDebug(LOG, ">>> importTestTypeDefinition:%s,merge=%b", testCondition, merge);
 		final TestTypeDefinition testDef = asTestTypeDefinition(testCondition);
 		if (merge) {
@@ -706,10 +708,10 @@ public class DefaultImportBusinessLogic implements ImportBusinessLogic {
 	 * This method updates the root categories display value from the import file
 	 * @author vineet khosla
 	 * @since PowerEditor 5.0.0
-	 * @param type
-	 * @param newName
-	 * @param user
-	 * @throws ImportException
+	 * @param type type
+	 * @param newName newName
+	 * @param user user
+	 * @throws ImportException on error
 	 */
 	@Override
 	public void updateRootCategoryDuringImport(String type, String newName, User user) throws ImportException {
@@ -751,7 +753,8 @@ public class DefaultImportBusinessLogic implements ImportBusinessLogic {
 		boolean templateExists = (GuidelineTemplateManager.getInstance().getTemplate(template.getID()) != null);
 		if (merge || !templateExists) {
 			if (!bizActionCoordinator.isUniqueTemplateNameAndVersion(template.getName(), template.getVersion())) {
-				throw new ImportException(String.format("Template with name %s and version %s already exists (ID was %s).", template.getName(), template.getVersion(), template.getID()));
+				throw new ImportException(
+						String.format("Template with name %s and version %s already exists (ID was %s).", template.getName(), template.getVersion(), template.getID()));
 			}
 		}
 

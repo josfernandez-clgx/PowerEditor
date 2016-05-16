@@ -3,7 +3,7 @@ package com.mindbox.pe.server.generator.rule;
 import com.mindbox.pe.model.GenericEntityType;
 
 /**
- * Concrete implementation of {@link PatternValueSlot} of type {@link ValueSlot#CONTEXT_ELEMENT}.
+ * Concrete implementation of {@link PatternValueSlot} of type {@link ValueSlot.Type#CONTEXT_ELEMENT}.
  * The {@link #getSlotValue()} method returns an instance of {@link GenericEntityType}.
  *
  */
@@ -13,8 +13,8 @@ public class ContextElementPatternValueSlot extends AbstractPatternValueSlot {
 
 	/**
 	 * 
-	 * @param entityType
-	 * @param asString
+	 * @param entityType entityType
+	 * @param asString asString
 	 * @throws NullPointerException if entityType is <code>null</code>
 	 */
 	ContextElementPatternValueSlot(GenericEntityType entityType, boolean asString) {

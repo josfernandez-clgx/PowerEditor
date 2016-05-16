@@ -24,6 +24,60 @@ import com.mindbox.pe.model.report.GuidelineReportSpec;
  */
 public class ReportSpecManager {
 
+	private static final class CacheDetail {
+
+		private GuidelineReportSpec reportSpec;
+		private List<GuidelineReportData> guidelineList;
+		private long lastAccessed;
+
+		public CacheDetail(GuidelineReportSpec reportSpec, List<GuidelineReportData> guidelineList) {
+			this.reportSpec = reportSpec;
+			this.guidelineList = guidelineList;
+			this.lastAccessed = System.currentTimeMillis();
+		}
+	}
+
+	private class ClearCacheOnTimeOut extends Thread {
+
+		private final long interval = 1000 * 60 * 5; // 5 minutes
+		private final long timeout;
+
+		public ClearCacheOnTimeOut(long timeout) {
+			super(ReportSpecManager.this.getClass() + ":ClearCacheOnTimeOut");
+			setDaemon(true);
+			this.timeout = timeout;
+
+		}
+
+		@Override
+		public void run() {
+			logger.info(getName() + " thread started!!!");
+			// run until server shuts down
+			while (true) {
+				try {
+					Thread.sleep(interval);
+				}
+				catch (InterruptedException ex) {
+					// ignore
+				}
+				synchronized (ReportSpecManager.this.cacheMap) {
+					long currTime = System.currentTimeMillis();
+					List<Long> keysToRemove = new ArrayList<Long>();
+					for (Map.Entry<Long, CacheDetail> entry : ReportSpecManager.this.cacheMap.entrySet()) {
+						if ((currTime - entry.getValue().lastAccessed) > this.timeout) {
+							keysToRemove.add(entry.getKey());
+						}
+					}
+					for (Iterator<Long> iter = keysToRemove.iterator(); iter.hasNext();) {
+						Long element = iter.next();
+						cacheMap.remove(element);
+						logger.info("Removed cache " + element);
+					}
+				}
+			}
+		}
+	}
+
 	private final static long TIMEOUT = 1000 * 60 * 60; // one hour
 
 	private static ReportSpecManager instance = null;
@@ -39,21 +93,9 @@ public class ReportSpecManager {
 		return instance;
 	}
 
-	private static final class CacheDetail {
-
-		private GuidelineReportSpec reportSpec;
-		private List<GuidelineReportData> guidelineList;
-		private long lastAccessed;
-
-		public CacheDetail(GuidelineReportSpec reportSpec, List<GuidelineReportData> guidelineList) {
-			this.reportSpec = reportSpec;
-			this.guidelineList = guidelineList;
-			this.lastAccessed = System.currentTimeMillis();
-		}
-	}
-
 	private long nextID = 1000L;
 	private final Map<Long, CacheDetail> cacheMap = new HashMap<Long, CacheDetail>();
+
 	private final Logger logger = Logger.getLogger(getClass());
 
 	private ReportSpecManager() {
@@ -62,8 +104,8 @@ public class ReportSpecManager {
 
 	/**
 	 * Caches the specified report spec and guideline list and returns the report id for the cache.
-	 * @param reportSpec
-	 * @param guidelineList
+	 * @param reportSpec reportSpec
+	 * @param guidelineList guidelineList
 	 * @return new report id; this is only unique per server instance
 	 */
 	public long cacheNextReportSpec(GuidelineReportSpec reportSpec, List<GuidelineReportData> guidelineList) {
@@ -72,21 +114,6 @@ public class ReportSpecManager {
 			cacheMap.put(new Long(next), new CacheDetail(reportSpec, guidelineList));
 			logger.info("Cached " + reportSpec + " for " + next);
 			return next;
-		}
-	}
-
-	public GuidelineReportSpec getReportSpec(long id) {
-		CacheDetail detail = getCacheDetail(id);
-		return (detail == null ? null : detail.reportSpec);
-	}
-
-	public GuidelineReportSpec getReportSpec(String idStr) {
-		try {
-			long id = Long.valueOf(idStr).longValue();
-			return getReportSpec(id);
-		}
-		catch (Exception ex) {
-			return null;
 		}
 	}
 
@@ -113,43 +140,18 @@ public class ReportSpecManager {
 		}
 	}
 
-	private class ClearCacheOnTimeOut extends Thread {
+	public GuidelineReportSpec getReportSpec(long id) {
+		CacheDetail detail = getCacheDetail(id);
+		return (detail == null ? null : detail.reportSpec);
+	}
 
-		private final long interval = 1000 * 60 * 5; // 5 minutes
-		private final long timeout;
-
-		public ClearCacheOnTimeOut(long timeout) {
-			super(ReportSpecManager.this.getClass() + ":ClearCacheOnTimeOut");
-			setDaemon(true);
-			this.timeout = timeout;
-			
+	public GuidelineReportSpec getReportSpec(String idStr) {
+		try {
+			long id = Long.valueOf(idStr).longValue();
+			return getReportSpec(id);
 		}
-
-		public void run() {
-			logger.info(getName() +  " thread started!!!");
-			// run until server shuts down
-			while (true) {
-				try {
-					Thread.sleep(interval);
-				}
-				catch (InterruptedException ex) {
-					// ignore
-				}
-				synchronized (ReportSpecManager.this.cacheMap) {
-					long currTime = System.currentTimeMillis();
-					List<Long> keysToRemove = new ArrayList<Long>();
-					for (Map.Entry<Long,CacheDetail> entry : ReportSpecManager.this.cacheMap.entrySet()) {
-						if ((currTime - entry.getValue().lastAccessed) > this.timeout) {
-							keysToRemove.add(entry.getKey());
-						}
-					}
-					for (Iterator<Long> iter = keysToRemove.iterator(); iter.hasNext();) {
-						Long element = iter.next();
-						cacheMap.remove(element);
-						logger.info("Removed cache " + element);
-					}
-				}
-			}
+		catch (Exception ex) {
+			return null;
 		}
 	}
 }

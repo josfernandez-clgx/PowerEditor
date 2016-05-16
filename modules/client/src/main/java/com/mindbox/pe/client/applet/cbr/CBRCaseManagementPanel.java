@@ -9,24 +9,11 @@ import com.mindbox.pe.client.common.tab.PowerEditorTabPanel;
 import com.mindbox.pe.model.PeDataType;
 import com.mindbox.pe.model.cbr.CBRCase;
 
-/**
- * @author deklerk
- * @since PowerEditor 4.1.0
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
 public class CBRCaseManagementPanel extends EntityManagementPanel<CBRCase, EntityManagementButtonPanel<CBRCase>> implements PowerEditorTabPanel {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -3951228734910107454L;
 
-	/**
-	 * 
-	 */
-	public CBRCaseManagementPanel(AbstractFilterPanel<CBRCase, EntityManagementButtonPanel<CBRCase>> filterPanel, AbstractSelectionPanel<CBRCase, EntityManagementButtonPanel<CBRCase>> selectionPanel,
-			AbstractDetailPanel<CBRCase, EntityManagementButtonPanel<CBRCase>> workspace) {
+	public CBRCaseManagementPanel(AbstractFilterPanel<CBRCase, EntityManagementButtonPanel<CBRCase>> filterPanel,
+			AbstractSelectionPanel<CBRCase, EntityManagementButtonPanel<CBRCase>> selectionPanel, AbstractDetailPanel<CBRCase, EntityManagementButtonPanel<CBRCase>> workspace) {
 		super(PeDataType.CBR_CASE, filterPanel, selectionPanel, workspace);
 	}
 }

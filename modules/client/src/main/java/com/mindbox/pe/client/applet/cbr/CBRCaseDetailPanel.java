@@ -16,8 +16,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentListener;
 
-import mseries.ui.MChangeListener;
-
 import com.mindbox.pe.client.ClientUtil;
 import com.mindbox.pe.client.InputValidationException;
 import com.mindbox.pe.client.applet.UIFactory;
@@ -35,6 +33,8 @@ import com.mindbox.pe.model.cbr.CBRCase;
 import com.mindbox.pe.model.cbr.CBRCaseAction;
 import com.mindbox.pe.model.cbr.CBRCaseBase;
 import com.mindbox.pe.model.filter.CBRExactNameSearchFilter;
+
+import mseries.ui.MChangeListener;
 
 /**
  * @author deklerk
@@ -58,9 +58,6 @@ public class CBRCaseDetailPanel extends AbstractDetailPanel<CBRCase, EntityManag
 	private List<CBRCaseAction> allActions;
 	private DateSelectorComboField effDateField, expDateField;
 
-	/**
-	 * @param cb
-	 */
 	public CBRCaseDetailPanel(CBRCaseBase cb) {
 		super(PeDataType.CBR_CASE);
 		caseBase = cb;
@@ -76,24 +73,13 @@ public class CBRCaseDetailPanel extends AbstractDetailPanel<CBRCase, EntityManag
 		}
 	}
 
-	protected void addDocumentListener(DocumentListener dl, final MChangeListener mchangeListener) {
-		nameField.getDocument().addDocumentListener(dl);
-		descField.getDocument().addDocumentListener(dl);
-		effDateField.addActionListener(this);
-		expDateField.addActionListener(this);
-		avPanel.addValueChangeListener(this);
-		actionListPanel.addValueChangeListener(this);
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		fireDetailChanged();
+		if (documentListener != null) documentListener.insertUpdate(null);
 	}
 
-	protected void removeDocumentListener(DocumentListener dl, final MChangeListener mchangeListener) {
-		nameField.getDocument().removeDocumentListener(dl);
-		descField.getDocument().removeDocumentListener(dl);
-		effDateField.removeActionListener(this);
-		expDateField.removeActionListener(this);
-		avPanel.removeValueChangeListener(this);
-		actionListPanel.removeValueChangeListener(this);
-	}
-
+	@Override
 	protected void addComponents(GridBagLayout bag, GridBagConstraints c) {
 		this.nameField = new JTextField(10);
 		this.descField = new JTextField(10);
@@ -161,6 +147,54 @@ public class CBRCaseDetailPanel extends AbstractDetailPanel<CBRCase, EntityManag
 		tab.addTab(ClientUtil.getInstance().getLabel("tab.cbr.case.actions"), actionListPanel);
 	}
 
+	@Override
+	protected void addDocumentListener(DocumentListener dl, final MChangeListener mchangeListener) {
+		nameField.getDocument().addDocumentListener(dl);
+		descField.getDocument().addDocumentListener(dl);
+		effDateField.addActionListener(this);
+		expDateField.addActionListener(this);
+		avPanel.addValueChangeListener(this);
+		actionListPanel.addValueChangeListener(this);
+	}
+
+	@Override
+	public void clearFields() {
+		this.currentObject = null;
+		setForViewOnly(true);
+		this.nameField.setText("");
+		this.descField.setText("");
+		this.effDateField.setDate(null);
+		this.expDateField.setDate(null);
+		this.avPanel.clear();
+		actionListPanel.setObjectLists(allActions, new ArrayList<CBRCaseAction>());
+	}
+
+	@Override
+	protected void populateDetails(CBRCase object) {
+		CBRCase c = (CBRCase) object;
+		this.nameField.setText(c.getName());
+		this.descField.setText(c.getDescription());
+		effDateField.setValue(c.getEffectiveDate());
+		expDateField.setValue(c.getExpirationDate());
+		avPanel.setDataList(c.getAttributeValues());
+		actionListPanel.setObjectLists(allActions, c.getCaseActions());
+	}
+
+	@Override
+	public void populateForClone(CBRCase object) {
+	}
+
+	@Override
+	protected void removeDocumentListener(DocumentListener dl, final MChangeListener mchangeListener) {
+		nameField.getDocument().removeDocumentListener(dl);
+		descField.getDocument().removeDocumentListener(dl);
+		effDateField.removeActionListener(this);
+		expDateField.removeActionListener(this);
+		avPanel.removeValueChangeListener(this);
+		actionListPanel.removeValueChangeListener(this);
+	}
+
+	@Override
 	protected void setCurrentObjectFromFields() {
 		if (currentObject == null) {
 			currentObject = new CBRCase();
@@ -175,30 +209,7 @@ public class CBRCaseDetailPanel extends AbstractDetailPanel<CBRCase, EntityManag
 		c.setExpirationDate(expDateField.getValue());
 	}
 
-	protected void populateDetails(CBRCase object) {
-		CBRCase c = (CBRCase) object;
-		this.nameField.setText(c.getName());
-		this.descField.setText(c.getDescription());
-		effDateField.setValue(c.getEffectiveDate());
-		expDateField.setValue(c.getExpirationDate());
-		avPanel.setDataList(c.getAttributeValues());
-		actionListPanel.setObjectLists(allActions, c.getCaseActions());
-	}
-
-	public void populateForClone(CBRCase object) {
-	}
-
-	public void clearFields() {
-		this.currentObject = null;
-		setForViewOnly(true);
-		this.nameField.setText("");
-		this.descField.setText("");
-		this.effDateField.setDate(null);
-		this.expDateField.setDate(null);
-		this.avPanel.clear();
-		actionListPanel.setObjectLists(allActions, new ArrayList<CBRCaseAction>());
-	}
-
+	@Override
 	protected void setEnabledFields(boolean enabled) {
 		this.nameField.setEnabled(enabled);
 		this.descField.setEnabled(enabled);
@@ -208,6 +219,13 @@ public class CBRCaseDetailPanel extends AbstractDetailPanel<CBRCase, EntityManag
 		this.actionListPanel.setEnabled(enabled);
 	}
 
+
+	@Override
+	public void stateChanged(ChangeEvent arg0) {
+		avPanel.updateForCaseBase(caseBase.getId());
+	}
+
+	@Override
 	protected void validateFields() throws InputValidationException {
 		super.validateFields();
 		if (UtilBase.trim(this.nameField.getText()).length() == 0) throw new InputValidationException("A Case name may not be blank.");
@@ -227,8 +245,9 @@ public class CBRCaseDetailPanel extends AbstractDetailPanel<CBRCase, EntityManag
 			if (av.getAttribute() == null) throw new InputValidationException("Attribute Value pairs must all have Attributes.");
 			if (av.getName() == null || UtilBase.trim(av.getName()).length() == 0) throw new InputValidationException("Attribute Value pairs must all have Values.");
 			if (!av.isValid()) {
-				throw new InputValidationException("The value \"" + av.getName() + "\" does not conform to the " + ClientUtil.getInstance().getLabel("label.cbr.value.range") + " \""
-						+ av.getAttribute().getValueRange().getName() + "\"");
+				throw new InputValidationException(
+						"The value \"" + av.getName() + "\" does not conform to the " + ClientUtil.getInstance().getLabel("label.cbr.value.range") + " \""
+								+ av.getAttribute().getValueRange().getName() + "\"");
 			}
 			Iterator<CBRAttributeValue> it2 = avList.iterator();
 			while (it2.hasNext()) {
@@ -241,18 +260,9 @@ public class CBRCaseDetailPanel extends AbstractDetailPanel<CBRCase, EntityManag
 
 	}
 
-
-	public void actionPerformed(ActionEvent e) {
-		fireDetailChanged();
-		if (documentListener != null) documentListener.insertUpdate(null);
-	}
-
+	@Override
 	public void valueChanged(ValueChangeEvent e) {
 		fireDetailChanged();
 		if (documentListener != null) documentListener.insertUpdate(null);
-	}
-
-	public void stateChanged(ChangeEvent arg0) {
-		avPanel.updateForCaseBase(caseBase.getId());
 	}
 }

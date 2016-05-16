@@ -9,10 +9,6 @@ import com.mindbox.pe.xsd.config.EntityType;
 
 /**
  * Implementation of &lt;entity-types&gt; PowerEditor custom tag.
- * <p>
- * <b>Required Parameters</b><ul>
- * <li><code>name</code> - Name of the attribute to be bound to an array of {@link EntityTypeDefinition} objects</li>
- * </ul>
  */
 public class EntityTypeDefinitionsTag extends AbstractVarTag {
 
@@ -22,6 +18,7 @@ public class EntityTypeDefinitionsTag extends AbstractVarTag {
 		return ConfigurationManager.getInstance().getEntityConfigHelper().getEntityTypeDefinitions();
 	}
 
+	@Override
 	public int doStartTag() throws JspException {
 		setVarObject(getEntityTypeDefinitions());
 		return SKIP_BODY;

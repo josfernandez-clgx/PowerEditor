@@ -13,12 +13,13 @@ import net.sf.oval.configuration.annotation.Constraint;
  */
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
-@Target( { ElementType.FIELD, ElementType.METHOD })
+@Target({ ElementType.FIELD, ElementType.METHOD })
 @Constraint(checkWith = EffectiveDateBeforeExpirationDateCheck.class)
 public @interface EffectiveDateBeforeExpirationDate {
 
 	/**
 	 * Default validation failure message.
+	 * @return default failure message
 	 */
 	String message() default "violated.EffectiveDateBeforeExpirationDate";
 }

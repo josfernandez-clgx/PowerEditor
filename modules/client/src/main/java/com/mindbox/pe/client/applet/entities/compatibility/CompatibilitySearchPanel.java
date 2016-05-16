@@ -1,6 +1,3 @@
-/*
- * Created on Apr 27, 2004 CompatibilitySearchPanel
- */
 package com.mindbox.pe.client.applet.entities.compatibility;
 
 import java.awt.GridBagConstraints;
@@ -28,13 +25,26 @@ import com.mindbox.pe.model.assckey.GenericEntityCompatibilityData;
  * @since PowerEditor 3.0.0
  */
 public class CompatibilitySearchPanel extends PanelBase {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3951228734910107454L;
+
+	private class Combo1L implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			updateSearchButtonStatus();
+		}
+	}
+
+	private class Combo2L implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			updateSearchButtonStatus();
+		}
+	}
 
 	private class SearchL extends AbstractThreadedActionAdapter {
 
+		@Override
 		public synchronized void performAction(ActionEvent event) throws Exception {
 			GenericEntityType type1 = type1Combo.getSelectedEntityType();
 			GenericEntityType type2 = type2Combo.getSelectedEntityType();
@@ -45,29 +55,12 @@ public class CompatibilitySearchPanel extends PanelBase {
 		}
 	}
 
-	private class Combo1L implements ActionListener {
-
-		public void actionPerformed(ActionEvent e) {
-			updateSearchButtonStatus();
-		}
-	}
-
-	private class Combo2L implements ActionListener {
-
-		public void actionPerformed(ActionEvent e) {
-			updateSearchButtonStatus();
-		}
-	}
+	private static final long serialVersionUID = -3951228734910107454L;
 
 	private final JButton searchButton;
-
 	private final GenericEntityTypeComboBox type1Combo, type2Combo;
-
 	private final CompatibilityListPanel selectionPanel;
 
-	/**
-	 *  
-	 */
 	public CompatibilitySearchPanel(CompatibilityListPanel selectionPanel) {
 		super();
 		this.selectionPanel = selectionPanel;
@@ -77,16 +70,6 @@ public class CompatibilitySearchPanel extends PanelBase {
 		type1Combo.addActionListener(new Combo1L());
 		type2Combo = new GenericEntityTypeComboBox(false, true, true);
 		type2Combo.addActionListener(new Combo2L());
-		//
-		//		EntityType[] entityTypeDefs = ClientUtil.getEntityConfiguration().getEntityTypes();
-		//		for (int i = 0; i < entityTypeDefs.length; i++) {
-		//			if (entityTypeDefs[i].useInCompatibility()) {
-		//				//if (GenericEntityType.isAdditionalGenericEntityName(entityTypeDefs[i].getName())) {
-		//					type1Combo.addItem(GenericEntityType.forID(entityTypeDefs[i].getTypeID()));
-		//				//}
-		//				type2Combo.addItem(GenericEntityType.forID(entityTypeDefs[i].getTypeID()));
-		//			}
-		//		}
 
 		initPanel();
 

@@ -33,13 +33,9 @@ import com.mindbox.pe.xsd.config.GuidelineTab;
  * @see GuidelineFilterPanel
  */
 public class GuidelineTypeTemplateCheckBoxSelectionPanel extends PanelBase {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3951228734910107454L;
-
 	private final class TableViewCheckBoxL implements ActionListener {
 
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (((JRadioButton) e.getSource()).isSelected()) {
 				displayTemplateAsTable = true;
@@ -50,6 +46,7 @@ public class GuidelineTypeTemplateCheckBoxSelectionPanel extends PanelBase {
 
 	private final class TreeViewCheckBoxL implements ActionListener {
 
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (((JRadioButton) e.getSource()).isSelected()) {
 				displayTemplateAsTable = false;
@@ -58,6 +55,8 @@ public class GuidelineTypeTemplateCheckBoxSelectionPanel extends PanelBase {
 		}
 	}
 
+	private static final long serialVersionUID = -3951228734910107454L;
+
 	private final JPanel viewPanel;
 	private final JButton clearButton;
 	private final CardLayout viewCard;
@@ -65,19 +64,10 @@ public class GuidelineTypeTemplateCheckBoxSelectionPanel extends PanelBase {
 	private TemplateIDNameTable templateTable = null;
 	private boolean displayTemplateAsTable = false;
 
-	/**
-	 * @param allowTableView
-	 * @param searchView
-	 */
 	public GuidelineTypeTemplateCheckBoxSelectionPanel(boolean allowTableView) {
 		this(null, allowTableView);
 	}
 
-	/**
-	 * @param topButtons
-	 * @param allowTableView
-	 * @param searchView
-	 */
 	public GuidelineTypeTemplateCheckBoxSelectionPanel(JButton[] topButtons, boolean allowTableView) {
 		templateTable = new TemplateIDNameTable(EntityModelCacheFactory.getInstance().getTemplateIDNameTableModel());
 		templateTable.setRowSelectionAllowed(true);
@@ -118,15 +108,6 @@ public class GuidelineTypeTemplateCheckBoxSelectionPanel extends PanelBase {
 		refreshDisplay();
 	}
 
-	public List<GridTemplate> getSelectedTemplates() {
-		if (!displayTemplateAsTable) {
-			return usageTemplateTree.getSelectedTemplates();
-		}
-		else {
-			return templateTable.getSelectedTemplates();
-		}
-	}
-
 	public List<Integer> getSelectedTemplateIDs() {
 		if (!displayTemplateAsTable) {
 			return usageTemplateTree.getSelectedTemplateIDs();
@@ -136,9 +117,13 @@ public class GuidelineTypeTemplateCheckBoxSelectionPanel extends PanelBase {
 		}
 	}
 
-	public List<TemplateUsageType> getSelectedUsageTypes() {
-		if (!displayTemplateAsTable) return usageTemplateTree.getSelectedUsageTypes();
-		return new ArrayList<TemplateUsageType>();
+	public List<GridTemplate> getSelectedTemplates() {
+		if (!displayTemplateAsTable) {
+			return usageTemplateTree.getSelectedTemplates();
+		}
+		else {
+			return templateTable.getSelectedTemplates();
+		}
 	}
 
 	public List<GuidelineTab> getSelectedUsageGroups() {
@@ -146,6 +131,11 @@ public class GuidelineTypeTemplateCheckBoxSelectionPanel extends PanelBase {
 			return usageTemplateTree.getSelectedUsageTypeGroups();
 		}
 		return new ArrayList<GuidelineTab>();
+	}
+
+	public List<TemplateUsageType> getSelectedUsageTypes() {
+		if (!displayTemplateAsTable) return usageTemplateTree.getSelectedUsageTypes();
+		return new ArrayList<TemplateUsageType>();
 	}
 
 	private void initPanel(JButton[] topButtons, boolean allowTableView) {

@@ -23,10 +23,10 @@ public class ProcessRequest extends AbstractIDNameDescriptionObject implements A
 	private String requestType;
 	private String initFunction;
 
-
 	/**
-	 * @param id
-	 * @param name
+	 * @param id id
+	 * @param name name
+	 * @param desc desc
 	 */
 	public ProcessRequest(int id, String name, String desc) {
 		super(id, name, desc);
@@ -41,28 +41,6 @@ public class ProcessRequest extends AbstractIDNameDescriptionObject implements A
 		this.phase = source.phase;
 	}
 
-	public Auditable deepCopy() {
-		return new ProcessRequest(this);
-	}
-
-	public String getAuditDescription() {
-		return toString();
-	}
-	
-	/**
-	 * @return Returns the displayName.
-	 */
-	public String getDisplayName() {
-		return displayName;
-	}
-
-	/**
-	 * @param displayName The displayName to set.
-	 */
-	public void setDisplayName(String displayName) {
-		this.displayName = displayName;
-	}
-
 	public void copyFrom(ProcessRequest request) {
 		setName(request.getName());
 		this.setDescription(request.getDescription());
@@ -73,46 +51,28 @@ public class ProcessRequest extends AbstractIDNameDescriptionObject implements A
 		this.displayName = request.displayName;
 	}
 
+	@Override
+	public Auditable deepCopy() {
+		return new ProcessRequest(this);
+	}
+
+	@Override
+	public String getAuditDescription() {
+		return toString();
+	}
+
+	/**
+	 * @return Returns the displayName.
+	 */
+	public String getDisplayName() {
+		return displayName;
+	}
+
 	/**
 	 * @return Returns the initFunction.
 	 */
 	public String getInitFunction() {
 		return initFunction;
-	}
-
-	/**
-	 * @param initFunction The initFunction to set.
-	 */
-	public void setInitFunction(String initFunction) {
-		this.initFunction = initFunction;
-	}
-
-	/**
-	 * @return Returns the purpose.
-	 */
-	public String getPurpose() {
-		return purpose;
-	}
-
-	/**
-	 * @param purpose The purpose to set.
-	 */
-	public void setPurpose(String purpose) {
-		this.purpose = purpose;
-	}
-
-	/**
-	 * @return Returns the requestType.
-	 */
-	public String getRequestType() {
-		return requestType;
-	}
-
-	/**
-	 * @param requestType The requestType to set.
-	 */
-	public void setRequestType(String requestType) {
-		this.requestType = requestType;
 	}
 
 	/**
@@ -123,9 +83,51 @@ public class ProcessRequest extends AbstractIDNameDescriptionObject implements A
 	}
 
 	/**
+	 * @return Returns the purpose.
+	 */
+	public String getPurpose() {
+		return purpose;
+	}
+
+	/**
+	 * @return Returns the requestType.
+	 */
+	public String getRequestType() {
+		return requestType;
+	}
+
+	/**
+	 * @param displayName The displayName to set.
+	 */
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
+	}
+
+	/**
+	 * @param initFunction The initFunction to set.
+	 */
+	public void setInitFunction(String initFunction) {
+		this.initFunction = initFunction;
+	}
+
+	/**
 	 * @param phase The phase to set.
 	 */
 	public void setPhase(Phase phase) {
 		this.phase = phase;
+	}
+
+	/**
+	 * @param purpose The purpose to set.
+	 */
+	public void setPurpose(String purpose) {
+		this.purpose = purpose;
+	}
+
+	/**
+	 * @param requestType The requestType to set.
+	 */
+	public void setRequestType(String requestType) {
+		this.requestType = requestType;
 	}
 }

@@ -38,20 +38,46 @@ import com.mindbox.pe.model.GenericEntityType;
  */
 public class GenericCategoryTreeWithCheckBox extends AbstractGenericCategorySelectionTree {
 
-	private static void setRendererIcon(DefaultTreeCellRenderer renderer, ImageIcon icon) {
-		renderer.setOpenIcon(icon);
-		renderer.setClosedIcon(icon);
-		renderer.setDisabledIcon(icon);
-		renderer.setLeafIcon(icon);
+	public class CategoryOrEntityNodeEditor extends AbstractCellEditor implements TreeCellEditor {
+		private static final long serialVersionUID = -3951228734910107454L;
+
+		CategoryOrEntityNodeRenderer renderer;
+
+		AbstractSelectableMutableTreeNode lastEditedNode;
+
+		JCheckBox checkBox;
+
+		public CategoryOrEntityNodeEditor() {
+			renderer = new CategoryOrEntityNodeRenderer();
+			checkBox = renderer.checkBox;
+			checkBox.addActionListener(new java.awt.event.ActionListener() {
+
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent actionevent) {
+
+					if (!checkBox.isSelected() && lastEditedNode instanceof GenericEntityNode) {
+						selectEntityNodes((GenericEntityNode) lastEditedNode, false);
+					}
+					lastEditedNode.setSelected(checkBox.isSelected());
+					isDirty = true;
+					repaintAll();
+				}
+			});
+		}
+
+		@Override
+		public Object getCellEditorValue() {
+			return lastEditedNode.getUserObject();
+		}
+
+		@Override
+		public Component getTreeCellEditorComponent(JTree jtree, Object obj, boolean flag, boolean flag1, boolean flag2, int i) {
+			lastEditedNode = (AbstractSelectableMutableTreeNode) obj;
+			return renderer.getTreeCellRendererComponent(jtree, obj, flag, flag1, flag2, i, true);
+		}
 	}
 
-	private static final ImageIcon categoryIcon = ClientUtil.getInstance().makeImageIcon("image.node.category");
-	private static final ImageIcon entityIcon = ClientUtil.getInstance().makeImageIcon("image.node.entity");
-
 	public class CategoryOrEntityNodeRenderer extends DefaultTreeCellRenderer {
-		/**
-		 * 
-		 */
 		private static final long serialVersionUID = -3951228734910107454L;
 
 		JCheckBox checkBox;
@@ -69,6 +95,7 @@ public class GenericCategoryTreeWithCheckBox extends AbstractGenericCategorySele
 			setRendererIcon(this, categoryIcon);
 		}
 
+		@Override
 		public java.awt.Component getTreeCellRendererComponent(JTree jtree, Object obj, boolean flag, boolean flag1, boolean flag2, int i, boolean flag3) {
 			AbstractSelectableMutableTreeNode node = (AbstractSelectableMutableTreeNode) obj;
 			if (obj instanceof GenericCategoryNode) {
@@ -94,50 +121,60 @@ public class GenericCategoryTreeWithCheckBox extends AbstractGenericCategorySele
 		}
 	}
 
-	public class CategoryOrEntityNodeEditor extends AbstractCellEditor implements TreeCellEditor {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -3951228734910107454L;
+	/**
+	 * If a category is expanded and the model allows entities and the entities
+	 * are not yet loaded, load them.
+	 */
+	private class TreeWillExpandOrCollapseListener implements TreeWillExpandListener {
 
-		public Component getTreeCellEditorComponent(JTree jtree, Object obj, boolean flag, boolean flag1, boolean flag2, int i) {
-			lastEditedNode = (AbstractSelectableMutableTreeNode) obj;
-			return renderer.getTreeCellRendererComponent(jtree, obj, flag, flag1, flag2, i, true);
+		@Override
+		public void treeWillCollapse(TreeExpansionEvent event) throws ExpandVetoException {
 		}
 
-		public Object getCellEditorValue() {
-			return lastEditedNode.getUserObject();
-		}
-
-		CategoryOrEntityNodeRenderer renderer;
-		AbstractSelectableMutableTreeNode lastEditedNode;
-		JCheckBox checkBox;
-
-		public CategoryOrEntityNodeEditor() {
-			renderer = new CategoryOrEntityNodeRenderer();
-			checkBox = renderer.checkBox;
-			checkBox.addActionListener(new java.awt.event.ActionListener() {
-
-				public void actionPerformed(java.awt.event.ActionEvent actionevent) {
-
-					if (!checkBox.isSelected() && lastEditedNode instanceof GenericEntityNode) {
-						selectEntityNodes((GenericEntityNode) lastEditedNode, false);
+		@Override
+		public void treeWillExpand(TreeExpansionEvent event) throws ExpandVetoException {
+			if (allowEntity) {
+				try {
+					ClientUtil.getParent().setCursor(UIFactory.getWaitCursor());
+					TreePath path = event.getPath();
+					if (path != null) {
+						if (path.getLastPathComponent() instanceof GenericCategoryNode && ((GenericCategoryNode) path.getLastPathComponent()).entitiesNeedLoading()) {
+							GenericCategoryNode node = (GenericCategoryNode) path.getLastPathComponent();
+							getDatedTreeModel().addGenericEntityNodesForNodeOnly(node, entityType);
+							node.setEntitiesNeedLoading(false);
+							getDatedTreeModel().nodeStructureChanged(node);
+						}
 					}
-					lastEditedNode.setSelected(checkBox.isSelected());
-					isDirty = true;
-					repaintAll();
 				}
-			});
+				catch (Exception e) {
+					ClientUtil.handleRuntimeException(e);
+				}
+				finally {
+					ClientUtil.getParent().setCursor(UIFactory.getDefaultCursor());
+				}
+			}
 		}
+	}
+
+	private static final ImageIcon categoryIcon = ClientUtil.getInstance().makeImageIcon("image.node.category");
+
+	private static final ImageIcon entityIcon = ClientUtil.getInstance().makeImageIcon("image.node.entity");
+
+	private static void setRendererIcon(DefaultTreeCellRenderer renderer, ImageIcon icon) {
+		renderer.setOpenIcon(icon);
+		renderer.setClosedIcon(icon);
+		renderer.setDisabledIcon(icon);
+		renderer.setLeafIcon(icon);
 	}
 
 	boolean isDirty;
 	private TreeWillExpandOrCollapseListener expansionListener = null;
 
-	///////////////////////// Constructors and Instance Methods ///////////////
-
 	/**
 	 * Equivalent to <code>new GenericCategoryTreeWithCheckBox(entityType, allowEntity, true, sort)</code>.
+	 * @param entityType entityType
+	 * @param allowEntity allowEntity
+	 * @param sort sort
 	 */
 	public GenericCategoryTreeWithCheckBox(GenericEntityType entityType, boolean allowEntity, boolean sort) {
 		this(entityType, allowEntity, true, sort);
@@ -156,114 +193,45 @@ public class GenericCategoryTreeWithCheckBox extends AbstractGenericCategorySele
 		}
 	}
 
-	private boolean hasParentSelected(AbstractSelectableMutableTreeNode node) {
-		if (node.getParent() != null) {
-			AbstractSelectableMutableTreeNode parent = (AbstractSelectableMutableTreeNode) node.getParent();
-			if (parent.isSelected()) {
-				return true;
-			}
-			else {
-				return hasParentSelected(parent);
-			}
+	public final void addTreeModelListener(TreeModelListener l) {
+		tree.getModel().addTreeModelListener(l);
+	}
+
+	public void clearAll() {
+		// begin bug fix - bizarre rendering problem
+		CategoryOrEntityNodeEditor editor = (CategoryOrEntityNodeEditor) tree.getCellEditor();
+		if (editor.lastEditedNode != null) {
+			editor.lastEditedNode.setSelected(false);
+			editor.checkBox.setSelected(false);
+			editor.checkBox.repaint();
 		}
-		else {
-			return false;
-		}
-	}
-
-	public void setDirty(boolean flag) {
-		isDirty = flag;
-	}
-
-	public boolean isDirty() {
-		return isDirty;
-	}
-
-	private void repaintAll() {
-		tree.invalidate();
-		tree.repaint();
-	}
-
-	public void setSelectedCategoriesAndEntities(List<Integer> categories, List<Integer> entities) {
-		if (allowEntity) {
-			tree.removeTreeWillExpandListener(expansionListener);
-			loadSavedEntities(entities);
-		}
-		TreeUtil.expandAll(tree, false);
-		setSelectedCategories(categories);
-		setSelectedEntities(entities);
-		isDirty = false;
+		// end bug fix        
+		selectAll((TreeNode) tree.getModel().getRoot(), false, false);
 		repaintAll();
-		if (allowEntity) {
-			tree.addTreeWillExpandListener(expansionListener);
-		}
+		isDirty = true;
 	}
 
 	/**
-	 * Gets a list of the parent categories of the saved entities  
-	 * and loads all the entities assoicated with those categories.
-	 * @param entities Saved entities to select
+	 * This method is overrides getSelectedGenericCategories() in 
+	 * AbstractGenericCategorySelectionTree.
+	 * @return array of Generic categories.
 	 */
-	private void loadSavedEntities(List<Integer> entities) {
-		if (entities != null && entities.size() > 0) {
-			Set<Integer> categoryIDs = new HashSet<Integer>();
-			for (Iterator<Integer> i = entities.iterator(); i.hasNext();) {
-				Integer entityID = i.next();
-				GenericEntity entity = EntityModelCacheFactory.getInstance().getGenericEntity(entityType, entityID.intValue());
-				List<Integer> parentCatIDs = entity.getCategoryIDList(getDatedTreeModel().getDate());
-				if (parentCatIDs != null && parentCatIDs.size() > 0) {
-					categoryIDs.addAll(parentCatIDs);
-				}
-			}
-			loadCategoryEntitieForSelectedEntities(categoryIDs);
-		}
-	}
-
-	private void loadCategoryEntitieForSelectedEntities(Set<Integer> categoryIDset) {
+	@Override
+	public GenericCategory[] getSelectedCategories() {
+		List<GenericCategory> list = new java.util.ArrayList<GenericCategory>();
 		GenericCategoryNode rootNode = (GenericCategoryNode) tree.getModel().getRoot();
-		loadCategoryEntitieForSelectedEntities(rootNode, categoryIDset);
+		getSelectedCategories(list, rootNode);
+		return list.toArray(new GenericCategory[0]);
 	}
 
-	private void loadCategoryEntitieForSelectedEntities(GenericCategoryNode node, Set<Integer> categoryIDset) {
-		GenericCategory category = node.getGenericCategory();
-		if (node.entitiesNeedLoading() && category != null && categoryIDset != null && categoryIDset.contains(new Integer(category.getID()))) {
-			getDatedTreeModel().addGenericEntityNodesForNodeOnly(node, entityType);
-			node.setEntitiesNeedLoading(false);
-			getDatedTreeModel().nodeStructureChanged(node);
+	private void getSelectedCategories(List<GenericCategory> list, GenericCategoryNode node) {
+		if (node.isSelected()) {
+			list.add(node.getGenericCategory());
 		}
-
 		for (int i = 0; i < node.getChildCount(); i++) {
 			TreeNode child = node.getChildAt(i);
 			if (child instanceof GenericCategoryNode) {
-				loadCategoryEntitieForSelectedEntities((GenericCategoryNode) child, categoryIDset);
-			}
-		}
-	}
-
-	private void setSelectedCategories(List<Integer> list) {
-		GenericCategoryNode rootNode = (GenericCategoryNode) tree.getModel().getRoot();
-		setSelectedCategories(rootNode, list);
-	}
-
-	private void setSelectedCategories(GenericCategoryNode node, List<Integer> list) {
-		GenericCategory category = node.getGenericCategory();
-		if (category != null && list != null && list.contains(new Integer(category.getID()))) {
-			node.setSelected(true);
-			if (node.getParent() != null) {
-				tree.expandPath(new TreePath(((GenericCategoryNode) node.getParent()).getPath()));
-			}
-		}
-		else {
-			node.setSelected(false);
-		}
-
-		for (int i = 0; i < node.getChildCount(); i++) {
-			TreeNode child = node.getChildAt(i);
-			if (child instanceof GenericCategoryNode) {
-				setSelectedCategories((GenericCategoryNode) child, list);
-			}
-			else if (child instanceof GenericEntityNode) {
-				((GenericEntityNode) child).setSelected(false);
+				getSelectedCategories(list, (GenericCategoryNode) child);
 			}
 		}
 	}
@@ -284,36 +252,6 @@ public class GenericCategoryTreeWithCheckBox extends AbstractGenericCategorySele
 			if (child instanceof GenericCategoryNode) {
 				getSelectedGenericCategoryIDs(list, (GenericCategoryNode) child);
 			}
-		}
-	}
-
-	private void setSelectedEntities(List<Integer> list) {
-		GenericCategoryNode rootNode = (GenericCategoryNode) tree.getModel().getRoot();
-		setSelectedEntities(rootNode, list);
-	}
-
-	private void setSelectedEntities(GenericCategoryNode node, List<Integer> list) {
-		for (int i = 0; i < node.getChildCount(); i++) {
-			TreeNode child = node.getChildAt(i);
-			if (child instanceof GenericCategoryNode) {
-				setSelectedEntities((GenericCategoryNode) child, list);
-			}
-			else if (child instanceof GenericEntityNode) {
-				setSelectedEntities((GenericEntityNode) child, list);
-			}
-		}
-	}
-
-	private void setSelectedEntities(GenericEntityNode node, List<Integer> list) {
-		GenericEntity entity = node.getGenericEntity();
-		if (entity != null && list != null && list.contains(new Integer(entity.getID()))) {
-			node.setSelected(true);
-			if (node.getParent() != null) {
-				tree.expandPath(new TreePath(((GenericCategoryNode) node.getParent()).getPath()));
-			}
-		}
-		else {
-			node.setSelected(false);
 		}
 	}
 
@@ -345,35 +283,69 @@ public class GenericCategoryTreeWithCheckBox extends AbstractGenericCategorySele
 		}
 	}
 
-	public void selectAllEntities() {
-		// begin bug fix - bizarre rendering problem
-		tree.removeTreeWillExpandListener(expansionListener);
-		CategoryOrEntityNodeEditor editor = (CategoryOrEntityNodeEditor) tree.getCellEditor();
-		if (editor.lastEditedNode != null && editor.lastEditedNode instanceof GenericEntityNode) {
-			editor.lastEditedNode.setSelected(true);
-			editor.checkBox.setSelected(true);
-			editor.checkBox.repaint();
+	private boolean hasParentSelected(AbstractSelectableMutableTreeNode node) {
+		if (node.getParent() != null) {
+			AbstractSelectableMutableTreeNode parent = (AbstractSelectableMutableTreeNode) node.getParent();
+			if (parent.isSelected()) {
+				return true;
+			}
+			else {
+				return hasParentSelected(parent);
+			}
 		}
-		// end bug fix
-		selectAll((TreeNode) tree.getModel().getRoot(), true, true);
-		//TreeUtil.expandAll(tree, true);
-		tree.addTreeWillExpandListener(expansionListener);
-		repaintAll();
-		isDirty = true;
+		else {
+			return false;
+		}
 	}
 
-	public void clearAll() {
-		// begin bug fix - bizarre rendering problem
-		CategoryOrEntityNodeEditor editor = (CategoryOrEntityNodeEditor) tree.getCellEditor();
-		if (editor.lastEditedNode != null) {
-			editor.lastEditedNode.setSelected(false);
-			editor.checkBox.setSelected(false);
-			editor.checkBox.repaint();
+	public boolean isDirty() {
+		return isDirty;
+	}
+
+	private void loadCategoryEntitieForSelectedEntities(GenericCategoryNode node, Set<Integer> categoryIDset) {
+		GenericCategory category = node.getGenericCategory();
+		if (node.entitiesNeedLoading() && category != null && categoryIDset != null && categoryIDset.contains(new Integer(category.getID()))) {
+			getDatedTreeModel().addGenericEntityNodesForNodeOnly(node, entityType);
+			node.setEntitiesNeedLoading(false);
+			getDatedTreeModel().nodeStructureChanged(node);
 		}
-		// end bug fix        
-		selectAll((TreeNode) tree.getModel().getRoot(), false, false);
-		repaintAll();
-		isDirty = true;
+
+		for (int i = 0; i < node.getChildCount(); i++) {
+			TreeNode child = node.getChildAt(i);
+			if (child instanceof GenericCategoryNode) {
+				loadCategoryEntitieForSelectedEntities((GenericCategoryNode) child, categoryIDset);
+			}
+		}
+	}
+
+	private void loadCategoryEntitieForSelectedEntities(Set<Integer> categoryIDset) {
+		GenericCategoryNode rootNode = (GenericCategoryNode) tree.getModel().getRoot();
+		loadCategoryEntitieForSelectedEntities(rootNode, categoryIDset);
+	}
+
+	/**
+	 * Gets a list of the parent categories of the saved entities  
+	 * and loads all the entities assoicated with those categories.
+	 * @param entities Saved entities to select
+	 */
+	private void loadSavedEntities(List<Integer> entities) {
+		if (entities != null && entities.size() > 0) {
+			Set<Integer> categoryIDs = new HashSet<Integer>();
+			for (Iterator<Integer> i = entities.iterator(); i.hasNext();) {
+				Integer entityID = i.next();
+				GenericEntity entity = EntityModelCacheFactory.getInstance().getGenericEntity(entityType, entityID.intValue());
+				List<Integer> parentCatIDs = entity.getCategoryIDList(getDatedTreeModel().getDate());
+				if (parentCatIDs != null && parentCatIDs.size() > 0) {
+					categoryIDs.addAll(parentCatIDs);
+				}
+			}
+			loadCategoryEntitieForSelectedEntities(categoryIDs);
+		}
+	}
+
+	private void repaintAll() {
+		tree.invalidate();
+		tree.repaint();
 	}
 
 	private void selectAll(TreeNode parent, boolean select, boolean entitiesOnly) {
@@ -392,8 +364,20 @@ public class GenericCategoryTreeWithCheckBox extends AbstractGenericCategorySele
 		}
 	}
 
-	protected void selectEntityNodes(GenericEntityNode node, boolean select) {
-		selectEntityNode((TreeNode) tree.getModel().getRoot(), node, select);
+	public void selectAllEntities() {
+		// begin bug fix - bizarre rendering problem
+		tree.removeTreeWillExpandListener(expansionListener);
+		CategoryOrEntityNodeEditor editor = (CategoryOrEntityNodeEditor) tree.getCellEditor();
+		if (editor.lastEditedNode != null && editor.lastEditedNode instanceof GenericEntityNode) {
+			editor.lastEditedNode.setSelected(true);
+			editor.checkBox.setSelected(true);
+			editor.checkBox.repaint();
+		}
+		// end bug fix
+		selectAll((TreeNode) tree.getModel().getRoot(), true, true);
+		tree.addTreeWillExpandListener(expansionListener);
+		repaintAll();
+		isDirty = true;
 	}
 
 	private void selectEntityNode(TreeNode parent, GenericEntityNode nodeToSelect, boolean select) {
@@ -409,65 +393,85 @@ public class GenericCategoryTreeWithCheckBox extends AbstractGenericCategorySele
 		}
 	}
 
-	public final void addTreeModelListener(TreeModelListener l) {
-		tree.getModel().addTreeModelListener(l);
+	protected void selectEntityNodes(GenericEntityNode node, boolean select) {
+		selectEntityNode((TreeNode) tree.getModel().getRoot(), node, select);
 	}
 
-	/**
-	 * This method is overrides getSelectedGenericCategories() in 
-	 * AbstractGenericCategorySelectionTree.
-	 * @return array of Generic categories.
-	 */
-	public GenericCategory[] getSelectedCategories() {
-		List<GenericCategory> list = new java.util.ArrayList<GenericCategory>();
-		GenericCategoryNode rootNode = (GenericCategoryNode) tree.getModel().getRoot();
-		getSelectedCategories(list, rootNode);
-		return list.toArray(new GenericCategory[0]);
+	public void setDirty(boolean flag) {
+		isDirty = flag;
 	}
 
-	private void getSelectedCategories(List<GenericCategory> list, GenericCategoryNode node) {
-		if (node.isSelected()) {
-			list.add(node.getGenericCategory());
+	private void setSelectedCategories(GenericCategoryNode node, List<Integer> list) {
+		GenericCategory category = node.getGenericCategory();
+		if (category != null && list != null && list.contains(new Integer(category.getID()))) {
+			node.setSelected(true);
+			if (node.getParent() != null) {
+				tree.expandPath(new TreePath(((GenericCategoryNode) node.getParent()).getPath()));
+			}
 		}
+		else {
+			node.setSelected(false);
+		}
+
 		for (int i = 0; i < node.getChildCount(); i++) {
 			TreeNode child = node.getChildAt(i);
 			if (child instanceof GenericCategoryNode) {
-				getSelectedCategories(list, (GenericCategoryNode) child);
+				setSelectedCategories((GenericCategoryNode) child, list);
+			}
+			else if (child instanceof GenericEntityNode) {
+				((GenericEntityNode) child).setSelected(false);
 			}
 		}
 	}
 
-	/**
-	 * If a category is expanded and the model allows entities and the entities
-	 * are not yet loaded, load them.
-	 */
-	private class TreeWillExpandOrCollapseListener implements TreeWillExpandListener {
+	private void setSelectedCategories(List<Integer> list) {
+		GenericCategoryNode rootNode = (GenericCategoryNode) tree.getModel().getRoot();
+		setSelectedCategories(rootNode, list);
+	}
 
-		public void treeWillCollapse(TreeExpansionEvent event) throws ExpandVetoException {
+	public void setSelectedCategoriesAndEntities(List<Integer> categories, List<Integer> entities) {
+		if (allowEntity) {
+			tree.removeTreeWillExpandListener(expansionListener);
+			loadSavedEntities(entities);
 		}
+		TreeUtil.expandAll(tree, false);
+		setSelectedCategories(categories);
+		setSelectedEntities(entities);
+		isDirty = false;
+		repaintAll();
+		if (allowEntity) {
+			tree.addTreeWillExpandListener(expansionListener);
+		}
+	}
 
-		public void treeWillExpand(TreeExpansionEvent event) throws ExpandVetoException {
-			if (allowEntity) {
-				try {
-					ClientUtil.getParent().setCursor(UIFactory.getWaitCursor());
-					TreePath path = event.getPath();
-					if (path != null) {
-						if (path.getLastPathComponent() instanceof GenericCategoryNode && ((GenericCategoryNode) path.getLastPathComponent()).entitiesNeedLoading()) {
-							GenericCategoryNode node = (GenericCategoryNode) path.getLastPathComponent();
-							getDatedTreeModel().addGenericEntityNodesForNodeOnly(node, entityType);
-							node.setEntitiesNeedLoading(false);
-							getDatedTreeModel().nodeStructureChanged(node);
-						}
-					}
-				}
-				catch (Exception e) {
-					ClientUtil.handleRuntimeException(e);
-				}
-				finally {
-					ClientUtil.getParent().setCursor(UIFactory.getDefaultCursor());
-				}
+	private void setSelectedEntities(GenericCategoryNode node, List<Integer> list) {
+		for (int i = 0; i < node.getChildCount(); i++) {
+			TreeNode child = node.getChildAt(i);
+			if (child instanceof GenericCategoryNode) {
+				setSelectedEntities((GenericCategoryNode) child, list);
+			}
+			else if (child instanceof GenericEntityNode) {
+				setSelectedEntities((GenericEntityNode) child, list);
 			}
 		}
+	}
+
+	private void setSelectedEntities(GenericEntityNode node, List<Integer> list) {
+		GenericEntity entity = node.getGenericEntity();
+		if (entity != null && list != null && list.contains(new Integer(entity.getID()))) {
+			node.setSelected(true);
+			if (node.getParent() != null) {
+				tree.expandPath(new TreePath(((GenericCategoryNode) node.getParent()).getPath()));
+			}
+		}
+		else {
+			node.setSelected(false);
+		}
+	}
+
+	private void setSelectedEntities(List<Integer> list) {
+		GenericCategoryNode rootNode = (GenericCategoryNode) tree.getModel().getRoot();
+		setSelectedEntities(rootNode, list);
 	}
 
 }

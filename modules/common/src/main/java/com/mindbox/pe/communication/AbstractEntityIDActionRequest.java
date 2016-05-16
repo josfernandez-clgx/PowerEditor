@@ -23,8 +23,11 @@ public abstract class AbstractEntityIDActionRequest<T extends ResponseComm> exte
 	protected final boolean lock;
 
 	/**
-	 * @param userID
-	 * @param sessionID
+	 * @param userID userID
+	 * @param sessionID sessionID
+	 * @param entityID entityID
+	 * @param entityType entityType
+	 * @param lockEntity lockEntity flag
 	 */
 	protected AbstractEntityIDActionRequest(String userID, String sessionID, int entityID, PeDataType entityType, boolean lockEntity) {
 		super(userID, sessionID);
@@ -32,16 +35,16 @@ public abstract class AbstractEntityIDActionRequest<T extends ResponseComm> exte
 		this.entityType = entityType;
 		this.lock = lockEntity;
 	}
-	
+
+	public boolean doLockEntity() {
+		return lock;
+	}
+
 	public int getEntityID() {
 		return entityID;
 	}
 
 	public PeDataType getEntityType() {
-		return entityType;	
-	}
-	
-	public boolean doLockEntity() {
-		return lock;
+		return entityType;
 	}
 }

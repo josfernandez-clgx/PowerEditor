@@ -19,16 +19,6 @@ public class HasValueForPropertyCheck extends AbstractAnnotationCheck<HasValueFo
 
 	private String propertyName;
 
-	/**
-	 * @param valueToValidate must be {@link EntityIdentityParentIDProperties}; if not, this returns <code>true</code>
-	 * @returns <code>true</code>, if valudateToValidate is <code>null</code>; otherwise, true only if valueToValidate is valid
-	 */
-	@Override
-	public boolean isSatisfied(Object validatedObject, Object valueToValidate, OValContext context, Validator validator) throws OValException {
-		if (valueToValidate == null) return true;
-		return true;
-	}
-
 	@Override
 	public void configure(HasValueForProperty constraintAnnotation) {
 		super.configure(constraintAnnotation);
@@ -40,5 +30,18 @@ public class HasValueForPropertyCheck extends AbstractAnnotationCheck<HasValueFo
 		Map<String, String> messageVariables = new HashMap<String, String>();
 		messageVariables.put("property", propertyName);
 		return messageVariables;
+	}
+
+	/**
+	 * @param validatedObject validated object
+	 * @param valueToValidate valueToValidate
+	 * @param context context
+	 * @param validator validator
+	 * @return <code>true</code>, if valudateToValidate is <code>null</code>; otherwise, true only if valueToValidate is valid
+	 */
+	@Override
+	public boolean isSatisfied(Object validatedObject, Object valueToValidate, OValContext context, Validator validator) throws OValException {
+		if (valueToValidate == null) return true;
+		return true;
 	}
 }

@@ -33,15 +33,69 @@ import com.mindbox.pe.xsd.config.EntityType;
  * @since PowerEditor 5.1.0
  */
 public class GenericEntityToCategoryEditDialog extends JPanel {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -3951228734910107454L;
+
+	/**
+	 * Displays edit entity to catgory relationship dialog.
+	 * @param entity entity
+	 * @param key key
+	 * @return key
+	 */
+	public static MutableTimedAssociationKey editParentCategory(GenericEntity entity, MutableTimedAssociationKey key) {
+		GenericEntityToCategoryEditDialog dialog = new GenericEntityToCategoryEditDialog(entity, key);
+		dialog.effDateEntryField.requestFocus();
+
+		int option = JOptionPane.showConfirmDialog(
+				ClientUtil.getApplet(),
+				dialog,
+				ClientUtil.getInstance().getLabel("d.title.edit.categorytoentity"),
+				JOptionPane.OK_CANCEL_OPTION,
+				JOptionPane.PLAIN_MESSAGE);
+
+		while ((option != JOptionPane.CANCEL_OPTION) && (!GenericEntityToCategoryEditDialog.isValid(dialog.effDateEntryField.getValue(), dialog.expDateEntryField.getValue())
+				|| (!dialog.entityCanBelongToMultipleCategories && dialog.hasOverlappingParentCategory()))) {
+			option = JOptionPane.showConfirmDialog(
+					ClientUtil.getApplet(),
+					dialog,
+					ClientUtil.getInstance().getLabel("d.title.edit.categorytocategory"),
+					JOptionPane.OK_CANCEL_OPTION,
+					JOptionPane.PLAIN_MESSAGE);
+		}
+
+		if (option == JOptionPane.CANCEL_OPTION) {
+			return null;
+		}
+		else if (!UtilBase.isSame(key.getEffectiveDate(), dialog.effDateEntryField.getValue()) || !UtilBase.isSame(key.getExpirationDate(), dialog.expDateEntryField.getValue())) {
+			MutableTimedAssociationKey newKey = new DefaultMutableTimedAssociationKey(
+					dialog.associableID,
+					dialog.effDateEntryField.getValue(),
+					dialog.expDateEntryField.getValue());
+
+			return newKey;
+		}
+		else {
+			return null;
+		}
+	}
+
+	private static boolean isValid(DateSynonym effDate, DateSynonym expDate) {
+		String messageKey = Validator.validateDateRange(effDate, expDate);
+		if (messageKey != null) {
+			ClientUtil.getInstance().showErrorDialog(messageKey);
+			return false;
+		}
+		else {
+			return true;
+		}
+	}
+
 	private final DateSelectorComboField effDateEntryField;
 	private final DateSelectorComboField expDateEntryField;
 	private final JTextField categoryNameField;
 	private final GenericEntity entity;
+
 	private final int associableID;
+
 	private final boolean entityCanBelongToMultipleCategories;
 
 	private GenericEntityToCategoryEditDialog(GenericEntity entity, MutableTimedAssociationKey key) {
@@ -63,55 +117,23 @@ public class GenericEntityToCategoryEditDialog extends JPanel {
 		associableID = key.getAssociableID();
 	}
 
-	/**
-	 * Displays edit entity to catgory relationship dialog.
-	 * @param entity
-	 * @param key
-	 * @return
-	 */
-	public static MutableTimedAssociationKey editParentCategory(GenericEntity entity, MutableTimedAssociationKey key) {
-		GenericEntityToCategoryEditDialog dialog = new GenericEntityToCategoryEditDialog(entity, key);
-		dialog.effDateEntryField.requestFocus();
+	private boolean hasOverlappingParentCategory() {
+		boolean overlaps = false;
+		MutableTimedAssociationKey newkey = new DefaultMutableTimedAssociationKey(associableID, effDateEntryField.getValue(), expDateEntryField.getValue());
 
-		int option = JOptionPane.showConfirmDialog(
-				ClientUtil.getApplet(),
-				dialog,
-				ClientUtil.getInstance().getLabel("d.title.edit.categorytoentity"),
-				JOptionPane.OK_CANCEL_OPTION,
-				JOptionPane.PLAIN_MESSAGE);
+		for (Iterator<MutableTimedAssociationKey> i = entity.getCategoryIterator(); i.hasNext();) {
+			MutableTimedAssociationKey key = i.next();
 
-		while ((option != JOptionPane.CANCEL_OPTION)
-				&& (!GenericEntityToCategoryEditDialog.isValid(dialog.effDateEntryField.getValue(), dialog.expDateEntryField.getValue()) || (!dialog.entityCanBelongToMultipleCategories && dialog.hasOverlappingParentCategory()))) {
-			option = JOptionPane.showConfirmDialog(
-					ClientUtil.getApplet(),
-					dialog,
-					ClientUtil.getInstance().getLabel("d.title.edit.categorytocategory"),
-					JOptionPane.OK_CANCEL_OPTION,
-					JOptionPane.PLAIN_MESSAGE);
+			if ((key.getAssociableID() != associableID) && newkey.overlapsWith(key)) {
+				GenericCategory parentCat = EntityModelCacheFactory.getInstance().getGenericCategory(entity.getType(), key.getAssociableID());
+				ClientUtil.getInstance().showErrorDialog("msg.error.category.overlaps", new Object[] { entity.getType().getName(), entity.getName(), parentCat.getName() });
+				overlaps = true;
+
+				break;
+			}
 		}
 
-		if (option == JOptionPane.CANCEL_OPTION) {
-			return null;
-		}
-		else if (!UtilBase.isSame(key.getEffectiveDate(), dialog.effDateEntryField.getValue()) || !UtilBase.isSame(key.getExpirationDate(), dialog.expDateEntryField.getValue())) {
-			MutableTimedAssociationKey newKey = new DefaultMutableTimedAssociationKey(dialog.associableID, dialog.effDateEntryField.getValue(), dialog.expDateEntryField.getValue());
-
-			return newKey;
-		}
-		else {
-			return null;
-		}
-	}
-
-	private static boolean isValid(DateSynonym effDate, DateSynonym expDate) {
-		String messageKey = Validator.validateDateRange(effDate, expDate);
-		if (messageKey != null) {
-			ClientUtil.getInstance().showErrorDialog(messageKey);
-			return false;
-		}
-		else {
-			return true;
-		}
+		return overlaps;
 	}
 
 	private void initDialog() {
@@ -133,24 +155,5 @@ public class GenericEntityToCategoryEditDialog extends JPanel {
 
 		setLayout(new BorderLayout(4, 4));
 		add(bPanel, BorderLayout.CENTER);
-	}
-
-	private boolean hasOverlappingParentCategory() {
-		boolean overlaps = false;
-		MutableTimedAssociationKey newkey = new DefaultMutableTimedAssociationKey(associableID, effDateEntryField.getValue(), expDateEntryField.getValue());
-
-		for (Iterator<MutableTimedAssociationKey> i = entity.getCategoryIterator(); i.hasNext();) {
-			MutableTimedAssociationKey key = i.next();
-
-			if ((key.getAssociableID() != associableID) && newkey.overlapsWith(key)) {
-				GenericCategory parentCat = EntityModelCacheFactory.getInstance().getGenericCategory(entity.getType(), key.getAssociableID());
-				ClientUtil.getInstance().showErrorDialog("msg.error.category.overlaps", new Object[] { entity.getType().getName(), entity.getName(), parentCat.getName() });
-				overlaps = true;
-
-				break;
-			}
-		}
-
-		return overlaps;
 	}
 }

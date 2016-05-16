@@ -14,26 +14,29 @@ package com.mindbox.pe.communication;
  */
 public class CloneCBRRequest extends SessionRequest<CloneCBRResponse> {
 
-    private static final long serialVersionUID = 2004110211064000L;
+	private static final long serialVersionUID = 2004110211064000L;
 
-    private final int oldCaseBaseID;
-    private final String newCaseBaseName;
-	
-    /**
-     * @param userID
-     * @param sessionID
-     */
-    public CloneCBRRequest(String userID, String sessionID, int oldCaseBaseID, String newCaseBaseName) {
-    	super(userID, sessionID);
-    	this.oldCaseBaseID = oldCaseBaseID;
-    	this.newCaseBaseName = newCaseBaseName;
-    }
+	private final int oldCaseBaseID;
+	private final String newCaseBaseName;
 
-    public String getNewCaseBaseName() {
-    	return newCaseBaseName;
-    }
-    public int getOldCaseBaseID() {
-    	return oldCaseBaseID;
-    }
+	/**
+	 * @param userID userID
+	 * @param sessionID sessionID
+	 * @param oldCaseBaseID oldCaseBaseID
+	 * @param newCaseBaseName newCaseBaseName
+	 */
+	public CloneCBRRequest(String userID, String sessionID, int oldCaseBaseID, String newCaseBaseName) {
+		super(userID, sessionID);
+		this.oldCaseBaseID = oldCaseBaseID;
+		this.newCaseBaseName = newCaseBaseName;
+	}
+
+	public String getNewCaseBaseName() {
+		return newCaseBaseName;
+	}
+
+	public int getOldCaseBaseID() {
+		return oldCaseBaseID;
+	}
 
 }

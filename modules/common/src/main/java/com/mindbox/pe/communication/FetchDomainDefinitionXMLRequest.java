@@ -9,8 +9,8 @@ public class FetchDomainDefinitionXMLRequest extends SessionRequest<ByteArrayRes
 	private static final long serialVersionUID = -8135012497668410521L;
 
 	/**
-	 * @param userID
-	 * @param sessionID
+	 * @param userID userID
+	 * @param sessionID sessionID
 	 */
 	public FetchDomainDefinitionXMLRequest(String userID, String sessionID) {
 		super(userID, sessionID);

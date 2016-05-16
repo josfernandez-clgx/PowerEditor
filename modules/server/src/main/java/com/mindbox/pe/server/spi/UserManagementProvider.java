@@ -21,8 +21,9 @@ public interface UserManagementProvider extends UserDataProvider, UserDataUpdate
 	 * 
 	 * Otherwise, this method returns true.
 	 * 
+	 * @return true if persistable; false, otherwise
 	 * @see UserAuthenticationProviderPlugin#arePasswordsStoredExternally()
 	 */
 	boolean arePasswordsPersistable();
-	
+
 }

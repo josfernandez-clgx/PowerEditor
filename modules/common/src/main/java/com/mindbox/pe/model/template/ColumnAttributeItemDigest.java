@@ -25,25 +25,25 @@ public class ColumnAttributeItemDigest implements Serializable {
 	}
 
 	/**
+	 * Create a new instance of this that is an exact copy of the source.
+	 * This performs deep-copy.
+	 * @param source source
+	 * @since PowerEditor 4.3.2
+	 */
+	public ColumnAttributeItemDigest(ColumnAttributeItemDigest source) {
+		this(source.name, source.displayValue);
+	}
+
+	/**
 	 * Constructs a fully initialized instance.
-	 * @param name
-	 * @param displayValue
+	 * @param name name
+	 * @param displayValue displayValue
 	 * @since PowerEditor 4.0
 	 */
 	public ColumnAttributeItemDigest(String name, String displayValue) {
 		this();
 		this.name = name;
 		this.displayValue = displayValue;
-	}
-
-	/**
-	 * Create a new instance of this that is an exact copy of the source.
-	 * This performs deep-copy.
-	 * @param source
-	 * @since PowerEditor 4.3.2
-	 */
-	public ColumnAttributeItemDigest(ColumnAttributeItemDigest source) {
-		this(source.name, source.displayValue);
 	}
 
 	/**
@@ -54,17 +54,17 @@ public class ColumnAttributeItemDigest implements Serializable {
 	}
 
 	/**
-	 * @param displayValue The displayValue to set.
-	 */
-	public void setDisplayValue(String displayValue) {
-		this.displayValue = displayValue;
-	}
-
-	/**
 	 * @return Returns the name.
 	 */
 	public String getName() {
 		return name;
+	}
+
+	/**
+	 * @param displayValue The displayValue to set.
+	 */
+	public void setDisplayValue(String displayValue) {
+		this.displayValue = displayValue;
 	}
 
 	/**
@@ -74,6 +74,7 @@ public class ColumnAttributeItemDigest implements Serializable {
 		this.name = name;
 	}
 
+	@Override
 	public String toString() {
 		return "AttributeItem[" + name + ":" + displayValue + "]";
 	}

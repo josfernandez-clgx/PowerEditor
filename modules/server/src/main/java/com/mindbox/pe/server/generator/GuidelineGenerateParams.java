@@ -28,7 +28,7 @@ public class GuidelineGenerateParams extends AbstractGenerateParms implements Co
 	 * @param grid the grid
 	 * @param row the row number
 	 * @return the cell values of row <code>i</code> as List
-	 * @throws InvalidDataException
+	 * @throws InvalidDataException on error
 	 */
 	private static List<Object> getRow(ProductGrid grid, int row) throws InvalidDataException {
 		List<Object> list = new LinkedList<Object>();
@@ -46,12 +46,12 @@ public class GuidelineGenerateParams extends AbstractGenerateParms implements Co
 
 	/**
 	 * Equivalent to <code>this(sunrise, sunset, grid, columnNo, rowNum, false)</code>.
-	 * @param sunrise
-	 * @param sunset
-	 * @param grid
-	 * @param columnNo
-	 * @param rowNum
-	 * @throws InvalidDataException
+	 * @param sunrise sunrise
+	 * @param sunset sunset
+	 * @param grid grid
+	 * @param columnNo columnNo
+	 * @param rowNum rowNum
+	 * @throws InvalidDataException on error
 	 */
 	public GuidelineGenerateParams(DateSynonym sunrise, DateSynonym sunset, ProductGrid grid, int columnNo, int rowNum) throws InvalidDataException {
 		this(sunrise, sunset, grid, columnNo, rowNum, false);
@@ -59,15 +59,16 @@ public class GuidelineGenerateParams extends AbstractGenerateParms implements Co
 
 	/**
 	 * Creates a new guideline generate param instance.
-	 * @param sunrise
-	 * @param sunset
-	 * @param grid
-	 * @param columnNo
-	 * @param rowNum
-	 * @param spansMultipleActivations
-	 * @throws InvalidDataException
+	 * @param sunrise sunrise
+	 * @param sunset sunset
+	 * @param grid grid
+	 * @param columnNo columnNo
+	 * @param rowNum rowNum
+	 * @param spansMultipleActivations spansMultipleActivations
+	 * @throws InvalidDataException on error
 	 */
-	public GuidelineGenerateParams(DateSynonym sunrise, DateSynonym sunset, ProductGrid grid, int columnNo, int rowNum, boolean spansMultipleActivations) throws InvalidDataException {
+	public GuidelineGenerateParams(DateSynonym sunrise, DateSynonym sunset, ProductGrid grid, int columnNo, int rowNum, boolean spansMultipleActivations)
+			throws InvalidDataException {
 		super(grid.getID(), sunrise, sunset, (GridTemplate) grid.getTemplate(), columnNo, rowNum, getRow(grid, rowNum), grid.getStatus());
 		this.contextContainer = grid;
 		this.spansMultipleActivations = spansMultipleActivations;
@@ -79,7 +80,11 @@ public class GuidelineGenerateParams extends AbstractGenerateParms implements Co
 		}
 		else if (hasGenericCategoryContext(type)) {
 			int[] genericCatIDs = getGenericCategoryIDs(type);
-			GenericEntityIdentity[] entities = EntityManager.getInstance().getGenericEntitiesInCategorySetAsOfWithDescendents(type.getCategoryType(), genericCatIDs, timeSlice.getAsOfDate(), false); // false to indicate that we care about dates on entity-category associations
+			GenericEntityIdentity[] entities = EntityManager.getInstance().getGenericEntitiesInCategorySetAsOfWithDescendents(
+					type.getCategoryType(),
+					genericCatIDs,
+					timeSlice.getAsOfDate(),
+					false); // false to indicate that we care about dates on entity-category associations
 			if (entities != null && entities.length > 0) {
 				int[] ids = new int[entities.length];
 				for (int i = 0; i < ids.length; i++) {
@@ -91,38 +96,47 @@ public class GuidelineGenerateParams extends AbstractGenerateParms implements Co
 		return null;
 	}
 
+	@Override
 	public GuidelineContext[] extractGuidelineContext() {
 		return contextContainer.extractGuidelineContext();
 	}
 
+	@Override
 	public GenericEntityType[] getGenericCategoryEntityTypesInUse() {
 		return contextContainer.getGenericCategoryEntityTypesInUse();
 	}
 
+	@Override
 	public int[] getGenericCategoryIDs(GenericEntityType type) {
 		return contextContainer.getGenericCategoryIDs(type);
 	}
 
+	@Override
 	public int[] getGenericEntityIDs(GenericEntityType type) {
 		return contextContainer.getGenericEntityIDs(type);
 	}
 
+	@Override
 	public GenericEntityType[] getGenericEntityTypesInUse() {
 		return contextContainer.getGenericEntityTypesInUse();
 	}
 
+	@Override
 	public TemplateUsageType getUsage() {
 		return getTemplate().getUsageType();
 	}
 
+	@Override
 	public boolean hasAnyGenericCategoryContext() {
 		return contextContainer.hasAnyGenericCategoryContext();
 	}
 
+	@Override
 	public boolean hasAnyGenericEntityContext() {
 		return contextContainer.hasAnyGenericEntityContext();
 	}
 
+	@Override
 	public boolean hasGenericCategoryAsCellValue() {
 		for (Iterator<Object> iter = getRowData().iterator(); iter.hasNext();) {
 			Object cellValue = (Object) iter.next();
@@ -138,10 +152,12 @@ public class GuidelineGenerateParams extends AbstractGenerateParms implements Co
 		return false;
 	}
 
+	@Override
 	public boolean hasGenericCategoryContext(GenericEntityType type) {
 		return contextContainer.hasGenericCategoryContext(type);
 	}
 
+	@Override
 	public boolean hasGenericEntityContext(GenericEntityType type) {
 		return contextContainer.hasGenericEntityContext(type);
 	}

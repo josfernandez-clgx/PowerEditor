@@ -13,10 +13,10 @@ public class GetNamedEntityRequest extends AbstractEntityNameActionRequest<Singl
 	private static final long serialVersionUID = 2351105608889216105L;
 
 	/**
-	 * @param userID
-	 * @param sessionID
-	 * @param name
-	 * @param entityType
+	 * @param userID userID
+	 * @param sessionID sessionID
+	 * @param name name
+	 * @param entityType entityType
 	 */
 	public GetNamedEntityRequest(String userID, String sessionID, String name, PeDataType entityType) {
 		super(userID, sessionID, name, entityType);

@@ -10,29 +10,30 @@ package com.mindbox.pe.model.cbr;
 public class CBRScoringFunction extends AbstractCBRConfigClass {
 
 	private static final long serialVersionUID = 20041005130000L;
-	
+
 	/**
 	 * Default constructor.
 	 * Equivalent to <code>new CBRScoringFunction(-1, "", "")</code>.
 	 */
 	public CBRScoringFunction() {
-		super(UNASSIGNED_ID, "","");
-	}	
+		super(UNASSIGNED_ID, "", "");
+	}
 
 	/**
 	 * 
-	 * @param id
-	 * @param symbol
-	 * @param displayName
+	 * @param id id
+	 * @param symbol symbol
+	 * @param displayName displayName
 	 */
 	public CBRScoringFunction(int id, String symbol, String displayName) {
 		super(id, symbol, displayName);
 	}
-	
+
 	public synchronized void copyFrom(CBRScoringFunction scoringFunction) {
 		super.copyFrom(scoringFunction);
 	}
-	
+
+	@Override
 	public String toString() {
 		return super.toString() + "   CBRScoringFunction[]";
 	}

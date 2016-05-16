@@ -29,9 +29,6 @@ import com.mindbox.pe.xsd.config.MessageConfigType;
  */
 public class ColumnMessageFragmentList extends AbstractMessageConfigSet<ColumnMessageFragment> implements Serializable {
 
-	private static final long serialVersionUID = 2004071124010000L;
-
-
 	/**
 	 * The private class ColumnMessageFragment holds a messageFragment and its parsed string.
 	 * A columnMessageFragmentList is a list of ColumnMessageFragments.
@@ -43,18 +40,26 @@ public class ColumnMessageFragmentList extends AbstractMessageConfigSet<ColumnMe
 		private String unparsedMessageTextStr;
 		private Message parsedMessageObj;
 
-		public ColumnMessageFragment(String messageText) throws ParseException {
-			setMessageText(messageText);
-		}
-
 		public ColumnMessageFragment(ColumnMessageFragment source) {
 			this.unparsedMessageTextStr = source.unparsedMessageTextStr;
 			this.parsedMessageObj = source.parsedMessageObj;
 		}
 
+		public ColumnMessageFragment(String messageText) throws ParseException {
+			setMessageText(messageText);
+		}
+
 		public void copyFrom(ColumnMessageFragment source) {
 			this.unparsedMessageTextStr = source.unparsedMessageTextStr;
 			this.parsedMessageObj = source.parsedMessageObj;
+		}
+
+		public synchronized Message getParsedMessage() {
+			return parsedMessageObj;
+		}
+
+		public synchronized String getUnparsedMessage() {
+			return unparsedMessageTextStr;
 		}
 
 		private void setMessageText(String messageText) throws ParseException {
@@ -70,21 +75,15 @@ public class ColumnMessageFragmentList extends AbstractMessageConfigSet<ColumnMe
 		public synchronized void updateMessage(String messageText) throws ParseException {
 			setMessageText(messageText);
 		}
-
-		public synchronized Message getParsedMessage() {
-			return parsedMessageObj;
-		}
-
-		public synchronized String getUnparsedMessage() {
-			return unparsedMessageTextStr;
-		}
 	}
+
+	private static final long serialVersionUID = 2004071124010000L;
 
 
 	/**
 	 * Default Constructor.
 	 * This adds the default column message fragment, which is just the cell value.
-	 * That the constructor is only called for a column if there is a <MessageFragment>
+	 * That the constructor is only called for a column if there is a &lt;MessageFragment&gt;
 	 * associated with that column.  It could, however, be that the messageFragment
 	 * statement only has config elements and no text, in which case the default element
 	 * will be the only one in the ColumnMessageFragment list.
@@ -102,11 +101,27 @@ public class ColumnMessageFragmentList extends AbstractMessageConfigSet<ColumnMe
 
 	/**
 	 * Creates a new instance of this that is an exact copy of the source.
-	 * @param source
+	 * @param source source
 	 * @since PowerEditor 4.3.2
 	 */
 	public ColumnMessageFragmentList(ColumnMessageFragmentList source) {
 		super(source);
+	}
+
+	/**
+	 * Adds the message text to this list, removing any others with the same key.
+	 * @param messageConfigType messageConfigType
+	 * @param unparsedMessageText text as appears in the XML
+	 * @param cellSelectionType cell selection type
+	 * @throws ParseException on parse error
+	 */
+	public void addText(final MessageConfigType messageConfigType, final String unparsedMessageText, final CellSelectionType cellSelectionType) throws ParseException {
+		updateConfig(messageConfigType, new ColumnMessageFragment(unparsedMessageText), cellSelectionType);
+	}
+
+	@Override
+	protected ColumnMessageFragment createCopy(ColumnMessageFragment source) {
+		return new ColumnMessageFragment(source);
 	}
 
 	private ColumnMessageFragment getEnumFragment(boolean isExclusion, boolean isMultiSelect) {
@@ -116,7 +131,7 @@ public class ColumnMessageFragmentList extends AbstractMessageConfigSet<ColumnMe
 
 	/**
 	 * Gets the column message fragment for the specified cell value.
-	 * @param cellValue
+	 * @param cellValue cell value
 	 * @return the column message fragment for <code>cellValue</code>, if found; <code>null</code>, otherwise
 	 */
 	private ColumnMessageFragment getFragment(Object cellValue) {
@@ -140,17 +155,6 @@ public class ColumnMessageFragmentList extends AbstractMessageConfigSet<ColumnMe
 	}
 
 	/**
-	 * Given a cellValue object from a table, returns the unparsed message
-	 * string that represents that value (e.g. "LTV of %cellValue%).  
-	 * This method will always return a value.
-	 * @param cellValue an object of type IRange, EnumValues, etc.
-	 * @return The String that is originally in the XML.
-	 */
-	public String getUnparsedMessage(Object cellValue) {
-		return getFragment(cellValue).getUnparsedMessage();
-	}
-
-	/**
 	 * Given a cellValue object from a table, returns the parsed message
 	 * object that represents that value (e.g. "LTV of %cellValue%).  
 	 * This method will always return a value.
@@ -165,28 +169,14 @@ public class ColumnMessageFragmentList extends AbstractMessageConfigSet<ColumnMe
 	}
 
 	/**
-	 * Updates the message text to this list.
-	 * @param key A valid AbstractMessageKeyList key
-	 * @param unparsedMessageText text as appears in the XML
-	 * @throws ParseException on parse error
+	 * Given a cellValue object from a table, returns the unparsed message
+	 * string that represents that value (e.g. "LTV of %cellValue%).  
+	 * This method will always return a value.
+	 * @param cellValue an object of type IRange, EnumValues, etc.
+	 * @return The String that is originally in the XML.
 	 */
-	public void updateText(final MessageConfigType messageConfigType, final String unparsedMessageText, final CellSelectionType cellSelectionType) throws ParseException {
-		updateConfig(messageConfigType, new ColumnMessageFragment(unparsedMessageText), cellSelectionType);
-	}
-
-	/**
-	 * Adds the message text to this list, removing any others with the same key.
-	 * @param key A valid AbstractMessageKeyList key
-	 * @param unparsedMessageText text as appears in the XML
-	 * @throws ParseException on parse error
-	 */
-	public void addText(final MessageConfigType messageConfigType, final String unparsedMessageText, final CellSelectionType cellSelectionType) throws ParseException {
-		updateConfig(messageConfigType, new ColumnMessageFragment(unparsedMessageText), cellSelectionType);
-	}
-
-	@Override
-	protected ColumnMessageFragment createCopy(ColumnMessageFragment source) {
-		return new ColumnMessageFragment(source);
+	public String getUnparsedMessage(Object cellValue) {
+		return getFragment(cellValue).getUnparsedMessage();
 	}
 
 	@Override
@@ -197,5 +187,16 @@ public class ColumnMessageFragmentList extends AbstractMessageConfigSet<ColumnMe
 	@Override
 	protected void updateInvariants(ColumnMessageFragment target, ColumnMessageFragment source) {
 		target.copyFrom(source);
+	}
+
+	/**
+	 * Updates the message text to this list.
+	 * @param messageConfigType messageConfigType
+	 * @param unparsedMessageText text as appears in the XML
+	 * @param cellSelectionType cell selection type
+	 * @throws ParseException on parse error
+	 */
+	public void updateText(final MessageConfigType messageConfigType, final String unparsedMessageText, final CellSelectionType cellSelectionType) throws ParseException {
+		updateConfig(messageConfigType, new ColumnMessageFragment(unparsedMessageText), cellSelectionType);
 	}
 }

@@ -60,8 +60,8 @@ public class UnitTestHelper {
 
 	/**
 	 * 
-	 * @param array
-	 * @param obj
+	 * @param array array
+	 * @param obj object
 	 * @throws NullPointerException if <code>array</code> or <code>obj</code> is <code>null</code>
 	 */
 	public static void assertContains(Object[] array, Object obj) {
@@ -70,9 +70,9 @@ public class UnitTestHelper {
 
 	/**
 	 * 
-	 * @param message
-	 * @param array
-	 * @param obj
+	 * @param message message
+	 * @param array array
+	 * @param obj object
 	 * @throws NullPointerException if <code>array</code> or <code>obj</code> is <code>null</code>
 	 */
 	public static void assertContains(String message, Object[] array, Object obj) {
@@ -126,8 +126,7 @@ public class UnitTestHelper {
 		assertFalse(message, Arrays.asList(ia).contains(i));
 	}
 
-	public static void assertThrowsException(Class<?> type, String methodName, Class<?>[] argTypes, Object[] args, Class<?> exceptionType)
-			throws Exception {
+	public static void assertThrowsException(Class<?> type, String methodName, Class<?>[] argTypes, Object[] args, Class<?> exceptionType) throws Exception {
 		try {
 			executeStaticPrivate(type, methodName, argTypes, args);
 			fail("Expected exception of type " + exceptionType + " not thrown");
@@ -142,8 +141,7 @@ public class UnitTestHelper {
 		}
 	}
 
-	public static void assertThrowsException(Object obj, String methodName, Class<?>[] argTypes, Object[] args, Class<?> exceptionType)
-			throws Exception {
+	public static void assertThrowsException(Object obj, String methodName, Class<?>[] argTypes, Object[] args, Class<?> exceptionType) throws Exception {
 		try {
 			executePrivate(obj, methodName, argTypes, args);
 			fail("Expected exception of type " + exceptionType + " not thrown");
@@ -185,7 +183,7 @@ public class UnitTestHelper {
 	/**
 	 * Makes sure the specified directory is empty.
 	 * 
-	 * @param dir
+	 * @param dir directory
 	 */
 	public static void clearDir(File dir) {
 		if (dir.isDirectory()) {
@@ -263,7 +261,11 @@ public class UnitTestHelper {
 
 	/**
 	 * Invoke a method, even if its access modifier is 'private'.
-	 * 
+	 * @param o object
+	 * @param methodName method name
+	 * @param parameterTypes parameter types
+	 * @param args arguments
+	 * @return result object
 	 * @throws SecurityException if the system SecurityManager denies access.
 	 */
 	public static Object executePrivate(Object o, String methodName, Class<?>[] parameterTypes, Object[] args) {
@@ -282,7 +284,11 @@ public class UnitTestHelper {
 
 	/**
 	 * Invoke a method, even if its access modifier is 'private'.
-	 * 
+	 * @param clazz class
+	 * @param methodName method name
+	 * @param parameterTypes parameter types
+	 * @param args arguments
+	 * @return result object
 	 * @throws SecurityException if the system SecurityManager denies access.
 	 * @throws IllegalArgumentException if the specified method is not static
 	 */
@@ -334,8 +340,7 @@ public class UnitTestHelper {
 					}
 				}
 				curClazz = curClazz.getSuperclass();
-			}
-			while (curClazz != null);
+			} while (curClazz != null);
 			throw new NoSuchMethodException(methodName + " not in " + clazz.getName());
 		}
 		catch (RuntimeException re) {
@@ -345,11 +350,6 @@ public class UnitTestHelper {
 			throw new RuntimeException(e);
 		}
 	}
-
-	//	/** for testing readResolve() implementations */
-	//	public static void assertSerializeConstant(Serializable s) {
-	//		assertTrue(s == SerializationUtils.deserialize(SerializationUtils.serialize(s)));
-	//	}
 
 	public static void turnOnDigesterLogger(Level level) {
 		Logger.getRootLogger().addAppender(new ConsoleAppender(new PatternLayout("%d{yyyy-MM-dd HH:mm:ss} %c{2} %-5p: %m%n")));

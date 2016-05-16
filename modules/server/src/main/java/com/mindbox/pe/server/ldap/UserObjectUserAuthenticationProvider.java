@@ -9,12 +9,7 @@ import com.mindbox.pe.server.spi.UserAuthenticationProviderPlugin;
 
 /**
  * To use this class as the system {@link UserAuthenticationProvider}, configure:
- * <pre>
- <PowerEditorConfiguration>
-   <Server>
-     <Session>
-       <UserAuthenticationProviderClass>com.mindbox.pe.server.ldap.UserObjectUserAuthenticationProvider</...>
-</pre>
+ * &lt;UserAuthenticationProviderClass&gt;com.mindbox.pe.server.ldap.UserObjectUserAuthenticationProvider&lt;/...&gt;
  */
 public class UserObjectUserAuthenticationProvider implements UserAuthenticationProviderPlugin {
 

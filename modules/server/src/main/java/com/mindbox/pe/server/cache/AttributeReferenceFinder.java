@@ -49,8 +49,7 @@ public class AttributeReferenceFinder extends ObjectDepthFirst {
 	private Map<String, Integer> refMap = new HashMap<String, Integer>();
 
 	/**
-	 * 
-	 * @param deploymentRule
+	 * @param deploymentRule deploymentRule
 	 * @deprecated as of PowerEditor 4.0; DO NOT USE
 	 */
 	public AttributeReferenceFinder(DeploymentRule deploymentRule) {
@@ -254,6 +253,7 @@ public class AttributeReferenceFinder extends ObjectDepthFirst {
 		return obj;
 	}
 
+	@Override
 	public Object visit(AdditiveExpression additiveexpression, Object obj) {
 		if (obj instanceof AeObjectPattern) {
 			return super.visit(additiveexpression, obj);
@@ -267,11 +267,13 @@ public class AttributeReferenceFinder extends ObjectDepthFirst {
 		}
 	}
 
+	@Override
 	public Object visit(CellValue cellvalue, Object obj) {
 		AeCellValue aecellvalue = new AeCellValue(cellvalue);
 		return aecellvalue;
 	}
 
+	@Override
 	public Object visit(ColumnLiteral columnliteral, Object obj) {
 		AeColumnValue aecolumnvalue = null;
 		String s = columnliteral.nodeToken2.tokenImage;
@@ -298,6 +300,7 @@ public class AttributeReferenceFinder extends ObjectDepthFirst {
 		return obj;
 	}
 
+	@Override
 	public Object visit(ConditionalAndExpression conditionalandexpression, Object obj) {
 		if (obj instanceof AbstractAeCompoundCondition) {
 			return visit(conditionalandexpression, (AbstractAeCompoundCondition) obj);
@@ -323,6 +326,7 @@ public class AttributeReferenceFinder extends ObjectDepthFirst {
 		return obj;
 	}
 
+	@Override
 	public Object visit(ConditionalExpression conditionalexpression, Object obj) {
 		logger.debug("visit(ConditionalExpression,Object): " + conditionalexpression + "," + obj);
 		if (obj instanceof AbstractAeCompoundCondition) {
@@ -334,6 +338,7 @@ public class AttributeReferenceFinder extends ObjectDepthFirst {
 		}
 	}
 
+	@Override
 	public Object visit(Literal literal, Object parent) {
 		if (parent instanceof AeAttributePattern) {
 			Object obj1 = getLiteralValue(literal, parent);
@@ -393,6 +398,7 @@ public class AttributeReferenceFinder extends ObjectDepthFirst {
 		return obj;
 	}
 
+	@Override
 	public Object visit(MultiplicativeExpression multiplicativeexpression, Object obj) {
 		if (obj instanceof AeAttributePattern) {
 			return visit(multiplicativeexpression, (AeAttributePattern) obj);
@@ -430,6 +436,7 @@ public class AttributeReferenceFinder extends ObjectDepthFirst {
 		return obj;
 	}
 
+	@Override
 	public Object visit(Name name, Object parent) {
 		logger.debug(">>> visit(Name): " + name + "," + parent);
 		if (parent instanceof AeAttributePattern) {
@@ -455,6 +462,7 @@ public class AttributeReferenceFinder extends ObjectDepthFirst {
 		return aeobjectpattern;
 	}
 
+	@Override
 	public Object visit(ObjectCondition objectcondition, Object obj) {
 		logger.debug("visit(ObjectCondition,Object): " + objectcondition + "," + obj);
 		if (obj instanceof AbstractAeCompoundCondition) {
@@ -472,6 +480,7 @@ public class AttributeReferenceFinder extends ObjectDepthFirst {
 		return obj;
 	}
 
+	@Override
 	public Object visit(PrimaryExpression primaryexpression, Object obj) {
 		if (obj instanceof AeAttributePattern) {
 			return visit(primaryexpression, (AeAttributePattern) obj);
@@ -508,6 +517,7 @@ public class AttributeReferenceFinder extends ObjectDepthFirst {
 		return obj;
 	}
 
+	@Override
 	public Object visit(RelationalExpression relationalexpression, Object obj) {
 		logger.debug("visit(RelationalExpression,Object): " + relationalexpression + "," + obj);
 		if (obj instanceof AbstractAeCompoundCondition) {
@@ -538,6 +548,7 @@ public class AttributeReferenceFinder extends ObjectDepthFirst {
 		return super.visit(unaryexpression, formulaValue);
 	}
 
+	@Override
 	public Object visit(UnaryExpression unaryexpression, Object obj) {
 		if (obj instanceof AeAttributePattern) {
 			return visit(unaryexpression, (AeAttributePattern) obj);

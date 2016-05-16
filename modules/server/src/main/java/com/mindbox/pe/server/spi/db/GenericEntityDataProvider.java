@@ -14,32 +14,32 @@ import java.sql.SQLException;
  * @since PowerEditor 3.0.0
  */
 public interface GenericEntityDataProvider {
-	
-	void loadGenericEntities(EntityDataHolder entityDataHolder) throws SQLException;
-	
-	void loadEntityCompaitilityMatrix(EntityDataHolder entityDataHolder) throws SQLException;
-	
+
 	/**
 	 * 
-	 * @param entityDataHolder
-	 * @throws SQLException
+	 * @param entityDataHolder entityDataHolder
+	 * @throws SQLException on error
 	 * @since 3.1.0
 	 */
 	void loadCategories(EntityDataHolder entityDataHolder) throws SQLException;
-	
+
 	/**
 	 * 
-	 * @param entityDataHolder
-	 * @throws SQLException
+	 * @param entityDataHolder entityDataHolder
+	 * @throws SQLException on error
 	 * @since 5.1.0
 	 */
 	void loadCategoryParents(EntityDataHolder entityDataHolder) throws SQLException;
-	
+
+	void loadEntityCompaitilityMatrix(EntityDataHolder entityDataHolder) throws SQLException;
+
 	/**
 	 * 
-	 * @param entityDataHolder
-	 * @throws SQLException
+	 * @param entityDataHolder entityDataHolder
+	 * @throws SQLException on error
 	 * @since 3.1.0
 	 */
 	void loadEntityToCategories(EntityDataHolder entityDataHolder) throws SQLException;
+
+	void loadGenericEntities(EntityDataHolder entityDataHolder) throws SQLException;
 }

@@ -16,9 +16,10 @@ import java.util.logging.Logger;
 
 /**
  * This is a wrapper around Sybase JDBC driver (jConnect) to get around the
- * &quote;SET CHAINED command not allowed within multi-statement transaction&quote; issue.
+ * <em>SET CHAINED command not allowed within multi-statement transaction</em> issue.
  * <p>
  * This class requires Sybase jConnect driver.
+ * </p>
  * @author Geneho Kim
  * @since PowerEditor 4.2.0
  */

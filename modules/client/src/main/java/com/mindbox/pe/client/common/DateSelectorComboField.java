@@ -11,7 +11,6 @@ import java.awt.event.ActionListener;
 import java.util.Date;
 
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -30,20 +29,6 @@ import com.mindbox.pe.model.DateSynonym;
  * @since PowerEditor 4.2.0
  */
 public class DateSelectorComboField extends JPanel implements ActionListener {
-	public static class Test {
-
-		public static void main(String[] args) {
-			JFrame frame = new JFrame(/*"New Date Synonym");//*/"DateComboField Test");
-			frame.setBounds(100, 100, 600, 400);
-			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-			DateSelectorComboField dateField = new DateSelectorComboField();
-
-			frame.getContentPane().setLayout(new BorderLayout(12, 12));
-			frame.getContentPane().add(dateField, BorderLayout.NORTH);
-			frame.setVisible(true);
-		}
-	}
 
 	private static final long serialVersionUID = -3951228734910107454L;
 
@@ -52,9 +37,8 @@ public class DateSelectorComboField extends JPanel implements ActionListener {
 	private DateSynonymComboBox dsCombo;
 	private Date minDate, maxDate = null;
 
-
 	/**
-	 * Calling this is equivalent to <code>new DateSelectorComboField(true, true)</code>.
+	 * Calling this is equivalent to <code>new DateSelectorComboField(true, true, true)</code>.
 	 *
 	 */
 	public DateSelectorComboField() {
@@ -64,7 +48,8 @@ public class DateSelectorComboField extends JPanel implements ActionListener {
 	/**
 	 * Creates a new date selector combo field.
 	 * @param allowNewDates <code>true</code> iff this should allow users to create new date synonyms on the fly
-	 * @param hasEmpty
+	 * @param hasEmpty hasEmpty
+	 * @param createModel createModel
 	 */
 	public DateSelectorComboField(boolean allowNewDates, boolean hasEmpty, boolean createModel) {
 		UIFactory.setLookAndFeel(this);
@@ -178,6 +163,4 @@ public class DateSelectorComboField extends JPanel implements ActionListener {
 	public synchronized void setValue(DateSynonym dateSynonym) {
 		dsCombo.setValue(dateSynonym);
 	}
-
-
 }

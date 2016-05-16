@@ -11,10 +11,12 @@ public abstract class AbstractTemplateColumnRequest<T extends ResponseComm> exte
 
 
 	private final int columnID;
-	
+
 	/**
-	 * @param userID
-	 * @param sessionID
+	 * @param userID userID
+	 * @param sessionID sessionID
+	 * @param templateID templateID
+	 * @param columnID columnID
 	 */
 	protected AbstractTemplateColumnRequest(String userID, String sessionID, int templateID, int columnID) {
 		super(userID, sessionID, templateID);
