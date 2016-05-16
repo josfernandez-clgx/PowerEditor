@@ -61,12 +61,13 @@ public final class User implements Serializable, Auditable {
 
 	/**
 	 * This constructor is called only during import
-	 * @param userID
-	 * @param name
-	 * @param status
-	 * @param password
-	 * @param passwordChangeRequired
-	 * @param failedLoginCounter
+	 * @param userID userID
+	 * @param name name
+	 * @param status status
+	 * @param password password
+	 * @param passwordChangeRequired passwordChangeRequired
+	 * @param failedLoginCounter failedLoginCounter
+	 * @param lastFailedAttemptDate lastFailedAttemptDate
 	 */
 	public User(String userID, String name, String status, String password, boolean passwordChangeRequired, int failedLoginCounter, Date lastFailedAttemptDate) {
 		this(userID, name, status, passwordChangeRequired, failedLoginCounter, lastFailedAttemptDate, Collections.singletonList(new UserPassword(password, new Date())));
@@ -90,6 +91,7 @@ public final class User implements Serializable, Auditable {
 		return userData;
 	}
 
+	@Override
 	public Auditable deepCopy() {
 		return new User(this);
 	}
@@ -98,10 +100,12 @@ public final class User implements Serializable, Auditable {
 		return user.getUserID().equals(userId);
 	}
 
+	@Override
 	public String getAuditDescription() {
 		return "user '" + userId + "'";
 	}
 
+	@Override
 	public String getAuditName() {
 		return userId;
 	}
@@ -118,6 +122,7 @@ public final class User implements Serializable, Auditable {
 		return failedLoginCounter;
 	}
 
+	@Override
 	public int getID() {
 		// Just so User object implements Persistent
 		return userId.hashCode();
@@ -159,6 +164,7 @@ public final class User implements Serializable, Auditable {
 		return userId;
 	}
 
+	@Override
 	public int hashCode() {
 		return userId.hashCode();
 	}
@@ -199,7 +205,7 @@ public final class User implements Serializable, Auditable {
 	 * Should always be reset 0, when either there is successful login or when admin changes password
 	 * @author vineet khosla
 	 * @since PowerEditor 5.1
-	 * @param failedLoginCounter
+	 * @param failedLoginCounter failedLoginCounter
 	 */
 	public void setFailedLoginCounter(int failedLoginCounter) {
 		this.failedLoginCounter = failedLoginCounter;
@@ -241,6 +247,7 @@ public final class User implements Serializable, Auditable {
 		userId = s;
 	}
 
+	@Override
 	public String toString() {
 		return "User[" + userId + "]";
 	}

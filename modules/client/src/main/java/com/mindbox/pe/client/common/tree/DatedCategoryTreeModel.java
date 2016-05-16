@@ -52,6 +52,10 @@ public class DatedCategoryTreeModel extends DefaultTreeModel {
 
 	/**
 	 * Equivalent to <code>new DatedCategoryTreeModel(root,initialDate,dataProvider,showEntities,false)</code>.
+	 * @param root root
+	 * @param initialDate initialDate
+	 * @param dataProvider dataProvider
+	 * @param showEntities showEntities
 	 */
 	protected DatedCategoryTreeModel(GenericCategoryNode root, Date initialDate, DataProvider dataProvider, boolean showEntities) {
 		this(root, initialDate, dataProvider, showEntities, false);
@@ -90,6 +94,7 @@ public class DatedCategoryTreeModel extends DefaultTreeModel {
 
 	/**
 	 * Adds the specified category to this model.
+	 * @param category category
 	 * @throws NullPointerException if <code>category</code> is <code>null</code>
 	 */
 	public synchronized void addGenericCategory(GenericCategory category) {
@@ -113,7 +118,6 @@ public class DatedCategoryTreeModel extends DefaultTreeModel {
 	}
 
 	private void addGenericCategoryChildNode(GenericCategoryNode parent, GenericCategoryNode newChild) {
-		//		insertNodeInto(newChild, parent, parent.getChildCount());
 		parent.add(newChild);
 		nodesWereInserted(parent, new int[] { parent.getIndex(newChild) });
 	}
@@ -152,6 +156,7 @@ public class DatedCategoryTreeModel extends DefaultTreeModel {
 	/**
 	 * Makes sure the model is updated to reflect the changes to the specified category in this model.
 	 * This is a noop is the specified category is not found in this.
+	 * @param category category
 	 * @throws NullPointerException if <code>category</code> is <code>null</code>
 	 */
 	public synchronized void editGenericCategory(GenericCategory category) {
@@ -346,6 +351,7 @@ public class DatedCategoryTreeModel extends DefaultTreeModel {
 	/**
 	 * Removes the specified category from this model.
 	 * This is a noop is the specified category is not found in this.
+	 * @param category category
 	 * @throws NullPointerException if <code>category</code> is <code>null</code>
 	 * @throws IllegalArgumentException if <code>category</code> is represented by a root node
 	 */
@@ -361,6 +367,7 @@ public class DatedCategoryTreeModel extends DefaultTreeModel {
 	/**
 	 * Removes the specified entity from this model.
 	 * This is a noop is the specified entity is not found in this or if entity is turned off.
+	 * @param entity entity
 	 * @throws NullPointerException if <code>entity</code> is <code>null</code>
 	 */
 	public void removeGenericEntity(GenericEntity entity) {

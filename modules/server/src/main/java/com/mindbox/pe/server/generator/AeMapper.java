@@ -28,6 +28,7 @@ import com.mindbox.pe.server.config.ConfigurationManager;
 public final class AeMapper {
 
 	private static final ThreadLocal<DateFormat> DATE_FORMAT_THREADLOCAL = new ThreadLocal<DateFormat>() {
+		@Override
 		protected DateFormat initialValue() {
 			return new SimpleDateFormat("M/d/yy h:mm a");
 		}
@@ -75,9 +76,9 @@ public final class AeMapper {
 	/**
 	 * Equivalent to <code>getEnumAttributeIfApplicable(className, attribName, value, false)</code>.
 	 * 
-	 * @param className
-	 * @param attribName
-	 * @param value
+	 * @param className className
+	 * @param attribName attribName
+	 * @param value value
 	 * @return the enum attribute for the specified attribute and value
 	 */
 	public static String getEnumAttributeIfApplicable(String className, String attribName, String value) {
@@ -88,10 +89,10 @@ public final class AeMapper {
 	 * Gets the enum value if the specified class and attribute is an enum attribute. Returns
 	 * <code>null</code>, if not.
 	 * 
-	 * @param className
-	 * @param attribName
-	 * @param value
-	 * @param checkIfDeployValue
+	 * @param className className
+	 * @param attribName attribName
+	 * @param value value
+	 * @param checkIfDeployValue checkIfDeployValue
 	 * @return the enum attribute for the specified attribute and value
 	 */
 	public static String getEnumAttributeIfApplicable(String className, String attribName, String value, boolean checkIfDeployValue) {
@@ -105,7 +106,12 @@ public final class AeMapper {
 		String strippedValue = stripQuotes(value);
 
 		// pass flag indiciating if this is for a boolean attribute
-		String enumValueStr = DeploymentManager.getInstance().getEnumDeployValue(className, attribName, strippedValue, (deployType != null && deployType == DeployType.BOOLEAN), checkIfDeployValue);
+		String enumValueStr = DeploymentManager.getInstance().getEnumDeployValue(
+				className,
+				attribName,
+				strippedValue,
+				(deployType != null && deployType == DeployType.BOOLEAN),
+				checkIfDeployValue);
 		if (enumValueStr != null) {
 			if (deployType == DeployType.STRING) {
 				return QUOTE + enumValueStr + QUOTE;
@@ -264,16 +270,14 @@ public final class AeMapper {
 		stringbuffer.append("; Status=");
 		stringbuffer.append(generateParms.getStatus());
 		stringbuffer.append("; EffDate=");
-		String effDateDesc = (generateParms.getSunrise() == null ? null : String.format(
-				"%s[%s]",
-				generateParms.getSunrise().toString(),
-				DATE_FORMAT_THREADLOCAL.get().format(generateParms.getSunrise().getDate())));
+		String effDateDesc = (generateParms.getSunrise() == null
+				? null
+				: String.format("%s[%s]", generateParms.getSunrise().toString(), DATE_FORMAT_THREADLOCAL.get().format(generateParms.getSunrise().getDate())));
 		stringbuffer.append(effDateDesc);
 		stringbuffer.append("; ExpDate=");
-		String expDateDesc = (generateParms.getSunset() == null ? null : String.format(
-				"%s[%s]",
-				generateParms.getSunset().toString(),
-				DATE_FORMAT_THREADLOCAL.get().format(generateParms.getSunset().getDate())));
+		String expDateDesc = (generateParms.getSunset() == null
+				? null
+				: String.format("%s[%s]", generateParms.getSunset().toString(), DATE_FORMAT_THREADLOCAL.get().format(generateParms.getSunset().getDate())));
 		stringbuffer.append(expDateDesc);
 		return stringbuffer.toString();
 	}
@@ -283,7 +287,7 @@ public final class AeMapper {
 	 * consists of - ruleNameSeed: Specified in config file - nextRuleNumber: incremented per rule
 	 * starting at 1 - date: "D" followed by dd-MM-yyyy - time: "T" followed by HH-mm-ss
 	 * 
-	 * @param genParams
+	 * @param genParams genParams
 	 * @return the rule name
 	 */
 	public String generateRuleName(AbstractGenerateParms genParams) {
@@ -306,8 +310,8 @@ public final class AeMapper {
 	 * Equivalent to
 	 * <code>mapEnumValue(reference.getClassName(),reference.getAttributeName(),value)</code>.
 	 * 
-	 * @param reference
-	 * @param value
+	 * @param reference reference
+	 * @param value value
 	 * @return the enum value for the specified value and the reference
 	 */
 	public String mapEnumValue(Reference reference, String value) {
@@ -318,9 +322,10 @@ public final class AeMapper {
 	 * Gets the enum value if the specified class and attribute is an enum attribute. Returns an
 	 * error string, if not.
 	 * 
-	 * @param className
-	 * @param attribName
-	 * @param s2
+	 * @param className className
+	 * @param attribName attribName
+	 * @param s2 s2
+	 * @return mapped enum value
 	 */
 	public String mapEnumValue(String className, String attribName, String s2) {
 		DeployType deployType = null;
@@ -349,7 +354,11 @@ public final class AeMapper {
 
 	/**
 	 * Map investor name to AE value. SGS - 5/7/03
+	 * @param s string
+	 * @return mapped name
+	 * @deprecated Investor no longer user
 	 */
+	@Deprecated
 	public String mapInvestorName(String s) {
 		String s1 = s.replace(' ', '-');
 		return s1;

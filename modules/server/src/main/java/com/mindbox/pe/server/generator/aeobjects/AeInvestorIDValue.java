@@ -15,12 +15,13 @@ import com.mindbox.pe.server.parser.jtb.rule.syntaxtree.Node;
 public class AeInvestorIDValue extends AbstractAeValue {
 
 	/**
-	 * @param node
+	 * @param node node
 	 */
 	public AeInvestorIDValue(Node node) {
 		super(node);
 	}
-	
+
+	@Override
 	public String toString() {
 		return "%investorID%";
 	}

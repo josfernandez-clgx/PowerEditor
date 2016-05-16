@@ -2,7 +2,7 @@ package com.mindbox.pe.server.generator.rule;
 
 
 /**
- * Concrete implementation of {@link ValueSlot} of type {@value ValueSlot#FOCUS_OF_ATTENTION}.
+ * Concrete implementation of {@link ValueSlot} of type {@link ValueSlot.Type#FOCUS_OF_ATTENTION}.
  *
  */
 public class FocusOfAttentionPatternValueSlot extends AbstractPatternValueSlot {

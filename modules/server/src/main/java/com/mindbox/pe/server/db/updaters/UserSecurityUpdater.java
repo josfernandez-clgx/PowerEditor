@@ -109,9 +109,9 @@ public class UserSecurityUpdater implements UserDataUpdater {
 	 * Deletes a privelege from MB_Privilege table in the Database. Also deletes
 	 * all role-privilege relationships for that privilege in the MB_ROLE_PRIVILEGE
 	 * table.
-	 * @param connection
-	 * @param priv
-	 * @throws SQLException
+	 * @param connection connection
+	 * @param priv priv
+	 * @throws SQLException on error
 	 */
 	public void deletePrivilege(Connection connection, Privilege priv) throws SQLException {
 		PreparedStatement ps = null;
@@ -150,15 +150,15 @@ public class UserSecurityUpdater implements UserDataUpdater {
 
 	/**
 	 * Deletes a list of privileges for a specific role
-	 * @param connection
-	 * @param privilege_idsView
-	 * @param roleID
-	 * @throws SQLException
+	 * @param connection connection
+	 * @param privilegeIds privilege ids
+	 * @param roleID roleID
+	 * @throws SQLException on error
 	 */
-	protected void deletePrivilegeRole(Connection connection, List<Integer> privilege_ids, int roleID) throws SQLException {
+	protected void deletePrivilegeRole(Connection connection, List<Integer> privilegeIds, int roleID) throws SQLException {
 		PreparedStatement ps = null;
 		try {
-			for (Iterator<Integer> itr = privilege_ids.iterator(); itr.hasNext();) {
+			for (Iterator<Integer> itr = privilegeIds.iterator(); itr.hasNext();) {
 				ps = connection.prepareStatement(Q_DELETE_ROLE_PRIVILEGE_2);
 				Integer privilege_id = itr.next();
 				ps.setInt(1, roleID);
@@ -298,8 +298,6 @@ public class UserSecurityUpdater implements UserDataUpdater {
 
 	/**
 	 * Deletes user roles.
-	 * The {@link #updateUser(String, String, String, String, int[], int[], int[])} and
-	 * {@link #deleteUser(String)} methods calls this.
 	 * @param connection DB connection
 	 * @param userID user id
 	 * @throws SQLException on error
@@ -328,9 +326,9 @@ public class UserSecurityUpdater implements UserDataUpdater {
 
 	/**
 	 * Inserts a privilege to MB_Privilege table in the db
-	 * @param connection
-	 * @param priv
-	 * @throws SQLException
+	 * @param connection connection
+	 * @param priv priv
+	 * @throws SQLException on error
 	 */
 	public void insertPrivilege(Connection connection, Privilege priv) throws SQLException {
 		PreparedStatement ps = null;
@@ -363,10 +361,10 @@ public class UserSecurityUpdater implements UserDataUpdater {
 
 	/** 
 	 * Adds privilege-role relationship. Also checks if that relationship exists or not before adding it.
-	 * @param connection
-	 * @param privilegeIds
-	 * @param roleId
-	 * @throws SQLException
+	 * @param connection connection
+	 * @param privilegeIds privilegeIds
+	 * @param roleId roleId
+	 * @throws SQLException on error
 	 * @since 5.0.0  
 	 */
 	public void insertPrivilegeRole(Connection connection, List<Integer> privilegeIds, int roleId) throws SQLException {
@@ -407,9 +405,10 @@ public class UserSecurityUpdater implements UserDataUpdater {
 
 	/** Adds privilege-role relationships.
 	 * All new privileges created from config file are assigned to all existing roles
-	 * @param connection
-	 * @param priv
-	 * @throws SQLException
+	 * @param connection connection
+	 * @param priv priv
+	 * @param roles roles
+	 * @throws SQLException on error
 	 */
 	public void insertPrivilegeRoles(final Connection connection, final Privilege priv, final List<Role> roles) throws SQLException {
 		PreparedStatement ps = null;
@@ -495,8 +494,8 @@ public class UserSecurityUpdater implements UserDataUpdater {
 	 * Calls {@link #insertUserRoles(Connection, String, int[])}.
 	 */
 	@Override
-	public void insertUser(String userID, String name, String status, boolean reset_password, int failedLoginCounter, int[] roleIDs, List<UserPassword> passwordHistory, String actingUserID)
-			throws SQLException {
+	public void insertUser(String userID, String name, String status, boolean reset_password, int failedLoginCounter, int[] roleIDs, List<UserPassword> passwordHistory,
+			String actingUserID) throws SQLException {
 		logger.debug(">>> insertUser: " + userID + ",name=" + name + ",status=" + status);
 		Connection connection = getConnection();
 		connection.setAutoCommit(false);
@@ -565,8 +564,6 @@ public class UserSecurityUpdater implements UserDataUpdater {
 
 	/**
 	 * Inserts user roles.
-	 * The {@link #insertUser(String, String, String, String, int[], int[], int[])} and
-	 * {@link #updateUser(String, String, String, String, int[], int[], int[])} methods call this.
 	 * @param connection DB connection
 	 * @param userID user id
 	 * @param roleIDs role ids
@@ -596,17 +593,19 @@ public class UserSecurityUpdater implements UserDataUpdater {
 
 	/**
 	 * Loads all privilegeIds which are currently in the database based on privilege_type
-	 * @param connection
-	 * @throws SQLException
+	 * @param connection connection
+	 * @param privilegeType privilege type
+	 * @return privilege id list
+	 * @throws SQLException on error
 	 * @since 5.0.0
 	 */
-	public List<Integer> loadPrivilegeIds(Connection connection, int privilege_type) throws SQLException {
+	public List<Integer> loadPrivilegeIds(Connection connection, int privilegeType) throws SQLException {
 		LinkedList<Integer> privilegeIds = new LinkedList<Integer>();
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			ps = connection.prepareStatement(Q_LOAD_PRIVILEGE_IDS);
-			ps.setInt(1, privilege_type);
+			ps.setInt(1, privilegeType);
 			rs = ps.executeQuery();
 
 			while (rs.next()) {
@@ -624,20 +623,20 @@ public class UserSecurityUpdater implements UserDataUpdater {
 	/**
 	 * Loads all privilegeIds which are currently in the database based on privilege_type and a 
 	 * partial string match
-	 * @param connection
-	 * @param privilege_type
-	 * @param patternToMatch
+	 * @param connection connection
+	 * @param privilegeType privilegeType
+	 * @param patternToMatch patternToMatch
 	 * @return privilegeIds
-	 * @throws SQLException
+	 * @throws SQLException on error
 	 * @since 5.0.0
 	 */
-	public List<Integer> loadPrivilegeIds(Connection connection, int privilege_type, String patternToMatch) throws SQLException {
+	public List<Integer> loadPrivilegeIds(Connection connection, int privilegeType, String patternToMatch) throws SQLException {
 		LinkedList<Integer> privilegeIds = new LinkedList<Integer>();
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			ps = connection.prepareStatement(Q_LOAD_PRIVILEGE_IDS_ON_NAME);
-			ps.setInt(1, privilege_type);
+			ps.setInt(1, privilegeType);
 			ps.setString(2, patternToMatch);
 			rs = ps.executeQuery();
 
@@ -655,9 +654,9 @@ public class UserSecurityUpdater implements UserDataUpdater {
 
 	/** 
 	 * Loads all privileges from the MB_Privilege table to a hashmap.
-	 * @param connection
+	 * @param connection connection
 	 * @return HashMap of privileges
-	 * @throws SQLException
+	 * @throws SQLException on error
 	 * @since 5.0.0
 	 */
 	public List<Privilege> loadPrivileges(Connection connection) throws SQLException {
@@ -691,11 +690,13 @@ public class UserSecurityUpdater implements UserDataUpdater {
 
 	/**
 	 * Loads roles to a linked list. These roles have no privileges attached to them.
-	 * This list is used in {@link #insertPrivilegeRoles(Connection ,Privilege )} to
+	 * This list is used in {@link #insertPrivilegeRoles(Connection, Privilege, List)} to
 	 * add privilege-role relationship in MB_ROLE_PRIVILEGE table when a new privilege
 	 * is added from the config file
-	 * @param connection
-	 * @throws SQLException
+	 * @param connection connection
+	 * @param privileges privileges
+	 * @return roles
+	 * @throws SQLException on error
 	 * @since 5.0.0
 	 */
 	public List<Role> loadRoles(Connection connection, final List<Privilege> privileges) throws SQLException {
@@ -776,9 +777,9 @@ public class UserSecurityUpdater implements UserDataUpdater {
 
 	/**
 	 * Updates the display_string and privilege_name of a privilege in MB_Privilege table
-	 * @param connection
-	 * @param priv
-	 * @throws SQLException
+	 * @param connection connection
+	 * @param priv priv
+	 * @throws SQLException on error
 	 */
 	public void updatePrivilege(Connection connection, Privilege priv) throws SQLException {
 		PreparedStatement ps = null;
@@ -868,9 +869,9 @@ public class UserSecurityUpdater implements UserDataUpdater {
 	}
 
 	/**
-	 * @param roleID
-	 * @param unknownPrivsForRole
-	 * @throws SQLException
+	 * @param roleID roleID
+	 * @param unknownPrivsForRole unknownPrivsForRole
+	 * @throws SQLException on error
 	 * @since 5.0.0
 	 */
 	public void updateUnknownPrivileges(int roleID, List<String> unknownPrivsForRole) throws SQLException {
@@ -934,8 +935,8 @@ public class UserSecurityUpdater implements UserDataUpdater {
 	 * and {@link #deleteUserRoles(Connection, String)}.
 	 */
 	@Override
-	public void updateUser(String userID, String name, String status, boolean passwordChangeRequired, int failedLoginCounter, int[] roleIDs, List<UserPassword> passwordHistory, String actingUserID)
-			throws SQLException {
+	public void updateUser(String userID, String name, String status, boolean passwordChangeRequired, int failedLoginCounter, int[] roleIDs, List<UserPassword> passwordHistory,
+			String actingUserID) throws SQLException {
 		logger.debug(">>> updateUser: " + userID + ",name=" + name + ",status=" + status + ",passwordChangeRequired=" + passwordChangeRequired);
 		PreparedStatement ps = null;
 		Connection connection = getConnection();

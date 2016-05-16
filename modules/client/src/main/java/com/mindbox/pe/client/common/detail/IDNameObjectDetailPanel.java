@@ -21,20 +21,18 @@ import com.mindbox.pe.model.PeDataType;
  * @since PowerEditor 1.10.0
  */
 public abstract class IDNameObjectDetailPanel<T extends IDNameObject, B extends ButtonPanel> extends AbstractDetailPanel<T, B> {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -3951228734910107454L;
 
 	private JTextField nameField;
 
 	/**
-	 * @param entityType
+	 * @param entityType entityType
 	 */
 	public IDNameObjectDetailPanel(PeDataType entityType) {
 		super(entityType);
 	}
 
+	@Override
 	protected void addComponents(GridBagLayout bag, GridBagConstraints c) {
 		this.nameField = new JTextField(10);
 
@@ -51,6 +49,7 @@ public abstract class IDNameObjectDetailPanel<T extends IDNameObject, B extends 
 		nameField.getDocument().addDocumentListener(dl);
 	}
 
+	@Override
 	public void clearFields() {
 		setForViewOnly(true);
 		nameField.setText("");
@@ -61,10 +60,12 @@ public abstract class IDNameObjectDetailPanel<T extends IDNameObject, B extends 
 		return nameField.getText();
 	}
 
+	@Override
 	protected void populateDetails(T object) {
 		this.nameField.setText(object.getName());
 	}
 
+	@Override
 	public void populateForClone(T object) {
 		this.currentObject = null;
 		this.nameField.setText(object.getName() + Constants.COPY_TEXT);
@@ -74,6 +75,7 @@ public abstract class IDNameObjectDetailPanel<T extends IDNameObject, B extends 
 		nameField.getDocument().removeDocumentListener(dl);
 	}
 
+	@Override
 	protected void setEnabledFields(boolean enabled) {
 		nameField.setEnabled(enabled);
 	}
@@ -84,6 +86,7 @@ public abstract class IDNameObjectDetailPanel<T extends IDNameObject, B extends 
 	 * @throws InputValidationException if an input field contains an invalid entry
 	 * @since PowerEditor 4.2.0.
 	 */
+	@Override
 	protected void validateFields() throws InputValidationException {
 		if (nameField.getText().equals("")) throw new InputValidationException(ClientUtil.getInstance().getMessage("msg.warning.invalid.no.name"));
 	}

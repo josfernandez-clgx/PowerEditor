@@ -36,9 +36,6 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
-import mseries.ui.MChangeEvent;
-import mseries.ui.MChangeListener;
-
 import com.mindbox.pe.client.ClientUtil;
 import com.mindbox.pe.client.InputValidationException;
 import com.mindbox.pe.client.applet.UIFactory;
@@ -74,6 +71,9 @@ import com.mindbox.pe.model.template.GridTemplate;
 import com.mindbox.pe.model.template.GridTemplateColumn;
 import com.mindbox.pe.xsd.config.GuidelineTab;
 
+import mseries.ui.MChangeEvent;
+import mseries.ui.MChangeListener;
+
 /**
  * Template detail panel.
  * @author Geneho Kim
@@ -81,71 +81,10 @@ import com.mindbox.pe.xsd.config.GuidelineTab;
  * @since PowerEditor 4.0.0
  */
 public class TemplateDetailPanel extends PanelBase implements GuidelineTemplateSelectionListener, PowerEditorTabPanel {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3951228734910107454L;
-
-
-	private final class NewL extends AbstractThreadedActionAdapter {
-
-		public void performAction(ActionEvent e) {
-			try {
-				GridTemplate template = TemplateWizardDialog.createTemplate((lastSelectedUsage == null ? templateSelectionPanel.getLastSelectedUsageType() : lastSelectedUsage));
-
-				if (template != null) {
-					template.setVersion(GridTemplate.DEFAULT_VERSION);
-					templateSelected(template);
-
-					setEnabled(true);
-					isInDB = false;
-					setHasChangesStatus(true);
-				}
-			}
-			catch (Exception ex) {
-				ClientUtil.handleRuntimeException(ex);
-			}
-		}
-	}
-
-	private final class MakeVersionL extends AbstractThreadedActionAdapter {
-
-		public void performAction(ActionEvent e) {
-			if (template != null) {
-				GridTemplate clonedTemplate = new GridTemplate();
-				clonedTemplate.copyFrom(template);
-				clonedTemplate.setID(-1);
-				final NewTemplateCutOverDetail newTemplateCutOverDetail = TemplateNewVersionDialog.newTemplateVersion(template.getID(), clonedTemplate);
-				if (newTemplateCutOverDetail.getDateSynonym() == null) {
-					clonedTemplate = null;
-				}
-				else {
-					try {
-						final int newID = ClientUtil.getCommunicator().makeNewVersion(
-								template.getID(),
-								clonedTemplate,
-								newTemplateCutOverDetail.getDateSynonym(),
-								newTemplateCutOverDetail.getGuidelinesToCutOver());
-						clonedTemplate.setID(newID);
-
-						templateSelectionPanel.addTemplate(clonedTemplate);
-
-						isInDB = true;
-						setEnabled(true);
-						setHasChangesStatus(false);
-
-						templateSelected(clonedTemplate);
-					}
-					catch (Exception ex) {
-						ClientUtil.handleRuntimeException(ex);
-					}
-				}
-			}
-		}
-	}
 
 	private final class CopyL extends AbstractThreadedActionAdapter {
 
+		@Override
 		public void performAction(ActionEvent e) {
 			if (template == null) return;
 			String newName = JOptionPane.showInputDialog(
@@ -183,53 +122,11 @@ public class TemplateDetailPanel extends PanelBase implements GuidelineTemplateS
 		}
 	}
 
-	private final class SaveL extends AbstractThreadedActionAdapter {
-
-		public void performAction(ActionEvent e) {
-			try {
-				saveTemplate_internal();
-				// this is needed in case a new column has been added.
-				ruleMessagePanel.refreshColumns();
-
-				isInDB = true;
-			}
-			catch (ValidationException ex) {
-				ex.showAsWarning();
-			}
-			catch (ServerException ex) {
-				ClientUtil.handleRuntimeException(ex);
-			}
-			catch (InputValidationException ex) {
-				ClientUtil.getInstance().showWarning("msg.warning.validation.input", new Object[] { ex.getMessage() });
-			}
-		}
-	}
-
-	private final class EditL extends AbstractThreadedActionAdapter {
-
-		public void performAction(ActionEvent e) {
-			if (template != null) {
-				try {
-					ClientUtil.getCommunicator().lock(template.getID(), PeDataType.TEMPLATE);
-
-					setEnabled(true);
-					editButton.setEnabled(false);
-					//setHasChangesStatus(true);
-				}
-				catch (ServerException ex) {
-					ClientUtil.handleRuntimeException(ex);
-				}
-			}
-		}
-	}
-
 	private final class DeleteL extends AbstractThreadedActionAdapter {
 
+		@Override
 		public void performAction(ActionEvent e) {
 			// TT 953 - ask to delete guidelines for the template as well
-			//Boolean deleteGuidelines = ClientUtil.getInstance().showConfirmationWithCancel("msg.question.delete.guidelines");
-			//if (deleteGuidelines == null) return;
-
 			// delete template
 			if (template != null) {
 				try {
@@ -256,35 +153,84 @@ public class TemplateDetailPanel extends PanelBase implements GuidelineTemplateS
 
 	private class DetailChangeL implements DetailChangeListener {
 
+		@Override
 		public void detailChanged() {
 			setHasChangesStatus(true);
-			//saveButton.setEnabled(true);
 		}
 
+		@Override
 		public void detailSaved() {
 			setHasChangesStatus(false);
-			//saveButton.setEnabled(false);
 		}
 	}
 
-	public class FieldChangeListener implements ActionListener, DocumentListener, MChangeListener, ListSelectionListener, RuleChangeListener, TableModelListener, ChangeListener, ListDataListener {
+	private final class EditL extends AbstractThreadedActionAdapter {
 
-		public final void changedUpdate(DocumentEvent arg0) {
+		@Override
+		public void performAction(ActionEvent e) {
+			if (template != null) {
+				try {
+					ClientUtil.getCommunicator().lock(template.getID(), PeDataType.TEMPLATE);
+
+					setEnabled(true);
+					editButton.setEnabled(false);
+				}
+				catch (ServerException ex) {
+					ClientUtil.handleRuntimeException(ex);
+				}
+			}
 		}
+	}
 
-		public final void insertUpdate(DocumentEvent arg0) {
-			fireDetailChanged();
-		}
+	public class FieldChangeListener
+			implements ActionListener, DocumentListener, MChangeListener, ListSelectionListener, RuleChangeListener, TableModelListener, ChangeListener, ListDataListener {
 
-		public final void removeUpdate(DocumentEvent arg0) {
-			fireDetailChanged();
-		}
-
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			fireDetailChanged();
 		}
 
-		public void valueChanged(MChangeEvent arg0) {
+		@Override
+		public final void changedUpdate(DocumentEvent arg0) {
+		}
+
+		@Override
+		public void contentsChanged(ListDataEvent arg0) {
+			fireDetailChanged();
+		}
+
+		@Override
+		public final void insertUpdate(DocumentEvent arg0) {
+			fireDetailChanged();
+		}
+
+		@Override
+		public void intervalAdded(ListDataEvent arg0) {
+			fireDetailChanged();
+		}
+
+		@Override
+		public void intervalRemoved(ListDataEvent arg0) {
+			fireDetailChanged();
+		}
+
+		@Override
+		public final void removeUpdate(DocumentEvent arg0) {
+			fireDetailChanged();
+		}
+
+		@Override
+		public void ruleChanged() {
+			fireDetailChanged();
+		}
+
+		@Override
+		public void stateChanged(ChangeEvent arg0) {
+			fireDetailChanged();
+		}
+
+		@Override
+		public void tableChanged(TableModelEvent arg0) {
 			fireDetailChanged();
 		}
 
@@ -292,61 +238,206 @@ public class TemplateDetailPanel extends PanelBase implements GuidelineTemplateS
 			fireDetailChanged();
 		}
 
+		@Override
 		public void valueChanged(ListSelectionEvent arg0) {
 			fireDetailChanged();
 		}
 
-		public void tableChanged(TableModelEvent arg0) {
+		@Override
+		public void valueChanged(MChangeEvent arg0) {
 			fireDetailChanged();
 		}
+	}
 
-		public void ruleChanged() {
-			fireDetailChanged();
-		}
+	private final class MakeVersionL extends AbstractThreadedActionAdapter {
 
-		public void stateChanged(ChangeEvent arg0) {
-			fireDetailChanged();
-		}
+		@Override
+		public void performAction(ActionEvent e) {
+			if (template != null) {
+				GridTemplate clonedTemplate = new GridTemplate();
+				clonedTemplate.copyFrom(template);
+				clonedTemplate.setID(-1);
+				final NewTemplateCutOverDetail newTemplateCutOverDetail = TemplateNewVersionDialog.newTemplateVersion(template.getID(), clonedTemplate);
+				if (newTemplateCutOverDetail.getDateSynonym() == null) {
+					clonedTemplate = null;
+				}
+				else {
+					try {
+						final int newID = ClientUtil.getCommunicator().makeNewVersion(
+								template.getID(),
+								clonedTemplate,
+								newTemplateCutOverDetail.getDateSynonym(),
+								newTemplateCutOverDetail.getGuidelinesToCutOver());
+						clonedTemplate.setID(newID);
 
-		public void intervalAdded(ListDataEvent arg0) {
-			fireDetailChanged();
-		}
+						templateSelectionPanel.addTemplate(clonedTemplate);
 
-		public void intervalRemoved(ListDataEvent arg0) {
-			fireDetailChanged();
-		}
+						isInDB = true;
+						setEnabled(true);
+						setHasChangesStatus(false);
 
-		public void contentsChanged(ListDataEvent arg0) {
-			fireDetailChanged();
+						templateSelected(clonedTemplate);
+					}
+					catch (Exception ex) {
+						ClientUtil.handleRuntimeException(ex);
+					}
+				}
+			}
 		}
+	}
+
+	private final class NewL extends AbstractThreadedActionAdapter {
+
+		@Override
+		public void performAction(ActionEvent e) {
+			try {
+				GridTemplate template = TemplateWizardDialog.createTemplate((lastSelectedUsage == null ? templateSelectionPanel.getLastSelectedUsageType() : lastSelectedUsage));
+
+				if (template != null) {
+					template.setVersion(GridTemplate.DEFAULT_VERSION);
+					templateSelected(template);
+
+					setEnabled(true);
+					isInDB = false;
+					setHasChangesStatus(true);
+				}
+			}
+			catch (Exception ex) {
+				ClientUtil.handleRuntimeException(ex);
+			}
+		}
+	}
+
+	private final class SaveL extends AbstractThreadedActionAdapter {
+
+		@Override
+		public void performAction(ActionEvent e) {
+			try {
+				saveTemplate_internal();
+				// this is needed in case a new column has been added.
+				ruleMessagePanel.refreshColumns();
+
+				isInDB = true;
+			}
+			catch (ValidationException ex) {
+				ex.showAsWarning();
+			}
+			catch (ServerException ex) {
+				ClientUtil.handleRuntimeException(ex);
+			}
+			catch (InputValidationException ex) {
+				ClientUtil.getInstance().showWarning("msg.warning.validation.input", new Object[] { ex.getMessage() });
+			}
+		}
+	}
+
+	private static final long serialVersionUID = -3951228734910107454L;
+
+	/*
+	New Column Type     Invalid Data When Old Column Type Was
+	---------------     -------------------------------------
+	Boolean             <All>
+	Currency            <All except Float, Integer>
+	Currency Range      <All except Float Range, Integer Range>
+	Date                <All>
+	Date Range          <All>
+	Dynamic String      <None>
+	Entity List         <All>
+	Enum List           <All>
+	Float               <All except Currency, Integer>
+	Float Range         <All except Currency Range, Integer Range>
+	Integer             <All>
+	Integer Range       <All>
+	Time Range          <All>
+	String              <None>
+	Symbol              <All except Float, Integer, Currency>
+	 */
+	private static final Map<String, Set<String>> NEW_COLUMN_TYPE_TO_COMPATIBLE_OLD_COLUMN_TYPES_MAP;
+	static {
+		NEW_COLUMN_TYPE_TO_COMPATIBLE_OLD_COLUMN_TYPES_MAP = new HashMap<String, Set<String>>(15, 1.0f);
+
+		// Types for which no old value is compatible, regardless of old column type
+		NEW_COLUMN_TYPE_TO_COMPATIBLE_OLD_COLUMN_TYPES_MAP.put(ColumnDataSpecDigest.TYPE_BOOLEAN, new HashSet<String>());
+		NEW_COLUMN_TYPE_TO_COMPATIBLE_OLD_COLUMN_TYPES_MAP.put(ColumnDataSpecDigest.TYPE_DATE, new HashSet<String>());
+		NEW_COLUMN_TYPE_TO_COMPATIBLE_OLD_COLUMN_TYPES_MAP.put(ColumnDataSpecDigest.TYPE_DATE_RANGE, new HashSet<String>());
+		NEW_COLUMN_TYPE_TO_COMPATIBLE_OLD_COLUMN_TYPES_MAP.put(ColumnDataSpecDigest.TYPE_ENTITY, new HashSet<String>());
+		NEW_COLUMN_TYPE_TO_COMPATIBLE_OLD_COLUMN_TYPES_MAP.put(ColumnDataSpecDigest.TYPE_ENUM_LIST, new HashSet<String>());
+		NEW_COLUMN_TYPE_TO_COMPATIBLE_OLD_COLUMN_TYPES_MAP.put(ColumnDataSpecDigest.TYPE_INTEGER, new HashSet<String>());
+		NEW_COLUMN_TYPE_TO_COMPATIBLE_OLD_COLUMN_TYPES_MAP.put(ColumnDataSpecDigest.TYPE_INTEGER_RANGE, new HashSet<String>());
+		NEW_COLUMN_TYPE_TO_COMPATIBLE_OLD_COLUMN_TYPES_MAP.put(ColumnDataSpecDigest.TYPE_TIME_RANGE, new HashSet<String>());
+
+		// Types for which all old values are compatible, regardless of old column type
+		String[] allTypes = new String[] {
+				ColumnDataSpecDigest.TYPE_BOOLEAN,
+				ColumnDataSpecDigest.TYPE_CURRENCY,
+				ColumnDataSpecDigest.TYPE_CURRENCY_RANGE,
+				ColumnDataSpecDigest.TYPE_DATE,
+				ColumnDataSpecDigest.TYPE_DATE_RANGE,
+				ColumnDataSpecDigest.TYPE_DYNAMIC_STRING,
+				ColumnDataSpecDigest.TYPE_ENTITY,
+				ColumnDataSpecDigest.TYPE_ENUM_LIST,
+				ColumnDataSpecDigest.TYPE_FLOAT,
+				ColumnDataSpecDigest.TYPE_FLOAT_RANGE,
+				ColumnDataSpecDigest.TYPE_INTEGER,
+				ColumnDataSpecDigest.TYPE_INTEGER_RANGE,
+				ColumnDataSpecDigest.TYPE_TIME_RANGE,
+				ColumnDataSpecDigest.TYPE_STRING,
+				ColumnDataSpecDigest.TYPE_SYMBOL };
+		NEW_COLUMN_TYPE_TO_COMPATIBLE_OLD_COLUMN_TYPES_MAP.put(ColumnDataSpecDigest.TYPE_DYNAMIC_STRING, new HashSet<String>(Arrays.asList(allTypes)));
+		NEW_COLUMN_TYPE_TO_COMPATIBLE_OLD_COLUMN_TYPES_MAP.put(ColumnDataSpecDigest.TYPE_STRING, new HashSet<String>(Arrays.asList(allTypes)));
+
+		// Types for which there are specific old type to new type compatibilities
+		NEW_COLUMN_TYPE_TO_COMPATIBLE_OLD_COLUMN_TYPES_MAP.put(
+				ColumnDataSpecDigest.TYPE_CURRENCY,
+				new HashSet<String>(Arrays.asList(new String[] { ColumnDataSpecDigest.TYPE_FLOAT, ColumnDataSpecDigest.TYPE_INTEGER })));
+		NEW_COLUMN_TYPE_TO_COMPATIBLE_OLD_COLUMN_TYPES_MAP.put(
+				ColumnDataSpecDigest.TYPE_CURRENCY_RANGE,
+				new HashSet<String>(Arrays.asList(new String[] { ColumnDataSpecDigest.TYPE_FLOAT_RANGE, ColumnDataSpecDigest.TYPE_INTEGER_RANGE })));
+		NEW_COLUMN_TYPE_TO_COMPATIBLE_OLD_COLUMN_TYPES_MAP.put(
+				ColumnDataSpecDigest.TYPE_FLOAT,
+				new HashSet<String>(Arrays.asList(new String[] { ColumnDataSpecDigest.TYPE_CURRENCY, ColumnDataSpecDigest.TYPE_INTEGER })));
+		NEW_COLUMN_TYPE_TO_COMPATIBLE_OLD_COLUMN_TYPES_MAP.put(
+				ColumnDataSpecDigest.TYPE_FLOAT_RANGE,
+				new HashSet<String>(Arrays.asList(new String[] { ColumnDataSpecDigest.TYPE_CURRENCY_RANGE, ColumnDataSpecDigest.TYPE_INTEGER_RANGE })));
+		NEW_COLUMN_TYPE_TO_COMPATIBLE_OLD_COLUMN_TYPES_MAP.put(
+				ColumnDataSpecDigest.TYPE_SYMBOL,
+				new HashSet<String>(Arrays.asList(new String[] { ColumnDataSpecDigest.TYPE_FLOAT, ColumnDataSpecDigest.TYPE_INTEGER, ColumnDataSpecDigest.TYPE_CURRENCY })));
+	}
+
+	private static GuidelineReportSpec initValidationErrorReportSpec() {
+		GuidelineReportSpec spec = new GuidelineReportSpec();
+		spec.setCreatedDateOn(true);
+		spec.setStatusOn(true);
+		spec.setStatusChangeDateOn(true);
+		spec.setCommentsOn(true);
+		spec.setGridOn(true);
+		return spec;
 	}
 
 	private final JButton newButton;
 	private final JButton editButton;
 	private final JButton saveButton;
+
 	private final JButton deleteButton;
 	private final JButton cloneButton;
-	private final JButton versionButton;
 
+	private final JButton versionButton;
 	private GridTemplate template = null;
 	private TemplateUsageType lastSelectedUsage = null;
-
 	private final TemplateDescriptionPanel descriptionPanel;
 	private final TemplateColumnsPanel columnPanel;
+
 	private final TemplateRuleMessagePanel ruleMessagePanel;
 	private final GuidelineTemplateSelectionPanel templateSelectionPanel;
 	private final JTabbedPane templateTab;
-
 	private final List<DetailChangeListener> changeListenerList;
+
 	private boolean hasChanges = false;
+
 	private boolean isInDB = true;
+
 	private FieldChangeListener fieldChangeListener = null;
 
-	/**
-	 * 
-	 * @param templateSelectionPanel
-	 * @throws ServerException
-	 */
 	public TemplateDetailPanel(GuidelineTemplateSelectionPanel templateSelectionPanel) throws ServerException {
 		this.templateSelectionPanel = templateSelectionPanel;
 		this.changeListenerList = new ArrayList<DetailChangeListener>();
@@ -377,15 +468,73 @@ public class TemplateDetailPanel extends PanelBase implements GuidelineTemplateS
 		saveButton.setEnabled(false);
 	}
 
-	public JButton[] getTemplateButtons() {
-		return templateSelectionPanel.isReadOnly() ? new JButton[0] : new JButton[] { newButton, cloneButton, versionButton, deleteButton };
+	public final void addDetailChangeListener(DetailChangeListener dcl) {
+		synchronized (changeListenerList) {
+			if (!changeListenerList.contains(dcl)) {
+				changeListenerList.add(dcl);
+			}
+		}
 	}
 
-	FieldChangeListener getFieldChangeListener() {
-		if (fieldChangeListener == null) {
-			fieldChangeListener = new FieldChangeListener();
+	private void addError(LinkedList<GuidelineReportData> errorReportDataList, GuidelineContext[] context, AbstractGuidelineGrid grid, int rowIndex, int columnIndex,
+			String errorDesc) {
+		AbstractTemplateCore<GridTemplateColumn> template = grid.getTemplate();
+
+		if (isNewGuideline(grid, context, errorReportDataList)) {
+			// This is the first error for this Guideline.
+			GuidelineReportData reportData = new GuidelineReportData(
+					template.getID(),
+					grid.getID(),
+					template.getName(),
+					template.getUsageType(),
+					template.getVersion(),
+					context,
+					grid.getCreationDate(),
+					grid.getEffectiveDate(),
+					grid.getExpirationDate(),
+					false);
+
+			errorReportDataList.add(reportData);
+
+			reportData.getCellSubset().add(new GridCellCoordinates(rowIndex, columnIndex, errorDesc));
+
 		}
-		return fieldChangeListener;
+		else {
+			// This Guideline already has at least one error (in some cell, maybe not this one).
+			GuidelineReportData reportData = errorReportDataList.getLast();
+			GridCellCoordinates existingCoords = reportData.getCellSubset().get(rowIndex, columnIndex);
+
+			if (existingCoords == null) {
+				// first error for this cell
+				reportData.getCellSubset().add(new GridCellCoordinates(rowIndex, columnIndex, errorDesc));
+			}
+			else {
+				// already an error of a different type in this cell
+				existingCoords.setPayload(existingCoords.getPayload().toString() + ", " + errorDesc);
+			}
+		}
+	}
+
+	private boolean alreadyFound(GuidelineContext[] context, Set<GuidelineContext[]> foundContexts) {
+		if (foundContexts.contains(context)) {
+			return true; // ==
+		}
+		for (Iterator<GuidelineContext[]> processedContextsIter = foundContexts.iterator(); processedContextsIter.hasNext();) {
+			GuidelineContext[] processedContext = processedContextsIter.next();
+			if (GuidelineContext.isIdentical(processedContext, context)) {
+				return true; // .equals()
+			}
+		}
+		foundContexts.add(context);
+		return false;
+	}
+
+	private void clearFields() {
+		setEnabled(false);
+		descriptionPanel.clearFields();
+		columnPanel.clearFields();
+		ruleMessagePanel.clearFields();
+		saveButton.setEnabled(false);
 	}
 
 	void columnAdded() {
@@ -400,6 +549,105 @@ public class TemplateDetailPanel extends PanelBase implements GuidelineTemplateS
 	void columnsSwapped() {
 		descriptionPanel.refreshColumns(template);
 		ruleMessagePanel.refreshColumns();
+	}
+
+	@Override
+	public void discardChanges() {
+		if (template != null) {
+			// this unlock the template as well
+			setTemplate(this.templateSelectionPanel.reloadTemplate(template), false);
+		}
+		hasChanges = false;
+		isInDB = false;
+	}
+
+	protected final void fireDetailChanged() {
+		synchronized (changeListenerList) {
+			for (int i = 0; i < changeListenerList.size(); i++) {
+				changeListenerList.get(i).detailChanged();
+			}
+		}
+	}
+
+	protected final void fireDetailSaved() {
+		synchronized (changeListenerList) {
+			for (int i = 0; i < changeListenerList.size(); i++) {
+				changeListenerList.get(i).detailSaved();
+			}
+		}
+	}
+
+
+	private String generateValidationErrorReport(LinkedList<GuidelineReportData> errorReportDataList) throws Exception {
+		byte[] zippedBytes = ClientUtil.getCommunicator().generatePolicySummaryReport(initValidationErrorReportSpec(), errorReportDataList);
+
+		StringWriter stringBuffer = new StringWriter();
+		PrintWriter writer = new PrintWriter(new BufferedWriter(stringBuffer), true);
+		BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(new ByteArrayInputStream(zippedBytes))));
+		for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+			writer.println(line);
+		}
+		writer.flush();
+		writer.close();
+
+		return stringBuffer.toString();
+	}
+
+	private Set<GuidelineContext[]> getAllContextsInUse() throws ServerException {
+		GuidelineReportFilter filter = new GuidelineReportFilter();
+		filter.setIncludeParameters(false);
+		filter.addGuidelineTemplateID(new Integer(template.getID()));
+
+		List<AbstractIDObject> allGuidelines = ClientUtil.getCommunicator().search(filter);
+
+		if (allGuidelines == null) {
+			return new HashSet<GuidelineContext[]>();
+		}
+
+		Set<GuidelineContext[]> foundContexts = new HashSet<GuidelineContext[]>();
+
+		for (Iterator<AbstractIDObject> guidelineIter = allGuidelines.iterator(); guidelineIter.hasNext();) {
+			GuidelineContext[] context = ((GuidelineReportData) guidelineIter.next()).getContext();
+
+			if (!alreadyFound(context, foundContexts)) {
+				foundContexts.add(context);
+			}
+		}
+		return foundContexts;
+	}
+
+	private Map<String, String> getColumnNameToTypeMap() {
+		Map<String, String> result = new HashMap<String, String>();
+		for (Iterator<GridTemplateColumn> columnIter = template.getColumns().iterator(); columnIter.hasNext();) {
+			GridTemplateColumn column = columnIter.next();
+			result.put(column.getName(), column.getColumnDataSpecDigest().getType());
+		}
+		return result;
+	}
+
+	FieldChangeListener getFieldChangeListener() {
+		if (fieldChangeListener == null) {
+			fieldChangeListener = new FieldChangeListener();
+		}
+		return fieldChangeListener;
+	}
+
+	public JButton[] getTemplateButtons() {
+		return templateSelectionPanel.isReadOnly() ? new JButton[0] : new JButton[] { newButton, cloneButton, versionButton, deleteButton };
+	}
+
+	@Override
+	public synchronized boolean hasUnsavedChanges() {
+		return hasChanges;
+	}
+
+	private synchronized void hideDetailPanel() {
+		templateTab.setVisible(false);
+		templateTab.setEnabled(false);
+	}
+
+	private boolean incompatibleColumnTypeValues(String newColumnType, String oldColumnType) {
+		return !NEW_COLUMN_TYPE_TO_COMPATIBLE_OLD_COLUMN_TYPES_MAP.get(newColumnType).contains(oldColumnType);
 	}
 
 	private void initPanel() {
@@ -422,200 +670,18 @@ public class TemplateDetailPanel extends PanelBase implements GuidelineTemplateS
 		setBorder(UIFactory.createTitledBorder(ClientUtil.getInstance().getLabel("label.title.template.detail")));
 	}
 
-	public void setEnabled(boolean enabled) {
-		descriptionPanel.setEditable(enabled);
-		columnPanel.setEnabled(enabled);
-		ruleMessagePanel.setEditable(enabled);
+	private boolean isBlank(Object value) {
+		return value == null || (!(value instanceof Boolean) && value.toString().length() == 0); // assumes no class other than String will return blank from toString()
 	}
 
-	private void clearFields() {
-		setEnabled(false);
-		descriptionPanel.clearFields();
-		columnPanel.clearFields();
-		ruleMessagePanel.clearFields();
-		saveButton.setEnabled(false);
-	}
-
-	public void discardChanges() {
-		if (template != null) {
-			// this unlock the template as well
-			setTemplate(this.templateSelectionPanel.reloadTemplate(template), false);
-		}
-		hasChanges = false;
-		isInDB = false;
-	}
-
-	private void unlockIfLocked() {
-		if (this.template != null && this.template.getID() > 0 && !editButton.isEnabled()) {
-			try {
-				ClientUtil.getCommunicator().unlock(template.getID(), PeDataType.TEMPLATE);
-			}
-			catch (Exception ex) {
-				ClientUtil.handleRuntimeException(ex);
-			}
-		}
-	}
-
-	/**
-	 * @param template
-	 */
-	private void setTemplate(GridTemplate template, boolean dataChanged) {
-		unlockIfLocked();
-
-		this.template = template;
-		if (template == null) {
-			clearFields();
-		}
-		else {
-			descriptionPanel.populateFields(template);
-			columnPanel.populateFields(template, dataChanged);
-			ruleMessagePanel.populateFields(template);
-			lastSelectedUsage = template.getUsageType();
-			isInDB = true;
-		}
-		setEnabled(false);
-		setHasChangesStatus(false);
-
-		// Enable the CRUD button iff the user has edit template privilege on this template's usageType
-		JButton buttonArray[] = { editButton, deleteButton, cloneButton, versionButton, saveButton, newButton };
-		if (template != null && template.getUsageType() != null) {//making sure the user has selected a template and a usage type
-			if (ClientUtil.checkEditTemplatePermission(template)) {
-				ClientUtil.updateVisibileAndEnableOfButtons(buttonArray, true, (template != null && template.getID() != -1));
-			}
-			else {
-				ClientUtil.updateVisibileAndEnableOfButtons(buttonArray, true, false);
-			}
-		}
-		else {
-			ClientUtil.updateVisibileAndEnableOfButtons(buttonArray, true, (template != null && template.getID() != -1));
-		}
-		saveButton.setEnabled(false);
-	}
-
-	public synchronized void templateSelected(GridTemplate newTemplate) throws CanceledException {
-		if (newTemplate == template) {
-			return;
+	private boolean isNewGuideline(AbstractGuidelineGrid currentGrid, GuidelineContext[] currentContext, LinkedList<GuidelineReportData> errorReportDataList) {
+		if (errorReportDataList.isEmpty()) {
+			return true;
 		}
 
-		ClientUtil.getParent().setCursor(UIFactory.getWaitCursor());
-		// prompt for unsaved changes, if appropriate
-		try {
-			if (template != null && hasChanges) {
-				Boolean result = ClientUtil.getInstance().showSaveDiscardCancelDialog();
-				if (result == null) {
-					throw CanceledException.getInstance();
-				}
-				if (result.booleanValue()) {
-					saveTemplate_internal();
-				}
-				else {
-					discardChanges();
-				}
-			}
-			setTemplate(newTemplate, true);
-		}
-		catch (CanceledException ex) {
-			throw ex;
-		}
-		catch (ValidationException ex) {
-			((ValidationException) ex).showAsWarning();
-			throw CanceledException.getInstance();
-		}
-		catch (InputValidationException ex) {
-			ClientUtil.getInstance().showWarning("msg.error.failure.save", new Object[] { "template", ex.getMessage() });
-			throw CanceledException.getInstance();
-		}
-		catch (Exception ex) {
-			ClientUtil.handleRuntimeException(ex);
-		}
-		finally {
-			showDetailPanel();
-			ClientUtil.getParent().setCursor(UIFactory.getDefaultCursor());
-		}
-	}
-
-	public synchronized void usageSelected(TemplateUsageType usageType) throws CanceledException {
-		ClientUtil.getParent().setCursor(UIFactory.getWaitCursor());
-		try {
-			if (template != null && hasChanges) {
-				Boolean result = ClientUtil.getInstance().showSaveDiscardCancelDialog();
-				if (result == null) {
-					throw CanceledException.getInstance();
-				}
-				if (result.booleanValue()) {
-					saveTemplate_internal();
-				}
-				else {
-					discardChanges();
-				}
-			}
-
-			setTemplate(null, true);
-			lastSelectedUsage = usageType;
-			if (ClientUtil.checkEditTemplatePermission(usageType)) {
-				newButton.setEnabled(usageType != null);
-			}
-			else {
-				newButton.setEnabled(false);
-			}
-		}
-		catch (CanceledException ex) {
-			throw ex;
-		}
-		catch (InputValidationException ex) {
-			ClientUtil.getInstance().showWarning("msg.error.failure.save", new Object[] { "template", ex.getMessage() });
-			throw CanceledException.getInstance();
-		}
-		catch (Exception ex) {
-			ClientUtil.handleRuntimeException(ex);
-		}
-		finally {
-			hideDetailPanel();
-			ClientUtil.getParent().setCursor(UIFactory.getDefaultCursor());
-		}
-	}
-
-
-	public synchronized void usageGroupSelected(GuidelineTab GuidelineTab) throws CanceledException {
-		if (GuidelineTab.getUsageType() != null && !GuidelineTab.getUsageType().isEmpty()) {
-			usageSelected(TemplateUsageType.valueOf(GuidelineTab.getUsageType().get(0).getName()));
-		}
-	}
-
-	public synchronized void selectionCleared() {
-		try {
-			if (template != null && hasChanges) {
-				Boolean result = ClientUtil.getInstance().showConfirmationWithCancel("msg.question.unsaved.changes.template", new Object[] { template.getName() });
-				if (result == null) {
-					throw CanceledException.getInstance();
-				}
-				if (result.booleanValue()) {
-					saveTemplate_internal();
-				}
-				else {
-					discardChanges();
-				}
-			}
-
-			setTemplate(null, true);
-		}
-		catch (CanceledException ex) {
-			// noop
-		}
-		catch (InputValidationException ex) {
-			ClientUtil.getInstance().showWarning("msg.error.failure.save", new Object[] { "template", ex.getMessage() });
-		}
-		catch (Exception ex) {
-			ClientUtil.handleRuntimeException(ex);
-		}
-	}
-
-	public final void addDetailChangeListener(DetailChangeListener dcl) {
-		synchronized (changeListenerList) {
-			if (!changeListenerList.contains(dcl)) {
-				changeListenerList.add(dcl);
-			}
-		}
+		GuidelineReportData lastReportData = errorReportDataList.getLast();
+		return lastReportData.getTemplateID() != currentGrid.getTemplateID() || !UtilBase.nullSafeEquals(lastReportData.getActivationDate(), currentGrid.getEffectiveDate())
+				|| !GuidelineContext.isIdentical(lastReportData.getContext(), currentContext);
 	}
 
 	public final void removeDetailChangeListener(DetailChangeListener dcl) {
@@ -626,31 +692,7 @@ public class TemplateDetailPanel extends PanelBase implements GuidelineTemplateS
 		}
 	}
 
-	protected final void fireDetailChanged() {
-		synchronized (changeListenerList) {
-			for (int i = 0; i < changeListenerList.size(); i++) {
-				changeListenerList.get(i).detailChanged();
-			}
-		}
-	}
-
-	protected final void fireDetailSaved() {
-		synchronized (changeListenerList) {
-			for (int i = 0; i < changeListenerList.size(); i++) {
-				changeListenerList.get(i).detailSaved();
-			}
-		}
-	}
-
-	private synchronized void setHasChangesStatus(boolean hasChanges) {
-		this.hasChanges = hasChanges;
-		saveButton.setEnabled(hasChanges);
-	}
-
-	public synchronized boolean hasUnsavedChanges() {
-		return hasChanges;
-	}
-
+	@Override
 	public void saveChanges() throws CanceledException, ServerException {
 		try {
 			saveTemplate_internal();
@@ -738,20 +780,192 @@ public class TemplateDetailPanel extends PanelBase implements GuidelineTemplateS
 		saveButton.setEnabled(false);//because they just saved something
 	}
 
-	private Map<String, String> getColumnNameToTypeMap() {
-		Map<String, String> result = new HashMap<String, String>();
-		for (Iterator<GridTemplateColumn> columnIter = template.getColumns().iterator(); columnIter.hasNext();) {
-			GridTemplateColumn column = columnIter.next();
-			result.put(column.getName(), column.getColumnDataSpecDigest().getType());
+	@Override
+	public synchronized void selectionCleared() {
+		try {
+			if (template != null && hasChanges) {
+				Boolean result = ClientUtil.getInstance().showConfirmationWithCancel("msg.question.unsaved.changes.template", new Object[] { template.getName() });
+				if (result == null) {
+					throw CanceledException.getInstance();
+				}
+				if (result.booleanValue()) {
+					saveTemplate_internal();
+				}
+				else {
+					discardChanges();
+				}
+			}
+
+			setTemplate(null, true);
 		}
-		return result;
+		catch (CanceledException ex) {
+			// noop
+		}
+		catch (InputValidationException ex) {
+			ClientUtil.getInstance().showWarning("msg.error.failure.save", new Object[] { "template", ex.getMessage() });
+		}
+		catch (Exception ex) {
+			ClientUtil.handleRuntimeException(ex);
+		}
 	}
 
-	private void validateRules() throws InputValidationException {
-		String errMsg = TemplateValidator.isValid(template.getRuleDefinition(), template, DomainModel.getInstance());
+	@Override
+	public void setEnabled(boolean enabled) {
+		descriptionPanel.setEditable(enabled);
+		columnPanel.setEnabled(enabled);
+		ruleMessagePanel.setEditable(enabled);
+	}
 
-		if (!ClientUtil.isEmpty(errMsg)) {
-			throw new InputValidationException(errMsg);
+	private synchronized void setHasChangesStatus(boolean hasChanges) {
+		this.hasChanges = hasChanges;
+		saveButton.setEnabled(hasChanges);
+	}
+
+	/**
+	 * @param template
+	 */
+	private void setTemplate(GridTemplate template, boolean dataChanged) {
+		unlockIfLocked();
+
+		this.template = template;
+		if (template == null) {
+			clearFields();
+		}
+		else {
+			descriptionPanel.populateFields(template);
+			columnPanel.populateFields(template, dataChanged);
+			ruleMessagePanel.populateFields(template);
+			lastSelectedUsage = template.getUsageType();
+			isInDB = true;
+		}
+		setEnabled(false);
+		setHasChangesStatus(false);
+
+		// Enable the CRUD button iff the user has edit template privilege on this template's usageType
+		JButton buttonArray[] = { editButton, deleteButton, cloneButton, versionButton, saveButton, newButton };
+		if (template != null && template.getUsageType() != null) {//making sure the user has selected a template and a usage type
+			if (ClientUtil.checkEditTemplatePermission(template)) {
+				ClientUtil.updateVisibileAndEnableOfButtons(buttonArray, true, (template != null && template.getID() != -1));
+			}
+			else {
+				ClientUtil.updateVisibileAndEnableOfButtons(buttonArray, true, false);
+			}
+		}
+		else {
+			ClientUtil.updateVisibileAndEnableOfButtons(buttonArray, true, (template != null && template.getID() != -1));
+		}
+		saveButton.setEnabled(false);
+	}
+
+	private synchronized void showDetailPanel() {
+		templateTab.setEnabled(true);
+		templateTab.setVisible(true);
+	}
+
+	private boolean showErrorReport(LinkedList<GuidelineReportData> errorReportDataList) throws Exception {
+		return TemplateValidationErrorReportDialog.showErrorReport(generateValidationErrorReport(errorReportDataList), errorReportDataList.size());
+	}
+
+	@Override
+	public synchronized void templateSelected(GridTemplate newTemplate) throws CanceledException {
+		if (newTemplate == template) {
+			return;
+		}
+
+		ClientUtil.getParent().setCursor(UIFactory.getWaitCursor());
+		// prompt for unsaved changes, if appropriate
+		try {
+			if (template != null && hasChanges) {
+				Boolean result = ClientUtil.getInstance().showSaveDiscardCancelDialog();
+				if (result == null) {
+					throw CanceledException.getInstance();
+				}
+				if (result.booleanValue()) {
+					saveTemplate_internal();
+				}
+				else {
+					discardChanges();
+				}
+			}
+			setTemplate(newTemplate, true);
+		}
+		catch (CanceledException ex) {
+			throw ex;
+		}
+		catch (ValidationException ex) {
+			((ValidationException) ex).showAsWarning();
+			throw CanceledException.getInstance();
+		}
+		catch (InputValidationException ex) {
+			ClientUtil.getInstance().showWarning("msg.error.failure.save", new Object[] { "template", ex.getMessage() });
+			throw CanceledException.getInstance();
+		}
+		catch (Exception ex) {
+			ClientUtil.handleRuntimeException(ex);
+		}
+		finally {
+			showDetailPanel();
+			ClientUtil.getParent().setCursor(UIFactory.getDefaultCursor());
+		}
+	}
+
+	private void unlockIfLocked() {
+		if (this.template != null && this.template.getID() > 0 && !editButton.isEnabled()) {
+			try {
+				ClientUtil.getCommunicator().unlock(template.getID(), PeDataType.TEMPLATE);
+			}
+			catch (Exception ex) {
+				ClientUtil.handleRuntimeException(ex);
+			}
+		}
+	}
+
+	@Override
+	public synchronized void usageGroupSelected(GuidelineTab GuidelineTab) throws CanceledException {
+		if (GuidelineTab.getUsageType() != null && !GuidelineTab.getUsageType().isEmpty()) {
+			usageSelected(TemplateUsageType.valueOf(GuidelineTab.getUsageType().get(0).getName()));
+		}
+	}
+
+	@Override
+	public synchronized void usageSelected(TemplateUsageType usageType) throws CanceledException {
+		ClientUtil.getParent().setCursor(UIFactory.getWaitCursor());
+		try {
+			if (template != null && hasChanges) {
+				Boolean result = ClientUtil.getInstance().showSaveDiscardCancelDialog();
+				if (result == null) {
+					throw CanceledException.getInstance();
+				}
+				if (result.booleanValue()) {
+					saveTemplate_internal();
+				}
+				else {
+					discardChanges();
+				}
+			}
+
+			setTemplate(null, true);
+			lastSelectedUsage = usageType;
+			if (ClientUtil.checkEditTemplatePermission(usageType)) {
+				newButton.setEnabled(usageType != null);
+			}
+			else {
+				newButton.setEnabled(false);
+			}
+		}
+		catch (CanceledException ex) {
+			throw ex;
+		}
+		catch (InputValidationException ex) {
+			ClientUtil.getInstance().showWarning("msg.error.failure.save", new Object[] { "template", ex.getMessage() });
+			throw CanceledException.getInstance();
+		}
+		catch (Exception ex) {
+			ClientUtil.handleRuntimeException(ex);
+		}
+		finally {
+			hideDetailPanel();
+			ClientUtil.getParent().setCursor(UIFactory.getDefaultCursor());
 		}
 	}
 
@@ -779,7 +993,8 @@ public class TemplateDetailPanel extends PanelBase implements GuidelineTemplateS
 
 					for (int columnIndex = 0; columnIndex < template.getNumColumns(); columnIndex++) {
 						AbstractTemplateColumn column = template.getColumn(columnIndex + 1);
-						boolean blankAllowed = column.getColumnDataSpecDigest().isBlankAllowed() && !(column.getColumnDataSpecDigest().getType().equals(ColumnDataSpecDigest.TYPE_BOOLEAN)); // boolean can always be blank?
+						boolean blankAllowed = column.getColumnDataSpecDigest().isBlankAllowed()
+								&& !(column.getColumnDataSpecDigest().getType().equals(ColumnDataSpecDigest.TYPE_BOOLEAN)); // boolean can always be blank?
 						boolean multiAllowed = column.getColumnDataSpecDigest().isMultiSelectAllowed();
 
 						for (int rowIndex = 0; rowIndex < grid.getNumRows(); rowIndex++) {
@@ -814,7 +1029,13 @@ public class TemplateDetailPanel extends PanelBase implements GuidelineTemplateS
 							String newColumnType = column.getColumnDataSpecDigest().getType();
 							if (!newColumnType.equals(oldColumnType) && !isBlank(value)) {
 								if (incompatibleColumnTypeValues(newColumnType, oldColumnType)) {
-									addError(errorReportDataList, context, grid, rowIndex, columnIndex, ClientUtil.getInstance().getMessage("msg.warning.value.incompatible.with.colType"));
+									addError(
+											errorReportDataList,
+											context,
+											grid,
+											rowIndex,
+											columnIndex,
+											ClientUtil.getInstance().getMessage("msg.warning.value.incompatible.with.colType"));
 								}
 							}
 						}
@@ -833,207 +1054,12 @@ public class TemplateDetailPanel extends PanelBase implements GuidelineTemplateS
 		return true;
 	}
 
-	/*
-	New Column Type     Invalid Data When Old Column Type Was
-	---------------     -------------------------------------
-	Boolean             <All>
-	Currency            <All except Float, Integer>
-	Currency Range      <All except Float Range, Integer Range>
-	Date                <All>
-	Date Range          <All>
-	Dynamic String      <None>
-	Entity List         <All>
-	Enum List           <All>
-	Float               <All except Currency, Integer>
-	Float Range         <All except Currency Range, Integer Range>
-	Integer             <All>
-	Integer Range       <All>
-	Time Range          <All>
-	String              <None>
-	Symbol              <All except Float, Integer, Currency>
-	 */
-	private static final Map<String, Set<String>> NEW_COLUMN_TYPE_TO_COMPATIBLE_OLD_COLUMN_TYPES_MAP;
-	static {
-		NEW_COLUMN_TYPE_TO_COMPATIBLE_OLD_COLUMN_TYPES_MAP = new HashMap<String, Set<String>>(15, 1.0f);
+	private void validateRules() throws InputValidationException {
+		String errMsg = TemplateValidator.isValid(template.getRuleDefinition(), template, DomainModel.getInstance());
 
-		// Types for which no old value is compatible, regardless of old column type
-		NEW_COLUMN_TYPE_TO_COMPATIBLE_OLD_COLUMN_TYPES_MAP.put(ColumnDataSpecDigest.TYPE_BOOLEAN, new HashSet<String>());
-		NEW_COLUMN_TYPE_TO_COMPATIBLE_OLD_COLUMN_TYPES_MAP.put(ColumnDataSpecDigest.TYPE_DATE, new HashSet<String>());
-		NEW_COLUMN_TYPE_TO_COMPATIBLE_OLD_COLUMN_TYPES_MAP.put(ColumnDataSpecDigest.TYPE_DATE_RANGE, new HashSet<String>());
-		NEW_COLUMN_TYPE_TO_COMPATIBLE_OLD_COLUMN_TYPES_MAP.put(ColumnDataSpecDigest.TYPE_ENTITY, new HashSet<String>());
-		NEW_COLUMN_TYPE_TO_COMPATIBLE_OLD_COLUMN_TYPES_MAP.put(ColumnDataSpecDigest.TYPE_ENUM_LIST, new HashSet<String>());
-		NEW_COLUMN_TYPE_TO_COMPATIBLE_OLD_COLUMN_TYPES_MAP.put(ColumnDataSpecDigest.TYPE_INTEGER, new HashSet<String>());
-		NEW_COLUMN_TYPE_TO_COMPATIBLE_OLD_COLUMN_TYPES_MAP.put(ColumnDataSpecDigest.TYPE_INTEGER_RANGE, new HashSet<String>());
-		NEW_COLUMN_TYPE_TO_COMPATIBLE_OLD_COLUMN_TYPES_MAP.put(ColumnDataSpecDigest.TYPE_TIME_RANGE, new HashSet<String>());
-
-		// Types for which all old values are compatible, regardless of old column type
-		String[] allTypes = new String[] {
-				ColumnDataSpecDigest.TYPE_BOOLEAN,
-				ColumnDataSpecDigest.TYPE_CURRENCY,
-				ColumnDataSpecDigest.TYPE_CURRENCY_RANGE,
-				ColumnDataSpecDigest.TYPE_DATE,
-				ColumnDataSpecDigest.TYPE_DATE_RANGE,
-				ColumnDataSpecDigest.TYPE_DYNAMIC_STRING,
-				ColumnDataSpecDigest.TYPE_ENTITY,
-				ColumnDataSpecDigest.TYPE_ENUM_LIST,
-				ColumnDataSpecDigest.TYPE_FLOAT,
-				ColumnDataSpecDigest.TYPE_FLOAT_RANGE,
-				ColumnDataSpecDigest.TYPE_INTEGER,
-				ColumnDataSpecDigest.TYPE_INTEGER_RANGE,
-				ColumnDataSpecDigest.TYPE_TIME_RANGE,
-				ColumnDataSpecDigest.TYPE_STRING,
-				ColumnDataSpecDigest.TYPE_SYMBOL };
-		NEW_COLUMN_TYPE_TO_COMPATIBLE_OLD_COLUMN_TYPES_MAP.put(ColumnDataSpecDigest.TYPE_DYNAMIC_STRING, new HashSet<String>(Arrays.asList(allTypes)));
-		NEW_COLUMN_TYPE_TO_COMPATIBLE_OLD_COLUMN_TYPES_MAP.put(ColumnDataSpecDigest.TYPE_STRING, new HashSet<String>(Arrays.asList(allTypes)));
-
-		// Types for which there are specific old type to new type compatibilities
-		NEW_COLUMN_TYPE_TO_COMPATIBLE_OLD_COLUMN_TYPES_MAP.put(
-				ColumnDataSpecDigest.TYPE_CURRENCY,
-				new HashSet<String>(Arrays.asList(new String[] { ColumnDataSpecDigest.TYPE_FLOAT, ColumnDataSpecDigest.TYPE_INTEGER })));
-		NEW_COLUMN_TYPE_TO_COMPATIBLE_OLD_COLUMN_TYPES_MAP.put(
-				ColumnDataSpecDigest.TYPE_CURRENCY_RANGE,
-				new HashSet<String>(Arrays.asList(new String[] { ColumnDataSpecDigest.TYPE_FLOAT_RANGE, ColumnDataSpecDigest.TYPE_INTEGER_RANGE })));
-		NEW_COLUMN_TYPE_TO_COMPATIBLE_OLD_COLUMN_TYPES_MAP.put(
-				ColumnDataSpecDigest.TYPE_FLOAT,
-				new HashSet<String>(Arrays.asList(new String[] { ColumnDataSpecDigest.TYPE_CURRENCY, ColumnDataSpecDigest.TYPE_INTEGER })));
-		NEW_COLUMN_TYPE_TO_COMPATIBLE_OLD_COLUMN_TYPES_MAP.put(
-				ColumnDataSpecDigest.TYPE_FLOAT_RANGE,
-				new HashSet<String>(Arrays.asList(new String[] { ColumnDataSpecDigest.TYPE_CURRENCY_RANGE, ColumnDataSpecDigest.TYPE_INTEGER_RANGE })));
-		NEW_COLUMN_TYPE_TO_COMPATIBLE_OLD_COLUMN_TYPES_MAP.put(
-				ColumnDataSpecDigest.TYPE_SYMBOL,
-				new HashSet<String>(Arrays.asList(new String[] { ColumnDataSpecDigest.TYPE_FLOAT, ColumnDataSpecDigest.TYPE_INTEGER, ColumnDataSpecDigest.TYPE_CURRENCY })));
-	}
-
-	private boolean incompatibleColumnTypeValues(String newColumnType, String oldColumnType) {
-		return !NEW_COLUMN_TYPE_TO_COMPATIBLE_OLD_COLUMN_TYPES_MAP.get(newColumnType).contains(oldColumnType);
-	}
-
-	private boolean isBlank(Object value) {
-		return value == null || (!(value instanceof Boolean) && value.toString().length() == 0); // assumes no class other than String will return blank from toString()
-	}
-
-	private Set<GuidelineContext[]> getAllContextsInUse() throws ServerException {
-		GuidelineReportFilter filter = new GuidelineReportFilter();
-		filter.setIncludeParameters(false);
-		filter.addGuidelineTemplateID(new Integer(template.getID()));
-
-		List<AbstractIDObject> allGuidelines = ClientUtil.getCommunicator().search(filter);
-
-		if (allGuidelines == null) {
-			return new HashSet<GuidelineContext[]>();
+		if (!ClientUtil.isEmpty(errMsg)) {
+			throw new InputValidationException(errMsg);
 		}
-
-		Set<GuidelineContext[]> foundContexts = new HashSet<GuidelineContext[]>();
-
-		for (Iterator<AbstractIDObject> guidelineIter = allGuidelines.iterator(); guidelineIter.hasNext();) {
-			GuidelineContext[] context = ((GuidelineReportData) guidelineIter.next()).getContext();
-
-			if (!alreadyFound(context, foundContexts)) {
-				foundContexts.add(context);
-			}
-		}
-		return foundContexts;
-	}
-
-	private boolean alreadyFound(GuidelineContext[] context, Set<GuidelineContext[]> foundContexts) {
-		if (foundContexts.contains(context)) {
-			return true; // ==
-		}
-		for (Iterator<GuidelineContext[]> processedContextsIter = foundContexts.iterator(); processedContextsIter.hasNext();) {
-			GuidelineContext[] processedContext = processedContextsIter.next();
-			if (GuidelineContext.isIdentical(processedContext, context)) {
-				return true; // .equals()
-			}
-		}
-		foundContexts.add(context);
-		return false;
-	}
-
-	private void addError(LinkedList<GuidelineReportData> errorReportDataList, GuidelineContext[] context, AbstractGuidelineGrid grid, int rowIndex, int columnIndex, String errorDesc) {
-		AbstractTemplateCore<GridTemplateColumn> template = grid.getTemplate();
-
-		if (isNewGuideline(grid, context, errorReportDataList)) {
-			// This is the first error for this Guideline.
-			GuidelineReportData reportData = new GuidelineReportData(
-					template.getID(),
-					grid.getID(),
-					template.getName(),
-					template.getUsageType(),
-					template.getVersion(),
-					context,
-					grid.getCreationDate(),
-					grid.getEffectiveDate(),
-					grid.getExpirationDate(),
-					false);
-
-			errorReportDataList.add(reportData);
-
-			reportData.getCellSubset().add(new GridCellCoordinates(rowIndex, columnIndex, errorDesc));
-
-		}
-		else {
-			// This Guideline already has at least one error (in some cell, maybe not this one).
-			GuidelineReportData reportData = errorReportDataList.getLast();
-			GridCellCoordinates existingCoords = reportData.getCellSubset().get(rowIndex, columnIndex);
-
-			if (existingCoords == null) {
-				// first error for this cell
-				reportData.getCellSubset().add(new GridCellCoordinates(rowIndex, columnIndex, errorDesc));
-			}
-			else {
-				// already an error of a different type in this cell
-				existingCoords.setPayload(existingCoords.getPayload().toString() + ", " + errorDesc);
-			}
-		}
-	}
-
-	private boolean isNewGuideline(AbstractGuidelineGrid currentGrid, GuidelineContext[] currentContext, LinkedList<GuidelineReportData> errorReportDataList) {
-		if (errorReportDataList.isEmpty()) {
-			return true;
-		}
-
-		GuidelineReportData lastReportData = errorReportDataList.getLast();
-		return lastReportData.getTemplateID() != currentGrid.getTemplateID() || !UtilBase.nullSafeEquals(lastReportData.getActivationDate(), currentGrid.getEffectiveDate())
-				|| !GuidelineContext.isIdentical(lastReportData.getContext(), currentContext);
-	}
-
-	private boolean showErrorReport(LinkedList<GuidelineReportData> errorReportDataList) throws Exception {
-		return TemplateValidationErrorReportDialog.showErrorReport(generateValidationErrorReport(errorReportDataList), errorReportDataList.size());
-	}
-
-	private String generateValidationErrorReport(LinkedList<GuidelineReportData> errorReportDataList) throws Exception {
-		byte[] zippedBytes = ClientUtil.getCommunicator().generatePolicySummaryReport(initValidationErrorReportSpec(), errorReportDataList);
-
-		StringWriter stringBuffer = new StringWriter();
-		PrintWriter writer = new PrintWriter(new BufferedWriter(stringBuffer), true);
-		BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(new ByteArrayInputStream(zippedBytes))));
-		for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-			writer.println(line);
-		}
-		writer.flush();
-		writer.close();
-
-		return stringBuffer.toString();
-	}
-
-	private static GuidelineReportSpec initValidationErrorReportSpec() {
-		GuidelineReportSpec spec = new GuidelineReportSpec();
-		spec.setCreatedDateOn(true);
-		spec.setStatusOn(true);
-		spec.setStatusChangeDateOn(true);
-		spec.setCommentsOn(true);
-		spec.setGridOn(true);
-		return spec;
-	}
-
-	private synchronized void hideDetailPanel() {
-		templateTab.setVisible(false);
-		templateTab.setEnabled(false);
-	}
-
-	private synchronized void showDetailPanel() {
-		templateTab.setEnabled(true);
-		templateTab.setVisible(true);
 	}
 
 }

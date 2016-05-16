@@ -30,7 +30,7 @@ public class GenericEntityCheckList extends CheckList<GenericEntity> {
 	 * Makes sure the specified entities are selected.
 	 * This does not clear selection.
 	 * 
-	 * @param entities
+	 * @param entities entities
 	 */
 	public void select(GenericEntity[] entities) {
 		if (entities != null && entities.length > 0) {

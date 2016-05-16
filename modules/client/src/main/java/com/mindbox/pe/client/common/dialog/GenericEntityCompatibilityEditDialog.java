@@ -26,49 +26,6 @@ import com.mindbox.pe.model.assckey.GenericEntityCompatibilityData;
  * @since PowerEditor 3.0.0
  */
 public class GenericEntityCompatibilityEditDialog extends JPanel {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3951228734910107454L;
-
-	/**
-	 * Displays new compatibility dialog.
-	 * 
-	 * @param type1
-	 * @param type2
-	 * @return compatibility data, if dialog is not canceled; <code>null</code>,
-	 *         otherwise
-	 */
-	public static GenericEntityCompatibilityData newCompatibilityData(GenericEntityType type1, GenericEntityType type2) {
-		JDialog dialog = new JDialog(JOptionPane.getFrameForComponent(ClientUtil.getApplet()), true);
-		dialog.setTitle(ClientUtil.getInstance().getLabel("d.title.new.compatibility"));
-		GenericEntityCompatibilityEditDialog compatibilityEditDialog = new GenericEntityCompatibilityEditDialog(dialog, type1, type2);
-
-		UIFactory.addToDialog(dialog, compatibilityEditDialog);
-		compatibilityEditDialog.type1Combo.requestFocus();
-		dialog.setVisible(true);
-
-		return compatibilityEditDialog.data;
-	}
-
-	/**
-	 * Displays edit compatibility dialog.
-	 * @param data the compatibility data to edit
-	 * @return compatibility data, if dialog is not canceled; <code>null</code>,
-	 *         otherwise
-	 */
-	public static GenericEntityCompatibilityData editCompatibilityData(GenericEntityCompatibilityData data) {
-		JDialog dialog = new JDialog(JOptionPane.getFrameForComponent(ClientUtil.getApplet()), true);
-		dialog.setTitle(ClientUtil.getInstance().getLabel("d.title.edit.compatibility"));
-		GenericEntityCompatibilityEditDialog compatibilityEditDialog = new GenericEntityCompatibilityEditDialog(dialog, data);
-		compatibilityEditDialog.type1Combo.requestFocus();
-		UIFactory.addToDialog(dialog, compatibilityEditDialog);
-		compatibilityEditDialog.type1Combo.requestFocus();
-		dialog.setVisible(true);
-
-		return compatibilityEditDialog.data;
-	}
-
 	private class AcceptL extends AbstractThreadedActionAdapter {
 		@Override
 		public void performAction(ActionEvent event) throws Exception {
@@ -102,10 +59,54 @@ public class GenericEntityCompatibilityEditDialog extends JPanel {
 	}
 
 	private class CancelL implements ActionListener {
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			GenericEntityCompatibilityEditDialog.this.data = null;
 			dialog.dispose();
 		}
+	}
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3951228734910107454L;
+
+	/**
+	 * Displays edit compatibility dialog.
+	 * @param data the compatibility data to edit
+	 * @return compatibility data, if dialog is not canceled; <code>null</code>,
+	 *         otherwise
+	 */
+	public static GenericEntityCompatibilityData editCompatibilityData(GenericEntityCompatibilityData data) {
+		JDialog dialog = new JDialog(JOptionPane.getFrameForComponent(ClientUtil.getApplet()), true);
+		dialog.setTitle(ClientUtil.getInstance().getLabel("d.title.edit.compatibility"));
+		GenericEntityCompatibilityEditDialog compatibilityEditDialog = new GenericEntityCompatibilityEditDialog(dialog, data);
+		compatibilityEditDialog.type1Combo.requestFocus();
+		UIFactory.addToDialog(dialog, compatibilityEditDialog);
+		compatibilityEditDialog.type1Combo.requestFocus();
+		dialog.setVisible(true);
+
+		return compatibilityEditDialog.data;
+	}
+
+	/**
+	 * Displays new compatibility dialog.
+	 * 
+	 * @param type1 type1
+	 * @param type2 type2
+	 * @return compatibility data, if dialog is not canceled; <code>null</code>,
+	 *         otherwise
+	 */
+	public static GenericEntityCompatibilityData newCompatibilityData(GenericEntityType type1, GenericEntityType type2) {
+		JDialog dialog = new JDialog(JOptionPane.getFrameForComponent(ClientUtil.getApplet()), true);
+		dialog.setTitle(ClientUtil.getInstance().getLabel("d.title.new.compatibility"));
+		GenericEntityCompatibilityEditDialog compatibilityEditDialog = new GenericEntityCompatibilityEditDialog(dialog, type1, type2);
+
+		UIFactory.addToDialog(dialog, compatibilityEditDialog);
+		compatibilityEditDialog.type1Combo.requestFocus();
+		dialog.setVisible(true);
+
+		return compatibilityEditDialog.data;
 	}
 
 	private final DateSelectorComboField effDateEntryField;

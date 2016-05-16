@@ -8,11 +8,19 @@ package com.mindbox.pe.server.model;
  */
 public class GenericCategoryIdentity extends AbstractTypeIDIdentity {
 
-	/**
-	 *  
-	 */
 	public GenericCategoryIdentity(int type, int id) {
 		super(type, id);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) return false;
+		if (obj instanceof GenericCategoryIdentity) {
+			return super.equals((GenericCategoryIdentity) obj);
+		}
+		else {
+			return false;
+		}
 	}
 
 	/**
@@ -27,15 +35,5 @@ public class GenericCategoryIdentity extends AbstractTypeIDIdentity {
 	 */
 	public int getCategoryType() {
 		return super.getType();
-	}
-
-	public boolean equals(Object obj) {
-		if (obj == null) return false;
-		if (obj instanceof GenericCategoryIdentity) {
-			return super.equals((GenericCategoryIdentity) obj);
-		}
-		else {
-			return false;
-		}
 	}
 }

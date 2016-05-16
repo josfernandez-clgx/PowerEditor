@@ -21,10 +21,12 @@ public class ParameterUpdater extends DateSynonymReferenceUpdater {
 	private static final String Q_UPDATE_GRID_DATE_SYNONYM = "update MB_PARAMETER_DATE_SYNONYM set effective_synonym_id=?,expiration_synonym_id=? where parameter_id=?";
 
 	private static final String Q_DELETE_GRID_DATE_SYNONYM = "delete from MB_PARAMETER_DATE_SYNONYM where parameter_id=?";
-	
-	private static final String Q_REPLACE_ALL_GRID_EFFECTIVE_DATE_SYNONYM = "update MB_PARAMETER_DATE_SYNONYM set effective_synonym_id=? where effective_synonym_id in (" + IN_CLAUSE_LIST_HOLDER + ")";
 
-	private static final String Q_REPLACE_ALL_GRID_EXPIRATION_DATE_SYNONYM = "update MB_PARAMETER_DATE_SYNONYM set expiration_synonym_id=? where expiration_synonym_id in (" + IN_CLAUSE_LIST_HOLDER + ")";
+	private static final String Q_REPLACE_ALL_GRID_EFFECTIVE_DATE_SYNONYM = "update MB_PARAMETER_DATE_SYNONYM set effective_synonym_id=? where effective_synonym_id in ("
+			+ IN_CLAUSE_LIST_HOLDER + ")";
+
+	private static final String Q_REPLACE_ALL_GRID_EXPIRATION_DATE_SYNONYM = "update MB_PARAMETER_DATE_SYNONYM set expiration_synonym_id=? where expiration_synonym_id in ("
+			+ IN_CLAUSE_LIST_HOLDER + ")";
 
 	private static final String Q_INSERT_GRID = "INSERT INTO MB_PARAMETER (parameter_id,template_id,cell_values,num_rows,status) VALUES (?,?,?,?,?)";
 
@@ -38,12 +40,10 @@ public class ParameterUpdater extends DateSynonymReferenceUpdater {
 
 	private static final String Q_DELETE_ENTITY_CONTEXT = "DELETE FROM MB_ENTITY_PARAMETER_CONTEXT WHERE parameter_id=?";
 
-	private static final String Q_DELETE_GRID_CONTEXT_GENERIC_CATEGORY = 
-		"delete from MB_ENTITY_PARAMETER_CONTEXT where category_type=? and category_id=?";
-	
-	private static final String Q_DELETE_GRID_CONTEXT_GENERIC_ENTITY = 
-		"delete from MB_ENTITY_PARAMETER_CONTEXT where entity_type=? and entity_id=?";
-	
+	private static final String Q_DELETE_GRID_CONTEXT_GENERIC_CATEGORY = "delete from MB_ENTITY_PARAMETER_CONTEXT where category_type=? and category_id=?";
+
+	private static final String Q_DELETE_GRID_CONTEXT_GENERIC_ENTITY = "delete from MB_ENTITY_PARAMETER_CONTEXT where entity_type=? and entity_id=?";
+
 
 	/**
 	 *  
@@ -51,11 +51,11 @@ public class ParameterUpdater extends DateSynonymReferenceUpdater {
 	public ParameterUpdater() {
 		super();
 	}
-	
+
 	public ParameterUpdater(Connection conn) {
 		super(conn);
 	}
-	
+
 	/**
 	 * Deletes the specified generic category from all grid context.
 	 * Note: this does not perform connection management functions.
@@ -113,24 +113,19 @@ public class ParameterUpdater extends DateSynonymReferenceUpdater {
 	/**
 	 * Inserts the specified parameter grid. Performs no connection management actions. 
 	 * Commit the connection after calling this.
-	 * @param gridID
-	 * @param templateID
-	 * @param cellValues
-	 * @param numRows
-	 * @param effDate
-	 * @param expDate
-	 * @param status
-	 * @param catID
-	 * @param prodID
-	 * @param channelID
-	 * @param investorID
-	 * @param geIdentity
-	 * @param genericCategoryID
-	 * @param genericCategoryType
+	 * @param gridID gridID
+	 * @param templateID templateID
+	 * @param cellValues cellValues
+	 * @param numRows numRows
+	 * @param effDate effDate
+	 * @param expDate expDate
+	 * @param status status
+	 * @param entityIdentities entityIdentities
+	 * @param categoryIdentities categoryIdentities
 	 * @throws SQLException on DB error
 	 */
-	public void insertGrid(int gridID, int templateID, String cellValues, int numRows, DateSynonym effDate, DateSynonym expDate,
-			String status, GenericEntityIdentity[] entityIdentities, GenericCategoryIdentity[] categoryIdentities) throws SQLException {
+	public void insertGrid(int gridID, int templateID, String cellValues, int numRows, DateSynonym effDate, DateSynonym expDate, String status,
+			GenericEntityIdentity[] entityIdentities, GenericCategoryIdentity[] categoryIdentities) throws SQLException {
 		Connection conn = getConnection();
 		PreparedStatement ps = null;
 		try {
@@ -144,7 +139,9 @@ public class ParameterUpdater extends DateSynonymReferenceUpdater {
 			ps.setString(5, status);
 
 			int count = ps.executeUpdate();
-			if (count < 1) { throw new SQLException("Parameter Grid Insert Failed (count=" + count + ")"); }
+			if (count < 1) {
+				throw new SQLException("Parameter Grid Insert Failed (count=" + count + ")");
+			}
 			ps.close();
 			ps = null;
 
@@ -153,7 +150,9 @@ public class ParameterUpdater extends DateSynonymReferenceUpdater {
 			ps.setInt(2, (effDate == null ? -1 : effDate.getID()));
 			ps.setInt(3, (expDate == null ? -1 : expDate.getID()));
 			count = ps.executeUpdate();
-			if (count < 1) { throw new SQLException("Parameter activation date synonym insert Failed (count=" + count + ")"); }
+			if (count < 1) {
+				throw new SQLException("Parameter activation date synonym insert Failed (count=" + count + ")");
+			}
 			ps.close();
 			ps = null;
 
@@ -164,7 +163,9 @@ public class ParameterUpdater extends DateSynonymReferenceUpdater {
 					ps.setInt(2, entityIdentities[i].getEntityID());
 					ps.setInt(3, entityIdentities[i].getEntityType());
 					count = ps.executeUpdate();
-					if (count < 1) { throw new SQLException("Parameter Entity Context Insert Failed (count=" + count + ")"); }
+					if (count < 1) {
+						throw new SQLException("Parameter Entity Context Insert Failed (count=" + count + ")");
+					}
 				}
 				ps.close();
 				ps = null;
@@ -176,7 +177,9 @@ public class ParameterUpdater extends DateSynonymReferenceUpdater {
 					ps.setInt(2, categoryIdentities[i].getCategoryID());
 					ps.setInt(3, categoryIdentities[i].getCategoryType());
 					count = ps.executeUpdate();
-					if (count < 1) { throw new SQLException("Parameter Category Context Insert Failed (count=" + count + ")"); }
+					if (count < 1) {
+						throw new SQLException("Parameter Category Context Insert Failed (count=" + count + ")");
+					}
 				}
 				ps.close();
 				ps = null;
@@ -186,8 +189,7 @@ public class ParameterUpdater extends DateSynonymReferenceUpdater {
 		}
 		catch (Exception ex) {
 			conn.rollback();
-			logger.error("Failed to insert new parameter: " + gridID + "," + templateID + "," + cellValues + "," + numRows + "," + effDate
-					+ "," + expDate + "," + status, ex);
+			logger.error("Failed to insert new parameter: " + gridID + "," + templateID + "," + cellValues + "," + numRows + "," + effDate + "," + expDate + "," + status, ex);
 			if (ex instanceof SQLException) {
 				throw (SQLException) ex;
 			}
@@ -243,8 +245,13 @@ public class ParameterUpdater extends DateSynonymReferenceUpdater {
 		}
 	}
 
-	public void updateGrid(int gridID, int templateID, String cellValues, int numRows, DateSynonym effDate, DateSynonym expDate,
-			String status, GenericEntityIdentity[] entityIdentities, GenericCategoryIdentity[] categoryIdentities) throws SQLException {
+	@Override
+	public void replaceDateSynonymReferences(DateSynonym[] toBeReplaced, DateSynonym replacement) throws SQLException {
+		replaceDateSynonymReferencesInIntersectionTable(toBeReplaced, replacement, Q_REPLACE_ALL_GRID_EFFECTIVE_DATE_SYNONYM, Q_REPLACE_ALL_GRID_EXPIRATION_DATE_SYNONYM);
+	}
+
+	public void updateGrid(int gridID, int templateID, String cellValues, int numRows, DateSynonym effDate, DateSynonym expDate, String status,
+			GenericEntityIdentity[] entityIdentities, GenericCategoryIdentity[] categoryIdentities) throws SQLException {
 		Connection conn = getConnection();
 		PreparedStatement ps = null;
 		try {
@@ -258,7 +265,9 @@ public class ParameterUpdater extends DateSynonymReferenceUpdater {
 			ps.setInt(5, gridID);
 
 			int count = ps.executeUpdate();
-			if (count < 1) { throw new SQLException("Parameter Grid Update Failed (count=" + count + ")"); }
+			if (count < 1) {
+				throw new SQLException("Parameter Grid Update Failed (count=" + count + ")");
+			}
 			ps.close();
 			ps = null;
 
@@ -267,7 +276,9 @@ public class ParameterUpdater extends DateSynonymReferenceUpdater {
 			ps.setInt(2, (expDate == null ? -1 : expDate.getID()));
 			ps.setInt(3, gridID);
 			count = ps.executeUpdate();
-			if (count < 1) { throw new SQLException("Parameter date synonym update Failed (count=" + count + ")"); }
+			if (count < 1) {
+				throw new SQLException("Parameter date synonym update Failed (count=" + count + ")");
+			}
 			ps.close();
 			ps = null;
 
@@ -285,7 +296,9 @@ public class ParameterUpdater extends DateSynonymReferenceUpdater {
 					ps.setInt(2, entityIdentities[i].getEntityID());
 					ps.setInt(3, entityIdentities[i].getEntityType());
 					count = ps.executeUpdate();
-					if (count < 1) { throw new SQLException("Parameter Entity Context Insert Failed (count=" + count + ")"); }
+					if (count < 1) {
+						throw new SQLException("Parameter Entity Context Insert Failed (count=" + count + ")");
+					}
 				}
 				ps.close();
 				ps = null;
@@ -297,7 +310,9 @@ public class ParameterUpdater extends DateSynonymReferenceUpdater {
 					ps.setInt(2, categoryIdentities[i].getCategoryID());
 					ps.setInt(3, categoryIdentities[i].getCategoryType());
 					count = ps.executeUpdate();
-					if (count < 1) { throw new SQLException("Parameter Category Context Insert Failed (count=" + count + ")"); }
+					if (count < 1) {
+						throw new SQLException("Parameter Category Context Insert Failed (count=" + count + ")");
+					}
 				}
 				ps.close();
 				ps = null;
@@ -307,8 +322,7 @@ public class ParameterUpdater extends DateSynonymReferenceUpdater {
 		}
 		catch (Exception ex) {
 			conn.rollback();
-			logger.error("Failed to update parameter: " + gridID + "," + templateID + "," + cellValues + "," + numRows + "," + effDate
-					+ "," + expDate + "," + status, ex);
+			logger.error("Failed to update parameter: " + gridID + "," + templateID + "," + cellValues + "," + numRows + "," + effDate + "," + expDate + "," + status, ex);
 			if (ex instanceof SQLException) {
 				throw (SQLException) ex;
 			}
@@ -321,14 +335,14 @@ public class ParameterUpdater extends DateSynonymReferenceUpdater {
 			releaseConnection();
 		}
 	}
-	
+
 	/**
 	 * Update the context row of the specified grid.
 	 * 
-	 * @param gridID
+	 * @param gridID gridID
 	 * @param entityIdentities entity identities; can be <code>null</code>
 	 * @param categoryIdentities category identities; can be <code>null</code>
-	 * @throws SQLException
+	 * @throws SQLException on error
 	 *             on db error
 	 */
 	public void updateGridContext(int gridID, GenericEntityIdentity[] entityIdentities, GenericCategoryIdentity[] categoryIdentities) throws SQLException {
@@ -381,13 +395,7 @@ public class ParameterUpdater extends DateSynonymReferenceUpdater {
 			}
 		}
 		finally {
-			if (ps != null)
-				ps.close();
+			if (ps != null) ps.close();
 		}
-	}
-
-	public void replaceDateSynonymReferences(DateSynonym[] toBeReplaced, DateSynonym replacement) throws SQLException {
-		replaceDateSynonymReferencesInIntersectionTable(toBeReplaced, replacement, Q_REPLACE_ALL_GRID_EFFECTIVE_DATE_SYNONYM, 
-				Q_REPLACE_ALL_GRID_EXPIRATION_DATE_SYNONYM);
 	}
 }

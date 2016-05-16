@@ -14,18 +14,10 @@ public class WebServiceUtil {
 	private static final Logger LOG = Logger.getLogger(WebServiceUtil.class);
 	private static final String WS_AUTH_USER_ATTRIBUTE = "com.mindbox.pe.ws.AuthUserId";
 
-	public static void setAuthenticatedUserId(final HttpServletRequest request, final String userId) {
-		request.setAttribute(WS_AUTH_USER_ATTRIBUTE, userId);
-	}
-
-	public static String getAuthenticatedUserId(final HttpServletRequest request) {
-		return String.class.cast(request.getAttribute(WS_AUTH_USER_ATTRIBUTE));
-	}
-
 	/**
 	 * Check the credentials against the PE database.
-	 * @param un
-	 * @param pw
+	 * @param un unReportGenerato
+	 * @param pw pwReportGenerato
 	 * @return true if credentials are valid.
 	 */
 	public static boolean checkCredentials(String un, String pw) {
@@ -43,6 +35,14 @@ public class WebServiceUtil {
 			LOG.error("Exception occurred in WebService PlainTextPasswordValidator: " + ex.getMessage());
 		}
 		return authenticated;
+	}
+
+	public static String getAuthenticatedUserId(final HttpServletRequest request) {
+		return String.class.cast(request.getAttribute(WS_AUTH_USER_ATTRIBUTE));
+	}
+
+	public static void setAuthenticatedUserId(final HttpServletRequest request, final String userId) {
+		request.setAttribute(WS_AUTH_USER_ATTRIBUTE, userId);
 	}
 
 

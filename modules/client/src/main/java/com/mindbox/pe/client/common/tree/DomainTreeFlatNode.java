@@ -18,14 +18,11 @@ import com.mindbox.pe.model.domain.DomainClass;
  */
 public class DomainTreeFlatNode extends DomainTreeNode {
 
-	/**
-	 * @param dc
-	 * @param parent
-	 */
 	public DomainTreeFlatNode(DomainClass dc, TreeNode parent) {
 		super(dc, parent);
 	}
 
+	@Override
 	protected void addChildren() {
 		// noop
 	}

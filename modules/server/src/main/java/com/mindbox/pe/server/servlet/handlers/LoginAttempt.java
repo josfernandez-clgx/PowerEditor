@@ -56,7 +56,6 @@ public class LoginAttempt {
 		return failed;
 	}
 
-	/** @throws IllegalStateException if login failed. */
 	public int getDaysUntilPasswordExpires() {
 		return getDaysUntilPasswordExpires(getUser());
 	}
@@ -79,12 +78,17 @@ public class LoginAttempt {
 		return cachedDaysUntilPwdExpires.intValue();
 	}
 
-	/** Only meaningful when login failed. */
+	/** Only meaningful when login failed. 
+	 * @return failure reason
+	 */
 	public String getFailureReason() {
 		return failureReason;
 	}
 
-	/** @throws IllegalStateException if login failed. */
+	/** 
+	 * @return user
+	 * @throws IllegalStateException if login failed. 
+	 */
 	public User getUser() {
 		if (failed()) {
 			throw new IllegalStateException("Attempt to access user after failed login attempt.");
@@ -97,12 +101,18 @@ public class LoginAttempt {
 				|| user.getFailedLoginCounter() >= ConfigurationManager.getInstance().getUserPasswordPoliciesConfigHelper().getMaxAttempts();
 	}
 
-	/** @throws IllegalStateException if login failed. */
+	/** 
+	 * @return true if password change required; false, otherwise
+	 * @throws IllegalStateException if login failed. 
+	 */
 	public boolean isPasswordChangeRequired() {
 		return getUser().getPasswordChangeRequired();
 	}
 
-	/** @throws IllegalStateException if login failed. */
+	/** 
+	 * @return true if password Expiry Notification required; false, otherwise
+	 * @throws IllegalStateException if login failed. 
+	 */
 	public boolean isPasswordExpiryNotificationRequired() {
 		if (failed()) {
 			throw new IllegalStateException("Attempt to access user after failed login attempt.");

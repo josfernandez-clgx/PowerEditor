@@ -10,18 +10,34 @@ import com.mindbox.pe.model.IDNameObject;
  * @since PowerEditor 1.0
  */
 public class IDNameObjectSelectionTableModel<D extends IDNameObject> extends AbstractSelectionTableModel<D> {
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = -3951228734910107454L;
 
 	/**
 	 * Create new IDName Object selection table model with the specified column names.
 	 * 
-	 * @param columnNames
+	 * @param columnNames columnNames
 	 */
 	public IDNameObjectSelectionTableModel(String... columnNames) {
 		super(columnNames);
+	}
+
+	public final void fireUpdateRow(int row) {
+		super.fireTableRowsUpdated(row, row);
+	}
+
+	public final D getDataWithID(int id) {
+		for (D data : dataList) {
+			if (data.getID() == id) return data;
+		}
+		return null;
+	}
+
+	public final int getIndexOf(int id) {
+		for (int i = 0; i < dataList.size(); i++) {
+			if (dataList.get(i).getID() == id) return i;
+		}
+		return -1;
 	}
 
 	@Override
@@ -38,23 +54,5 @@ public class IDNameObjectSelectionTableModel<D extends IDNameObject> extends Abs
 		default:
 			return nameObject;
 		}
-	}
-
-	public final void fireUpdateRow(int row) {
-		super.fireTableRowsUpdated(row, row);
-	}
-
-	public final int getIndexOf(int id) {
-		for (int i = 0; i < dataList.size(); i++) {
-			if (dataList.get(i).getID() == id) return i;
-		}
-		return -1;
-	}
-
-	public final D getDataWithID(int id) {
-		for (D data : dataList) {
-			if (data.getID() == id) return data;
-		}
-		return null;
 	}
 }

@@ -8,8 +8,7 @@ package com.mindbox.pe.server.model;
 public abstract class AbstractTypeIDIdentity {
 
 	public static int[] toIDArray(AbstractTypeIDIdentity[] entities) {
-		if (entities == null)
-			return null;
+		if (entities == null) return null;
 		int[] array = new int[entities.length];
 		for (int i = 0; i < array.length; i++) {
 			array[i] = entities[i].id;
@@ -18,12 +17,8 @@ public abstract class AbstractTypeIDIdentity {
 	}
 
 	private final int id;
-
 	private final int type;
 
-	/**
-	 * 
-	 */
 	protected AbstractTypeIDIdentity(int type, int id) {
 		if (type < 0) {
 			throw new IllegalArgumentException("Invalid type: " + type);
@@ -35,17 +30,9 @@ public abstract class AbstractTypeIDIdentity {
 		this.type = type;
 	}
 
-	protected final int getId() {
-		return id;
-	}
-
-	protected final int getType() {
-		return type;
-	}
-
+	@Override
 	public boolean equals(Object obj) {
-		if (obj == null)
-			return false;
+		if (obj == null) return false;
 		if (obj instanceof AbstractTypeIDIdentity) {
 			return id == ((AbstractTypeIDIdentity) obj).id && type == ((AbstractTypeIDIdentity) obj).type;
 		}
@@ -54,10 +41,20 @@ public abstract class AbstractTypeIDIdentity {
 		}
 	}
 
+	protected final int getId() {
+		return id;
+	}
+
+	protected final int getType() {
+		return type;
+	}
+
+	@Override
 	public int hashCode() {
 		return (type + "." + id).hashCode();
 	}
 
+	@Override
 	public String toString() {
 		return getClass().getName() + "[type=" + type + ",id=" + id + "]";
 	}

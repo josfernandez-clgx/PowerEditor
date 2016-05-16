@@ -33,9 +33,90 @@ import com.mindbox.pe.model.assckey.MutableTimedAssociationKey;
  * @since PowerEditor 5.1.0
  */
 public class CategoryToCategoryListPanel extends PanelBase {
-	/**
-	 * 
-	 */
+
+	private class EditL extends AbstractThreadedActionAdapter {
+		@Override
+		public void performAction(ActionEvent event) throws Exception {
+			int selectedRow = selectionTable.getSelectedRow();
+			MutableTimedAssociationKey oldKey = getSelectedData();
+
+			if (oldKey != null) {
+				MutableTimedAssociationKey newKey = CategoryToCategoryEditDialog.editParentCategory(category, oldKey);
+
+				if ((newKey != null) && isValid(oldKey, newKey, false)) {
+					oldKey.setAssociableID(newKey.getAssociableID());
+					oldKey.setEffectiveDate(newKey.getEffectiveDate());
+					oldKey.setExpirationDate(newKey.getExpirationDate());
+					selectionTable.updateRow(selectedRow);
+				}
+			}
+		}
+	}
+
+	private class NewL extends AbstractThreadedActionAdapter {
+		private MutableTimedAssociationKey getMostRecentKey() {
+			MutableTimedAssociationKey results = null;
+			for (MutableTimedAssociationKey key : selectionTable.getSelectionTableModel().getDataList()) {
+				if (key.getExpirationDate() == null) {
+					results = key;
+
+					break;
+				}
+				else if ((results == null) || key.getExpirationDate().after(results.getExpirationDate())) {
+					results = key;
+				}
+			}
+
+			return results;
+		}
+
+		@Override
+		public void performAction(ActionEvent event) throws Exception {
+			if (category != null) {
+				// create mutable boolean object so the we can get back the autoExpire option. This
+				// is not the preferable approach to getting back information from a method...
+				MutableBoolean autoExpire = new MutableBoolean(false);
+				MutableTimedAssociationKey data = CategoryToCategoryEditDialog.newParentCategory(category, autoExpire, null);
+
+				while ((data != null) && !isValid(null, data, autoExpire.booleanValue())) {
+					data = CategoryToCategoryEditDialog.newParentCategory(category, autoExpire, data);
+				}
+
+				if (data != null) {
+					if (autoExpire.booleanValue()) {
+						MutableTimedAssociationKey lastKey = getMostRecentKey();
+						lastKey.setExpirationDate(data.getEffectiveDate());
+					}
+					selectionTable.getSelectionTableModel().addData(data);
+				}
+			}
+		}
+	}
+
+	private class RemoveL extends AbstractThreadedActionAdapter {
+		@Override
+		public void performAction(ActionEvent event) throws Exception {
+			if (ClientUtil.getInstance().showConfirmation("msg.question.remove.entity", new Object[] { "category to category association" })) {
+				MutableTimedAssociationKey key = getSelectedData();
+				selectionTable.getSelectionTableModel().removeData(key);
+			}
+		}
+	}
+
+	private final class ShowDateNameL extends AbstractThreadedActionAdapter {
+		@Override
+		public void performAction(ActionEvent e) {
+			selectionTable.refresh(dateNameCheckbox.isSelected());
+		}
+	}
+
+	private class TableSelectionL implements ListSelectionListener {
+		@Override
+		public void valueChanged(ListSelectionEvent arg0) {
+			setEnabledSelectionAwares(selectionTable.getSelectedRow() > -1);
+		}
+	}
+
 	private static final long serialVersionUID = -3951228734910107454L;
 
 	private final CategoryToCategorySelectionTable selectionTable;
@@ -45,10 +126,6 @@ public class CategoryToCategoryListPanel extends PanelBase {
 	private final JButton removeButton;
 	private final JCheckBox dateNameCheckbox;
 
-	/**
-	 * @throws ServerException
-	 *
-	 */
 	public CategoryToCategoryListPanel(GenericCategory category) throws ServerException {
 		super();
 		this.category = category;
@@ -73,6 +150,18 @@ public class CategoryToCategoryListPanel extends PanelBase {
 		selectionTable.getSelectionModel().addListSelectionListener(new TableSelectionL());
 	}
 
+	List<MutableTimedAssociationKey> getParentCategoryAssociations() {
+		return selectionTable.getSelectionTableModel().getDataList();
+	}
+
+	private MutableTimedAssociationKey getSelectedData() {
+		return selectionTable.getSelectedDataObject();
+	}
+
+	CategoryToCategorySelectionTable getSelectionTable() {
+		return selectionTable;
+	}
+
 	private void initPanel() throws ServerException {
 		setLayout(new BorderLayout(1, 1));
 		add(UIFactory.createLabel("label.parent.categories"), BorderLayout.NORTH);
@@ -85,24 +174,6 @@ public class CategoryToCategoryListPanel extends PanelBase {
 
 		add(btnPanel, BorderLayout.EAST);
 		populateData();
-	}
-
-	private synchronized void populateData() throws ServerException {
-		List<MutableTimedAssociationKey> data = new ArrayList<MutableTimedAssociationKey>();
-		for (Iterator<MutableTimedAssociationKey> i = category.getParentKeyIterator(); i.hasNext();) {
-			MutableTimedAssociationKey key = i.next();
-			MutableTimedAssociationKey newkey = new DefaultMutableTimedAssociationKey(key.getAssociableID(), key.getEffectiveDate(), key.getExpirationDate());
-			data.add(newkey);
-		}
-		selectionTable.setDataList(data);
-		setEnabled(true);
-		setEnabledSelectionAwares(false);
-		newButton.setEnabled(true);
-	}
-
-	private void setEnabledSelectionAwares(boolean enabled) {
-		removeButton.setEnabled(enabled && (selectionTable.getModel().getRowCount() != 1));
-		editButton.setEnabled(enabled);
 	}
 
 	private boolean isValid(MutableTimedAssociationKey oldData, MutableTimedAssociationKey newData, boolean autoExpire) {
@@ -141,93 +212,21 @@ public class CategoryToCategoryListPanel extends PanelBase {
 		return true;
 	}
 
-	private MutableTimedAssociationKey getSelectedData() {
-		return selectionTable.getSelectedDataObject();
-	}
-
-	CategoryToCategorySelectionTable getSelectionTable() {
-		return selectionTable;
-	}
-
-	List<MutableTimedAssociationKey> getParentCategoryAssociations() {
-		return selectionTable.getSelectionTableModel().getDataList();
-	}
-
-	private final class ShowDateNameL extends AbstractThreadedActionAdapter {
-		public void performAction(ActionEvent e) {
-			selectionTable.refresh(dateNameCheckbox.isSelected());
+	private synchronized void populateData() throws ServerException {
+		List<MutableTimedAssociationKey> data = new ArrayList<MutableTimedAssociationKey>();
+		for (Iterator<MutableTimedAssociationKey> i = category.getParentKeyIterator(); i.hasNext();) {
+			MutableTimedAssociationKey key = i.next();
+			MutableTimedAssociationKey newkey = new DefaultMutableTimedAssociationKey(key.getAssociableID(), key.getEffectiveDate(), key.getExpirationDate());
+			data.add(newkey);
 		}
+		selectionTable.setDataList(data);
+		setEnabled(true);
+		setEnabledSelectionAwares(false);
+		newButton.setEnabled(true);
 	}
 
-	private class NewL extends AbstractThreadedActionAdapter {
-		public void performAction(ActionEvent event) throws Exception {
-			if (category != null) {
-				// create mutable boolean object so the we can get back the autoExpire option. This
-				// is not the preferable approach to getting back information from a method...
-				MutableBoolean autoExpire = new MutableBoolean(false);
-				MutableTimedAssociationKey data = CategoryToCategoryEditDialog.newParentCategory(category, autoExpire, null);
-
-				while ((data != null) && !isValid(null, data, autoExpire.booleanValue())) {
-					data = CategoryToCategoryEditDialog.newParentCategory(category, autoExpire, data);
-				}
-
-				if (data != null) {
-					if (autoExpire.booleanValue()) {
-						MutableTimedAssociationKey lastKey = getMostRecentKey();
-						lastKey.setExpirationDate(data.getEffectiveDate());
-					}
-					selectionTable.getSelectionTableModel().addData(data);
-				}
-			}
-		}
-
-		private MutableTimedAssociationKey getMostRecentKey() {
-			MutableTimedAssociationKey results = null;
-			for (MutableTimedAssociationKey key : selectionTable.getSelectionTableModel().getDataList()) {
-				if (key.getExpirationDate() == null) {
-					results = key;
-
-					break;
-				}
-				else if ((results == null) || key.getExpirationDate().after(results.getExpirationDate())) {
-					results = key;
-				}
-			}
-
-			return results;
-		}
-	}
-
-	private class RemoveL extends AbstractThreadedActionAdapter {
-		public void performAction(ActionEvent event) throws Exception {
-			if (ClientUtil.getInstance().showConfirmation("msg.question.remove.entity", new Object[] { "category to category association" })) {
-				MutableTimedAssociationKey key = getSelectedData();
-				selectionTable.getSelectionTableModel().removeData(key);
-			}
-		}
-	}
-
-	private class EditL extends AbstractThreadedActionAdapter {
-		public void performAction(ActionEvent event) throws Exception {
-			int selectedRow = selectionTable.getSelectedRow();
-			MutableTimedAssociationKey oldKey = getSelectedData();
-
-			if (oldKey != null) {
-				MutableTimedAssociationKey newKey = CategoryToCategoryEditDialog.editParentCategory(category, oldKey);
-
-				if ((newKey != null) && isValid(oldKey, newKey, false)) {
-					oldKey.setAssociableID(newKey.getAssociableID());
-					oldKey.setEffectiveDate(newKey.getEffectiveDate());
-					oldKey.setExpirationDate(newKey.getExpirationDate());
-					selectionTable.updateRow(selectedRow);
-				}
-			}
-		}
-	}
-
-	private class TableSelectionL implements ListSelectionListener {
-		public void valueChanged(ListSelectionEvent arg0) {
-			setEnabledSelectionAwares(selectionTable.getSelectedRow() > -1);
-		}
+	private void setEnabledSelectionAwares(boolean enabled) {
+		removeButton.setEnabled(enabled && (selectionTable.getModel().getRowCount() != 1));
+		editButton.setEnabled(enabled);
 	}
 }

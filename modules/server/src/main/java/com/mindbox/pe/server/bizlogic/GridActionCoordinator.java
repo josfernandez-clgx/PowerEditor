@@ -147,13 +147,12 @@ public final class GridActionCoordinator {
 	/**
 	 * Repairs the specified cell values for the specified column changes.
 	 * 
-	 * @param templateID
-	 * @param addedColsUnsorted
-	 * @param deletedCols
-	 * @param cellValueStr
-	 * @param rowCountFromDB
+	 * @param templateID templateID
+	 * @param addedColsUnsorted addedColsUnsorted
+	 * @param deletedCols deletedCols
+	 * @param cellValueStr cellValueStr
 	 * @return the repaied cell value string
-	 * @throws InvalidDataException
+	 * @throws InvalidDataException on error
 	 */
 	public static String repairCellValues(int templateID, int[] addedColsUnsorted, int[] deletedCols, String cellValueStr) throws InvalidDataException {
 		Logger logger = Logger.getLogger(GridActionCoordinator.class);
@@ -342,12 +341,12 @@ public final class GridActionCoordinator {
 	}
 
 	/**
-	 * @param entityType
-	 * @param sourceEntityID
-	 * @param newEntityID
-	 * @param gridUpdater
+	 * @param entityType entityType
+	 * @param sourceEntityID sourceEntityID
+	 * @param newEntityID newEntityID
+	 * @param gridUpdater gridUpdater
 	 * @return
-	 * @throws SQLException
+	 * @throws SQLException on error
 	 * @throws SapphireException if failed to generate new id
 	 */
 	List<ProductGrid> cloneGuidelines(GenericEntityType entityType, int sourceEntityID, int newEntityID, GridUpdater gridUpdater) throws SQLException {
@@ -521,17 +520,13 @@ public final class GridActionCoordinator {
 	 * Saves the specified template and cutover guidelines for the source template to the specified
 	 * template for the specified date. Core of this method is synchronized on <code>this</code>.
 	 * 
-	 * @param sourceTemplateID
-	 *            id of the template of which guidelines to cutover
-	 * @param templateToSave
-	 *            template to save and to cutover guidelines to
-	 * @param cutoverDate
-	 *            the cutover date
-	 * @param user
-	 *            the user requesting this service
+	 * @param sourceTemplateID id of the template of which guidelines to cutover
+	 * @param templateToSave template to save and to cutover guidelines to
+	 * @param cutoverDate the cutover date
+	 * @param guidelinesToCutOver guidelines to cut over
+	 * @param user the user requesting this service
 	 * @return the new id of the saved template
-	 * @throws ServletActionException
-	 *             on error
+	 * @throws ServletActionException on error
 	 */
 	public int cutoverForAndStoreTemplate(final int sourceTemplateID, final GridTemplate templateToSave, final DateSynonym cutoverDate,
 			final List<GuidelineReportData> guidelinesToCutOver, final User user) throws ServerException {
@@ -646,11 +641,11 @@ public final class GridActionCoordinator {
 	/**
 	 * Deletes a list of grids and updates the cache.  
 	 * 
-	 * @param gridManager
-	 * @param updater
+	 * @param gridManager gridManager
+	 * @param updater updater
 	 * @param gridList List of grids to delete
-	 * @throws SQLException
-	 * @throws SapphireException
+	 * @throws SQLException on error
+	 * @throws SapphireException on error
 	 */
 	private void deleteGridList(GridUpdater updater, List<ProductGrid> gridList) throws SQLException, SapphireException {
 		logger.debug(">>> deleteGridList with " + gridList.size());
@@ -681,14 +676,14 @@ public final class GridActionCoordinator {
 	/**
 	 * Note this only handles contexts of size one of two.
 	 * 
-	 * @param usageType
+	 * @param usageType usageType
 	 *            the template usage type
-	 * @param contexts
+	 * @param contexts contexts
 	 *            guideline context; must be of size one or two
-	 * @param user
+	 * @param user user
 	 *            the user for which to retrieve grid summaries
 	 * @return a list of {@link GridSummary}objects
-	 * @throws ServletActionException
+	 * @throws ServletActionException on error
 	 *             on error
 	 */
 	public List<GridSummary> fetchGridSummaries(TemplateUsageType usageType, GuidelineContext contexts[], User user) throws ServerException {
@@ -965,15 +960,15 @@ public final class GridActionCoordinator {
 	 * Gets a list of two lists of instances of {@link com.mindbox.pe.model.GuidelineReportData} for
 	 * the specified template that will be cutover.
 	 * 
-	 * @param templateID
+	 * @param templateID templateID
 	 *            tmplate id
-	 * @param cutoverDate
+	 * @param cutoverDate cutoverDate
 	 *            the cutover date
-	 * @param username
+	 * @param username username
 	 *            user id
 	 * @return list of list of {@link com.mindbox.pe.model.GuidelineReportData} instances; first one
 	 *         with cutover guidelines, the other non-cutover guidelines
-	 * @throws ServletActionException
+	 * @throws ServletActionException on error
 	 */
 	public List<List<GuidelineReportData>> retrieveCutoverGuidelinesForTemplate(int templateID, DateSynonym cutoverDate, String username) throws ServerException {
 		if (templateID < 1) throw new IllegalArgumentException("Invalid template ID: " + templateID);
@@ -1012,11 +1007,11 @@ public final class GridActionCoordinator {
 	 * persisted grids and cache. 
 	 * Make sure contexts has at least one element.
 	 * 
-	 * @param templateID
-	 * @param contexts
-	 * @param grids
-	 * @param user
-	 * @throws ServletActionException
+	 * @param templateID templateID
+	 * @param contexts contexts
+	 * @param grids grids
+	 * @param user user
+	 * @throws ServletActionException on error
 	 */
 	private Map<IntegerPair, Integer> syncGridData_internal(int templateID, List<ProductGrid> grids, List<ProductGrid> removedGrids, User user, boolean generateGridID,
 			boolean updateEvenIfIdentical) throws ServletActionException {
@@ -1073,14 +1068,14 @@ public final class GridActionCoordinator {
 	 *  
 	 * Do not update context here.
 	 * 
-	 * @param gridManager
-	 * @param updater
-	 * @param templateID
-	 * @param gridList
-	 * @param gridIDMap
-	 * @param generateGridID
-	 * @throws SQLException
-	 * @throws SapphireException
+	 * @param gridManager gridManager
+	 * @param updater updater
+	 * @param templateID templateID
+	 * @param gridList gridList
+	 * @param gridIDMap gridIDMap
+	 * @param generateGridID generateGridID
+	 * @throws SQLException on error
+	 * @throws SapphireException on error
 	 */
 	private void syncGridList(GridManager gridManager, GridUpdater updater, int templateID, List<ProductGrid> gridList, List<ProductGrid> removedGrids,
 			Map<GridIDKey, Integer> gridIDMap, boolean generateGridID, boolean updateEvenIfIdentical) throws SQLException, SapphireException {
@@ -1288,20 +1283,12 @@ public final class GridActionCoordinator {
 	/**
 	 * Updates contexts for the specified grids.
 	 * 
-	 * @param templateID
-	 *            template for the grids
-	 * @param oldContexts
-	 *            old context
-	 * @param grids
-	 *            grids of which context to update
-	 * @param newContexts
-	 *            new context
-	 * @param user
-	 *            user
-	 * @throws ServletActionException
-	 *             on server error
-	 * @throws LockException
-	 *             on lock error
+	 * @param templateID template for the grids
+	 * @param grids grids of which context to update
+	 * @param newContexts new context
+	 * @param user user
+	 * @throws ServletActionException on error
+	 * @throws LockException on lock error
 	 * @since PowerEditor 4.2.0
 	 */
 	public void updateGridContext(int templateID, List<ProductGrid> grids, GuidelineContext[] newContexts, User user) throws ServletActionException, LockException {

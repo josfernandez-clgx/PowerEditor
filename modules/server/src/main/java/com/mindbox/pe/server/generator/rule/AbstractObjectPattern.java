@@ -20,8 +20,8 @@ public abstract class AbstractObjectPattern extends AbstractAttributePatternList
 
 	/**
 	 * Equivalent to <code>AbstractObjectPattern(className,variableName,false)</code>.
-	 * @param className
-	 * @param variableName
+	 * @param className className
+	 * @param variableName variableName
 	 * @throws NullPointerException if className or variableName is <code>null</code>
 	 */
 	protected AbstractObjectPattern(String className, String variableName) {
@@ -30,8 +30,9 @@ public abstract class AbstractObjectPattern extends AbstractAttributePatternList
 
 	/**
 	 * 
-	 * @param className
-	 * @param variableName
+	 * @param className className
+	 * @param variableName variableName
+	 * @param shouldBeFirst shouldBeFirst
 	 * @throws NullPointerException if className or variableName is <code>null</code>
 	 */
 	protected AbstractObjectPattern(String className, String variableName, boolean shouldBeFirst) {
@@ -43,14 +44,16 @@ public abstract class AbstractObjectPattern extends AbstractAttributePatternList
 	}
 
 	@Override
-	public final boolean canBeSkipped() {
-		return /*!isEmpty() && */skippable;
+	public void addAll(ObjectPattern objectPattern) throws RuleGenerationException {
+		for (int i = 0; i < objectPattern.size(); i++) {
+			add(objectPattern.get(i));
+		}
+		if (!objectPattern.canBeSkipped() && skippable) {
+			this.skippable = false;
+		}
 	}
-	
-	public final void setCanBeSkipped(boolean value) {
-		this.skippable = value;
-	}
-	
+
+	@Override
 	public void addMustBeBeforeVariable(String variableName) {
 		synchronized (mustBeBeforeVariableList) {
 			if (!mustBeBeforeVariableList.contains(variableName)) {
@@ -58,7 +61,8 @@ public abstract class AbstractObjectPattern extends AbstractAttributePatternList
 			}
 		}
 	}
-	
+
+	@Override
 	public boolean canBeAfter(String variableName) {
 		if (variableName == null || variableName.equalsIgnoreCase(this.variableName)) {
 			return false;
@@ -70,21 +74,12 @@ public abstract class AbstractObjectPattern extends AbstractAttributePatternList
 		}
 	}
 
-	public final boolean shouldBeFirst() {
-		return shouldBeFirst;
+	@Override
+	public final boolean canBeSkipped() {
+		return /*!isEmpty() && */skippable;
 	}
 
-	public final boolean containsAttributeName(String attributeName) {
-		if (attributeName == null) throw new NullPointerException("attributeName cannot be null");
-		for (int i = 0; i < size(); i++) {
-			AttributePattern element = get(i);
-			if (element.getAttributeName().equals(attributeName)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
+	@Override
 	public final boolean containsAttribute(String variableName) {
 		if (variableName == null) throw new NullPointerException("variableName cannot be null");
 		for (int i = 0; i < size(); i++) {
@@ -96,6 +91,19 @@ public abstract class AbstractObjectPattern extends AbstractAttributePatternList
 		return false;
 	}
 
+	@Override
+	public final boolean containsAttributeName(String attributeName) {
+		if (attributeName == null) throw new NullPointerException("attributeName cannot be null");
+		for (int i = 0; i < size(); i++) {
+			AttributePattern element = get(i);
+			if (element.getAttributeName().equals(attributeName)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
 	public final boolean containsNonEmptyAttribute(String variableName) {
 		for (int i = 0; i < size(); i++) {
 			AttributePattern element = get(i);
@@ -106,23 +114,27 @@ public abstract class AbstractObjectPattern extends AbstractAttributePatternList
 		return false;
 	}
 
+	@Override
 	public final String getClassName() {
 		return className;
 	}
 
+	@Override
 	public final String getVariableName() {
 		return variableName;
 	}
 
-	public void addAll(ObjectPattern objectPattern) throws RuleGenerationException {
-		for (int i = 0; i < objectPattern.size(); i++) {
-			add(objectPattern.get(i));
-		}
-		if (!objectPattern.canBeSkipped() && skippable) {
-			this.skippable = false;
-		}
+	@Override
+	public final void setCanBeSkipped(boolean value) {
+		this.skippable = value;
 	}
 
+	@Override
+	public final boolean shouldBeFirst() {
+		return shouldBeFirst;
+	}
+
+	@Override
 	public String toString() {
 		return getClass() + "[class=" + className + ",var=" + variableName + ']';
 	}

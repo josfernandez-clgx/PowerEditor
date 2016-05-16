@@ -1,7 +1,6 @@
 package com.mindbox.pe.server.imexport;
 
 import java.io.Serializable;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -12,13 +11,13 @@ import com.mindbox.pe.server.model.User;
 
 /**
  * Abstract implementation of {@link Importer}.
- * <br/>
  * <b>Note:</b>
- * Concrete implementations of this are NOT re-usable. To use them,
- * create a new instance and then invoke {@link #importData(Map, ImportResult)} once,
- * and then discard the object.
  * <p>
- * This is not thread safe.
+ * Concrete implementations of this are NOT re-usable. To use them,
+ * create a new instance and then invoke {@link #importData(Object, ImportResult, boolean, User, Object)} once,
+ * and then discard the object.
+ * </p>
+ * <em>This is not thread safe.</em>
  * @author kim
  *
  */

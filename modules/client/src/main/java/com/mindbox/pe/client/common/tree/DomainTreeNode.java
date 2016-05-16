@@ -23,9 +23,6 @@ public class DomainTreeNode extends RootTreeNode {
 
 	private TreeNode parent = null;
 
-	/**
-	 * 
-	 */
 	public DomainTreeNode(DomainClass dc, TreeNode parent) {
 		super(dc);
 		this.parent = parent;
@@ -33,11 +30,9 @@ public class DomainTreeNode extends RootTreeNode {
 	}
 
 	protected void addChildren() {
-		for (Iterator<DomainClass> iter = DomainModel.getInstance().getChildClasses(((DomainClass) data).getName()).iterator();
-			iter.hasNext();
-			) {
+		for (Iterator<DomainClass> iter = DomainModel.getInstance().getChildClasses(((DomainClass) data).getName()).iterator(); iter.hasNext();) {
 			DomainClass childClass = (DomainClass) iter.next();
-			addChild(new DomainTreeNode(childClass, this),true);
+			addChild(new DomainTreeNode(childClass, this), true);
 		}
 	}
 
@@ -45,13 +40,12 @@ public class DomainTreeNode extends RootTreeNode {
 		return (DomainClass) super.data;
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.swing.tree.TreeNode#getParent()
-	 */
+	@Override
 	public final TreeNode getParent() {
 		return parent;
 	}
 
+	@Override
 	public String toString() {
 		return ((DomainClass) data).getDisplayLabel();
 	}

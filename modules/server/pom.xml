@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- ======================================================================== 
-Filename...: pom.xml Description: POM for PE Server Module. 
-============================================================================= -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<!-- ======================================================================== Filename...: pom.xml Description: POM for PE Server Module. ============================================================================= -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.mindbox.pe</groupId>
@@ -118,9 +115,8 @@ Filename...: pom.xml Description: POM for PE Server Module.
 		<dependency>
 			<groupId>com.crystalreports</groupId>
 			<artifactId>xmlserialization</artifactId>
-			<version>1.0</version>
 		</dependency>
-			
+
 		<!-- Test dependencies -->
 		<dependency>
 			<groupId>com.mindbox.pe</groupId>
@@ -356,6 +352,13 @@ Filename...: pom.xml Description: POM for PE Server Module.
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<configuration>
+					<excludePackageNames>com.mindbox.pe.wsdl.api,com.mindbox.pe.xsd.*</excludePackageNames>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
 				<executions>
 					<execution>
@@ -390,4 +393,16 @@ Filename...: pom.xml Description: POM for PE Server Module.
 			</plugin>
 		</plugins>
 	</build>
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<configuration>
+					<excludePackageNames>com.mindbox.pe.wsdl.api.*,com.mindbox.pe.xsd.*</excludePackageNames>
+					<failOnError>false</failOnError>
+				</configuration>
+			</plugin>
+		</plugins>
+	</reporting>
 </project>

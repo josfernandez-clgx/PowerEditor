@@ -73,7 +73,7 @@ public class ButtonPanel extends JPanel {
 	/**
 	 * Assumes the first button is the new button.
 	 * The first button's status will not be modified.
-	 * @param enabled
+	 * @param enabled enabled flag
 	 */
 	public void setEnabledSelectionAwareButtons(boolean enabled) {
 		if (this.isEnabled()) {

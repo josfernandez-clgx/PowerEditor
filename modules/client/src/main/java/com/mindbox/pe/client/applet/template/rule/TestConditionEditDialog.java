@@ -16,33 +16,34 @@ import com.mindbox.pe.model.rule.TestCondition;
  * @since PowerEditor 2.3.0
  */
 public class TestConditionEditDialog extends FunctionEditDialog {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -3951228734910107454L;
 
 	private static List<? extends FunctionTypeDefinition> testTypeList = null;
 
-	/**
-	 * 
-	 */
-	protected TestConditionEditDialog(JDialog dialog, TestCondition test) {
-		super(dialog, (FunctionCall) test, null);
-
+	public static void resetTypeList() {
+		testTypeList = null;
 	}
 
+	protected TestConditionEditDialog(JDialog dialog, TestCondition test) {
+		super(dialog, (FunctionCall) test, null);
+	}
+
+	@Override
 	public FunctionCall createFunctionCallInstance() {
 		return (FunctionCall) RuleElementFactory.getInstance().createTestCondition();
 	}
 
+	@Override
 	public String getFunctionTypeLabel() {
 		return "label.test.type";
 	}
 
+	@Override
 	public String getIconString() {
 		return "image.node.adhoc.test";
 	}
 
+	@Override
 	public List<? extends FunctionTypeDefinition> getTypeList(Object typeDeterminer) {
 		if (testTypeList == null) {
 			try {
@@ -53,9 +54,5 @@ public class TestConditionEditDialog extends FunctionEditDialog {
 			}
 		}
 		return testTypeList;
-	}
-
-	public static void resetTypeList() {
-		testTypeList = null;
 	}
 }

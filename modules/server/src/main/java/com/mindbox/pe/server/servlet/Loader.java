@@ -85,7 +85,8 @@ public final class Loader {
 		domainManager.finishLoading();
 	}
 
-	private static void loadParameterTemplate(final List<String> templateFiles) throws ParseException, SapphireException, SQLException, SAXException, IOException, ParserConfigurationException {
+	private static void loadParameterTemplate(final List<String> templateFiles)
+			throws ParseException, SapphireException, SQLException, SAXException, IOException, ParserConfigurationException {
 		Logger logger = Logger.getLogger(Loader.class);
 		logger.info("Loading templates files...");
 
@@ -120,16 +121,8 @@ public final class Loader {
 		ParameterTemplateManager.getInstance().finishLoading();
 	}
 
-	// NOT UNIT TESTED!  Too much going on in this class.
-	// temporary for 4.5. Future release will support multiSelect ParamTempl enum cols.
-	private static void overrideEnumColumnMultiselect(ParameterTemplate parameterTemplate) {
-		for (AbstractTemplateColumn col : parameterTemplate.getColumns()) {
-			ColumnDataSpecDigest colSpec = col.getColumnDataSpecDigest();
-			colSpec.setIsMultiSelectAllowed(false);
-		}
-	}
-
-	private static void loadTemplate(KnowledgeBaseFilter knowledgeBaseFilterConfig) throws ParseException, SapphireException, SQLException, SAXException, IOException, ParserConfigurationException {
+	private static void loadTemplate(KnowledgeBaseFilter knowledgeBaseFilterConfig)
+			throws ParseException, SapphireException, SQLException, SAXException, IOException, ParserConfigurationException {
 		Logger logger = Logger.getLogger(Loader.class);
 		logger.info("Loading templates files...");
 
@@ -147,33 +140,10 @@ public final class Loader {
 		GuidelineTemplateManager.getInstance().finishLoading();
 	}
 
-	public static void loadUserData() throws ServerException {
-		Logger logger = Logger.getLogger(Loader.class);
-		logger.info("Loading users & authorization data...");
-		SecurityCacheManager securityCache = SecurityCacheManager.getInstance();
-		securityCache.startLoading();
-		UserDataProvider userDataProvider = ServiceProviderFactory.getUserManagementProvider();
-		try {
-			userDataProvider.loadAllPrivileges(securityCache);
-			userDataProvider.loadAllRoles(securityCache);
-			userDataProvider.loadAllPrivilegesToRoles(securityCache);
-			if (userDataProvider.cacheUserObjects()) {
-				userDataProvider.loadAllUsers(securityCache);
-				userDataProvider.loadAllUsersToRoles(securityCache);
-			}
-		}
-		catch (Exception ex) {
-			logger.error("Failed to load user  data", ex);
-			throw new ServerException("Failed to load user-authorization data: " + ex.getMessage());
-		}
-		finally {
-			SecurityCacheManager.getInstance().finishLoading();
-		}
-	}
-
 	/**
 	 * Assumes we need to load everything including config files 
-	 * @throws ServletException
+	 * @param doNotLoadTypeEnumValues doNotLoadTypeEnumValues
+	 * @throws ServerException on error
 	 */
 	public static void loadToCache(boolean doNotLoadTypeEnumValues) throws ServerException {
 		Loader.loadToCache(false, doNotLoadTypeEnumValues);
@@ -184,7 +154,8 @@ public final class Loader {
 	 * @param reloadEvent <code>true</code> if this is a "reload". <code>false</code> if we are
 	 * loading for the very first time. <code>false</code> will cause the loader to not reload domain and
 	 * config data. 
-	 * @throws ServletException
+	 * @param doNotLoadTypeEnumValues doNotLoadTypeEnumValues
+	 * @throws ServerException on error
 	 */
 	public static void loadToCache(boolean reloadEvent, boolean doNotLoadTypeEnumValues) throws ServerException {
 		long startTime = System.currentTimeMillis();
@@ -312,6 +283,39 @@ public final class Loader {
 		catch (Exception exception) {
 			logger.error("Exception while loading entities from DB", exception);
 			throw new ServerException(exception.getMessage());
+		}
+	}
+
+	public static void loadUserData() throws ServerException {
+		Logger logger = Logger.getLogger(Loader.class);
+		logger.info("Loading users & authorization data...");
+		SecurityCacheManager securityCache = SecurityCacheManager.getInstance();
+		securityCache.startLoading();
+		UserDataProvider userDataProvider = ServiceProviderFactory.getUserManagementProvider();
+		try {
+			userDataProvider.loadAllPrivileges(securityCache);
+			userDataProvider.loadAllRoles(securityCache);
+			userDataProvider.loadAllPrivilegesToRoles(securityCache);
+			if (userDataProvider.cacheUserObjects()) {
+				userDataProvider.loadAllUsers(securityCache);
+				userDataProvider.loadAllUsersToRoles(securityCache);
+			}
+		}
+		catch (Exception ex) {
+			logger.error("Failed to load user  data", ex);
+			throw new ServerException("Failed to load user-authorization data: " + ex.getMessage());
+		}
+		finally {
+			SecurityCacheManager.getInstance().finishLoading();
+		}
+	}
+
+	// NOT UNIT TESTED!  Too much going on in this class.
+	// temporary for 4.5. Future release will support multiSelect ParamTempl enum cols.
+	private static void overrideEnumColumnMultiselect(ParameterTemplate parameterTemplate) {
+		for (AbstractTemplateColumn col : parameterTemplate.getColumns()) {
+			ColumnDataSpecDigest colSpec = col.getColumnDataSpecDigest();
+			colSpec.setIsMultiSelectAllowed(false);
 		}
 	}
 

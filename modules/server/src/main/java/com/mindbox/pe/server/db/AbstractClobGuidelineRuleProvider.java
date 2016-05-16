@@ -36,10 +36,52 @@ public abstract class AbstractClobGuidelineRuleProvider extends DefaultGuideline
 
 	private static final String Q_SELECT_TEMPLATE_DEPLOY_RULE_DEF = "select big_rule_def from MB_TEMPLATE_DEPLOY_RULE where template_id=? and column_no=? for update";
 
-	protected String getInsertDeployRuleQuery() {
-		return Q_INSERT_TEMPLATE_DEPLOY_RULE;
+	/**
+	 * Creates a new clob (temporary, if supported by JDBC driver) for the specifieid connection and the initial value.
+	 * The returned clob object must be a valid Clob object for the JDBC driver in use. 
+	 * Technically, <code>PreparedStaetement.setClob()</code> must work with the clob object returned by this.
+	 * @param conn connection
+	 * @param value initial value
+	 * @return a new clob pointer; must be one acccepted by the JDBC driver in use
+	 * @throws SQLException on DB error
+	 */
+	protected abstract Clob createTemporaryClob(Connection conn, String value) throws SQLException;
+
+	@Override
+	public final List<GuidelineRuleInfo> fetchAllGuidelineRules() throws SQLException {
+		logger.debug(">>> fetchAllGuidelineRules");
+		Connection conn = DBConnectionManager.getInstance().getConnection();
+
+		List<GuidelineRuleInfo> infoList = new ArrayList<GuidelineRuleInfo>();
+
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			ps = conn.prepareStatement(Q_LOAD_TEMPLATE_DEPLOY_RULES);
+			rs = ps.executeQuery();
+
+			int templateID = -1;
+			int columnNo = -1;
+			while (rs.next()) {
+				templateID = rs.getInt(1);
+				columnNo = rs.getInt(2);
+				logger.debug("... fetchAllGuidelineRules: processing template " + templateID + ", column " + columnNo);
+				String ruleDefStr = fetchStringFromClob(rs, 3);
+				if (ruleDefStr == null || ruleDefStr.length() < 1) {
+					ruleDefStr = UtilBase.trim(rs.getString(4));
+				}
+
+				infoList.add(new GuidelineRuleInfo(templateID, columnNo, ruleDefStr));
+			}
+			logger.debug("<<< fetchAllGuidelineRules: #of rules = " + infoList.size());
+			return infoList;
+		}
+		finally {
+			DBUtil.closeLocallyManagedResources(rs, ps);
+			DBConnectionManager.getInstance().freeConnection(conn);
+		}
 	}
-	
+
 	/**
 	 * Retrieves string value from the specified CLOB column from the specified result set.
 	 * This uses JDBC <code>java.sql.Clob</code> class and ResultSet.getClob() method to get the clob object. 
@@ -47,10 +89,10 @@ public abstract class AbstractClobGuidelineRuleProvider extends DefaultGuideline
 	 * If these two methods doesn't work for a particular JDBC driver, override this.
 	 * <p>
 	 * This is used by {@link #fetchAllGuidelineRules()}.
-	 * @param rs
-	 * @param column
+	 * @param rs rs
+	 * @param column column
 	 * @return string value of the specified CLOB column
-	 * @throws SQLException
+	 * @throws SQLException on error
 	 * @see #fetchAllGuidelineRules()
 	 */
 	protected String fetchStringFromClob(ResultSet rs, int column) throws SQLException {
@@ -86,25 +128,37 @@ public abstract class AbstractClobGuidelineRuleProvider extends DefaultGuideline
 		}
 	}
 
-	/**
-	 * Creates a new clob (temporary, if supported by JDBC driver) for the specifieid connection and the initial value.
-	 * The returned clob object must be a valid Clob object for the JDBC driver in use. 
-	 * Technically, <code>PreparedStaetement.setClob()</code> must work with the clob object returned by this.
-	 * @param conn connection
-	 * @param value initial value
-	 * @return a new clob pointer; must be one acccepted by the JDBC driver in use
-	 * @throws SQLException on DB error
-	 */
-	protected abstract Clob createTemporaryClob(Connection conn, String value) throws SQLException;
-	
-	/**
-	 * Updates the specified clob to the specified value.
-	 * @param clob
-	 * @param value
-	 * @throws SQLException
-	 */
-	protected abstract void setClobValue(Clob clob, String value) throws SQLException;
-	
+	protected String getInsertDeployRuleQuery() {
+		return Q_INSERT_TEMPLATE_DEPLOY_RULE;
+	}
+
+	@Override
+	public final void insertGuidelineRule(Connection conn, int templateID, int columnNo, String deploymentRule) throws SQLException {
+		logger.debug(">>> insertGuidelineRule: template=" + templateID + ",col=" + columnNo);
+		PreparedStatement ps = null;
+		Clob tempClob = null;
+		try {
+			ps = conn.prepareStatement(getInsertDeployRuleQuery());
+			ps.setInt(1, templateID);
+			ps.setInt(2, columnNo);
+			int count = ps.executeUpdate();
+			if (count < 1) {
+				throw new SQLException("Failed to insert the template-rule row for " + templateID + "," + columnNo);
+			}
+			ps.close();
+			ps = null;
+			logger.debug("... insertGuidelineRule: row inserted. updating CLOB...");
+
+			setStringToClob(conn, templateID, columnNo, deploymentRule);
+
+			logger.debug("<<< insertGuidelineRule");
+		}
+		finally {
+			releaseResource(tempClob);
+			if (ps != null) ps.close();
+		}
+	}
+
 	/**
 	 * Releases DB resource associated with the specified clob object.
 	 * This implementation is a no-op. 
@@ -113,22 +167,34 @@ public abstract class AbstractClobGuidelineRuleProvider extends DefaultGuideline
 	 * This is used by {@link #insertGuidelineRule(Connection, int, int, String)},
 	 * {@link #updateGuidelineRule(Connection, int, int, String)}, and
 	 * {@link #setStringToClob(Connection, int, int, String)}.
-	 * <b>Note:<b><br>
+	 * </p>
+	 * <b>Note:</b>
+	 * <p>
 	 * Implementations of this must graciously handle when <code>clob</code> is <code>null</code>, in which case,
 	 * It is recommended that this does nothing.
-	 * @param clob
-	 * @throws SQLException
+	 * </p>
+	 * @param clob clob
+	 * @throws SQLException on error
 	 */
 	protected abstract void releaseResource(Clob clob) throws SQLException;
-	
+
+	/**
+	 * Updates the specified clob to the specified value.
+	 * @param clob clob
+	 * @param value value
+	 * @throws SQLException on error
+	 */
+	protected abstract void setClobValue(Clob clob, String value) throws SQLException;
+
 	/**
 	 * Makes sue the clob column for the specified template and column has the specified value.
 	 * This implementation uses <code>java.sql.Clob.setCharacterStream(long)</code> to set the value of the clob.
 	 * If this doesn't work for a particular JDBC driver, override this.
-	 * @param conn
-	 * @param templateID
-	 * @param columnID
-	 * @param value
+	 * @param conn conn
+	 * @param templateID templateID
+	 * @param columnID columnID
+	 * @param value value
+	 * @throws SQLException on error
 	 */
 	protected void setStringToClob(Connection conn, int templateID, int columnID, String value) throws SQLException {
 		logger.debug(">>> setStringToClob");
@@ -184,64 +250,7 @@ public abstract class AbstractClobGuidelineRuleProvider extends DefaultGuideline
 		}
 	}
 
-	public final List<GuidelineRuleInfo> fetchAllGuidelineRules() throws SQLException {
-		logger.debug(">>> fetchAllGuidelineRules");
-		Connection conn = DBConnectionManager.getInstance().getConnection();
-
-		List<GuidelineRuleInfo> infoList = new ArrayList<GuidelineRuleInfo>();
-
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			ps = conn.prepareStatement(Q_LOAD_TEMPLATE_DEPLOY_RULES);
-			rs = ps.executeQuery();
-
-			int templateID = -1;
-			int columnNo = -1;
-			while (rs.next()) {
-				templateID = rs.getInt(1);
-				columnNo = rs.getInt(2);
-				logger.debug("... fetchAllGuidelineRules: processing template " + templateID + ", column " + columnNo);
-				String ruleDefStr = fetchStringFromClob(rs, 3);
-				if (ruleDefStr == null || ruleDefStr.length() < 1) {
-					ruleDefStr = UtilBase.trim(rs.getString(4));
-				}
-
-				infoList.add(new GuidelineRuleInfo(templateID, columnNo, ruleDefStr));
-			}
-			logger.debug("<<< fetchAllGuidelineRules: #of rules = " + infoList.size());
-			return infoList;
-		}
-		finally {
-			DBUtil.closeLocallyManagedResources(rs, ps);
-			DBConnectionManager.getInstance().freeConnection(conn);
-		}
-	}
-
-	public final void insertGuidelineRule(Connection conn, int templateID, int columnNo, String deploymentRule) throws SQLException {
-		logger.debug(">>> insertGuidelineRule: template=" + templateID + ",col=" + columnNo);
-		PreparedStatement ps = null;
-		Clob tempClob = null;
-		try {
-			ps = conn.prepareStatement(getInsertDeployRuleQuery());
-			ps.setInt(1, templateID);
-			ps.setInt(2, columnNo);
-			int count = ps.executeUpdate();
-			if (count < 1) { throw new SQLException("Failed to insert the template-rule row for " + templateID + "," + columnNo); }
-			ps.close();
-			ps = null;
-			logger.debug("... insertGuidelineRule: row inserted. updating CLOB...");
-
-			setStringToClob(conn, templateID, columnNo, deploymentRule);
-			
-			logger.debug("<<< insertGuidelineRule");
-		}
-		finally {
-			releaseResource(tempClob);
-			if (ps != null) ps.close();
-		}
-	}
-
+	@Override
 	public final void updateGuidelineRule(Connection conn, int templateID, int columnNo, String deploymentRule) throws SQLException {
 		logger.debug(">>> updateGuidelineRule: template=" + templateID + ",col=" + columnNo);
 		setStringToClob(conn, templateID, columnNo, deploymentRule);

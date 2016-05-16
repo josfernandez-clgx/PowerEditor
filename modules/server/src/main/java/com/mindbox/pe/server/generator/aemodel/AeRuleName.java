@@ -17,12 +17,13 @@ import com.mindbox.server.parser.jtb.rule.syntaxtree.Node;
 public class AeRuleName extends AbstractAeValue {
 
 	/**
-	 * @param node
+	 * @param node node
 	 */
 	public AeRuleName(Node node) {
 		super(node);
 	}
-	
+
+	@Override
 	public String toString() {
 		return "%ruleName%";
 	}

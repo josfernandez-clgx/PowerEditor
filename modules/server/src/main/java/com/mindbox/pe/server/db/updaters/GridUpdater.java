@@ -23,11 +23,10 @@ import com.mindbox.pe.server.model.GridCellDetail;
  */
 public class GridUpdater extends DateSynonymReferenceUpdater {
 
-	private static final String Q_GRID_INSERT = "insert into MB_GRID(grid_id,template_id,"
-			+ " deploy_status,last_status_change_on,clone_of,creation_date," + "num_rows,comments)" + " values (?,?,?,?,?,?,?,?)";
+	private static final String Q_GRID_INSERT = "insert into MB_GRID(grid_id,template_id," + " deploy_status,last_status_change_on,clone_of,creation_date," + "num_rows,comments)"
+			+ " values (?,?,?,?,?,?,?,?)";
 
-	private static final String Q_GRID_UPDATE = "update MB_GRID set" + " deploy_status=?,last_status_change_on=?,"
-			+ " num_rows=?,comments=?,clone_of=? where grid_id=?";
+	private static final String Q_GRID_UPDATE = "update MB_GRID set" + " deploy_status=?,last_status_change_on=?," + " num_rows=?,comments=?,clone_of=? where grid_id=?";
 
 	private static final String Q_GRID_SET_TEMPLATE = "update MB_GRID set template_id=? where grid_id=?";
 
@@ -83,12 +82,9 @@ public class GridUpdater extends DateSynonymReferenceUpdater {
 	 * Deletes the specified generic category from all grid context. Note: this does not perform
 	 * connection management functions.
 	 * 
-	 * @param categoryType
-	 *            category type
-	 * @param categoryID
-	 *            category id
-	 * @throws SQLException
-	 *             on error
+	 * @param categoryType categoryType
+	 * @param categoryID categoryID
+	 * @throws SQLException on error
 	 * @since 4.4.1
 	 */
 	public void deleteCategoryFromContext(int categoryType, int categoryID) throws SQLException {
@@ -114,12 +110,9 @@ public class GridUpdater extends DateSynonymReferenceUpdater {
 	 * Deletes the specified generic category from all grid context. Note: this does not perform
 	 * connection management functions.
 	 * 
-	 * @param categoryType
-	 *            category type
-	 * @param entityID
-	 *            category id
-	 * @throws SQLException
-	 *             on error
+	 * @param entityType entityType
+	 * @param entityID entityID
+	 * @throws SQLException on error
 	 * @since 4.4.1
 	 */
 	public void deleteEntityFromContext(int entityType, int entityID) throws SQLException {
@@ -141,11 +134,35 @@ public class GridUpdater extends DateSynonymReferenceUpdater {
 		}
 	}
 
+	private void deleteGrid(Connection conn, int gridID) throws SQLException {
+		logger.debug(">>> deleteGrid: " + gridID);
+
+		PreparedStatement ps = null;
+		try {
+			ps = conn.prepareStatement(Q_DELETE_MB_GRID);
+			ps.setInt(1, gridID);
+			int j = ps.executeUpdate();
+
+			logger.info("Deleted " + j + " grid row(s)!");
+		}
+		catch (SQLException exp) {
+			if (exp.getMessage().equalsIgnoreCase("No Data Found") == false) {
+				throw exp;
+			}
+			else {
+				logger.info("No Data Found");
+			}
+		}
+		finally {
+			if (ps != null) ps.close();
+		}
+	}
+
 	/**
 	 * Removes all guidelines for the specified template.
 	 * 
-	 * @param templateID
-	 * @throws SQLException
+	 * @param templateID templateID
+	 * @throws SQLException on error
 	 * @since PowerEditor 4.3.7
 	 */
 	public void deleteGridsForTemplate(int templateID) throws SQLException {
@@ -188,27 +205,105 @@ public class GridUpdater extends DateSynonymReferenceUpdater {
 	}
 
 	/**
-	 * Inserts a new guideline template row into the database.
+	 * Removes the specified guideline grid from the database.
 	 * 
-	 * @param gridID
-	 * @param templateID
-	 * @param comment
-	 * @param valueContainer
-	 * @param status
-	 * @param statusChanged
-	 * @param effDate
-	 * @param expDate
-	 * @param numRows
-	 * @param cloneOf
-	 * @param created
-	 * @param entityIdentities entity identities; can be <code>null</code>
-	 * @param categoryIdentities category identities; can be <code>null</code>
-	 * @throws SQLException
+	 * @param gridID gridID
+	 * @throws SQLException on error
 	 *             on db error
 	 */
-	public void insertProductGrid(int gridID, int templateID, String comment, GridValueContainable valueContainer, String status,
-			Date statusChanged, DateSynonym effDate, DateSynonym expDate, int numRows, int cloneOf, Date created,
-			GenericEntityIdentity[] entityIdentities, GenericCategoryIdentity[] categoryIdentities) throws SQLException {
+	public void deleteProductGrid(int gridID) throws SQLException {
+		logger.debug(">>> deleteProductGrid: " + gridID);
+		Connection conn = getConnection();
+		PreparedStatement ps = null;
+		try {
+			ps = conn.prepareStatement(Q_DELETE_ENTITY_CONTEXT);
+			ps.setInt(1, gridID);
+			int count = ps.executeUpdate();
+			logger.info("deleted " + count + " entity context");
+			ps.close();
+			ps = null;
+
+			// delete label
+			ps = conn.prepareStatement(Q_DELETE_GRID_DATE_SYNONYM);
+			ps.setInt(1, gridID);
+			count = ps.executeUpdate();
+			logger.info("deleted " + count + " grid date synonyms");
+			ps.close();
+			ps = null;
+
+			// delete cell values
+			ps = conn.prepareStatement(Q_DELETE_GRID_CELL_VALUES);
+			ps.setInt(1, gridID);
+			count = ps.executeUpdate();
+			logger.debug("    setGridCellValues: removed " + count + " grid cell values");
+			ps.close();
+			ps = null;
+		}
+		catch (SQLException ex) {
+			if (ex.getMessage().equalsIgnoreCase("No Data Found") == false) {
+				throw ex;
+			}
+			else {
+				logger.info("No Data Found");
+			}
+		}
+		finally {
+			if (ps != null) ps.close();
+		}
+
+		deleteGrid(conn, gridID);
+		logger.debug("<<< deleteProductGrid: " + gridID);
+	}
+
+	private void insertGrid(Connection conn, int gridID, int templateID, String comment, String status, Date statusChanged, int numRows, int cloneOf, Date created)
+			throws SQLException {
+		PreparedStatement ps = null;
+		try {
+			ps = conn.prepareStatement(Q_GRID_INSERT);
+			ps.setInt(1, gridID);
+			ps.setInt(2, templateID);
+			ps.setString(3, status);
+			DBUtil.setDateValue(ps, 4, statusChanged);
+
+			ps.setInt(5, cloneOf);
+			DBUtil.setDateValue(ps, 6, (created == null ? new Date() : created));
+			ps.setInt(7, numRows);
+			ps.setString(8, comment);
+			int count = ps.executeUpdate();
+			if (count < 0) {
+				throw new SQLException("Failed to insert a new row for " + gridID);
+			}
+			logger.info("Inserted " + count + " grid row(s)!");
+			ps.close();
+			ps = null;
+		}
+		finally {
+			if (ps != null) ps.close();
+		}
+	}
+
+	/**
+	 * Inserts a new guideline template row into the database.
+	 * 
+	 * @param gridID gridID
+	 * @param templateID templateID
+	 * @param comment comment
+	 * @param valueContainer valueContainer
+	 * @param status status
+	 * @param statusChanged statusChanged
+	 * @param effDate effDate
+	 * @param expDate expDate
+	 * @param numRows numRows
+	 * @param cloneOf cloneOf
+	 * @param created created
+	 * @param entityIdentities entity identities; can be <code>null</code>
+	 * @param categoryIdentities category identities; can be <code>null</code>
+	 * @throws SQLException on error
+	 *             on db error
+	 */
+	public void insertProductGrid(int gridID, int templateID, String comment, GridValueContainable valueContainer, String status, Date statusChanged, DateSynonym effDate,
+			DateSynonym expDate, int numRows, int cloneOf, Date created, GenericEntityIdentity[] entityIdentities, GenericCategoryIdentity[] categoryIdentities)
+			throws SQLException {
 
 		logger.debug(">>> insertProductGrid: " + gridID + "," + templateID + "," + effDate + "," + expDate);
 		Connection conn = getConnection();
@@ -265,49 +360,52 @@ public class GridUpdater extends DateSynonymReferenceUpdater {
 		}
 	}
 
-	/**
-	 * Update template id of the specified grid.
-	 * 
-	 * @param gridID
-	 *            the grid id
-	 * @param templateID
-	 *            new template id
-	 * @throws SQLException
-	 *             on database error
-	 * @since PowerEditor 4.2.0
-	 */
-	public void setTemplateOfGrid(int gridID, int templateID) throws SQLException {
-		if (templateID < 1) throw new IllegalArgumentException("Invalid templateID: " + templateID);
-		logger.debug(">>> setTemplateOfGrid: " + gridID + "," + templateID);
-		Connection conn = getConnection();
-		PreparedStatement ps = null;
-		try {
-			ps = conn.prepareStatement(Q_GRID_SET_TEMPLATE);
-			ps.setInt(1, templateID);
-			ps.setInt(2, gridID);
+	@Override
+	public void replaceDateSynonymReferences(DateSynonym[] toBeReplaced, DateSynonym replacement) throws SQLException {
+		replaceDateSynonymReferencesInIntersectionTable(toBeReplaced, replacement, Q_REPLACE_ALL_GRID_EFFECTIVE_DATE_SYNONYM, Q_REPLACE_ALL_GRID_EXPIRATION_DATE_SYNONYM);
+	}
 
-			int count = ps.executeUpdate();
-			logger.info("Updated " + count + " row(s)!");
-			if (count < 1) {
-				throw new SQLException("Failed to update row (count=" + count + ")");
+	public void setCellValues(GridCellDetail[] gridCellDetails) throws SQLException {
+		Connection conn = getConnection();
+		PreparedStatement psUpdate = null;
+		PreparedStatement psInsert = null;
+		try {
+			int count = 0;
+			psUpdate = conn.prepareStatement(Q_UPDATE_GRID_CELL_VALUE);
+			psInsert = conn.prepareStatement(Q_INSERT_GRID_CELL_VALUE);
+			for (int i = 0; i < gridCellDetails.length; i++) {
+				String cellValueStr = Util.convertCellValueToString(gridCellDetails[i].getCellValue());
+				psUpdate.setString(1, cellValueStr);
+				psUpdate.setInt(2, gridCellDetails[i].getGridID());
+				psUpdate.setInt(3, gridCellDetails[i].getRowID());
+				psUpdate.setString(4, gridCellDetails[i].getColumnName());
+				count = psUpdate.executeUpdate();
+				if (count < 1) {
+					psInsert.setInt(1, gridCellDetails[i].getGridID());
+					psInsert.setInt(2, gridCellDetails[i].getRowID());
+					psInsert.setString(3, gridCellDetails[i].getColumnName());
+					psInsert.setString(4, cellValueStr);
+					count = psInsert.executeUpdate();
+					if (count < 1) {
+						throw new SQLException("No row updated for " + gridCellDetails[i]);
+					}
+				}
 			}
-			ps.close();
-			ps = null;
-			logger.debug("<<< setTemplateOfGrid");
 		}
 		finally {
-			if (ps != null) ps.close();
+			if (psUpdate != null) psUpdate.close();
+			if (psInsert != null) psInsert.close();
 		}
 	}
 
 	/**
 	 * Update expiration date of the specified grid.
 	 * 
-	 * @param gridID
+	 * @param gridID gridID
 	 *            the grid id
-	 * @param expDateSynonymID
+	 * @param expDateSynonymID expDateSynonymID
 	 *            new exp. date synonym id
-	 * @throws SQLException
+	 * @throws SQLException on error
 	 *             on database error
 	 * @since PowerEditor 4.2.0
 	 */
@@ -335,65 +433,93 @@ public class GridUpdater extends DateSynonymReferenceUpdater {
 		}
 	}
 
+	private void setGridCellValues(Connection conn, int gridID, GridValueContainable valueContainer, boolean deleteFirst) throws SQLException {
+		logger.debug(">>> setGridCellValues: " + gridID + "," + valueContainer + "," + deleteFirst);
+		PreparedStatement ps = null;
+		try {
+			int count = 0;
+			if (deleteFirst) {
+				ps = conn.prepareStatement(Q_DELETE_GRID_CELL_VALUES);
+				ps.setInt(1, gridID);
+				count = ps.executeUpdate();
+				logger.debug("    setGridCellValues: removed " + count + " grid cell values");
+				ps.close();
+				ps = null;
+			}
+
+			if (!valueContainer.isEmpty()) {
+				String[] columnNames = valueContainer.getColumnNames();
+				ps = conn.prepareStatement(Q_INSERT_GRID_CELL_VALUE);
+				for (int r = 0; r < valueContainer.getNumRows(); r++) {
+					for (String columnName : columnNames) {
+						ps.setInt(1, gridID);
+						ps.setInt(2, r + 1);
+						ps.setString(3, columnName);
+						ps.setString(4, Util.convertCellValueToString(valueContainer.getCellValue(r + 1, columnName)));
+
+						count = ps.executeUpdate();
+						if (count < 1) {
+							throw new SQLException("Failed to insert grid cell value for " + gridID + "," + (r + 1) + "," + columnName);
+						}
+					}
+				}
+			}
+			logger.debug("<<< setGridCellValues");
+		}
+		finally {
+			if (ps != null) ps.close();
+		}
+
+	}
+
 	/**
-	 * Update the context row of the specified grid.
+	 * Update template id of the specified grid.
 	 * 
-	 * @param gridID
-	 * @param entityIdentities entity identities; can be <code>null</code>
-	 * @param categoryIdentities category identities; can be <code>null</code>
-	 * @throws SQLException
-	 *             on db error
+	 * @param gridID gridID
+	 *            the grid id
+	 * @param templateID templateID
+	 *            new template id
+	 * @throws SQLException on error
+	 *             on database error
 	 * @since PowerEditor 4.2.0
 	 */
-	public void updateGridContext(int gridID, GenericEntityIdentity[] entityIdentities, GenericCategoryIdentity[] categoryIdentities)
-			throws SQLException {
-		logger.debug(">>> updateGridContext: " + gridID + "," + entityIdentities + "," + categoryIdentities);
+	public void setTemplateOfGrid(int gridID, int templateID) throws SQLException {
+		if (templateID < 1) throw new IllegalArgumentException("Invalid templateID: " + templateID);
+		logger.debug(">>> setTemplateOfGrid: " + gridID + "," + templateID);
 		Connection conn = getConnection();
 		PreparedStatement ps = null;
 		try {
-			if (gridID == -1) throw new SQLException("Invalid grid ID: " + gridID + ". Context insert failed.");
-			ps = conn.prepareStatement(Q_DELETE_ENTITY_CONTEXT);
-			ps.setInt(1, gridID);
+			ps = conn.prepareStatement(Q_GRID_SET_TEMPLATE);
+			ps.setInt(1, templateID);
+			ps.setInt(2, gridID);
+
 			int count = ps.executeUpdate();
-			logger.debug(count + " entity context rows deleted");
+			logger.info("Updated " + count + " row(s)!");
+			if (count < 1) {
+				throw new SQLException("Failed to update row (count=" + count + ")");
+			}
 			ps.close();
 			ps = null;
-
-			if (entityIdentities != null && entityIdentities.length > 0) {
-				ps = conn.prepareStatement(Q_INSERT_ENTITY_CONTEXT);
-				for (int i = 0; i < entityIdentities.length; i++) {
-					ps.setInt(1, gridID);
-					ps.setInt(2, entityIdentities[i].getEntityID());
-					ps.setInt(3, entityIdentities[i].getEntityType());
-					count = ps.executeUpdate();
-					if (count < 1) {
-						throw new SQLException("Grid Entity Context Insert Failed (count=" + count + ")");
-					}
-				}
-				ps.close();
-				ps = null;
-			}
-			if (categoryIdentities != null && categoryIdentities.length > 0) {
-				ps = conn.prepareStatement(Q_INSERT_CATEGORY_CONTEXT);
-				for (int i = 0; i < categoryIdentities.length; i++) {
-					ps.setInt(1, gridID);
-					ps.setInt(2, categoryIdentities[i].getCategoryID());
-					ps.setInt(3, categoryIdentities[i].getCategoryType());
-					count = ps.executeUpdate();
-					if (count < 1) {
-						throw new SQLException("Grid Category Context Insert Failed (count=" + count + ")");
-					}
-				}
-				ps.close();
-				ps = null;
-			}
+			logger.debug("<<< setTemplateOfGrid");
 		}
-		catch (SQLException exp) {
-			if (exp.getMessage().equalsIgnoreCase("No Data Found") == false) {
-				throw exp;
-			}
-			else {
-				logger.info("No Data Found");
+		finally {
+			if (ps != null) ps.close();
+		}
+	}
+
+	public void updateCellValues(GridCellDetail[] gridCellDetails) throws SQLException {
+		Connection conn = getConnection();
+		PreparedStatement ps = null;
+		try {
+			int count = 0;
+			ps = conn.prepareStatement(Q_UPDATE_GRID_CELL_VALUE);
+			for (int i = 0; i < gridCellDetails.length; i++) {
+				ps.setString(1, Util.convertCellValueToString(gridCellDetails[i].getCellValue()));
+				ps.setInt(2, gridCellDetails[i].getGridID());
+				ps.setInt(3, gridCellDetails[i].getRowID());
+				ps.setString(4, gridCellDetails[i].getColumnName());
+				count = ps.executeUpdate();
+				if (count < 1) throw new SQLException("No row updated for " + gridCellDetails[i]);
 			}
 		}
 		finally {
@@ -405,19 +531,19 @@ public class GridUpdater extends DateSynonymReferenceUpdater {
 	 * Updates details of the specified grid row in db. <b>Note</b>: this does NOT update the
 	 * context.
 	 * 
-	 * @param gridID
-	 * @param comments
-	 * @param valueContainer
-	 * @param status
-	 * @param statusChangeDate
-	 * @param effDate
-	 * @param expDate
-	 * @param cloneOf
-	 * @throws SQLException
+	 * @param gridID gridID
+	 * @param comments comments
+	 * @param valueContainer valueContainer
+	 * @param status status
+	 * @param statusChangeDate statusChangeDate
+	 * @param effDate effDate
+	 * @param expDate expDate
+	 * @param cloneOf cloneOf
+	 * @throws SQLException on error
 	 *             on db error
 	 */
-	public void updateGrid(int gridID, String comments, GridValueContainable valueContainer, String status, Date statusChangeDate,
-			DateSynonym effDate, DateSynonym expDate, int cloneOf) throws SQLException {
+	public void updateGrid(int gridID, String comments, GridValueContainable valueContainer, String status, Date statusChangeDate, DateSynonym effDate, DateSynonym expDate,
+			int cloneOf) throws SQLException {
 		logger.debug(">>> updateGrid: " + gridID + "," + valueContainer + "," + effDate + "," + expDate);
 		Connection conn = getConnection();
 		PreparedStatement ps = null;
@@ -466,134 +592,57 @@ public class GridUpdater extends DateSynonymReferenceUpdater {
 		}
 	}
 
-	private void insertGrid(Connection conn, int gridID, int templateID, String comment, String status, Date statusChanged, int numRows,
-			int cloneOf, Date created) throws SQLException {
-		PreparedStatement ps = null;
-		try {
-			ps = conn.prepareStatement(Q_GRID_INSERT);
-			ps.setInt(1, gridID);
-			ps.setInt(2, templateID);
-			ps.setString(3, status);
-			DBUtil.setDateValue(ps, 4, statusChanged);
-
-			ps.setInt(5, cloneOf);
-			DBUtil.setDateValue(ps, 6, (created == null ? new Date() : created));
-			ps.setInt(7, numRows);
-			ps.setString(8, comment);
-			int count = ps.executeUpdate();
-			if (count < 0) {
-				throw new SQLException("Failed to insert a new row for " + gridID);
-			}
-			logger.info("Inserted " + count + " grid row(s)!");
-			ps.close();
-			ps = null;
-		}
-		finally {
-			if (ps != null) ps.close();
-		}
-	}
-
-	private void setGridCellValues(Connection conn, int gridID, GridValueContainable valueContainer, boolean deleteFirst)
-			throws SQLException {
-		logger.debug(">>> setGridCellValues: " + gridID + "," + valueContainer + "," + deleteFirst);
-		PreparedStatement ps = null;
-		try {
-			int count = 0;
-			if (deleteFirst) {
-				ps = conn.prepareStatement(Q_DELETE_GRID_CELL_VALUES);
-				ps.setInt(1, gridID);
-				count = ps.executeUpdate();
-				logger.debug("    setGridCellValues: removed " + count + " grid cell values");
-				ps.close();
-				ps = null;
-			}
-
-			if (!valueContainer.isEmpty()) {
-				String[] columnNames = valueContainer.getColumnNames();
-				ps = conn.prepareStatement(Q_INSERT_GRID_CELL_VALUE);
-				for (int r = 0; r < valueContainer.getNumRows(); r++) {
-					for (String columnName : columnNames) {
-						ps.setInt(1, gridID);
-						ps.setInt(2, r + 1);
-						ps.setString(3, columnName);
-						ps.setString(4, Util.convertCellValueToString(valueContainer.getCellValue(r + 1, columnName)));
-
-						count = ps.executeUpdate();
-						if (count < 1) {
-							throw new SQLException("Failed to insert grid cell value for " + gridID + "," + (r + 1) + "," + columnName);
-						}
-					}
-				}
-			}
-			logger.debug("<<< setGridCellValues");
-		}
-		finally {
-			if (ps != null) ps.close();
-		}
-
-	}
-
 	/**
-	 * Removes the specified guideline grid from the database.
+	 * Update the context row of the specified grid.
 	 * 
-	 * @param gridID
-	 * @throws SQLException
+	 * @param gridID gridID
+	 * @param entityIdentities entity identities; can be <code>null</code>
+	 * @param categoryIdentities category identities; can be <code>null</code>
+	 * @throws SQLException on error
 	 *             on db error
+	 * @since PowerEditor 4.2.0
 	 */
-	public void deleteProductGrid(int gridID) throws SQLException {
-		logger.debug(">>> deleteProductGrid: " + gridID);
+	public void updateGridContext(int gridID, GenericEntityIdentity[] entityIdentities, GenericCategoryIdentity[] categoryIdentities) throws SQLException {
+		logger.debug(">>> updateGridContext: " + gridID + "," + entityIdentities + "," + categoryIdentities);
 		Connection conn = getConnection();
 		PreparedStatement ps = null;
 		try {
+			if (gridID == -1) throw new SQLException("Invalid grid ID: " + gridID + ". Context insert failed.");
 			ps = conn.prepareStatement(Q_DELETE_ENTITY_CONTEXT);
 			ps.setInt(1, gridID);
 			int count = ps.executeUpdate();
-			logger.info("deleted " + count + " entity context");
+			logger.debug(count + " entity context rows deleted");
 			ps.close();
 			ps = null;
 
-			// delete label
-			ps = conn.prepareStatement(Q_DELETE_GRID_DATE_SYNONYM);
-			ps.setInt(1, gridID);
-			count = ps.executeUpdate();
-			logger.info("deleted " + count + " grid date synonyms");
-			ps.close();
-			ps = null;
-
-			// delete cell values
-			ps = conn.prepareStatement(Q_DELETE_GRID_CELL_VALUES);
-			ps.setInt(1, gridID);
-			count = ps.executeUpdate();
-			logger.debug("    setGridCellValues: removed " + count + " grid cell values");
-			ps.close();
-			ps = null;
-		}
-		catch (SQLException ex) {
-			if (ex.getMessage().equalsIgnoreCase("No Data Found") == false) {
-				throw ex;
+			if (entityIdentities != null && entityIdentities.length > 0) {
+				ps = conn.prepareStatement(Q_INSERT_ENTITY_CONTEXT);
+				for (int i = 0; i < entityIdentities.length; i++) {
+					ps.setInt(1, gridID);
+					ps.setInt(2, entityIdentities[i].getEntityID());
+					ps.setInt(3, entityIdentities[i].getEntityType());
+					count = ps.executeUpdate();
+					if (count < 1) {
+						throw new SQLException("Grid Entity Context Insert Failed (count=" + count + ")");
+					}
+				}
+				ps.close();
+				ps = null;
 			}
-			else {
-				logger.info("No Data Found");
+			if (categoryIdentities != null && categoryIdentities.length > 0) {
+				ps = conn.prepareStatement(Q_INSERT_CATEGORY_CONTEXT);
+				for (int i = 0; i < categoryIdentities.length; i++) {
+					ps.setInt(1, gridID);
+					ps.setInt(2, categoryIdentities[i].getCategoryID());
+					ps.setInt(3, categoryIdentities[i].getCategoryType());
+					count = ps.executeUpdate();
+					if (count < 1) {
+						throw new SQLException("Grid Category Context Insert Failed (count=" + count + ")");
+					}
+				}
+				ps.close();
+				ps = null;
 			}
-		}
-		finally {
-			if (ps != null) ps.close();
-		}
-
-		deleteGrid(conn, gridID);
-		logger.debug("<<< deleteProductGrid: " + gridID);
-	}
-
-	private void deleteGrid(Connection conn, int gridID) throws SQLException {
-		logger.debug(">>> deleteGrid: " + gridID);
-
-		PreparedStatement ps = null;
-		try {
-			ps = conn.prepareStatement(Q_DELETE_MB_GRID);
-			ps.setInt(1, gridID);
-			int j = ps.executeUpdate();
-
-			logger.info("Deleted " + j + " grid row(s)!");
 		}
 		catch (SQLException exp) {
 			if (exp.getMessage().equalsIgnoreCase("No Data Found") == false) {
@@ -601,67 +650,6 @@ public class GridUpdater extends DateSynonymReferenceUpdater {
 			}
 			else {
 				logger.info("No Data Found");
-			}
-		}
-		finally {
-			if (ps != null) ps.close();
-		}
-	}
-
-	public void replaceDateSynonymReferences(DateSynonym[] toBeReplaced, DateSynonym replacement) throws SQLException {
-		replaceDateSynonymReferencesInIntersectionTable(
-				toBeReplaced,
-				replacement,
-				Q_REPLACE_ALL_GRID_EFFECTIVE_DATE_SYNONYM,
-				Q_REPLACE_ALL_GRID_EXPIRATION_DATE_SYNONYM);
-	}
-
-	public void setCellValues(GridCellDetail[] gridCellDetails) throws SQLException {
-		Connection conn = getConnection();
-		PreparedStatement psUpdate = null;
-		PreparedStatement psInsert = null;
-		try {
-			int count = 0;
-			psUpdate = conn.prepareStatement(Q_UPDATE_GRID_CELL_VALUE);
-			psInsert = conn.prepareStatement(Q_INSERT_GRID_CELL_VALUE);
-			for (int i = 0; i < gridCellDetails.length; i++) {
-				String cellValueStr = Util.convertCellValueToString(gridCellDetails[i].getCellValue());
-				psUpdate.setString(1, cellValueStr);
-				psUpdate.setInt(2, gridCellDetails[i].getGridID());
-				psUpdate.setInt(3, gridCellDetails[i].getRowID());
-				psUpdate.setString(4, gridCellDetails[i].getColumnName());
-				count = psUpdate.executeUpdate();
-				if (count < 1) {
-					psInsert.setInt(1, gridCellDetails[i].getGridID());
-					psInsert.setInt(2, gridCellDetails[i].getRowID());
-					psInsert.setString(3, gridCellDetails[i].getColumnName());
-					psInsert.setString(4, cellValueStr);
-					count = psInsert.executeUpdate();
-					if (count < 1) {
-						throw new SQLException("No row updated for " + gridCellDetails[i]);
-					}
-				}
-			}
-		}
-		finally {
-			if (psUpdate != null) psUpdate.close();
-			if (psInsert != null) psInsert.close();
-		}
-	}
-
-	public void updateCellValues(GridCellDetail[] gridCellDetails) throws SQLException {
-		Connection conn = getConnection();
-		PreparedStatement ps = null;
-		try {
-			int count = 0;
-			ps = conn.prepareStatement(Q_UPDATE_GRID_CELL_VALUE);
-			for (int i = 0; i < gridCellDetails.length; i++) {
-				ps.setString(1, Util.convertCellValueToString(gridCellDetails[i].getCellValue()));
-				ps.setInt(2, gridCellDetails[i].getGridID());
-				ps.setInt(3, gridCellDetails[i].getRowID());
-				ps.setString(4, gridCellDetails[i].getColumnName());
-				count = ps.executeUpdate();
-				if (count < 1) throw new SQLException("No row updated for " + gridCellDetails[i]);
 			}
 		}
 		finally {

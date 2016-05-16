@@ -18,9 +18,9 @@ public interface AuditCommandInvoker {
 	 * {@link AuditFailedEventSupport#fireAuditFailed(String, Exception)} method on
 	 * <code>eventSupport</code>.
 	 * 
-	 * @param auditCommand
-	 * @param auditStorage
-	 * @param eventSupport
+	 * @param auditCommand auditCommand
+	 * @param auditStorage auditStorage
+	 * @param eventSupport eventSupport
 	 */
 	void execute(AuditCommand auditCommand, AuditStorage auditStorage, AuditFailedEventSupport eventSupport);
 }

@@ -20,9 +20,9 @@ public class AeTestFunctionPattern extends AbstractAeCondition {
 	private final List<AbstractAeValue> paramList;
 	private String functionName = null;
 	private TestCondition testCondition = null;
-	
+
 	/**
-	 * @param node
+	 * @param node node
 	 */
 	public AeTestFunctionPattern(Node node) {
 		super(node);
@@ -32,25 +32,17 @@ public class AeTestFunctionPattern extends AbstractAeCondition {
 	public void addParam(AbstractAeValue value) {
 		paramList.add(value);
 	}
-	
-	public AbstractAeValue getParamAt(int index) {
-		return paramList.get(index);
-	}
-	
-	public int size() {
-		return paramList.size();
-	}
-	
-	public List<AbstractAeValue> getParamList() {
-		return paramList;
-	}
 
 	public String getFunctionName() {
 		return functionName;
 	}
 
-	public void setFunctionName(String string) {
-		functionName = string;
+	public AbstractAeValue getParamAt(int index) {
+		return paramList.get(index);
+	}
+
+	public List<AbstractAeValue> getParamList() {
+		return paramList;
 	}
 
 	/**
@@ -59,13 +51,25 @@ public class AeTestFunctionPattern extends AbstractAeCondition {
 	public TestCondition getTestCondition() {
 		return testCondition;
 	}
+
+	public void setFunctionName(String string) {
+		functionName = string;
+	}
+
 	/**
 	 * @param testCondition The testCondition to set.
 	 */
 	public void setTestCondition(TestCondition testCondition) {
 		this.testCondition = testCondition;
 	}
+
+	@Override
+	public int size() {
+		return paramList.size();
+	}
+
+	@Override
 	public String toString() {
-		return "aetest["+functionName+"(size="+paramList.size()+")]";
+		return "aetest[" + functionName + "(size=" + paramList.size() + ")]";
 	}
 }

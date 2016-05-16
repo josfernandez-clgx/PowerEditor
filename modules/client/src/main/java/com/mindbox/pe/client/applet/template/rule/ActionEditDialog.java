@@ -19,33 +19,34 @@ import com.mindbox.pe.model.rule.RuleElementFactory;
  * @since PowerEditor 2.3.0
  */
 public class ActionEditDialog extends FunctionEditDialog {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -3951228734910107454L;
 
 	private static Map<TemplateUsageType, List<ActionTypeDefinition>> usageTypeMap = new HashMap<TemplateUsageType, List<ActionTypeDefinition>>();
 
-	/**
-	 * 
-	 */
-	protected ActionEditDialog(JDialog dialog, TemplateUsageType usageType, RuleAction action) {
-		super(dialog, (FunctionCall) action, usageType);
-
+	public static void resetTypeListMap() {
+		usageTypeMap = new HashMap<TemplateUsageType, List<ActionTypeDefinition>>();
 	}
 
+	protected ActionEditDialog(JDialog dialog, TemplateUsageType usageType, RuleAction action) {
+		super(dialog, (FunctionCall) action, usageType);
+	}
+
+	@Override
 	public FunctionCall createFunctionCallInstance() {
 		return (FunctionCall) RuleElementFactory.getInstance().createRuleAction();
 	}
 
+	@Override
 	public String getFunctionTypeLabel() {
 		return "label.action.type";
 	}
 
+	@Override
 	public String getIconString() {
 		return "image.node.adhoc.action";
 	}
 
+	@Override
 	public List<ActionTypeDefinition> getTypeList(Object typeDeterminer) {
 		TemplateUsageType usageType = (TemplateUsageType) typeDeterminer;
 		List<ActionTypeDefinition> typeList = null;
@@ -62,9 +63,5 @@ public class ActionEditDialog extends FunctionEditDialog {
 			}
 		}
 		return typeList;
-	}
-
-	public static void resetTypeListMap() {
-		usageTypeMap = new HashMap<TemplateUsageType, List<ActionTypeDefinition>>();
 	}
 }

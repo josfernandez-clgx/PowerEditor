@@ -46,15 +46,15 @@ import com.mindbox.pe.model.template.ParameterTemplate;
  * @since PowerEditor 2.4.0
  */
 public class ManageGenericCategoryPanel extends PanelBase implements TreeSelectionListener {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3951228734910107454L;
 
 	private class AddL extends AbstractThreadedActionAdapter {
 
+		@Override
 		public void performAction(ActionEvent event) {
-			GenericCategory category = NewGenericCategoryDialog.newGenericCategory(JOptionPane.getFrameForComponent(ClientUtil.getApplet()), categoryType, categoryTree.getSelectedGenericCategory());
+			GenericCategory category = NewGenericCategoryDialog.newGenericCategory(
+					JOptionPane.getFrameForComponent(ClientUtil.getApplet()),
+					categoryType,
+					categoryTree.getSelectedGenericCategory());
 			if (category != null) {
 				categoryTree.getTreeSelectionModel().removeTreeSelectionListener(ManageGenericCategoryPanel.this);
 				try {
@@ -78,6 +78,7 @@ public class ManageGenericCategoryPanel extends PanelBase implements TreeSelecti
 
 	private class DeleteL extends AbstractThreadedActionAdapter {
 
+		@Override
 		public void performAction(ActionEvent event) {
 			GenericCategory selectedGenericCategory = categoryTree.getSelectedGenericCategory();
 			try {
@@ -103,6 +104,7 @@ public class ManageGenericCategoryPanel extends PanelBase implements TreeSelecti
 
 	private class EditL extends AbstractThreadedActionAdapter {
 
+		@Override
 		public void performAction(ActionEvent event) {
 			GenericCategory selectedGenericCategory = categoryTree.getSelectedGenericCategory();
 			if (selectedGenericCategory == null) {
@@ -118,7 +120,9 @@ public class ManageGenericCategoryPanel extends PanelBase implements TreeSelecti
 					category = GenericCategoryEditDialog.editGenericCategory(JOptionPane.getFrameForComponent(ClientUtil.getApplet()), selectedGenericCategory);
 				}
 				catch (ServerException e) {
-					ClientUtil.getInstance().showErrorDialog("msg.error.failure.lock", new Object[] { selectedGenericCategory.getName(), ClientUtil.getInstance().getErrorMessage(e) });
+					ClientUtil.getInstance().showErrorDialog(
+							"msg.error.failure.lock",
+							new Object[] { selectedGenericCategory.getName(), ClientUtil.getInstance().getErrorMessage(e) });
 					return;
 				}
 				if (category != null) {
@@ -146,8 +150,8 @@ public class ManageGenericCategoryPanel extends PanelBase implements TreeSelecti
 		}
 	}
 
-
 	private class ShowEntityL extends AbstractThreadedActionAdapter {
+		@Override
 		public void performAction(ActionEvent event) throws Exception {
 			try {
 				setCursor(UIFactory.getWaitCursor());
@@ -161,16 +165,14 @@ public class ManageGenericCategoryPanel extends PanelBase implements TreeSelecti
 		}
 	}
 
+	private static final long serialVersionUID = -3951228734910107454L;
+
 	private final GenericCategorySelectionTree categoryTree;
 	private final JButton addButton, editButton, deleteButton;
 	private final int categoryType;
 	private final JCheckBox showEntityCheckBox;
 	private final GenericEntityManagementPanel genericEntityManagementPanel; // TT 2021
 
-	/**
-	 * @param categoryType
-	 * @param hasEditEntityPrivilege
-	 */
 	public ManageGenericCategoryPanel(int categoryType, boolean hasEditEntityPrivilege, GenericEntityManagementPanel genericEntityManagementPanel) {
 		super();
 		this.categoryType = categoryType;
@@ -195,46 +197,16 @@ public class ManageGenericCategoryPanel extends PanelBase implements TreeSelecti
 
 		categoryTree.getTreeSelectionModel().addTreeSelectionListener(this);
 		editButton.setEnabled(false);
-
 	}
 
-	private boolean hasProductionRestrictions(GenericCategory category) throws ServerException {
-		if (ClientUtil.checkPermissionByPrivilegeName(PrivilegeConstants.PRIV_EDIT_PRODUCTION_DATA)) {
-			return false;
-		}
-		GuidelineReportFilter filter = new GuidelineReportFilter();
-		filter.setIncludeEmptyContexts(false);
-		filter.setIncludeChildrenCategories(true);
-		filter.setIncludeParentCategories(true);
-		filter.setSearchInColumnData(true);
-
-		GuidelineContext context = new GuidelineContext(category.getType());
-		context.setIDs(new int[] { category.getId() });
-		filter.addContext(context);
-		filter.addStatus(ClientUtil.getHighestStatus());
-		if (ClientUtil.getCommunicator().search(filter).size() > 0) {
-			ClientUtil.getInstance().showErrorDialog("msg.error.entityusedinproduction", new Object[] { ClientUtil.getHighestStatusDisplayLabel() });
-			return true;
-		}
-
-		// check parameter references
-		List<ParameterTemplate> parameterTemplates = EntityModelCacheFactory.getInstance().getAllParameterTemplates();
-		for (Iterator<ParameterTemplate> i = parameterTemplates.iterator(); i.hasNext();) {
-			ParameterTemplate template = i.next();
-			List<ParameterGrid> paramGridList = ClientUtil.getCommunicator().fetchParameters(template.getID());
-			for (Iterator<ParameterGrid> it = paramGridList.iterator(); it.hasNext();) {
-				ParameterGrid grid = it.next();
-				if (ClientUtil.isHighestStatus(grid.getStatus())) {
-					// check context
-					int[] ids = grid.getGenericCategoryIDs(GenericEntityType.forCategoryType(category.getType()));
-					if (ids != null && ids.length > 0 && UtilBase.contains(new int[] { category.getId() }, ids)) {
-						ClientUtil.getInstance().showErrorDialog("msg.error.categoryusedinproduction.parameter", new Object[] { ClientUtil.getHighestStatusDisplayLabel() });
-						return true;
-					}
-				}
+	private void addChildCategoryLinksToParents(GenericCategory category) {
+		for (Iterator<MutableTimedAssociationKey> iter = category.getParentKeyIterator(); iter.hasNext();) {
+			MutableTimedAssociationKey parentKey = iter.next();
+			GenericCategory parentCategory = EntityModelCacheFactory.getInstance().getGenericCategory(category.getType(), parentKey.getAssociableID());
+			if (parentCategory != null) {
+				parentCategory.addChildAssociation(new DefaultMutableTimedAssociationKey(category.getId(), parentKey.getEffectiveDate(), parentKey.getExpirationDate()));
 			}
 		}
-		return false;
 	}
 
 	private boolean categoryUsedInContext(GenericCategory category) throws ServerException {
@@ -283,25 +255,47 @@ public class ManageGenericCategoryPanel extends PanelBase implements TreeSelecti
 		}
 	}
 
-	private void removeAllChildCatgoryLinksFromParents(List<MutableTimedAssociationKey> oldParentAssocationList, GenericCategory category) {
-		for (Iterator<MutableTimedAssociationKey> iter = oldParentAssocationList.iterator(); iter.hasNext();) {
-			MutableTimedAssociationKey key = iter.next();
-			GenericCategory oldParent = EntityModelCacheFactory.getInstance().getGenericCategory(category.getType(), key.getAssociableID());
-			if (oldParent != null) {
-				oldParent.removeAllChildAssociations(category.getID());
-			}
-		}
+	private Date getSelectedDateForCategoryTree() {
+		return categoryTree.getSelectedDate();
 	}
 
-	private void addChildCategoryLinksToParents(GenericCategory category) {
-		for (Iterator<MutableTimedAssociationKey> iter = category.getParentKeyIterator(); iter.hasNext();) {
-			MutableTimedAssociationKey parentKey = iter.next();
-			GenericCategory parentCategory = EntityModelCacheFactory.getInstance().getGenericCategory(category.getType(), parentKey.getAssociableID());
-			if (parentCategory != null) {
-				parentCategory.addChildAssociation(new DefaultMutableTimedAssociationKey(category.getId(), parentKey.getEffectiveDate(), parentKey.getExpirationDate()));
-			}
+	private boolean hasProductionRestrictions(GenericCategory category) throws ServerException {
+		if (ClientUtil.checkPermissionByPrivilegeName(PrivilegeConstants.PRIV_EDIT_PRODUCTION_DATA)) {
+			return false;
+		}
+		GuidelineReportFilter filter = new GuidelineReportFilter();
+		filter.setIncludeEmptyContexts(false);
+		filter.setIncludeChildrenCategories(true);
+		filter.setIncludeParentCategories(true);
+		filter.setSearchInColumnData(true);
+
+		GuidelineContext context = new GuidelineContext(category.getType());
+		context.setIDs(new int[] { category.getId() });
+		filter.addContext(context);
+		filter.addStatus(ClientUtil.getHighestStatus());
+		if (ClientUtil.getCommunicator().search(filter).size() > 0) {
+			ClientUtil.getInstance().showErrorDialog("msg.error.entityusedinproduction", new Object[] { ClientUtil.getHighestStatusDisplayLabel() });
+			return true;
 		}
 
+		// check parameter references
+		List<ParameterTemplate> parameterTemplates = EntityModelCacheFactory.getInstance().getAllParameterTemplates();
+		for (Iterator<ParameterTemplate> i = parameterTemplates.iterator(); i.hasNext();) {
+			ParameterTemplate template = i.next();
+			List<ParameterGrid> paramGridList = ClientUtil.getCommunicator().fetchParameters(template.getID());
+			for (Iterator<ParameterGrid> it = paramGridList.iterator(); it.hasNext();) {
+				ParameterGrid grid = it.next();
+				if (ClientUtil.isHighestStatus(grid.getStatus())) {
+					// check context
+					int[] ids = grid.getGenericCategoryIDs(GenericEntityType.forCategoryType(category.getType()));
+					if (ids != null && ids.length > 0 && UtilBase.contains(new int[] { category.getId() }, ids)) {
+						ClientUtil.getInstance().showErrorDialog("msg.error.categoryusedinproduction.parameter", new Object[] { ClientUtil.getHighestStatusDisplayLabel() });
+						return true;
+					}
+				}
+			}
+		}
+		return false;
 	}
 
 	private void initPanel() {
@@ -336,15 +330,22 @@ public class ManageGenericCategoryPanel extends PanelBase implements TreeSelecti
 		addComponent(this, bag, c, categoryTree.getJComponent());
 	}
 
-	private Date getSelectedDateForCategoryTree() {
-		return categoryTree.getSelectedDate();
-	}
-
 	private void refreshButtons(GenericCategory category) {
 		deleteButton.setEnabled(category != null && !category.isRoot() && category.hasNoChild());
 		editButton.setEnabled(category != null);
 	}
 
+	private void removeAllChildCatgoryLinksFromParents(List<MutableTimedAssociationKey> oldParentAssocationList, GenericCategory category) {
+		for (Iterator<MutableTimedAssociationKey> iter = oldParentAssocationList.iterator(); iter.hasNext();) {
+			MutableTimedAssociationKey key = iter.next();
+			GenericCategory oldParent = EntityModelCacheFactory.getInstance().getGenericCategory(category.getType(), key.getAssociableID());
+			if (oldParent != null) {
+				oldParent.removeAllChildAssociations(category.getID());
+			}
+		}
+	}
+
+	@Override
 	public void valueChanged(TreeSelectionEvent arg0) {
 		refreshButtons(categoryTree.getSelectedGenericCategory());
 	}

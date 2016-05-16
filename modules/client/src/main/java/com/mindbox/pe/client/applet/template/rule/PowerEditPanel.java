@@ -70,34 +70,114 @@ import com.mindbox.pe.model.template.GridTemplate;
  * @since PowerEditor 2.3.0
  */
 public class PowerEditPanel extends JPanel {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3951228734910107454L;
+	private class ActionAction extends AbstractAction {
+		private static final long serialVersionUID = -3951228734910107454L;
 
-	private static boolean isNonEmptyNotNode(AbstractRuleTreeNode node) {
-		return (node instanceof LogicalOpTreeNode && ((LogicalOpTreeNode) node).getCompoundLHSElementType() == CompoundLHSElement.TYPE_NOT && ((LogicalOpTreeNode) node).getChildCount() > 0);
+		private ActionAction() {
+			super(null, createImage("image.btn.adhoc.action"));
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			if (currentNode instanceof ThenTreeNode) {
+				RuleAction action = FunctionEditDialog.newRuleAction(JOptionPane.getFrameForComponent(ClientUtil.getApplet()), usageType);
+				if (action != null) {
+					addToNode(currentNode, -1, new ActionTreeNode(currentNode, action), true, true);
+				}
+			}
+		}
 	}
 
-	private static boolean isAndNodeWithNotParent(AbstractRuleTreeNode node) {
-		return (node instanceof LogicalOpTreeNode && ((LogicalOpTreeNode) node).getCompoundLHSElementType() == CompoundLHSElement.TYPE_AND)
-				&& (node.getParent() instanceof LogicalOpTreeNode && ((LogicalOpTreeNode) node.getParent()).getCompoundLHSElementType() == CompoundLHSElement.TYPE_NOT);
+	private class AndAction extends AbstractAction {
+		private static final long serialVersionUID = -3951228734910107454L;
+
+		private AndAction() {
+			super(null, createImage("image.node.adhoc.and"));
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			synchronized (PowerEditPanel.this) {
+				if (currentNode instanceof LogicalOpAttachable) {
+					AbstractRuleTreeNode child = new LogicalOpTreeNode(currentNode, RuleElementFactory.getInstance().createAndCompoundCondition());
+					addToCurrentNode(-1, child, true, false);
+				}
+			}
+		}
 	}
 
-	private static ImageIcon createImage(String name) {
-		return ClientUtil.getInstance().makeImageIcon(name);
-	}
-
-	private class DeleteAction extends AbstractAction {
+	private class AssignAction extends AbstractAction {
 		/**
 		 * 
 		 */
+		private static final long serialVersionUID = -3951228734910107454L;
+
+		private AssignAction() {
+			super(null, createImage("image.btn.adhoc.assign"));
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+		}
+	}
+
+	private class ConditionAction extends AbstractAction {
+		private static final long serialVersionUID = -3951228734910107454L;
+
+		private ConditionAction() {
+			super(null, createImage("image.btn.adhoc.cond"));
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			TreeNode parent = currentNode;
+			if (currentNode instanceof ConditionTreeNode) {
+				parent = currentNode.getParent();
+			}
+
+			Condition condition = ConditionEditDialog.createCondition(template);
+			if (condition != null) {
+				ConditionTreeNode child = new ConditionTreeNode(parent, condition);
+				addToNode((AbstractRuleTreeNode) parent, -1, child, false, true);
+				updateRuleFromFields();
+			}
+		}
+	}
+
+	private class CopyAction extends AbstractAction {
+		private static final long serialVersionUID = -3951228734910107454L;
+
+		private CopyAction() {
+			super(null, createImage("image.btn.small.copy"));
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			copyCurrentNode();
+		}
+	}
+
+	private class CutAction extends AbstractAction {
+		private static final long serialVersionUID = -3951228734910107454L;
+
+		private CutAction() {
+			super(null, createImage("image.btn.small.cut"));
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			cutCurrentNode();
+		}
+	}
+
+	private class DeleteAction extends AbstractAction {
 		private static final long serialVersionUID = -3951228734910107454L;
 
 		private DeleteAction() {
 			super(null, createImage("image.btn.small.delete"));
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			if (currentNode instanceof ConditionTreeNode) {
 				if (ClientUtil.getInstance().showConfirmation("msg.question.delete.rule.condition")) {
@@ -163,83 +243,30 @@ public class PowerEditPanel extends JPanel {
 		}
 	}
 
-	private class ActionAction extends AbstractAction {
-		/**
-		 * 
-		 */
+
+	private class DownAction extends AbstractAction {
 		private static final long serialVersionUID = -3951228734910107454L;
 
-		private ActionAction() {
-			super(null, createImage("image.btn.adhoc.action"));
+		private DownAction() {
+			super(null, createImage("image.btn.adhoc.down"));
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			if (currentNode instanceof ThenTreeNode) {
-				RuleAction action = FunctionEditDialog.newRuleAction(JOptionPane.getFrameForComponent(ClientUtil.getApplet()), usageType);
-				if (action != null) {
-					addToNode(currentNode, -1, new ActionTreeNode(currentNode, action), true, true);
-				}
-			}
+			moveCurrentNodeDown();
 		}
 	}
 
-	private class TestAction extends AbstractAction {
-		/**
-		 * 
-		 */
+	private class EditAction extends AbstractAction {
 		private static final long serialVersionUID = -3951228734910107454L;
 
-		private TestAction() {
-			super(null, createImage("image.btn.adhoc.test"));
+		private EditAction() {
+			super(null, createImage("image.btn.small.edit"));
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			if (currentNode instanceof IfTreeNode) {
-				TestCondition test = FunctionEditDialog.newTestCondition(JOptionPane.getFrameForComponent(ClientUtil.getApplet()));
-				if (test != null) {
-					addToNode(currentNode, -1, new TestTreeNode(currentNode, test), true, true);
-				}
-			}
-		}
-	}
-
-
-	private class AssignAction extends AbstractAction {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -3951228734910107454L;
-
-		private AssignAction() {
-			super(null, createImage("image.btn.adhoc.assign"));
-		}
-
-		public void actionPerformed(ActionEvent arg0) {
-		}
-	}
-
-	private class ConditionAction extends AbstractAction {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -3951228734910107454L;
-
-		private ConditionAction() {
-			super(null, createImage("image.btn.adhoc.cond"));
-		}
-
-		public void actionPerformed(ActionEvent arg0) {
-			TreeNode parent = currentNode;
-			if (currentNode instanceof ConditionTreeNode) {
-				parent = currentNode.getParent();
-			}
-
-			Condition condition = ConditionEditDialog.createCondition(template);
-			if (condition != null) {
-				ConditionTreeNode child = new ConditionTreeNode(parent, condition);
-				addToNode((AbstractRuleTreeNode) parent, -1, child, false, true);
-				updateRuleFromFields();
-			}
+			editCurrentNode();
 		}
 	}
 
@@ -253,6 +280,7 @@ public class PowerEditPanel extends JPanel {
 			super(null, createImage("image.btn.small.exist"));
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			synchronized (PowerEditPanel.this) {
 				if (currentNode instanceof LogicalOpAttachable) {
@@ -265,57 +293,27 @@ public class PowerEditPanel extends JPanel {
 		}
 	}
 
-	private class AndAction extends AbstractAction {
-		/**
-		 * 
-		 */
+	private class LeftAction extends AbstractAction {
 		private static final long serialVersionUID = -3951228734910107454L;
 
-		private AndAction() {
-			super(null, createImage("image.node.adhoc.and"));
+		private LeftAction() {
+			super(null, createImage("image.btn.adhoc.outdent"));
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			synchronized (PowerEditPanel.this) {
-				if (currentNode instanceof LogicalOpAttachable) {
-					AbstractRuleTreeNode child = new LogicalOpTreeNode(currentNode, RuleElementFactory.getInstance().createAndCompoundCondition());
-					addToCurrentNode(-1, child, true, false);
-				}
-			}
-		}
-	}
-
-	private class OrAction extends AbstractAction {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -3951228734910107454L;
-
-		private OrAction() {
-			super(null, createImage("image.node.adhoc.or"));
-		}
-
-		public void actionPerformed(ActionEvent arg0) {
-			synchronized (PowerEditPanel.this) {
-				if (currentNode instanceof LogicalOpAttachable) {
-					addToCurrentNode(-1, new LogicalOpTreeNode(currentNode, RuleElementFactory.getInstance().createOrCompoundCondition()), true, false);
-				}
-				else {
-				}
-			}
+			outdentCurrentNode();
 		}
 	}
 
 	private class NotAction extends AbstractAction {
-		/**
-		 * 
-		 */
 		private static final long serialVersionUID = -3951228734910107454L;
 
 		private NotAction() {
 			super(null, createImage("image.node.adhoc.not"));
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			synchronized (PowerEditPanel.this) {
 				// remove selected node from parent
@@ -334,61 +332,33 @@ public class PowerEditPanel extends JPanel {
 		}
 	}
 
-	private class EditAction extends AbstractAction {
-		/**
-		 * 
-		 */
+	private class OrAction extends AbstractAction {
 		private static final long serialVersionUID = -3951228734910107454L;
 
-		private EditAction() {
-			super(null, createImage("image.btn.small.edit"));
+		private OrAction() {
+			super(null, createImage("image.node.adhoc.or"));
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			editCurrentNode();
-		}
-	}
-
-	private class CopyAction extends AbstractAction {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -3951228734910107454L;
-
-		private CopyAction() {
-			super(null, createImage("image.btn.small.copy"));
-		}
-
-		public void actionPerformed(ActionEvent arg0) {
-			copyCurrentNode();
-		}
-	}
-
-	private class CutAction extends AbstractAction {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -3951228734910107454L;
-
-		private CutAction() {
-			super(null, createImage("image.btn.small.cut"));
-		}
-
-		public void actionPerformed(ActionEvent arg0) {
-			cutCurrentNode();
+			synchronized (PowerEditPanel.this) {
+				if (currentNode instanceof LogicalOpAttachable) {
+					addToCurrentNode(-1, new LogicalOpTreeNode(currentNode, RuleElementFactory.getInstance().createOrCompoundCondition()), true, false);
+				}
+				else {
+				}
+			}
 		}
 	}
 
 	private class PasteAction extends AbstractAction {
-		/**
-		 * 
-		 */
 		private static final long serialVersionUID = -3951228734910107454L;
 
 		private PasteAction() {
 			super(null, createImage("image.btn.small.paste"));
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			String str = ClientUtil.getClipBoardContent();
 			if (str == null) {
@@ -400,90 +370,95 @@ public class PowerEditPanel extends JPanel {
 		}
 	}
 
-	private class UpAction extends AbstractAction {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -3951228734910107454L;
-
-		private UpAction() {
-			super(null, createImage("image.btn.adhoc.up"));
-		}
-
-		public void actionPerformed(ActionEvent arg0) {
-			moveCurrentNodeUp();
-		}
-	}
-
-	private class DownAction extends AbstractAction {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -3951228734910107454L;
-
-		private DownAction() {
-			super(null, createImage("image.btn.adhoc.down"));
-		}
-
-		public void actionPerformed(ActionEvent arg0) {
-			moveCurrentNodeDown();
-		}
-	}
-
-	private class LeftAction extends AbstractAction {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -3951228734910107454L;
-
-		private LeftAction() {
-			super(null, createImage("image.btn.adhoc.outdent"));
-		}
-
-		public void actionPerformed(ActionEvent arg0) {
-			outdentCurrentNode();
-		}
-	}
-
 	private class RightAction extends AbstractAction {
-		/**
-		 * 
-		 */
 		private static final long serialVersionUID = -3951228734910107454L;
 
 		private RightAction() {
 			super(null, createImage("image.btn.adhoc.indent"));
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			indentCurrentNode();
 		}
 	}
 
-	private final class TreeSelectionL implements TreeSelectionListener {
+	private class TestAction extends AbstractAction {
+		private static final long serialVersionUID = -3951228734910107454L;
 
-		public void valueChanged(TreeSelectionEvent e) {
-			setCurrentNode((AbstractRuleTreeNode) tree.getLastSelectedPathComponent());
+		private TestAction() {
+			super(null, createImage("image.btn.adhoc.test"));
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			if (currentNode instanceof IfTreeNode) {
+				TestCondition test = FunctionEditDialog.newTestCondition(JOptionPane.getFrameForComponent(ClientUtil.getApplet()));
+				if (test != null) {
+					addToNode(currentNode, -1, new TestTreeNode(currentNode, test), true, true);
+				}
+			}
 		}
 	}
 
 	private class TreeModelL implements TreeModelListener {
 
+		@Override
 		public void treeNodesChanged(TreeModelEvent arg0) {
 			fireRuleChanged();
 		}
 
+		@Override
 		public void treeNodesInserted(TreeModelEvent arg0) {
 			fireRuleChanged();
 		}
 
+		@Override
 		public void treeNodesRemoved(TreeModelEvent arg0) {
 			fireRuleChanged();
 		}
 
+		@Override
 		public void treeStructureChanged(TreeModelEvent arg0) {
 			fireRuleChanged();
 		}
+	}
+
+	private final class TreeSelectionL implements TreeSelectionListener {
+
+		@Override
+		public void valueChanged(TreeSelectionEvent e) {
+			setCurrentNode((AbstractRuleTreeNode) tree.getLastSelectedPathComponent());
+		}
+	}
+
+	private class UpAction extends AbstractAction {
+		private static final long serialVersionUID = -3951228734910107454L;
+
+		private UpAction() {
+			super(null, createImage("image.btn.adhoc.up"));
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			moveCurrentNodeUp();
+		}
+	}
+
+	private static final long serialVersionUID = -3951228734910107454L;
+
+	private static ImageIcon createImage(String name) {
+		return ClientUtil.getInstance().makeImageIcon(name);
+	}
+
+	private static boolean isAndNodeWithNotParent(AbstractRuleTreeNode node) {
+		return (node instanceof LogicalOpTreeNode && ((LogicalOpTreeNode) node).getCompoundLHSElementType() == CompoundLHSElement.TYPE_AND)
+				&& (node.getParent() instanceof LogicalOpTreeNode && ((LogicalOpTreeNode) node.getParent()).getCompoundLHSElementType() == CompoundLHSElement.TYPE_NOT);
+	}
+
+	private static boolean isNonEmptyNotNode(AbstractRuleTreeNode node) {
+		return (node instanceof LogicalOpTreeNode && ((LogicalOpTreeNode) node).getCompoundLHSElementType() == CompoundLHSElement.TYPE_NOT
+				&& ((LogicalOpTreeNode) node).getChildCount() > 0);
 	}
 
 	private final JTree tree;
@@ -509,13 +484,6 @@ public class PowerEditPanel extends JPanel {
 	private final RuleTreeRendererColRefValue colRefTreeRenderer;
 	private final List<CellValueChangeListener> cellValueChangeListenerList;
 
-	public PowerEditPanel(RuleDefinition rule) {
-		this(false, rule);
-	}
-
-	/**
-	 * 
-	 */
 	public PowerEditPanel(boolean columnRefValueEditOnly, RuleDefinition rule) {
 		super(new BorderLayout());
 		this.columnRefValueEditOnly = columnRefValueEditOnly;
@@ -553,6 +521,7 @@ public class PowerEditPanel extends JPanel {
 
 		MouseListener ml = new MouseAdapter() {
 
+			@Override
 			public void mousePressed(MouseEvent e) {
 				int selRow = tree.getRowForLocation(e.getX(), e.getY());
 				TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
@@ -576,28 +545,8 @@ public class PowerEditPanel extends JPanel {
 		treeModel.addTreeModelListener(treeModelListener);
 	}
 
-	public void addRuleChangeListener(RuleChangeListener listener) {
-		synchronized (ruleChangeListenerList) {
-			if (!ruleChangeListenerList.contains(listener)) {
-				ruleChangeListenerList.add(listener);
-			}
-		}
-	}
-
-	public void removeRuleChangeListener(RuleChangeListener listener) {
-		synchronized (ruleChangeListenerList) {
-			if (ruleChangeListenerList.contains(listener)) {
-				ruleChangeListenerList.remove(listener);
-			}
-		}
-	}
-
-	void fireRuleChanged() {
-		synchronized (ruleChangeListenerList) {
-			for (int i = 0; i < ruleChangeListenerList.size(); i++) {
-				ruleChangeListenerList.get(i).ruleChanged();
-			}
-		}
+	public PowerEditPanel(RuleDefinition rule) {
+		this(false, rule);
 	}
 
 	public void addCellValueChangeListener(CellValueChangeListener listener) {
@@ -608,20 +557,238 @@ public class PowerEditPanel extends JPanel {
 		}
 	}
 
-	public void removeCellValueChangeListener(CellValueChangeListener listener) {
-		synchronized (cellValueChangeListenerList) {
-			if (cellValueChangeListenerList.contains(listener)) {
-				cellValueChangeListenerList.remove(listener);
+	public void addRuleChangeListener(RuleChangeListener listener) {
+		synchronized (ruleChangeListenerList) {
+			if (!ruleChangeListenerList.contains(listener)) {
+				ruleChangeListenerList.add(listener);
 			}
 		}
 	}
 
-	private void fireCellValueChanged(int column, Object value) {
-		synchronized (cellValueChangeListenerList) {
-			for (int i = 0; i < cellValueChangeListenerList.size(); i++) {
-				cellValueChangeListenerList.get(i).cellValueChanged(column, value);
+	private synchronized void addToCurrentNode(int index, AbstractRuleTreeNode node, boolean selectNode, boolean expand) {
+		addToNode(currentNode, index, node, selectNode, expand);
+	}
+
+	private synchronized void addToNode(AbstractRuleTreeNode parent, int index, AbstractRuleTreeNode node, boolean selectNode, boolean expandNode) {
+		tree.removeTreeSelectionListener(treeSelectionListener);
+
+		try {
+			addToNode_internal(parent, index, node);
+
+			if (selectNode) {
+				selectNode(node);
+				if (expandNode) {
+					expandNodeAll(node);
+				}
+
+			}
+			else {
+				selectNode(parent);
+				if (expandNode) {
+					expandNodeAll(parent);
+				}
+
 			}
 		}
+		finally {
+			tree.addTreeSelectionListener(treeSelectionListener);
+		}
+	}
+
+	private void addToNode_internal(AbstractRuleTreeNode parent, int index, AbstractRuleTreeNode node) {
+		// TT 1013 -- add AND node to NOT when adding this results in more than one child
+		if (isNonEmptyNotNode(parent)) {
+			LogicalOpTreeNode notNode = (LogicalOpTreeNode) parent;
+
+			AbstractRuleTreeNode firstChild = (AbstractRuleTreeNode) notNode.getChildAt(0);
+
+			// if the parent already contains a single AND node, just add to it
+			if (notNode.getChildCount() == 1 && firstChild instanceof LogicalOpTreeNode
+					&& ((LogicalOpTreeNode) firstChild).getCompoundLHSElementType() == CompoundLHSElement.TYPE_AND) {
+				addToNode_internal(firstChild, firstChild.getChildCount(), node);
+			}
+			// if not, add to a new AND node
+			else {
+				// create a new AND element
+				CompoundLHSElement andElement = RuleElementFactory.getInstance().createAndCompoundCondition();
+				for (int i = 0; i < notNode.getChildCount(); i++) {
+					andElement.add((LHSElement) ((AbstractRuleTreeNode) notNode.getChildAt(i)).getData());
+				}
+
+				// remove all children
+				for (int i = 0; i < notNode.getChildCount(); i++) {
+					deleteNode_internal((AbstractRuleTreeNode) notNode.getChildAt(i));
+				}
+
+				// create a new AND node and add it to the parent
+				LogicalOpTreeNode andNode = new LogicalOpTreeNode(notNode, andElement);
+				addToNode_internal(notNode, 0, andNode);
+				addToNode_internal(andNode, notNode.getChildCount(), node);
+			}
+		}
+		else {
+			if (index < 0 || index > parent.getChildCount()) {
+				parent.addChild(node);
+				treeModel.nodesWereInserted(parent, new int[] { parent.getIndex(node) });
+			}
+			else {
+				parent.addChild(index, node);
+				treeModel.nodesWereInserted(parent, new int[] { index });
+			}
+			node.setParent(parent);
+			updateParentRuleElementForAdd(node);
+		}
+	}
+
+	private final boolean canIndent() {
+		if (columnRefValueEditOnly) return false;
+		int index = currentNode.getParent().getIndex(currentNode);
+		return index > 0 && (currentNode.getParent().getChildAt(index - 1) instanceof LogicalOpAttachable);
+	}
+
+	private final boolean canMoveDown() {
+		if (columnRefValueEditOnly) return false;
+		return currentNode.getParent().getIndex(currentNode) < (currentNode.getParent().getChildCount() - 1);
+	}
+
+	private final boolean canMoveUp() {
+		if (columnRefValueEditOnly) return false;
+		return currentNode.getParent().getIndex(currentNode) > 0;
+	}
+
+	private final boolean canOutdent() {
+		if (columnRefValueEditOnly) return false;
+		return !(currentNode.getParent() instanceof IfTreeNode);
+	}
+
+	public synchronized void clearExceptRule() {
+		this.usageType = null;
+		refreshTree();
+	}
+
+	public synchronized void clearFields() {
+		this.usageType = null;
+		this.rule = null;
+		refreshTree();
+	}
+
+	private synchronized void copyCurrentNode() {
+		String str = null;
+		if (currentNode instanceof IfTreeNode) {
+			CompoundLHSElement rootConditions = RuleElementFactory.getInstance().createAndCompoundCondition();
+			updateRuleFromTree_aux(rootConditions, currentNode);
+			str = RuleElementFactory.asCopyString(rootConditions);
+		}
+		else if (currentNode instanceof ConditionTreeNode) {
+			str = RuleElementFactory.asCopyString(((ConditionTreeNode) currentNode).getCondition());
+		}
+		else if (currentNode instanceof LogicalOpTreeNode) {
+			// somehow get a compound LHS element for the node
+			str = RuleElementFactory.asCopyString((CompoundLHSElement) ((LogicalOpTreeNode) currentNode).getRuleElement());
+		}
+		else if (currentNode instanceof ThenTreeNode) {
+			str = RuleElementFactory.asCopyString(((ActionTreeNode) currentNode.getChildAt(0)).getRuleAction());
+		}
+		else if (currentNode instanceof ActionTreeNode) {
+			str = RuleElementFactory.asCopyString(((ActionTreeNode) currentNode).getRuleAction());
+		}
+		else if (currentNode instanceof TestTreeNode) {
+			str = RuleElementFactory.asCopyString(((TestTreeNode) currentNode).getTestCondition());
+		}
+		else if (currentNode instanceof ActionParamTreeNode) {
+			str = RuleElementFactory.asCopyString(((ActionParamTreeNode) currentNode).getFunctionParameter());
+		}
+
+		if (str != null) {
+			ClientUtil.placeOnClipboard(str);
+		}
+	}
+
+	private synchronized void cutCurrentNode() {
+		String str = null;
+		if (currentNode instanceof IfTreeNode) {
+			CompoundLHSElement rootConditions = RuleElementFactory.getInstance().createAndCompoundCondition();
+			updateRuleFromTree_aux(rootConditions, currentNode);
+			str = RuleElementFactory.asCopyString(rootConditions);
+		}
+		else if (currentNode instanceof ConditionTreeNode) {
+			str = RuleElementFactory.asCopyString(((ConditionTreeNode) currentNode).getCondition());
+		}
+		else if (currentNode instanceof LogicalOpTreeNode) {
+			// somehow get a compound LHS element for the node
+			str = RuleElementFactory.asCopyString((CompoundLHSElement) ((LogicalOpTreeNode) currentNode).getRuleElement());
+		}
+		else if (currentNode instanceof ThenTreeNode && currentNode.getChildCount() > 0) {
+			str = RuleElementFactory.asCopyString(((ActionTreeNode) currentNode.getChildAt(0)).getRuleAction());
+		}
+		else if (currentNode instanceof ActionTreeNode) {
+			str = RuleElementFactory.asCopyString(((ActionTreeNode) currentNode).getRuleAction());
+		}
+		else if (currentNode instanceof TestTreeNode) {
+			str = RuleElementFactory.asCopyString(((TestTreeNode) currentNode).getTestCondition());
+		}
+		if (str != null) {
+			ClientUtil.placeOnClipboard(str);
+			if (currentNode instanceof IfTreeNode) {
+				IfTreeNode ifNode = (IfTreeNode) currentNode;
+				int count = ifNode.getChildCount();
+				for (int i = 0; i < count; i++) {
+					deleteNode((AbstractRuleTreeNode) ifNode.getChildAt(0), false);
+				}
+			}
+			else if (currentNode instanceof ThenTreeNode && currentNode.getChildCount() > 0)
+				deleteNode((AbstractRuleTreeNode) currentNode.getChildAt(0), false);
+			else
+				deleteNode(currentNode);
+		}
+	}
+
+	private synchronized void deleteNode(AbstractRuleTreeNode node) {
+		deleteNode(node, true);
+	}
+
+	private synchronized void deleteNode(AbstractRuleTreeNode node, boolean select) {
+		tree.removeTreeSelectionListener(treeSelectionListener);
+		try {
+			if (select)
+				selectNode(deleteNode_internal(node));
+			else
+				deleteNode_internal(node);
+		}
+		finally {
+			tree.addTreeSelectionListener(treeSelectionListener);
+		}
+	}
+
+	/**
+	 * 
+	 * @param node
+	 * @return the parent of node
+	 */
+	private AbstractRuleTreeNode deleteNode_internal(AbstractRuleTreeNode node) {
+		updateParentRuleElementForDelete(node);
+		// remove tree node
+		AbstractRuleTreeNode parent = (AbstractRuleTreeNode) node.getParent();
+		int index = parent.getIndex(node);
+		parent.removeChild(node);
+
+		treeModel.nodesWereRemoved(parent, new int[] { index }, new Object[] { node });
+
+		// TT 1031 -- remove AND node if it's the only child and it contains only a single element
+		// make sure parent.getParent() is not IF node
+		if ((parent.getParent() instanceof AbstractRuleTreeNode) && isNonEmptyNotNode((AbstractRuleTreeNode) parent.getParent())) {
+			LogicalOpTreeNode notNode = (LogicalOpTreeNode) parent.getParent();
+
+			// if the parent already contains a single-child AND node, remove the AND node
+			if (notNode.getChildCount() == 1 && parent instanceof LogicalOpTreeNode && ((LogicalOpTreeNode) parent).getCompoundLHSElementType() == CompoundLHSElement.TYPE_AND
+					&& ((LogicalOpTreeNode) parent).getChildCount() == 1) {
+				AbstractRuleTreeNode firstChild = (AbstractRuleTreeNode) parent.getChildAt(0);
+				deleteNode_internal(firstChild);
+				deleteNode_internal(parent);
+				addToNode_internal(notNode, 0, firstChild);
+			}
+		}
+		return parent;
 	}
 
 	private synchronized void editCurrentNode() {
@@ -638,7 +805,8 @@ public class PowerEditPanel extends JPanel {
 					if (c != null) {
 						String newValueStr = c.getValue().toString();
 						Object newValue = newValueStr;
-						if (columnNo > 0 && template.getColumn(columnNo) != null && template.getColumn(columnNo).getColumnDataSpecDigest().getType().equals(ColumnDataSpecDigest.TYPE_ENUM_LIST)
+						if (columnNo > 0 && template.getColumn(columnNo) != null
+								&& template.getColumn(columnNo).getColumnDataSpecDigest().getType().equals(ColumnDataSpecDigest.TYPE_ENUM_LIST)
 								&& template.getColumn(columnNo).getColumnDataSpecDigest().isMultiSelectAllowed()) {
 							newValue = EnumValues.parseValue(newValueStr, true, null);
 						}
@@ -651,7 +819,11 @@ public class PowerEditPanel extends JPanel {
 					int columnNo = origMathExp.getColumnReference().getColumnNo();
 
 					Condition convertedCond = RuleElementFactory.deepCopyCondition(origCondition);
-					convertedCond.setValue(RuleElementFactory.getInstance().createValue(colRefTreeRenderer.getCellValue(columnNo), origMathExp.getOperator(), origMathExp.getAttributeReference()));
+					convertedCond.setValue(
+							RuleElementFactory.getInstance().createValue(
+									colRefTreeRenderer.getCellValue(columnNo),
+									origMathExp.getOperator(),
+									origMathExp.getAttributeReference()));
 
 					Condition c = ConditionEditDialog.editCondition(template, convertedCond, true);
 					if (c != null) {
@@ -669,7 +841,10 @@ public class PowerEditPanel extends JPanel {
 			}
 		}
 		else if (currentNode instanceof ActionTreeNode) {
-			RuleAction action = FunctionEditDialog.editRuleAction(JOptionPane.getFrameForComponent(ClientUtil.getApplet()), usageType, ((ActionTreeNode) currentNode).getRuleAction());
+			RuleAction action = FunctionEditDialog.editRuleAction(
+					JOptionPane.getFrameForComponent(ClientUtil.getApplet()),
+					usageType,
+					((ActionTreeNode) currentNode).getRuleAction());
 			if (action != null) {
 				((ActionTreeNode) currentNode).refreshChildren();
 				replaceNode(currentNode);
@@ -729,6 +904,111 @@ public class PowerEditPanel extends JPanel {
 		}
 	}
 
+	private void expandNodeAll(AbstractRuleTreeNode node) {
+		TreePath path = getTreePath(node);
+		if (path != null) {
+			for (int i = 0; i < node.getChildCount(); i++) {
+				AbstractRuleTreeNode child = (AbstractRuleTreeNode) node.getChildAt(i);
+				expandNodeAll(child);
+			}
+			tree.expandPath(path);
+		}
+	}
+
+	private void fireCellValueChanged(int column, Object value) {
+		synchronized (cellValueChangeListenerList) {
+			for (int i = 0; i < cellValueChangeListenerList.size(); i++) {
+				cellValueChangeListenerList.get(i).cellValueChanged(column, value);
+			}
+		}
+	}
+
+	void fireRuleChanged() {
+		synchronized (ruleChangeListenerList) {
+			for (int i = 0; i < ruleChangeListenerList.size(); i++) {
+				ruleChangeListenerList.get(i).ruleChanged();
+			}
+		}
+	}
+
+	public synchronized RuleDefinition getRule() {
+		return this.rule;
+	}
+
+	private TreePath getTreePath(AbstractRuleTreeNode node) {
+		LinkedList<TreeNode> parentList = new LinkedList<TreeNode>();
+		parentList.add(node);
+		for (TreeNode parent = node.getParent(); parent != null;) {
+			parentList.add(0, parent);
+			parent = parent.getParent();
+		}
+		return new TreePath(parentList.toArray(new TreeNode[0]));
+	}
+
+	private synchronized void indentCurrentNode() {
+		AbstractRuleTreeNode nodeToMove = currentNode;
+		AbstractRuleTreeNode parent = (AbstractRuleTreeNode) nodeToMove.getParent();
+
+		int childIndex = parent.getIndex(nodeToMove);
+		if (childIndex > 0 && (parent.getChildAt(childIndex - 1) instanceof LogicalOpAttachable)) {
+			tree.removeTreeSelectionListener(treeSelectionListener);
+			try {
+
+				deleteNode_internal(nodeToMove);
+				addToNode_internal((AbstractRuleTreeNode) parent.getChildAt(childIndex - 1), -1, nodeToMove);
+
+				selectNode(nodeToMove);
+			}
+			finally {
+				tree.addTreeSelectionListener(treeSelectionListener);
+			}
+		}
+	}
+
+	private void initPanel() {
+		JToolBar toolbar = new JToolBar("Rule Actions");
+		toolbar.setFloatable(true);
+
+		if (!columnRefValueEditOnly) {
+			UIFactory.addToToolbar(toolbar, condAction, "Add New Condition");
+			UIFactory.addToToolbar(toolbar, actionAction, "Add New Action");
+			toolbar.addSeparator();
+			UIFactory.addToToolbar(toolbar, existAction, "Add New Exist Expression");
+			UIFactory.addToToolbar(toolbar, andAction, "Add New AND");
+			UIFactory.addToToolbar(toolbar, orAction, "Add New OR");
+			UIFactory.addToToolbar(toolbar, notAction, "Add New NOT");
+			UIFactory.addToToolbar(toolbar, testAction, "Add New Test Condition");
+			toolbar.addSeparator();
+		}
+		UIFactory.addToToolbar(toolbar, editAction, "Edit Selected Element");
+		if (!columnRefValueEditOnly) {
+			UIFactory.addToToolbar(toolbar, deleteAction, "Delete Selected Element");
+			toolbar.addSeparator();
+			UIFactory.addToToolbar(toolbar, copyAction, "Copy Selected Element");
+			UIFactory.addToToolbar(toolbar, cutAction, "Cut Selected Element");
+			UIFactory.addToToolbar(toolbar, pasteAction, "Paste Selected Element");
+			toolbar.addSeparator();
+			UIFactory.addToToolbar(toolbar, upAction, "Move Selected Element Up");
+			UIFactory.addToToolbar(toolbar, downAction, "Move Selected Element Down");
+			UIFactory.addToToolbar(toolbar, leftAction, "Move Selected Element Left");
+			UIFactory.addToToolbar(toolbar, rightAction, "Move Selected Element Right");
+		}
+
+		add(toolbar, BorderLayout.NORTH);
+		add(new JScrollPane(tree), BorderLayout.CENTER);
+	}
+
+	private void initTree() {
+		if (!treeInitialized) {
+			refreshTree();
+			treeInitialized = true;
+
+			treeSelectionListener = new TreeSelectionL();
+			tree.addTreeSelectionListener(treeSelectionListener);
+
+		}
+	}
+
 	private synchronized void moveCurrentNodeDown() {
 		AbstractRuleTreeNode nodeToMove = currentNode;
 		AbstractRuleTreeNode parent = (AbstractRuleTreeNode) nodeToMove.getParent();
@@ -758,26 +1038,6 @@ public class PowerEditPanel extends JPanel {
 			try {
 				parent.swapChildren(childIndex, childIndex - 1);
 				treeModel.nodeStructureChanged(parent);
-
-				selectNode(nodeToMove);
-			}
-			finally {
-				tree.addTreeSelectionListener(treeSelectionListener);
-			}
-		}
-	}
-
-	private synchronized void indentCurrentNode() {
-		AbstractRuleTreeNode nodeToMove = currentNode;
-		AbstractRuleTreeNode parent = (AbstractRuleTreeNode) nodeToMove.getParent();
-
-		int childIndex = parent.getIndex(nodeToMove);
-		if (childIndex > 0 && (parent.getChildAt(childIndex - 1) instanceof LogicalOpAttachable)) {
-			tree.removeTreeSelectionListener(treeSelectionListener);
-			try {
-
-				deleteNode_internal(nodeToMove);
-				addToNode_internal((AbstractRuleTreeNode) parent.getChildAt(childIndex - 1), -1, nodeToMove);
 
 				selectNode(nodeToMove);
 			}
@@ -818,185 +1078,189 @@ public class PowerEditPanel extends JPanel {
 		}
 	}
 
-	private synchronized void addToCurrentNode(int index, AbstractRuleTreeNode node, boolean selectNode, boolean expand) {
-		addToNode(currentNode, index, node, selectNode, expand);
-	}
-
-	private synchronized void addToNode(AbstractRuleTreeNode parent, int index, AbstractRuleTreeNode node, boolean selectNode, boolean expandNode) {
-		tree.removeTreeSelectionListener(treeSelectionListener);
-
-		try {
-			addToNode_internal(parent, index, node);
-
-			if (selectNode) {
-				selectNode(node);
-				if (expandNode) {
-					expandNodeAll(node);
-				}
-
+	private synchronized void pasteIntoCurrentNode(String str) {
+		RuleElement currentElement = currentNode.getRuleElement();
+		if (currentNode instanceof LogicalOpAttachable) {
+			LHSElement element = RuleElementFactory.toLHSElement(str, DomainModel.getInstance(), ClientUtil.getInstance());
+			if (element == null) {
+				ClientUtil.getInstance().showWarning("msg.warning.invalid.clipboard.content", new Object[] { "LHS element" });
 			}
 			else {
-				selectNode(parent);
-				if (expandNode) {
-					expandNodeAll(parent);
+				// TT 1211 -- allow pasting into IF and THEN node
+				if (currentNode instanceof IfTreeNode) {
+					// skip validation because IfNode doesn't represent a rule element
+				}
+				else {
+					CompoundRuleElement<?> compoundElement = (currentElement instanceof CompoundRuleElement
+							? (CompoundRuleElement<?>) currentElement
+							: (currentElement instanceof ExistExpression ? ((ExistExpression) currentElement).getCompoundLHSElement() : null));
+					if (compoundElement == null) {
+						ClientUtil.getInstance().showWarning("msg.warning.failure.paste.generic", new Object[] { "the selected node cannot contain another rule element." });
+						return;
+					}
+					String validationError = DataTypeCompatibilityValidator.isValid((RuleElement) element, compoundElement, template, DomainModel.getInstance(), false);
+					if (validationError != null) {
+						ClientUtil.getInstance().showWarning("msg.warning.paste.validation", new Object[] { validationError });
+						return;
+					}
+				}
+				AbstractRuleTreeNode nodeToPaste = null;
+				if (element instanceof Condition) {
+					nodeToPaste = new ConditionTreeNode(currentNode, (Condition) element);
+				}
+				else if (element instanceof CompoundLHSElement) {
+					nodeToPaste = new LogicalOpTreeNode(currentNode, (CompoundLHSElement) element);
+				}
+				else if (element instanceof TestCondition) {
+					nodeToPaste = new TestTreeNode(currentNode, (TestCondition) element);
 				}
 
+				if (nodeToPaste != null) {
+					if (element instanceof CompoundLHSElement && currentNode instanceof IfTreeNode && ((CompoundLHSElement) element).getType() == CompoundLHSElement.TYPE_AND) {
+						CompoundLHSElement root = (CompoundLHSElement) element;
+						IfTreeNode ifNode = (IfTreeNode) currentNode;
+						int count = ifNode.getChildCount();
+						for (int i = 0; i < count; i++) {
+							deleteNode((AbstractRuleTreeNode) ifNode.getChildAt(0), false);
+						}
+						for (int i = 0; i < root.size(); i++) {
+							LHSElement sub = (LHSElement) root.get(i);
+							if (sub instanceof Condition) {
+								addToCurrentNode(-1, new ConditionTreeNode(ifNode, (Condition) sub), false, true);
+							}
+							else if (sub instanceof ExistExpression) {
+								addToCurrentNode(-1, new ExistTreeNode(ifNode, (ExistExpression) sub), false, true);
+							}
+							else if (sub instanceof CompoundLHSElement) {
+								addToCurrentNode(-1, new LogicalOpTreeNode(ifNode, (CompoundLHSElement) sub), false, true);
+							}
+							else if (sub instanceof TestCondition) {
+								addToCurrentNode(-1, new TestTreeNode(ifNode, (TestCondition) sub), false, true);
+							}
+						}
+					}
+					else if (element instanceof TestCondition && currentNode instanceof IfTreeNode) {
+						addToCurrentNode(-1, nodeToPaste, true, true);
+					}
+					else
+						addToCurrentNode(-1, nodeToPaste, true, true);
+				}
 			}
 		}
-		finally {
-			tree.addTreeSelectionListener(treeSelectionListener);
-		}
-	}
-
-	private void addToNode_internal(AbstractRuleTreeNode parent, int index, AbstractRuleTreeNode node) {
-		// TT 1013 -- add AND node to NOT when adding this results in more than one child
-		if (isNonEmptyNotNode(parent)) {
-			LogicalOpTreeNode notNode = (LogicalOpTreeNode) parent;
-
-			AbstractRuleTreeNode firstChild = (AbstractRuleTreeNode) notNode.getChildAt(0);
-
-			// if the parent already contains a single AND node, just add to it
-			if (notNode.getChildCount() == 1 && firstChild instanceof LogicalOpTreeNode && ((LogicalOpTreeNode) firstChild).getCompoundLHSElementType() == CompoundLHSElement.TYPE_AND) {
-				addToNode_internal(firstChild, firstChild.getChildCount(), node);
+		else if (currentNode instanceof ConditionTreeNode) {
+			LHSElement element = RuleElementFactory.toLHSElement(str, DomainModel.getInstance(), ClientUtil.getInstance());
+			if (element == null) {
+				ClientUtil.getInstance().showWarning("msg.warning.invalid.clipboard.content", new Object[] { "LHS element" });
 			}
-			// if not, add to a new AND node
 			else {
-				// create a new AND element
-				CompoundLHSElement andElement = RuleElementFactory.getInstance().createAndCompoundCondition();
-				for (int i = 0; i < notNode.getChildCount(); i++) {
-					andElement.add((LHSElement) ((AbstractRuleTreeNode) notNode.getChildAt(i)).getData());
+				String validationError = DataTypeCompatibilityValidator.isValid(
+						(RuleElement) element,
+						(CompoundRuleElement<?>) ((AbstractRuleTreeNode) currentNode.getParent()).getRuleElement(),
+						template,
+						DomainModel.getInstance(),
+						false);
+				if (validationError != null) {
+					ClientUtil.getInstance().showWarning("msg.warning.paste.validation", new Object[] { validationError });
+					return;
 				}
 
-				// remove all children
-				for (int i = 0; i < notNode.getChildCount(); i++) {
-					deleteNode_internal((AbstractRuleTreeNode) notNode.getChildAt(i));
+				AbstractRuleTreeNode nodeToPaste = null;
+				if (element instanceof Condition) {
+					nodeToPaste = new ConditionTreeNode(currentNode, (Condition) element);
+				}
+				else if (element instanceof CompoundLHSElement) {
+					nodeToPaste = new LogicalOpTreeNode(currentNode, (CompoundLHSElement) element);
 				}
 
-				// create a new AND node and add it to the parent
-				LogicalOpTreeNode andNode = new LogicalOpTreeNode(notNode, andElement);
-				addToNode_internal(notNode, 0, andNode);
-				addToNode_internal(andNode, notNode.getChildCount(), node);
+				if (nodeToPaste != null) {
+					int index = currentNode.getParent().getIndex(currentNode) + 1;
+					addToNode((AbstractRuleTreeNode) currentNode.getParent(), index, nodeToPaste, true, true);
+				}
 			}
 		}
-		else {
-			if (index < 0 || index > parent.getChildCount()) {
-				parent.addChild(node);
-				treeModel.nodesWereInserted(parent, new int[] { parent.getIndex(node) });
+		else if (currentNode instanceof ThenTreeNode) {
+			RuleAction action = RuleElementFactory.toRuleAction(str, ClientUtil.getInstance());
+			String validationError = DataTypeCompatibilityValidator.isValid(
+					(RuleElement) action,
+					(CompoundRuleElement<?>) currentElement,
+					template,
+					DomainModel.getInstance(),
+					false);
+			if (validationError != null) {
+				ClientUtil.getInstance().showWarning("msg.warning.paste.validation", new Object[] { validationError });
+				return;
+			}
+
+			if (action == null) {
+				ClientUtil.getInstance().showWarning("msg.warning.invalid.clipboard.content", new Object[] { "rule action" });
 			}
 			else {
-				parent.addChild(index, node);
-				treeModel.nodesWereInserted(parent, new int[] { index });
-			}
-			node.setParent(parent);
-			updateParentRuleElementForAdd(node);
-		}
-	}
-
-	/**
-	 * 
-	 * @param node
-	 * @return the parent of node
-	 */
-	private AbstractRuleTreeNode deleteNode_internal(AbstractRuleTreeNode node) {
-		updateParentRuleElementForDelete(node);
-		// remove tree node
-		AbstractRuleTreeNode parent = (AbstractRuleTreeNode) node.getParent();
-		int index = parent.getIndex(node);
-		parent.removeChild(node);
-
-		treeModel.nodesWereRemoved(parent, new int[] { index }, new Object[] { node });
-
-		// TT 1031 -- remove AND node if it's the only child and it contains only a single element
-		// make sure parent.getParent() is not IF node
-		if ((parent.getParent() instanceof AbstractRuleTreeNode) && isNonEmptyNotNode((AbstractRuleTreeNode) parent.getParent())) {
-			LogicalOpTreeNode notNode = (LogicalOpTreeNode) parent.getParent();
-
-			// if the parent already contains a single-child AND node, remove the AND node
-			if (notNode.getChildCount() == 1 && parent instanceof LogicalOpTreeNode && ((LogicalOpTreeNode) parent).getCompoundLHSElementType() == CompoundLHSElement.TYPE_AND
-					&& ((LogicalOpTreeNode) parent).getChildCount() == 1) {
-				AbstractRuleTreeNode firstChild = (AbstractRuleTreeNode) parent.getChildAt(0);
-				deleteNode_internal(firstChild);
-				deleteNode_internal(parent);
-				addToNode_internal(notNode, 0, firstChild);
+				ActionTreeNode nodeToPaste = new ActionTreeNode(currentNode, action);
+				if (currentNode.getChildCount() > 0) {
+					replaceNode((AbstractRuleTreeNode) currentNode.getChildAt(0), nodeToPaste);
+				}
+				else {
+					addToCurrentNode(-1, nodeToPaste, true, true);
+				}
 			}
 		}
-		return parent;
-	}
-
-	private synchronized void deleteNode(AbstractRuleTreeNode node) {
-		deleteNode(node, true);
-	}
-
-	private synchronized void deleteNode(AbstractRuleTreeNode node, boolean select) {
-		tree.removeTreeSelectionListener(treeSelectionListener);
-		try {
-			if (select)
-				selectNode(deleteNode_internal(node));
-			else
-				deleteNode_internal(node);
-		}
-		finally {
-			tree.addTreeSelectionListener(treeSelectionListener);
-		}
-	}
-
-	private void replaceNode(AbstractRuleTreeNode node) {
-		replaceNode(node, node);
-	}
-
-	private void replaceNode(AbstractRuleTreeNode oldNode, AbstractRuleTreeNode newNode) {
-		tree.removeTreeSelectionListener(treeSelectionListener);
-		try {
-			AbstractRuleTreeNode parent = (AbstractRuleTreeNode) oldNode.getParent();
-
-			deleteNode_internal(oldNode);
-			addToNode_internal(parent, -1, newNode);
-
-			if (newNode.getChildCount() > 0) {
-				expandNodeAll(newNode);
+		else if (currentNode instanceof ActionTreeNode) {
+			FunctionParameter param = RuleElementFactory.toFunctionParameter(str);
+			if (param == null) {
+				ClientUtil.getInstance().showWarning("msg.warning.invalid.clipboard.content", new Object[] { "action parameter" });
 			}
-			selectNode(newNode);
-		}
-		finally {
-			tree.addTreeSelectionListener(treeSelectionListener);
-		}
-	}
+			else {
+				String validationError = DataTypeCompatibilityValidator.isValid(
+						(RuleElement) param,
+						(CompoundRuleElement<?>) currentElement,
+						template,
+						DomainModel.getInstance(),
+						false);
+				if (validationError != null) {
+					ClientUtil.getInstance().showWarning("msg.warning.paste.validation", new Object[] { validationError });
+					return;
+				}
 
-	private void refreshNode(AbstractRuleTreeNode node) { // called from Edit action
-		tree.removeTreeSelectionListener(treeSelectionListener);
-		try {
-			treeModel.nodeChanged(node);
-
-			if (node.getChildCount() > 0) {
-				expandNodeAll(node);
+				RuleAction action = ((ActionTreeNode) currentNode).getRuleAction();
+				if (action.getActionType() == null) {
+					ClientUtil.getInstance().showWarning("msg.warning.failure.paste.generic", new Object[] { "action type is not yet specified." });
+				}
+				else if (action.getActionType().parameterSize() < param.index()) {
+					ClientUtil.getInstance().showWarning("msg.warning.failure.paste.generic", new Object[] { "selected action does not have such parameter." });
+				}
+				else {
+					ActionParamTreeNode paramNode = (ActionParamTreeNode) ((ActionTreeNode) currentNode).getChildAt(param.index() - 1);
+					paramNode.setFunctionParameter(param);
+					refreshNode(paramNode);
+				}
 			}
-			selectNode(node);
 		}
-		finally {
-			tree.addTreeSelectionListener(treeSelectionListener);
-		}
-	}
-
-	private void selectNode(AbstractRuleTreeNode node) {
-		TreePath path = getTreePath(node);
-		tree.scrollPathToVisible(path);
-		tree.setSelectionPath(path);
-		setCurrentNode(node);
-	}
-
-	private synchronized void setCurrentNode(AbstractRuleTreeNode node) {
-		currentNode = node;
-		refreshButtons();
-	}
-
-	private void expandNodeAll(AbstractRuleTreeNode node) {
-		TreePath path = getTreePath(node);
-		if (path != null) {
-			for (int i = 0; i < node.getChildCount(); i++) {
-				AbstractRuleTreeNode child = (AbstractRuleTreeNode) node.getChildAt(i);
-				expandNodeAll(child);
+		else if (currentNode instanceof TestTreeNode) {
+			FunctionParameter param = RuleElementFactory.toFunctionParameter(str);
+			if (param == null) {
+				ClientUtil.getInstance().showWarning("msg.warning.invalid.clipboard.content", new Object[] { "test condition parameter" });
 			}
-			tree.expandPath(path);
+			else {
+				String validationError = DataTypeCompatibilityValidator.isValid(
+						(RuleElement) param,
+						(CompoundRuleElement<?>) currentElement,
+						template,
+						DomainModel.getInstance(),
+						false);
+				if (validationError != null) {
+					ClientUtil.getInstance().showWarning("msg.warning.paste.validation", new Object[] { validationError });
+					return;
+				}
+				TestCondition test = ((TestTreeNode) currentNode).getTestCondition();
+				if (test.getTestType().parameterSize() < param.index()) {
+					ClientUtil.getInstance().showWarning("msg.warning.failure.paste.generic", new Object[] { "selected test condition does not have such parameter." });
+				}
+				else {
+					ActionParamTreeNode paramNode = (ActionParamTreeNode) ((TestTreeNode) currentNode).getChildAt(param.index() - 1);
+					paramNode.setFunctionParameter(param);
+					refreshNode(paramNode);
+				}
+			}
 		}
 	}
 
@@ -1124,34 +1388,123 @@ public class PowerEditPanel extends JPanel {
 		}
 	}
 
-	private final boolean canMoveUp() {
-		if (columnRefValueEditOnly) return false;
-		return currentNode.getParent().getIndex(currentNode) > 0;
+	private void refreshNode(AbstractRuleTreeNode node) { // called from Edit action
+		tree.removeTreeSelectionListener(treeSelectionListener);
+		try {
+			treeModel.nodeChanged(node);
+
+			if (node.getChildCount() > 0) {
+				expandNodeAll(node);
+			}
+			selectNode(node);
+		}
+		finally {
+			tree.addTreeSelectionListener(treeSelectionListener);
+		}
 	}
 
-	private final boolean canMoveDown() {
-		if (columnRefValueEditOnly) return false;
-		return currentNode.getParent().getIndex(currentNode) < (currentNode.getParent().getChildCount() - 1);
+	private void refreshTree() {
+		rootNode.removeAllChildren();
+
+		tree.removeTreeSelectionListener(treeSelectionListener);
+
+		IfTreeNode ifNode = new IfTreeNode(rootNode);
+		ThenTreeNode thenNode = new ThenTreeNode(rootNode);
+		rootNode.addChild(ifNode, true);
+		rootNode.addChild(thenNode, true);
+
+		if (rule != null) {
+			for (int i = 0; i < rule.sizeOfRootElements(); i++) {
+				LHSElement element = rule.getRootElementAt(i);
+				if (element instanceof Condition) {
+					ifNode.addChild(new ConditionTreeNode(ifNode, RuleElementFactory.deepCopyCondition((Condition) element)));
+				}
+				else if (element instanceof ExistExpression) {
+					ifNode.addChild(new ExistTreeNode(ifNode, RuleElementFactory.deepCopyExistExpression((ExistExpression) element)));
+				}
+				else if (element instanceof TestCondition) {
+					ifNode.addChild(new TestTreeNode(ifNode, RuleElementFactory.deepCopyTestCondition((TestCondition) element)));
+				}
+				else if (element instanceof CompoundLHSElement) {
+					ifNode.addChild(new LogicalOpTreeNode(ifNode, RuleElementFactory.deepCopyCompoundLHSElement((CompoundLHSElement) element)));
+				}
+			}
+			if (rule.hasAction()) {
+				thenNode.addChild(new ActionTreeNode(thenNode, RuleElementFactory.deepCopyRuleAction(rule.getRuleAction())));
+			}
+		}
+
+		treeModel.reload();
+
+		expandNodeAll(ifNode);
+		expandNodeAll(thenNode);
+		tree.addTreeSelectionListener(treeSelectionListener);
 	}
 
-	private final boolean canIndent() {
-		if (columnRefValueEditOnly) return false;
-		int index = currentNode.getParent().getIndex(currentNode);
-		return index > 0 && (currentNode.getParent().getChildAt(index - 1) instanceof LogicalOpAttachable);
+	public void removeCellValueChangeListener(CellValueChangeListener listener) {
+		synchronized (cellValueChangeListenerList) {
+			if (cellValueChangeListenerList.contains(listener)) {
+				cellValueChangeListenerList.remove(listener);
+			}
+		}
 	}
 
-	private final boolean canOutdent() {
-		if (columnRefValueEditOnly) return false;
-		return !(currentNode.getParent() instanceof IfTreeNode);
+	public void removeRuleChangeListener(RuleChangeListener listener) {
+		synchronized (ruleChangeListenerList) {
+			if (ruleChangeListenerList.contains(listener)) {
+				ruleChangeListenerList.remove(listener);
+			}
+		}
 	}
 
-	private void setEnabledDirectionButtons(boolean enabled) {
-		upAction.setEnabled(enabled && canMoveUp());
-		downAction.setEnabled(enabled && canMoveDown());
-		rightAction.setEnabled(enabled && canIndent());
-		leftAction.setEnabled(enabled && canOutdent());
+	private void replaceNode(AbstractRuleTreeNode node) {
+		replaceNode(node, node);
 	}
 
+	private void replaceNode(AbstractRuleTreeNode oldNode, AbstractRuleTreeNode newNode) {
+		tree.removeTreeSelectionListener(treeSelectionListener);
+		try {
+			AbstractRuleTreeNode parent = (AbstractRuleTreeNode) oldNode.getParent();
+
+			deleteNode_internal(oldNode);
+			addToNode_internal(parent, -1, newNode);
+
+			if (newNode.getChildCount() > 0) {
+				expandNodeAll(newNode);
+			}
+			selectNode(newNode);
+		}
+		finally {
+			tree.addTreeSelectionListener(treeSelectionListener);
+		}
+	}
+
+	private void selectNode(AbstractRuleTreeNode node) {
+		TreePath path = getTreePath(node);
+		tree.scrollPathToVisible(path);
+		tree.setSelectionPath(path);
+		setCurrentNode(node);
+	}
+
+	public synchronized void setCellValues(List<Object> cellValues) {
+		treeModel.removeTreeModelListener(treeModelListener);
+		try {
+			if (colRefTreeRenderer != null) {
+				colRefTreeRenderer.setCellValues(cellValues);
+			}
+			refreshTree();
+		}
+		finally {
+			treeModel.addTreeModelListener(treeModelListener);
+		}
+	}
+
+	private synchronized void setCurrentNode(AbstractRuleTreeNode node) {
+		currentNode = node;
+		refreshButtons();
+	}
+
+	@Override
 	public void setEnabled(boolean enabled) {
 		super.setEnabled(enabled);
 		this.enabled = enabled;
@@ -1161,7 +1514,6 @@ public class PowerEditPanel extends JPanel {
 		else {
 			refreshButtons();
 		}
-		//propPanel.setEnabled(enabled);
 	}
 
 	private void setEnabledAll(boolean enabled) {
@@ -1181,290 +1533,11 @@ public class PowerEditPanel extends JPanel {
 		setEnabledDirectionButtons(enabled);
 	}
 
-	private void initPanel() {
-		JToolBar toolbar = new JToolBar("Rule Actions");
-		toolbar.setFloatable(true);
-
-		if (!columnRefValueEditOnly) {
-			UIFactory.addToToolbar(toolbar, condAction, "Add New Condition");
-			UIFactory.addToToolbar(toolbar, actionAction, "Add New Action");
-			toolbar.addSeparator();
-			UIFactory.addToToolbar(toolbar, existAction, "Add New Exist Expression");
-			UIFactory.addToToolbar(toolbar, andAction, "Add New AND");
-			UIFactory.addToToolbar(toolbar, orAction, "Add New OR");
-			UIFactory.addToToolbar(toolbar, notAction, "Add New NOT");
-			UIFactory.addToToolbar(toolbar, testAction, "Add New Test Condition");
-			toolbar.addSeparator();
-		}
-		UIFactory.addToToolbar(toolbar, editAction, "Edit Selected Element");
-		if (!columnRefValueEditOnly) {
-			UIFactory.addToToolbar(toolbar, deleteAction, "Delete Selected Element");
-			toolbar.addSeparator();
-			UIFactory.addToToolbar(toolbar, copyAction, "Copy Selected Element");
-			UIFactory.addToToolbar(toolbar, cutAction, "Cut Selected Element");
-			UIFactory.addToToolbar(toolbar, pasteAction, "Paste Selected Element");
-			toolbar.addSeparator();
-			UIFactory.addToToolbar(toolbar, upAction, "Move Selected Element Up");
-			UIFactory.addToToolbar(toolbar, downAction, "Move Selected Element Down");
-			UIFactory.addToToolbar(toolbar, leftAction, "Move Selected Element Left");
-			UIFactory.addToToolbar(toolbar, rightAction, "Move Selected Element Right");
-		}
-
-		add(toolbar, BorderLayout.NORTH);
-		add(new JScrollPane(tree), BorderLayout.CENTER);
-	}
-
-	private void initTree() {
-		if (!treeInitialized) {
-			refreshTree();
-			treeInitialized = true;
-
-			treeSelectionListener = new TreeSelectionL();
-			tree.addTreeSelectionListener(treeSelectionListener);
-
-		}
-	}
-
-	private synchronized void copyCurrentNode() {
-		String str = null;
-		if (currentNode instanceof IfTreeNode) {
-			CompoundLHSElement rootConditions = RuleElementFactory.getInstance().createAndCompoundCondition();
-			updateRuleFromTree_aux(rootConditions, currentNode);
-			str = RuleElementFactory.asCopyString(rootConditions);
-		}
-		else if (currentNode instanceof ConditionTreeNode) {
-			str = RuleElementFactory.asCopyString(((ConditionTreeNode) currentNode).getCondition());
-		}
-		else if (currentNode instanceof LogicalOpTreeNode) {
-			// somehow get a compound LHS element for the node
-			str = RuleElementFactory.asCopyString((CompoundLHSElement) ((LogicalOpTreeNode) currentNode).getRuleElement());
-		}
-		else if (currentNode instanceof ThenTreeNode) {
-			str = RuleElementFactory.asCopyString(((ActionTreeNode) currentNode.getChildAt(0)).getRuleAction());
-		}
-		else if (currentNode instanceof ActionTreeNode) {
-			str = RuleElementFactory.asCopyString(((ActionTreeNode) currentNode).getRuleAction());
-		}
-		else if (currentNode instanceof TestTreeNode) {
-			str = RuleElementFactory.asCopyString(((TestTreeNode) currentNode).getTestCondition());
-		}
-		else if (currentNode instanceof ActionParamTreeNode) {
-			str = RuleElementFactory.asCopyString(((ActionParamTreeNode) currentNode).getFunctionParameter());
-		}
-
-		if (str != null) {
-			ClientUtil.placeOnClipboard(str);
-		}
-	}
-
-	private synchronized void cutCurrentNode() {
-		String str = null;
-		if (currentNode instanceof IfTreeNode) {
-			CompoundLHSElement rootConditions = RuleElementFactory.getInstance().createAndCompoundCondition();
-			updateRuleFromTree_aux(rootConditions, currentNode);
-			str = RuleElementFactory.asCopyString(rootConditions);
-		}
-		else if (currentNode instanceof ConditionTreeNode) {
-			str = RuleElementFactory.asCopyString(((ConditionTreeNode) currentNode).getCondition());
-		}
-		else if (currentNode instanceof LogicalOpTreeNode) {
-			// somehow get a compound LHS element for the node
-			str = RuleElementFactory.asCopyString((CompoundLHSElement) ((LogicalOpTreeNode) currentNode).getRuleElement());
-		}
-		else if (currentNode instanceof ThenTreeNode && currentNode.getChildCount() > 0) {
-			str = RuleElementFactory.asCopyString(((ActionTreeNode) currentNode.getChildAt(0)).getRuleAction());
-		}
-		else if (currentNode instanceof ActionTreeNode) {
-			str = RuleElementFactory.asCopyString(((ActionTreeNode) currentNode).getRuleAction());
-		}
-		else if (currentNode instanceof TestTreeNode) {
-			str = RuleElementFactory.asCopyString(((TestTreeNode) currentNode).getTestCondition());
-		}
-		if (str != null) {
-			ClientUtil.placeOnClipboard(str);
-			if (currentNode instanceof IfTreeNode) {
-				IfTreeNode ifNode = (IfTreeNode) currentNode;
-				int count = ifNode.getChildCount();
-				for (int i = 0; i < count; i++) {
-					deleteNode((AbstractRuleTreeNode) ifNode.getChildAt(0), false);
-				}
-			}
-			else if (currentNode instanceof ThenTreeNode && currentNode.getChildCount() > 0)
-				deleteNode((AbstractRuleTreeNode) currentNode.getChildAt(0), false);
-			else
-				deleteNode(currentNode);
-		}
-	}
-
-	private synchronized void pasteIntoCurrentNode(String str) {
-		RuleElement currentElement = currentNode.getRuleElement();
-		if (currentNode instanceof LogicalOpAttachable) {
-			LHSElement element = RuleElementFactory.toLHSElement(str, DomainModel.getInstance(), ClientUtil.getInstance());
-			if (element == null) {
-				ClientUtil.getInstance().showWarning("msg.warning.invalid.clipboard.content", new Object[] { "LHS element" });
-			}
-			else {
-				// TT 1211 -- allow pasting into IF and THEN node
-				if (currentNode instanceof IfTreeNode) {
-					// skip validation because IfNode doesn't represent a rule element
-				}
-				else {
-					CompoundRuleElement<?> compoundElement = (currentElement instanceof CompoundRuleElement ? (CompoundRuleElement<?>) currentElement : (currentElement instanceof ExistExpression
-							? ((ExistExpression) currentElement).getCompoundLHSElement()
-							: null));
-					if (compoundElement == null) {
-						ClientUtil.getInstance().showWarning("msg.warning.failure.paste.generic", new Object[] { "the selected node cannot contain another rule element." });
-						return;
-					}
-					String validationError = DataTypeCompatibilityValidator.isValid((RuleElement) element, compoundElement, template, DomainModel.getInstance(), false);
-					if (validationError != null) {
-						ClientUtil.getInstance().showWarning("msg.warning.paste.validation", new Object[] { validationError });
-						return;
-					}
-				}
-				AbstractRuleTreeNode nodeToPaste = null;
-				if (element instanceof Condition) {
-					nodeToPaste = new ConditionTreeNode(currentNode, (Condition) element);
-				}
-				else if (element instanceof CompoundLHSElement) {
-					nodeToPaste = new LogicalOpTreeNode(currentNode, (CompoundLHSElement) element);
-				}
-				else if (element instanceof TestCondition) {
-					nodeToPaste = new TestTreeNode(currentNode, (TestCondition) element);
-				}
-
-				if (nodeToPaste != null) {
-					if (element instanceof CompoundLHSElement && currentNode instanceof IfTreeNode && ((CompoundLHSElement) element).getType() == CompoundLHSElement.TYPE_AND) {
-						CompoundLHSElement root = (CompoundLHSElement) element;
-						IfTreeNode ifNode = (IfTreeNode) currentNode;
-						int count = ifNode.getChildCount();
-						for (int i = 0; i < count; i++) {
-							deleteNode((AbstractRuleTreeNode) ifNode.getChildAt(0), false);
-						}
-						for (int i = 0; i < root.size(); i++) {
-							LHSElement sub = (LHSElement) root.get(i);
-							if (sub instanceof Condition) {
-								addToCurrentNode(-1, new ConditionTreeNode(ifNode, (Condition) sub), false, true);
-							}
-							else if (sub instanceof ExistExpression) {
-								addToCurrentNode(-1, new ExistTreeNode(ifNode, (ExistExpression) sub), false, true);
-							}
-							else if (sub instanceof CompoundLHSElement) {
-								addToCurrentNode(-1, new LogicalOpTreeNode(ifNode, (CompoundLHSElement) sub), false, true);
-							}
-							else if (sub instanceof TestCondition) {
-								addToCurrentNode(-1, new TestTreeNode(ifNode, (TestCondition) sub), false, true);
-							}
-						}
-					}
-					else if (element instanceof TestCondition && currentNode instanceof IfTreeNode) {
-						addToCurrentNode(-1, nodeToPaste, true, true);
-					}
-					else
-						addToCurrentNode(-1, nodeToPaste, true, true);
-				}
-			}
-		}
-		else if (currentNode instanceof ConditionTreeNode) {
-			LHSElement element = RuleElementFactory.toLHSElement(str, DomainModel.getInstance(), ClientUtil.getInstance());
-			if (element == null) {
-				ClientUtil.getInstance().showWarning("msg.warning.invalid.clipboard.content", new Object[] { "LHS element" });
-			}
-			else {
-				String validationError = DataTypeCompatibilityValidator.isValid(
-						(RuleElement) element,
-						(CompoundRuleElement<?>) ((AbstractRuleTreeNode) currentNode.getParent()).getRuleElement(),
-						template,
-						DomainModel.getInstance(),
-						false);
-				if (validationError != null) {
-					ClientUtil.getInstance().showWarning("msg.warning.paste.validation", new Object[] { validationError });
-					return;
-				}
-
-				AbstractRuleTreeNode nodeToPaste = null;
-				if (element instanceof Condition) {
-					nodeToPaste = new ConditionTreeNode(currentNode, (Condition) element);
-				}
-				else if (element instanceof CompoundLHSElement) {
-					nodeToPaste = new LogicalOpTreeNode(currentNode, (CompoundLHSElement) element);
-				}
-
-				if (nodeToPaste != null) {
-					int index = currentNode.getParent().getIndex(currentNode) + 1;
-					addToNode((AbstractRuleTreeNode) currentNode.getParent(), index, nodeToPaste, true, true);
-				}
-			}
-		}
-		else if (currentNode instanceof ThenTreeNode) {
-			RuleAction action = RuleElementFactory.toRuleAction(str, ClientUtil.getInstance());
-			String validationError = DataTypeCompatibilityValidator.isValid((RuleElement) action, (CompoundRuleElement<?>) currentElement, template, DomainModel.getInstance(), false);
-			if (validationError != null) {
-				ClientUtil.getInstance().showWarning("msg.warning.paste.validation", new Object[] { validationError });
-				return;
-			}
-
-			if (action == null) {
-				ClientUtil.getInstance().showWarning("msg.warning.invalid.clipboard.content", new Object[] { "rule action" });
-			}
-			else {
-				ActionTreeNode nodeToPaste = new ActionTreeNode(currentNode, action);
-				if (currentNode.getChildCount() > 0) {
-					replaceNode((AbstractRuleTreeNode) currentNode.getChildAt(0), nodeToPaste);
-				}
-				else {
-					addToCurrentNode(-1, nodeToPaste, true, true);
-				}
-			}
-		}
-		else if (currentNode instanceof ActionTreeNode) {
-			FunctionParameter param = RuleElementFactory.toFunctionParameter(str);
-			if (param == null) {
-				ClientUtil.getInstance().showWarning("msg.warning.invalid.clipboard.content", new Object[] { "action parameter" });
-			}
-			else {
-				String validationError = DataTypeCompatibilityValidator.isValid((RuleElement) param, (CompoundRuleElement<?>) currentElement, template, DomainModel.getInstance(), false);
-				if (validationError != null) {
-					ClientUtil.getInstance().showWarning("msg.warning.paste.validation", new Object[] { validationError });
-					return;
-				}
-
-				RuleAction action = ((ActionTreeNode) currentNode).getRuleAction();
-				if (action.getActionType() == null) {
-					ClientUtil.getInstance().showWarning("msg.warning.failure.paste.generic", new Object[] { "action type is not yet specified." });
-				}
-				else if (action.getActionType().parameterSize() < param.index()) {
-					ClientUtil.getInstance().showWarning("msg.warning.failure.paste.generic", new Object[] { "selected action does not have such parameter." });
-				}
-				else {
-					ActionParamTreeNode paramNode = (ActionParamTreeNode) ((ActionTreeNode) currentNode).getChildAt(param.index() - 1);
-					paramNode.setFunctionParameter(param);
-					refreshNode(paramNode);
-				}
-			}
-		}
-		else if (currentNode instanceof TestTreeNode) {
-			FunctionParameter param = RuleElementFactory.toFunctionParameter(str);
-			if (param == null) {
-				ClientUtil.getInstance().showWarning("msg.warning.invalid.clipboard.content", new Object[] { "test condition parameter" });
-			}
-			else {
-				String validationError = DataTypeCompatibilityValidator.isValid((RuleElement) param, (CompoundRuleElement<?>) currentElement, template, DomainModel.getInstance(), false);
-				if (validationError != null) {
-					ClientUtil.getInstance().showWarning("msg.warning.paste.validation", new Object[] { validationError });
-					return;
-				}
-				TestCondition test = ((TestTreeNode) currentNode).getTestCondition();
-				if (test.getTestType().parameterSize() < param.index()) {
-					ClientUtil.getInstance().showWarning("msg.warning.failure.paste.generic", new Object[] { "selected test condition does not have such parameter." });
-				}
-				else {
-					ActionParamTreeNode paramNode = (ActionParamTreeNode) ((TestTreeNode) currentNode).getChildAt(param.index() - 1);
-					paramNode.setFunctionParameter(param);
-					refreshNode(paramNode);
-				}
-			}
-		}
+	private void setEnabledDirectionButtons(boolean enabled) {
+		upAction.setEnabled(enabled && canMoveUp());
+		downAction.setEnabled(enabled && canMoveDown());
+		rightAction.setEnabled(enabled && canIndent());
+		leftAction.setEnabled(enabled && canOutdent());
 	}
 
 	public synchronized void setRule(GridTemplate template, RuleDefinition rule) {
@@ -1481,41 +1554,6 @@ public class PowerEditPanel extends JPanel {
 		finally {
 			treeModel.addTreeModelListener(treeModelListener);
 		}
-	}
-
-	public synchronized void setCellValues(List<Object> cellValues) {
-		treeModel.removeTreeModelListener(treeModelListener);
-		try {
-			if (colRefTreeRenderer != null) {
-				colRefTreeRenderer.setCellValues(cellValues);
-			}
-			refreshTree();
-		}
-		finally {
-			treeModel.addTreeModelListener(treeModelListener);
-		}
-	}
-
-	public synchronized RuleDefinition getRule() {
-		return this.rule;
-	}
-
-	public synchronized void clearFields() {
-		this.usageType = null;
-		this.rule = null;
-		refreshTree();
-	}
-
-	public synchronized void clearExceptRule() {
-		this.usageType = null;
-		refreshTree();
-	}
-
-	public synchronized void updateRuleFromFields() {
-		if (rule == null) {
-			rule = new RuleDefinition(0, "", "");
-		}
-		updateRuleFromTree();
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -1540,6 +1578,7 @@ public class PowerEditPanel extends JPanel {
 		}
 	}
 
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void updateParentRuleElementForDelete(AbstractRuleTreeNode child) {
 		AbstractRuleTreeNode parent = (AbstractRuleTreeNode) child.getParent();
@@ -1554,6 +1593,13 @@ public class PowerEditPanel extends JPanel {
 			return;
 		}
 		parentElement.remove(childElement);
+	}
+
+	public synchronized void updateRuleFromFields() {
+		if (rule == null) {
+			rule = new RuleDefinition(0, "", "");
+		}
+		updateRuleFromTree();
 	}
 
 
@@ -1621,61 +1667,12 @@ public class PowerEditPanel extends JPanel {
 
 	}
 
-
-	private void updateRuleFromTree_aux(CompoundLHSElement compoundElement, TestTreeNode node) {
-		compoundElement.add(RuleElementFactory.deepCopyTestCondition(node.getTestCondition()));
-	}
-
 	private void updateRuleFromTree_aux(CompoundLHSElement compoundElement, ConditionTreeNode node) {
 		compoundElement.add(RuleElementFactory.deepCopyCondition(((ConditionTreeNode) node).getCondition()));
 	}
 
-	private void refreshTree() {
-		rootNode.removeAllChildren();
-
-		tree.removeTreeSelectionListener(treeSelectionListener);
-
-		IfTreeNode ifNode = new IfTreeNode(rootNode);
-		ThenTreeNode thenNode = new ThenTreeNode(rootNode);
-		rootNode.addChild(ifNode, true);
-		rootNode.addChild(thenNode, true);
-
-		if (rule != null) {
-			for (int i = 0; i < rule.sizeOfRootElements(); i++) {
-				LHSElement element = rule.getRootElementAt(i);
-				if (element instanceof Condition) {
-					ifNode.addChild(new ConditionTreeNode(ifNode, RuleElementFactory.deepCopyCondition((Condition) element)));
-				}
-				else if (element instanceof ExistExpression) {
-					ifNode.addChild(new ExistTreeNode(ifNode, RuleElementFactory.deepCopyExistExpression((ExistExpression) element)));
-				}
-				else if (element instanceof TestCondition) {
-					ifNode.addChild(new TestTreeNode(ifNode, RuleElementFactory.deepCopyTestCondition((TestCondition) element)));
-				}
-				else if (element instanceof CompoundLHSElement) {
-					ifNode.addChild(new LogicalOpTreeNode(ifNode, RuleElementFactory.deepCopyCompoundLHSElement((CompoundLHSElement) element)));
-				}
-			}
-			if (rule.hasAction()) {
-				thenNode.addChild(new ActionTreeNode(thenNode, RuleElementFactory.deepCopyRuleAction(rule.getRuleAction())));
-			}
-		}
-
-		treeModel.reload();
-
-		expandNodeAll(ifNode);
-		expandNodeAll(thenNode);
-		tree.addTreeSelectionListener(treeSelectionListener);
-	}
-
-	private TreePath getTreePath(AbstractRuleTreeNode node) {
-		LinkedList<TreeNode> parentList = new LinkedList<TreeNode>();
-		parentList.add(node);
-		for (TreeNode parent = node.getParent(); parent != null;) {
-			parentList.add(0, parent);
-			parent = parent.getParent();
-		}
-		return new TreePath(parentList.toArray(new TreeNode[0]));
+	private void updateRuleFromTree_aux(CompoundLHSElement compoundElement, TestTreeNode node) {
+		compoundElement.add(RuleElementFactory.deepCopyTestCondition(node.getTestCondition()));
 	}
 
 }

@@ -86,8 +86,9 @@ public final class GuidelineContextPanel extends DefaultGuidelineContextHolderFo
 	private JCheckBox searchInColumnCheckbox;
 
 	/**
-	 * Equivalent to <code>GuidelineContextPanel(allowEdit, false)</code>.
-	 * 
+	 * Equivalent to <code>GuidelineContextPanel(editButtonLabelKey, allowEdit, false, false)</code>.
+	 * @param editButtonLabelKey editButtonLabelKey
+	 * @param allowEdit allowEdit
 	 */
 	public GuidelineContextPanel(String editButtonLabelKey, boolean allowEdit) {
 		this(editButtonLabelKey, allowEdit, false, false);

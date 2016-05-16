@@ -4,7 +4,7 @@ public interface EntityDeleteListener {
 
 	/**
 	 * Notifies that a generic entity is deleted.
-	 * @param e
+	 * @param e event
 	 */
 	void entityDeleted(EntityDeleteEvent e);
 }

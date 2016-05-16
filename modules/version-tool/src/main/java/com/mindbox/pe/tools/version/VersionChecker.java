@@ -16,24 +16,43 @@ import java.util.List;
 /**
  * Run this to check the version of PE, given the webapps/powereditor directory.
  * <p>
- * <b>Usage:</b><br>
- * <code>java -classpath powereditor-version.jar <powereditor-dir> <output-filename>
- * 
+ * <b>Usage:</b>
+ * </p>
+ * <p>
+ * <code>java -classpath powereditor-version.jar &lt;powereditor-dir&gt; &lt;output-filename&gt;</code>
+ * </p>
  * @author Geneho Kim
  * @since PowerEditor 4.4.0
  */
 public class VersionChecker {
 
+	private static class TimeoutThread extends Thread {
+
+		public TimeoutThread() {
+			super("TO");
+			setDaemon(true);
+		}
+
+		@Override
+		public void run() {
+			long target = System.currentTimeMillis() + MAX_WAIT;
+			while (target > System.currentTimeMillis()) {
+				try {
+					Thread.sleep(10);
+				}
+				catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			System.err.println("Timed out while waiting for checker process to complete.");
+			System.exit(-1);
+		}
+	}
+
 	private static final String CHECKER_FLAG = "{pe.version.check}";
 	private static final String JAR_NAME = "powereditor-server.jar";
 	private static final String WEBINF_LIB_PATH = "WEB-INF" + System.getProperty("file.separator") + "lib" + System.getProperty("file.separator") + JAR_NAME;
 	private static final long MAX_WAIT = 1 * 60 * 1000L; // 2 minutes
-
-	private static void printUsage() {
-		System.out.println("USAGE:");
-		System.out.println("java -jar powereditor-version.jar <pe-dir> <output-file>");
-		System.out.println("");
-	}
 
 	public static void main(String[] args) throws IOException {
 		if (args.length == 2) {
@@ -51,6 +70,12 @@ public class VersionChecker {
 			printUsage();
 		}
 
+	}
+
+	private static void printUsage() {
+		System.out.println("USAGE:");
+		System.out.println("java -jar powereditor-version.jar <pe-dir> <output-file>");
+		System.out.println("");
 	}
 
 	private static void writeVersionInfo(String outputFilename) throws IOException {
@@ -82,28 +107,6 @@ public class VersionChecker {
 		}
 	}
 
-	private static class TimeoutThread extends Thread {
-
-		public TimeoutThread() {
-			super("TO");
-			setDaemon(true);
-		}
-
-		public void run() {
-			long target = System.currentTimeMillis() + MAX_WAIT;
-			while (target > System.currentTimeMillis()) {
-				try {
-					Thread.sleep(10);
-				}
-				catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-			System.err.println("Timed out while waiting for checker process to complete.");
-			System.exit(-1);
-		}
-	}
-
 	private final String serverJarPath;
 	private final String filename;
 
@@ -112,6 +115,25 @@ public class VersionChecker {
 		this.filename = filename;
 		this.serverJarPath = extractServerJarPath(peDir);
 		System.out.print("Using " + serverJarPath + " to determine version...");
+	}
+
+	private String extractServerJarPath(String peDir) {
+		File file = new File(peDir);
+		if (!file.exists()) throw new IllegalArgumentException(filename + " does not exist.");
+		if (!file.isDirectory()) throw new IllegalArgumentException(filename + " is not a directory.");
+		File candidate = new File(file, WEBINF_LIB_PATH);
+		if (candidate.exists()) {
+			return candidate.getAbsolutePath();
+		}
+		else {
+			candidate = new File(file, "powereditor" + System.getProperty("file.separator") + WEBINF_LIB_PATH);
+			if (candidate.exists()) {
+				return candidate.getAbsolutePath();
+			}
+			else {
+				throw new IllegalArgumentException("No powereditor installation found in " + peDir);
+			}
+		}
 	}
 
 	public void run() {
@@ -142,25 +164,6 @@ public class VersionChecker {
 		catch (Exception ex) {
 			System.out.println("Failed to complete the request");
 			ex.printStackTrace();
-		}
-	}
-
-	private String extractServerJarPath(String peDir) {
-		File file = new File(peDir);
-		if (!file.exists()) throw new IllegalArgumentException(filename + " does not exist.");
-		if (!file.isDirectory()) throw new IllegalArgumentException(filename + " is not a directory.");
-		File candidate = new File(file, WEBINF_LIB_PATH);
-		if (candidate.exists()) {
-			return candidate.getAbsolutePath();
-		}
-		else {
-			candidate = new File(file, "powereditor" + System.getProperty("file.separator") + WEBINF_LIB_PATH);
-			if (candidate.exists()) {
-				return candidate.getAbsolutePath();
-			}
-			else {
-				throw new IllegalArgumentException("No powereditor installation found in " + peDir);
-			}
 		}
 	}
 

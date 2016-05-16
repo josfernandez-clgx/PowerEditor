@@ -18,7 +18,7 @@ public interface LHSPatternList extends LHSPattern {
 
 	/**
 	 * Adds the specified test pattern list to the end.
-	 * @param testPattern the test pattern to append
+	 * @param patternList the test pattern to append
 	 * @throws NullPointerException if <code>testPattern</code> is <code>null</code>
 	 */
 	void append(LHSPatternList patternList);
@@ -31,14 +31,6 @@ public interface LHSPatternList extends LHSPattern {
 	 */
 	void append(ObjectPattern objectPattern) throws RuleGenerationException;
 
-	/**
-	 * Adds the specified object pattern before the object pattern with the specified variable name.
-	 * If no such object pattern is found, <code>objectPattern</code> is appended to the end.
-	 * @param objectPattern
-	 * @throws RuleGenerationException
-	 */
-	void insertBefore(ObjectPattern objectPattern, String objectVariableName) throws RuleGenerationException;
-	
 	/**
 	 * Gets the LHS pattern at the specified index.
 	 * @param index zero-based
@@ -63,10 +55,10 @@ public interface LHSPatternList extends LHSPattern {
 	 * @throws NullPointerException if attributePattern is <code>null</code>
 	 */
 	boolean hasConflictingAttributePattern(String objectVarName, AttributePattern attributePattern);
-	
+
 	/**
 	 * 
-	 * @param reference
+	 * @param reference reference
 	 * @return <code>true</code> if this has a pattern for the specified reference; <code>false</code>, otherwise
 	 * @throws NullPointerException if reference is <code>null</code>
 	 */
@@ -74,7 +66,9 @@ public interface LHSPatternList extends LHSPattern {
 
 	/**
 	 * Equivalent to <code>insert(objectPattern, false)</code>.
+	 * @param objectPattern objectPattern
 	 * @see #insert(ObjectPattern, boolean)
+	 * @throws RuleGenerationException on error
 	 */
 	void insert(ObjectPattern objectPattern) throws RuleGenerationException;
 
@@ -91,6 +85,15 @@ public interface LHSPatternList extends LHSPattern {
 	void insert(ObjectPattern objectPattern, boolean preserveOrderIfPatternExists) throws RuleGenerationException;
 
 	/**
+	 * Adds the specified object pattern before the object pattern with the specified variable name.
+	 * If no such object pattern is found, <code>objectPattern</code> is appended to the end.
+	 * @param objectPattern objectPattern
+	 * @param objectVariableName objectVariableName
+	 * @throws RuleGenerationException on error
+	 */
+	void insertBefore(ObjectPattern objectPattern, String objectVariableName) throws RuleGenerationException;
+
+	/**
 	 * Tests if this is empty.
 	 * @return <code>true</code> if this contains no object patterns; <code>false</code>, otherwise
 	 */
@@ -98,7 +101,7 @@ public interface LHSPatternList extends LHSPattern {
 
 	/**
 	 * Removes the specified object pattern from this.
-	 * @param objectPattern
+	 * @param objectPattern objectPattern
 	 * @throws NullPointerException if <code>objectPattern</code> is <code>null</code>
 	 */
 	void remove(ObjectPattern objectPattern);

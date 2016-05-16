@@ -1029,7 +1029,7 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 
 	/**
 	 * Return the most recent fully qualified category name. 
-	 * @param categoryType categoryType
+	 * @param category category
 	 * @return fully qualified name.
 	 */
 	public String getMostRecentFullyQualifiedCategoryName(GenericCategory category) {
@@ -1245,7 +1245,6 @@ public class EntityModelCacheFactory implements DatedCategoryTreeModel.DataProvi
 	 * @param childID the child id
 	 * @param parentIDs parent ids
 	 * @param categoryType category type
-	 * @param date date
 	 * @return <code>true</code> if childID is a child of all parentIDs
 	 */
 	public boolean isDescendentAtAnyTime(int childID, int parentIDs[], int categoryType) {

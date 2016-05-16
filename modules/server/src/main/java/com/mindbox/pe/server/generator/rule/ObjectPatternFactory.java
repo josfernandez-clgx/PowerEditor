@@ -56,7 +56,9 @@ public final class ObjectPatternFactory {
 	}
 
 	public ObjectPattern createEmptyObjectPattern(ExistExpression existExpression) throws RuleGenerationException {
-		String existObjectNameVar = (UtilBase.isEmpty(existExpression.getObjectName()) ? helper.asVariableName(existExpression.getClassName()) : "?" + existExpression.getObjectName());
+		String existObjectNameVar = (UtilBase.isEmpty(existExpression.getObjectName())
+				? helper.asVariableName(existExpression.getClassName())
+				: "?" + existExpression.getObjectName());
 		if (existExpression.getExcludedObjectName() != null) {
 			existObjectNameVar += " " + helper.formatForExcludedObject(existExpression.getExcludedObjectName());
 		}
@@ -105,7 +107,9 @@ public final class ObjectPatternFactory {
 				helper.getDeployLabelForClass(condition.getReference()),
 				helper.asVariableName(
 						condition.getReference().getClassName(),
-						(UtilBase.isEmpty(condition.getObjectName()) ? (UtilBase.isEmpty(objectVarOverride) ? null : objectVarOverride) : helper.asVariableName(condition.getObjectName()))));
+						(UtilBase.isEmpty(condition.getObjectName())
+								? (UtilBase.isEmpty(objectVarOverride) ? null : objectVarOverride)
+								: helper.asVariableName(condition.getObjectName()))));
 		objectPattern.add(attributePattern);
 		objectPattern.setCanBeSkipped(true);
 		return objectPattern;
@@ -113,9 +117,9 @@ public final class ObjectPatternFactory {
 
 	/**
 	 * 
-	 * @param usageType
+	 * @param usageType usageType
 	 * @return object pattern for the request pattern; may be <code>null</code>
-	 * @throws RuleGenerationException
+	 * @throws RuleGenerationException on error
 	 */
 	public ObjectPattern createRequestPattern(TemplateUsageType usageType) throws RuleGenerationException {
 		Pattern requestPatternConfig = helper.getRuleGenerationConfiguration(usageType).getRequestPatternConfig();

@@ -91,8 +91,8 @@ public class ReportGenerator {
 		}
 	}
 
-	private static void appendMessageString(StringBuilder buff, GridTemplate template, GenericEntityType entityType, int entityID, int column, GridValueContainable grid, boolean replaceColumnRef,
-			int row) throws InvalidDataException {
+	private static void appendMessageString(StringBuilder buff, GridTemplate template, GenericEntityType entityType, int entityID, int column, GridValueContainable grid,
+			boolean replaceColumnRef, int row) throws InvalidDataException {
 		try {
 			Message messageObj = findMessage(template, column, entityID);
 			if (messageObj != null) {
@@ -117,20 +117,20 @@ public class ReportGenerator {
 
 	/**
 	 * 
-	 * @param buff
-	 * @param template
-	 * @param channelID
-	 * @param column
-	 * @param grid
-	 * @param replaceColumnRef
-	 * @param row
+	 * @param buff buffReportGenerato
+	 * @param template templateReportGenerato
+	 * @param channelID channelIDReportGenerato
+	 * @param column columnReportGenerato
+	 * @param grid gridReportGenerato
+	 * @param replaceColumnRef replaceColumnRefReportGenerato
+	 * @param row rowReportGenerato
 	 * @return <code>true</code> if <code>buff</code> was modified; <code>false</code>,
 	 *         otherwise
 	 * @throws ParseException
 	 * @throws InvalidDataException
 	 */
-	private static boolean appendMessageStringForReport(StringBuilder buff, GridTemplate template, GenericEntityType entityType, int entityID, int column, GridValueContainable grid,
-			boolean replaceColumnRef, int row) throws InvalidDataException {
+	private static boolean appendMessageStringForReport(StringBuilder buff, GridTemplate template, GenericEntityType entityType, int entityID, int column,
+			GridValueContainable grid, boolean replaceColumnRef, int row) throws InvalidDataException {
 		try {
 			Message messageObj = findMessage(template, column, entityID);
 			if (messageObj != null) {
@@ -253,9 +253,9 @@ public class ReportGenerator {
 	 * Gets string representation of context element for the specified category type definition from
 	 * the specified guideline context array.
 	 * 
-	 * @param contexts
+	 * @param contexts contextsReportGenerato
 	 *            the contexts
-	 * @param typeDef
+	 * @param typeDef typeDefReportGenerato
 	 *            the category type definition
 	 * @return string representation of context element
 	 * @since PowerEditor 4.4.0
@@ -284,9 +284,9 @@ public class ReportGenerator {
 	 * Gets string representation of context element for the specified entity type definition from
 	 * the specified guideline context array.
 	 * 
-	 * @param contexts
+	 * @param contexts contextsReportGenerato
 	 *            the contexts
-	 * @param typeDef
+	 * @param typeDef typeDefReportGenerato
 	 *            the entity type definition
 	 * @return string representation of context element
 	 * @since PowerEditor 4.4.0
@@ -303,9 +303,9 @@ public class ReportGenerator {
 	 * Gets string representation of context element for the specified entity type definition from
 	 * the specified guideline context array.
 	 * 
-	 * @param contexts
+	 * @param contexts contextsReportGenerato
 	 *            the contexts
-	 * @param typeDef
+	 * @param typeDef typeDefReportGenerato
 	 *            the entity type definition
 	 * @return string representation of context element
 	 * @since PowerEditor 4.4.0
@@ -333,7 +333,7 @@ public class ReportGenerator {
 	/**
 	 * Extracts channel ids from the specified context elements.
 	 * 
-	 * @param context
+	 * @param context contextReportGenerato
 	 *            the context array
 	 * @return array of channel ids
 	 */
@@ -351,7 +351,7 @@ public class ReportGenerator {
 
 	/**
 	 * 
-	 * @param guidelineList
+	 * @param guidelineList guidelineListReportGenerato
 	 * @return map of usage type as key and a list of templates as values
 	 */
 	private static Map<TemplateUsageType, List<GridTemplate>> extractUsageTemplateMap(List<GuidelineReportData> guidelineList) {
@@ -408,7 +408,7 @@ public class ReportGenerator {
 	 *           &lt;text&gt;&lt;order&gt;1&lt;/order&gt;&lt;value&gt;text from largeText&lt;/vaue&gt;&lt;/order&gt;&lt;/text&gt;&lt;text&gt;&lt;order&gt;2&lt;/order&gt;&lt;value&gt;...&lt;/value&gt;&lt;/text&gt;
 	 * </pre>.
 	 * 
-	 * @param largeText
+	 * @param largeText largeTextReportGenerato
 	 * @return string with ordered text elements
 	 */
 	public static String formatAsOrderedTextElements(String largeText) {
@@ -423,7 +423,7 @@ public class ReportGenerator {
 	 *           &lt;text&gt;text from largeText&lt;/text&gt;&lt;text&gt;...&lt;/text&gt;
 	 * </pre>
 	 * 
-	 * @param largeText
+	 * @param largeText largeTextReportGenerato
 	 * @return string with text elements
 	 */
 	public static String formatAsTextElements(String largeText) {
@@ -615,7 +615,8 @@ public class ReportGenerator {
 		return buff.toString();
 	}
 
-	private static String generateMessageString(GridTemplate template, GenericEntityType entityType, int[] entityIDs, GridValueContainable grid) throws InvalidDataException, ParseException {
+	private static String generateMessageString(GridTemplate template, GenericEntityType entityType, int[] entityIDs, GridValueContainable grid)
+			throws InvalidDataException, ParseException {
 		StringBuilder buff = new StringBuilder();
 		if (hasRule(template)) {
 			buff.append("<ul>");
@@ -703,8 +704,8 @@ public class ReportGenerator {
 		return formatAsTextElements(buff.toString());
 	}
 
-	private static String generateRowMessageString(int row, GridTemplate template, GenericEntityType entityType, int[] entityIDs, GridValueContainable grid) throws InvalidDataException,
-			ParseException {
+	private static String generateRowMessageString(int row, GridTemplate template, GenericEntityType entityType, int[] entityIDs, GridValueContainable grid)
+			throws InvalidDataException, ParseException {
 		StringBuilder buff = new StringBuilder();
 
 		if (hasRule(template)) {
@@ -745,8 +746,8 @@ public class ReportGenerator {
 		return buff.toString();
 	}
 
-	public static String generateRowMessageStringForReport(int row, GridTemplate template, GenericEntityType entityType, int[] entityIDs, GridValueContainable grid) throws InvalidDataException,
-			ParseException {
+	public static String generateRowMessageStringForReport(int row, GridTemplate template, GenericEntityType entityType, int[] entityIDs, GridValueContainable grid)
+			throws InvalidDataException, ParseException {
 		StringBuilder buff = new StringBuilder();
 
 		if (hasRule(template)) {
@@ -968,10 +969,7 @@ public class ReportGenerator {
 	/**
 	 * Gets the URL of the specified report.
 	 * 
-	 * @param reportID
-	 *            unique report id
-	 * @param reportName
-	 *            report file name
+	 * @param reportID unique report id
 	 * @return the report URL
 	 * @since PowerEditor 4.4.0
 	 */
@@ -1031,7 +1029,7 @@ public class ReportGenerator {
 
 	/**
 	 * 
-	 * @param contexts
+	 * @param contexts contextsReportGenerato
 	 * @return the HTML representation of the context elements
 	 * @since PowerEditor 4.1.1
 	 */
@@ -1079,8 +1077,7 @@ public class ReportGenerator {
 	 * Translates enum ids into enum strings in the specified grid. The specified grid object will
 	 * be modified.
 	 * 
-	 * @param grid
-	 *            the grid of which cell values to translate for enums
+	 * @param grid the grid of which cell values to translate for enums
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static void translateEnumCellValues(ProductGrid grid) {
@@ -1091,7 +1088,8 @@ public class ReportGenerator {
 			for (int col = 1; col <= columnNames.length; col++) {
 				try {
 					Object cellValueObject = grid.getCellValueObject(row, col, null);
-					if ((cellValueObject instanceof EnumValues || cellValueObject instanceof String) && grid.getColumnDataSpecDigest(col).getType().equals(ColumnDataSpecDigest.TYPE_ENUM_LIST)) {
+					if ((cellValueObject instanceof EnumValues || cellValueObject instanceof String)
+							&& grid.getColumnDataSpecDigest(col).getType().equals(ColumnDataSpecDigest.TYPE_ENUM_LIST)) {
 
 						EnumValues selectedEnumValues = cellValueObject instanceof EnumValues ? (EnumValues) cellValueObject : EnumValues.parseValue((String) cellValueObject);
 
@@ -1106,7 +1104,6 @@ public class ReportGenerator {
 	}
 
 	private final PrintWriter writer;
-
 	private final Logger logger;
 
 	public ReportGenerator(Writer writer) {
@@ -1121,8 +1118,8 @@ public class ReportGenerator {
 		logger.info("deinit completed");
 	}
 
-	private String generateGridView(GridTemplate template, ProductGrid grid, GenericEntityType entityType, int[] entityIDs, GridCellSet cells) throws ReportException, InvalidDataException,
-			ParseException {
+	private String generateGridView(GridTemplate template, ProductGrid grid, GenericEntityType entityType, int[] entityIDs, GridCellSet cells)
+			throws ReportException, InvalidDataException, ParseException {
 		StringBuilder buff = new StringBuilder();
 		if (cells.isEmpty()) {
 			// gen full report including all grid cells and rules and messages
@@ -1233,8 +1230,8 @@ public class ReportGenerator {
 		return (rowID % 2) + 1;
 	}
 
-	private synchronized void writeGuidelineReport(GuidelineReportSpec reportSpec, GridTemplate template, GuidelineReportData guidelineData) throws IOException, ServletActionException,
-			ReportException, InvalidDataException, ParseException {
+	private synchronized void writeGuidelineReport(GuidelineReportSpec reportSpec, GridTemplate template, GuidelineReportData guidelineData)
+			throws IOException, ServletActionException, ReportException, InvalidDataException, ParseException {
 		logger.debug(">>> writeGuidelineReport(template): " + reportSpec + "," + template + "," + guidelineData);
 
 		ProductGrid cachedGrid = GridActionCoordinator.getInstance().getProductGridFor(guidelineData);
@@ -1254,7 +1251,10 @@ public class ReportGenerator {
 
 			int rowID = 1;
 			// template and context are common among all grid in gridList
-			rowID = writeAs2ColumnTableRow(rowID, ResourceUtil.getInstance().getResource("label.template"), template.getName() + " (" + template.getID() + ')' + "  Version " + template.getVersion());
+			rowID = writeAs2ColumnTableRow(
+					rowID,
+					ResourceUtil.getInstance().getResource("label.template"),
+					template.getName() + " (" + template.getID() + ')' + "  Version " + template.getVersion());
 			rowID = writeAs2ColumnTableRow(rowID, ResourceUtil.getInstance().getResource("label.context"), toHTMLString(guidelineData.getContext()));
 
 			rowID = writeAs2ColumnTableRow(rowID, ResourceUtil.getInstance().getResource("label.activation"), toActivationReportString(grid));
@@ -1300,14 +1300,16 @@ public class ReportGenerator {
 		logger.debug("<<< writeGuidelineReport(template)");
 	}
 
-	private synchronized void writeGuidelineReport(GuidelineReportSpec reportSpec, List<GridTemplate> templateList, List<GuidelineReportData> guidelineList) throws ServletActionException,
-			ReportException, InvalidDataException, IOException, ParseException {
+	private synchronized void writeGuidelineReport(GuidelineReportSpec reportSpec, List<GridTemplate> templateList, List<GuidelineReportData> guidelineList)
+			throws ServletActionException, ReportException, InvalidDataException, IOException, ParseException {
 		logger.debug(">>> writeGuidelineReport(templateList): spec=" + reportSpec + ",templateList.size()" + templateList.size() + ",guidelineList.size()=" + guidelineList.size());
 		for (Iterator<GridTemplate> iter = templateList.iterator(); iter.hasNext();) {
 			GridTemplate template = iter.next();
 
 			// write template info
-			writer.println("<a name='template_" + template.getID() + "'><span class='template'>Template:  " + template.getName() + "   Version " + template.getVersion() + "</span></a><br/>");
+			writer.println(
+					"<a name='template_" + template.getID() + "'><span class='template'>Template:  " + template.getName() + "   Version " + template.getVersion()
+							+ "</span></a><br/>");
 			writer.flush();
 
 			for (Iterator<GuidelineReportData> iterator = guidelineList.iterator(); iterator.hasNext();) {

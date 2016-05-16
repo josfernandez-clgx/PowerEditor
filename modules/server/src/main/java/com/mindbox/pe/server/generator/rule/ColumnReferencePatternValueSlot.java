@@ -4,7 +4,7 @@ import com.mindbox.pe.model.DeployType;
 import com.mindbox.pe.model.rule.Reference;
 
 /**
- * A concrete implementation of {@link ValueSlot} of {@link ValueSlot#COLUMN_REFERENCE}.
+ * A concrete implementation of {@link ValueSlot} of {@link ValueSlot.Type#COLUMN_REFERENCE}.
  * The {@link ValueSlot#getSlotValue()} method of this returns an instance of java.lang.Integer; 
  * {@link #getColumnNo} can be used as an alternative.
  * @author Geneho Kim
@@ -13,15 +13,15 @@ import com.mindbox.pe.model.rule.Reference;
 public final class ColumnReferencePatternValueSlot extends AbstractPatternValueSlot {
 
 	private DeployType parameterDeployType;
-	
+
 	ColumnReferencePatternValueSlot(int columnNo) {
 		this(null, 0, columnNo);
 	}
-	
+
 	ColumnReferencePatternValueSlot(int columnNo, String slotText) {
 		this(null, 0, columnNo, slotText);
 	}
-	
+
 	ColumnReferencePatternValueSlot(Reference reference, int operator, int columnNo) {
 		this(reference, operator, columnNo, null);
 	}

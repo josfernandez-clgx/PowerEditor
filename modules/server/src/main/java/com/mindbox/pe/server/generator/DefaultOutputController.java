@@ -54,8 +54,8 @@ public class DefaultOutputController implements OutputController {
 
 	/**
 	 * Constructs a new Output controller with the specified status.
-	 * @param status
-	 * @throws RuleGenerationException
+	 * @param status status
+	 * @throws RuleGenerationException on error
 	 */
 	public DefaultOutputController(final String status) throws RuleGenerationException {
 		TypeEnumValue deployTargetStatus = TypeEnumValueManager.getInstance().getEnumValueForValue(TypeEnumValue.TYPE_STATUS, status);

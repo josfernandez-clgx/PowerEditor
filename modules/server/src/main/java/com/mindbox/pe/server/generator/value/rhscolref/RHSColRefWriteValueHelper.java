@@ -14,12 +14,12 @@ import com.mindbox.pe.server.generator.RuleGenerationException;
 public interface RHSColRefWriteValueHelper<V> {
 	/**
 	 * Appends a string representation of the specified value to <code>buff</code>
-	 * @param buff
+	 * @param buff buff
 	 * @param value guaranteed to be not <code>null</code>
-	 * @param column
-	 * @param addQuotes
-	 * @param multiEnumAsSequence
+	 * @param column column
+	 * @param addQuotes addQuotes
+	 * @param multiEnumAsSequence multiEnumAsSequence
+	 * @throws RuleGenerationException on error
 	 */
-	void writeValue(StringBuilder buff, V value, AbstractTemplateColumn column, boolean addQuotes, boolean multiEnumAsSequence)
-			throws RuleGenerationException;
+	void writeValue(StringBuilder buff, V value, AbstractTemplateColumn column, boolean addQuotes, boolean multiEnumAsSequence) throws RuleGenerationException;
 }

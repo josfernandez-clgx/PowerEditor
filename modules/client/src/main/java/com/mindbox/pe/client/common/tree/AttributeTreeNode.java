@@ -20,9 +20,6 @@ public class AttributeTreeNode extends RootTreeNode {
 
 	private TreeNode parent = null;
 
-	/**
-	 * 
-	 */
 	public AttributeTreeNode(DomainAttribute dc, TreeNode parent) {
 		super(dc);
 		this.parent = parent;
@@ -32,13 +29,12 @@ public class AttributeTreeNode extends RootTreeNode {
 		return (DomainAttribute) super.data;
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.swing.tree.TreeNode#getParent()
-	 */
+	@Override
 	public final TreeNode getParent() {
 		return parent;
 	}
 
+	@Override
 	public String toString() {
 		return ((DomainAttribute) data).getDisplayLabel();
 	}

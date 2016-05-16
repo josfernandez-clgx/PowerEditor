@@ -46,7 +46,7 @@ public final class GenericEntityComboBox extends JComboBox<GenericEntity> {
 	/**
 	 * Gets the generic entity in the model that has the passed-in ID.
 	 * @since PowerEditor 4.2.0.
-	 * @param entityID
+	 * @param entityID entityID
 	 * @return the GenericEntity that has the passed-in id.
 	 */
 	public GenericEntity getGenericEntityForID(int entityID) {
@@ -115,7 +115,7 @@ public final class GenericEntityComboBox extends JComboBox<GenericEntity> {
 	 * NOTE: If such relationships already exist, this may enter into an infinite
 	 * recursion state!
 	 * 
-	 * @param in
+	 * @param in in
 	 * @return A new ComboBoxModel with conflicting entities removed.
 	 * @since PowerEditor 4.2.0.
 	 */

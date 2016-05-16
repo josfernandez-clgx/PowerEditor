@@ -18,12 +18,14 @@ abstract class AbstractAuditCommandWithUser extends AbstractAuditCommand {
 
 	/**
 	 * Be sure to call <code>super.buildAuditData()</code> from subclass implementations.
-	 * @param auditDataBuilder
-	 * @throws AuditException
-	 * @throws ServiceException
+	 * @param auditStorage audit data storage
+	 * @param auditDataBuilder auditDataBuilder
+	 * @throws AuditException on error
+	 * @throws ServiceException on error
 	 */
 	protected abstract void buildAuditData(AuditStorage auditStorage, AuditDataBuilder auditDataBuilder) throws AuditException, ServiceException;
 
+	@Override
 	public void execute(AuditStorage auditStorage) throws AuditException, ServiceException {
 		logger.debug("--> execute: " + this);
 		final AuditDataBuilder auditDataBuilder = new AuditDataBuilder(auditStorage.getNextAuditID(), eventType, date, userID, auditDescription);
@@ -32,6 +34,7 @@ abstract class AbstractAuditCommandWithUser extends AbstractAuditCommand {
 		auditStorage.log(auditDataBuilder.getAuditEvent());
 	}
 
+	@Override
 	public String getDescription() {
 		return eventType + " event at " + date + (userID == null ? "" : " for " + userID);
 	}

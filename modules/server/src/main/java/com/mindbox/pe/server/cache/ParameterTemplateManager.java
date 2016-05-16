@@ -9,9 +9,9 @@ import java.util.Map;
 
 import com.mindbox.pe.model.domain.DomainAttribute;
 import com.mindbox.pe.model.template.ColumnDataSpecDigest;
+import com.mindbox.pe.model.template.ColumnDataSpecDigest.EnumSourceType;
 import com.mindbox.pe.model.template.ParameterTemplate;
 import com.mindbox.pe.model.template.ParameterTemplateColumn;
-import com.mindbox.pe.model.template.ColumnDataSpecDigest.EnumSourceType;
 import com.mindbox.pe.server.Util;
 
 /**
@@ -21,12 +21,12 @@ import com.mindbox.pe.server.Util;
  */
 public class ParameterTemplateManager extends AbstractCacheManager {
 
+	private static ParameterTemplateManager instance = null;
+
 	public static synchronized ParameterTemplateManager getInstance() {
 		if (instance == null) instance = new ParameterTemplateManager();
 		return instance;
 	}
-
-	private static ParameterTemplateManager instance = null;
 
 	private final Map<Integer, ParameterTemplate> templateMap;
 
@@ -39,12 +39,29 @@ public class ParameterTemplateManager extends AbstractCacheManager {
 		templateMap.put(new Integer(template.getID()), template);
 	}
 
-	public void removeFromCache(int templateID) {
-		templateMap.remove(new Integer(templateID));
-	}
+	public void finishLoading() {
+		for (Iterator<ParameterTemplate> iter = templateMap.values().iterator(); iter.hasNext();) {
+			ParameterTemplate template = iter.next();
 
-	public int getTemplateCount() {
-		return templateMap.size();
+			for (Iterator<ParameterTemplateColumn> iterator = template.getColumns().iterator(); iterator.hasNext();) {
+				ParameterTemplateColumn column = iterator.next();
+				// use attribute's title when column is mapped to one
+				if (column.getMappedAttribute() != null && column.getTitle() == null) {
+					String className = column.getMAClassName();
+					String attrName = column.getMAAttributeName();
+					DomainAttribute domainattribute = DomainManager.getInstance().getDomainAttribute(className, attrName);
+					if (domainattribute != null) {
+						column.setTitle(domainattribute.getDisplayLabel());
+					}
+					else {
+						column.setTitle(column.getMappedAttribute());
+					}
+				}
+				else if (column.getColumnDataSpecDigest().getType().equals(ColumnDataSpecDigest.TYPE_ENUM_LIST)) {
+					column.getColumnDataSpecDigest().setEnumSourceType(column.getColumnDataSpecDigest().hasEnumValue() ? EnumSourceType.COLUMN : EnumSourceType.DOMAIN_ATTRIBUTE);
+				}
+			}
+		}
 	}
 
 	public ParameterTemplate getTemplate(int id) {
@@ -53,7 +70,7 @@ public class ParameterTemplateManager extends AbstractCacheManager {
 
 	/**
 	 * Gets a parameter template with the specified name.
-	 * @param name
+	 * @param name name
 	 * @return the parameter template with <code>name</code>, if found; <code>null</code>, otherwise
 	 * @since PowerEditor 4.4.0
 	 */
@@ -64,6 +81,22 @@ public class ParameterTemplateManager extends AbstractCacheManager {
 			}
 		}
 		return null;
+	}
+
+	public int getTemplateCount() {
+		return templateMap.size();
+	}
+
+	/**
+	 * Gets all parameter templates.
+	 * @return all parameter templates
+	 */
+	public List<ParameterTemplate> getTemplates() {
+		LinkedList<ParameterTemplate> linkedlist = new LinkedList<ParameterTemplate>();
+		for (Iterator<ParameterTemplate> iter = templateMap.values().iterator(); iter.hasNext();) {
+			linkedlist.add(iter.next());
+		}
+		return linkedlist;
 	}
 
 	/**
@@ -88,46 +121,12 @@ public class ParameterTemplateManager extends AbstractCacheManager {
 		}
 	}
 
-	/**
-	 * Gets all parameter templates.
-	 * @return all parameter templates
-	 */
-	public List<ParameterTemplate> getTemplates() {
-		LinkedList<ParameterTemplate> linkedlist = new LinkedList<ParameterTemplate>();
-		for (Iterator<ParameterTemplate> iter = templateMap.values().iterator(); iter.hasNext();) {
-			linkedlist.add(iter.next());
-		}
-		return linkedlist;
+	public void removeFromCache(int templateID) {
+		templateMap.remove(new Integer(templateID));
 	}
 
 	public void startLoading() {
 		templateMap.clear();
-	}
-
-	public void finishLoading() {
-		for (Iterator<ParameterTemplate> iter = templateMap.values().iterator(); iter.hasNext();) {
-			ParameterTemplate template = iter.next();
-
-			for (Iterator<ParameterTemplateColumn> iterator = template.getColumns().iterator(); iterator.hasNext();) {
-				ParameterTemplateColumn column = iterator.next();
-				// use attribute's title when column is mapped to one
-				if (column.getMappedAttribute() != null && column.getTitle() == null) {
-					String className = column.getMAClassName();
-					String attrName = column.getMAAttributeName();
-					DomainAttribute domainattribute = DomainManager.getInstance().getDomainAttribute(className, attrName);
-					if (domainattribute != null) {
-						column.setTitle(domainattribute.getDisplayLabel());
-					}
-					else {
-						column.setTitle(column.getMappedAttribute());
-					}
-				}
-				else if (column.getColumnDataSpecDigest().getType().equals(ColumnDataSpecDigest.TYPE_ENUM_LIST)) {
-					column.getColumnDataSpecDigest().setEnumSourceType(
-							column.getColumnDataSpecDigest().hasEnumValue() ? EnumSourceType.COLUMN : EnumSourceType.DOMAIN_ATTRIBUTE);
-				}
-			}
-		}
 	}
 
 }

@@ -19,11 +19,11 @@ public interface UserAuthenticationProvider {
 	 * @throws Exception on error (could not determine authentication)
 	 */
 	boolean authenticate(String userId, String password) throws Exception;
-	
+
 	/**
 	 * Notifices succesful SSO authentiation for the specified user id.
-	 * @param userId
-	 * @throws Exception
+	 * @param userId userId
+	 * @throws Exception on error
 	 */
 	void notifySsoAuthentication(String userId) throws Exception;
 }

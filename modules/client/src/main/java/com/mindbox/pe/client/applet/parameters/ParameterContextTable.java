@@ -13,14 +13,9 @@ import com.mindbox.pe.model.table.CategoryOrEntityValues;
  * @since PowerEditor 2.2.0
  */
 public class ParameterContextTable extends AbstractSortableTable<ParameterContextTableModel, ParameterGrid> {
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = -3951228734910107454L;
 
-	/**
-	 * @param tableModel
-	 */
 	public ParameterContextTable(ParameterContextTableModel tableModel) {
 		super(tableModel);
 		setDefaultRenderer(CategoryOrEntityValues.class, new CategoryOrEntityValuesTabelCellRenderer());

@@ -19,9 +19,9 @@ public class TimeSlice implements Comparable<TimeSlice> {
 
 	/**
 	 * Factory method for creating new instances.
-	 * @param startDate
-	 * @param endDate
-	 * @return
+	 * @param startDate startDate
+	 * @param endDate endDate
+	 * @return time slice
 	 * @throws IllegalArgumentException if both <code>startDate</code> and <code>endDate</code> is <code>null</code>
 	 */
 	public static TimeSlice createInstance(DateSynonym startDate, DateSynonym endDate) {
@@ -49,8 +49,10 @@ public class TimeSlice implements Comparable<TimeSlice> {
 	 * Compares the dates of the specified time slice object.
 	 * <p>
 	 * Note: this class has a natural ordering that is inconsistent with equals.
-	 * @param obj the time slice object; must be an instanceof {@link TimeSlice}
+	 * @param ts the time slice object; must be an instanceof {@link TimeSlice}
+	 * @return result
 	 */
+	@Override
 	public int compareTo(TimeSlice ts) {
 		if (this.equals(ts)) return 0;
 		if (startDate == null) {
@@ -61,10 +63,7 @@ public class TimeSlice implements Comparable<TimeSlice> {
 		}
 	}
 
-	/**
-	 * Tests if the specified time slice object has the same name as this.
-	 * @param obj the time slice object; must be an instanceof {@link TimeSlice}
-	 */
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
 		if (obj instanceof TimeSlice) {
@@ -75,27 +74,29 @@ public class TimeSlice implements Comparable<TimeSlice> {
 		}
 	}
 
-	public int hashCode() {
-		return name.hashCode();
+	public Date getAsOfDate() {
+		// If timeSlice has no start date, it must have an end date
+		return (startDate == null ? new Date(endDate.getDate().getTime() - 1) : startDate.getDate());
 	}
 
 	public DateSynonym getEndDate() {
 		return endDate;
 	}
 
-	public DateSynonym getStartDate() {
-		return startDate;
-	}
-
 	public String getName() {
 		return name;
 	}
 
-	public Date getAsOfDate() {
-		// If timeSlice has no start date, it must have an end date
-		return (startDate == null ? new Date(endDate.getDate().getTime() - 1) : startDate.getDate());
+	public DateSynonym getStartDate() {
+		return startDate;
 	}
-	
+
+	@Override
+	public int hashCode() {
+		return name.hashCode();
+	}
+
+	@Override
 	public String toString() {
 		return "TimeSlice[name=" + name + ']';
 	}

@@ -208,7 +208,7 @@ public final class EntityManagementButtonPanel<T extends IDNameObject> extends B
 	}
 
 	/**
-	 * 
+	 * @param readOnly read only flag
 	 * @param selectionPanel selectionPanel
 	 * @param entityType entityType
 	 * @param entityName entityName

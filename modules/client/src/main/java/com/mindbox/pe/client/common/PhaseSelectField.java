@@ -28,9 +28,7 @@ import com.mindbox.pe.model.process.Phase;
  * @since PowerEditor 3.3.0
  */
 public class PhaseSelectField extends AbstractDropSelectField {
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = -3951228734910107454L;
 
 	private Phase phase = null;
@@ -187,7 +185,7 @@ public class PhaseSelectField extends AbstractDropSelectField {
 
 	/**
 	 * 
-	 * @param phase
+	 * @param phase phase
 	 * @throws IllegalStateException if this is for multiple selection. Use {@link #setValues} instead
 	 */
 	public final void setValue(Phase phase) {
@@ -200,7 +198,7 @@ public class PhaseSelectField extends AbstractDropSelectField {
 
 	/**
 	 * 
-	 * @param phases
+	 * @param phases phases
 	 * @throws IllegalStateException if this is not for multiple selection. Use {@link #setValue} instead
 	 */
 	public final void setValues(Phase[] phases) {

@@ -14,12 +14,13 @@ import com.mindbox.pe.server.parser.jtb.rule.syntaxtree.Node;
 public class AeMessageLiteral extends AbstractAeValue {
 
 	/**
-	 * @param node
+	 * @param node node
 	 */
 	public AeMessageLiteral(Node node) {
 		super(node);
 	}
-	
+
+	@Override
 	public String toString() {
 		return "%message%";
 	}

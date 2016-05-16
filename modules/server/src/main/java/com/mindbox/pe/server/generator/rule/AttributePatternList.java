@@ -10,39 +10,20 @@ import com.mindbox.pe.server.generator.RuleGenerationException;
 public interface AttributePatternList {
 
 	/**
-	 * Tests if this is empty.
-	 * @return <code>true</code> if this contains no attribute patterns; <code>false</code>, otherwise
-	 */
-	boolean isEmpty();
-	
-	/**
-	 * Gets the number of attribute patterns in this.
-	 * @return the number of attribute patterns
-	 */
-	int size();
-	
-	/**
-	 * Gets the attribute pattern at the specified index.
-	 * @param index zero-based
-	 * @return the attribute pattern at <code>index</code>
-	 */
-	AttributePattern get(int index);
-	
-	/**
 	 * Adds the specified attribute pattern to this.
 	 * @param attributePattern the attribute pattern to add
 	 * @throws RuleGenerationException on error
 	 * @throws NullPointerException if <code>attributePattern</code> is <code>null</code>
 	 */
 	void add(AttributePattern attributePattern) throws RuleGenerationException;
-	
+
 	/**
-	 * Removes the specified attribute pattern from this.
-	 * @param attributePattern
-	 * @throws NullPointerException if <code>attributePattern</code> is <code>null</code>
+	 * Gets the attribute pattern at the specified index.
+	 * @param index zero-based
+	 * @return the attribute pattern at <code>index</code>
 	 */
-	void remove(AttributePattern attributePattern);
-	
+	AttributePattern get(int index);
+
 	/**
 	 * Inserts the specified attribute pattern to the beginning of this.
 	 * @param attributePattern the attribute pattern to insert
@@ -50,4 +31,23 @@ public interface AttributePatternList {
 	 * @throws NullPointerException if <code>attributePattern</code> is <code>null</code>
 	 */
 	void insert(AttributePattern attributePattern) throws RuleGenerationException;
+
+	/**
+	 * Tests if this is empty.
+	 * @return <code>true</code> if this contains no attribute patterns; <code>false</code>, otherwise
+	 */
+	boolean isEmpty();
+
+	/**
+	 * Removes the specified attribute pattern from this.
+	 * @param attributePattern attributePatternReportGenerato
+	 * @throws NullPointerException if <code>attributePattern</code> is <code>null</code>
+	 */
+	void remove(AttributePattern attributePattern);
+
+	/**
+	 * Gets the number of attribute patterns in this.
+	 * @return the number of attribute patterns
+	 */
+	int size();
 }

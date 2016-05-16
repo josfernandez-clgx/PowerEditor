@@ -100,8 +100,8 @@ public class EditIntListDialog extends JPanel {
 
 	/**
 	 * Displays Edit int array list with the specified title and initial list.
-	 * @param title
-	 * @param input
+	 * @param title title
+	 * @param input input
 	 * @return int array after dialog has disposed
 	 */
 	public static int[] editIntArray(String title, int[] input) {
@@ -121,7 +121,6 @@ public class EditIntListDialog extends JPanel {
 		}
 	}
 
-	//private final String title;
 	private final JButton addButton, editButton, deleteButton;
 	private final NumberTextField valueField;
 	private final JList<Integer> valueList;

@@ -22,6 +22,7 @@ import com.mindbox.pe.model.template.ParameterTemplateColumn;
  * <li>Call {@link #reset} method to initialize internal state</li>
  * <li>Call {@link #digestTemplateXML(Reader)} once per template definition XML file</li>
  * <li>Call {@link #getAllObjects()} to retrieve parsed (digested) objects</li>
+ * </ol>
  * @author Geneho Kim
  * @author MindBox
  * @since PowerEditor 3.2.0
@@ -45,12 +46,14 @@ public class ParameterTemplateXMLDigester {
 		this.objectList = new ArrayList<Object>();
 	}
 
-	public synchronized void reset() {
-		objectList.clear();
-	}
-
 	public void addObject(Object obj) {
 		objectList.add(obj);
+	}
+
+	public synchronized void digestTemplateXML(Reader reader) throws IOException, SAXException {
+		Digester digester = getDigester();
+		digester.push(this);
+		digester.parse(reader);
 	}
 
 	public synchronized List<Object> getAllObjects() {
@@ -61,32 +64,31 @@ public class ParameterTemplateXMLDigester {
 		Digester digester = new Digester();
 		digester.setValidating(false);
 
-	
+
 		// rules for parameter templates --------------------------------------
-		
+
 		digester.addObjectCreate("EditorDefinitions/ParameterTemplateDefinition", ParameterTemplate.class);
-		digester.addSetProperties("EditorDefinitions/ParameterTemplateDefinition",
-				new String[]{"id","usage"},
-				new String[]{"idString","usageTypeString"});
+		digester.addSetProperties("EditorDefinitions/ParameterTemplateDefinition", new String[] { "id", "usage" }, new String[] { "idString", "usageTypeString" });
 		digester.addBeanPropertySetter("EditorDefinitions/ParameterTemplateDefinition/Description", "description");
-		digester.addBeanPropertySetter("EditorDefinitions/ParameterTemplateDefinition/DeployMethod/Script", "deployScriptDetails");		
+		digester.addBeanPropertySetter("EditorDefinitions/ParameterTemplateDefinition/DeployMethod/Script", "deployScriptDetails");
 		digester.addSetNext("EditorDefinitions/ParameterTemplateDefinition", "addObject");
-		
+
 		// rules for parameter template columns
-		
+
 		digester.addObjectCreate("EditorDefinitions/ParameterTemplateDefinition/ColumnDefinition", ParameterTemplateColumn.class);
-		digester.addSetProperties("EditorDefinitions/ParameterTemplateDefinition/ColumnDefinition",
-				new String[]{"id", "attributeMap"},
-				new String[]{"idString", "attributeMapOldStr"});
+		digester.addSetProperties(
+				"EditorDefinitions/ParameterTemplateDefinition/ColumnDefinition",
+				new String[] { "id", "attributeMap" },
+				new String[] { "idString", "attributeMapOldStr" });
 		digester.addSetNext("EditorDefinitions/ParameterTemplateDefinition/ColumnDefinition", "addColumn");
-		
+
 		digester.addObjectCreate("EditorDefinitions/ParameterTemplateDefinition/ColumnDefinition/Presentation", ColumnPresentationDigest.class);
 		digester.addSetProperties("EditorDefinitions/ParameterTemplateDefinition/ColumnDefinition/Presentation");
 		digester.addBeanPropertySetter("EditorDefinitions/ParameterTemplateDefinition/ColumnDefinition/Presentation/Font", "font");
 		digester.addBeanPropertySetter("EditorDefinitions/ParameterTemplateDefinition/ColumnDefinition/Presentation/Color", "color");
 		digester.addBeanPropertySetter("EditorDefinitions/ParameterTemplateDefinition/ColumnDefinition/Presentation/ColWidth", "colWidth");
 		digester.addSetNext("EditorDefinitions/ParameterTemplateDefinition/ColumnDefinition/Presentation", "setPresentation");
-		
+
 		digester.addObjectCreate("EditorDefinitions/ParameterTemplateDefinition/ColumnDefinition/DataSpec", ColumnDataSpecDigest.class);
 		digester.addSetProperties("EditorDefinitions/ParameterTemplateDefinition/ColumnDefinition/DataSpec");
 		digester.addBeanPropertySetter("EditorDefinitions/ParameterTemplateDefinition/ColumnDefinition/DataSpec/MinValue", "minValue");
@@ -101,10 +103,8 @@ public class ParameterTemplateXMLDigester {
 		return digester;
 	}
 
-	public synchronized void digestTemplateXML(Reader reader) throws IOException, SAXException {
-		Digester digester = getDigester();
-		digester.push(this);
-		digester.parse(reader);
+	public synchronized void reset() {
+		objectList.clear();
 	}
 
 }

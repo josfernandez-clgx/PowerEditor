@@ -7,11 +7,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.oval.Validator;
-import net.sf.oval.configuration.annotation.AbstractAnnotationCheck;
-import net.sf.oval.context.OValContext;
-import net.sf.oval.exception.OValException;
-
 import org.apache.log4j.Logger;
 
 import com.mindbox.pe.common.UtilBase;
@@ -23,6 +18,11 @@ import com.mindbox.pe.server.imexport.ObjectConverter;
 import com.mindbox.pe.xsd.config.EntityProperty;
 import com.mindbox.pe.xsd.config.EntityPropertyType;
 import com.mindbox.pe.xsd.data.EntityDataElement.Entity;
+
+import net.sf.oval.Validator;
+import net.sf.oval.configuration.annotation.AbstractAnnotationCheck;
+import net.sf.oval.context.OValContext;
+import net.sf.oval.exception.OValException;
 
 
 /**
@@ -38,7 +38,8 @@ public class HasValidValuesForEntityPropertiesCheck extends AbstractAnnotationCh
 		final EntityPropertyType propType = propDef.getType();
 		switch (propType) {
 		case BOOLEAN:
-			return value.equalsIgnoreCase(Constants.CONFIG_VALUE_YES) || value.equalsIgnoreCase(Constants.CONFIG_VALUE_NO) || value.equalsIgnoreCase("TRUE") || value.equalsIgnoreCase("FALSE");
+			return value.equalsIgnoreCase(Constants.CONFIG_VALUE_YES) || value.equalsIgnoreCase(Constants.CONFIG_VALUE_NO) || value.equalsIgnoreCase("TRUE")
+					|| value.equalsIgnoreCase("FALSE");
 		case CURRENCY:
 		case DOUBLE:
 		case FLOAT:
@@ -107,8 +108,11 @@ public class HasValidValuesForEntityPropertiesCheck extends AbstractAnnotationCh
 	}
 
 	/**
+	 * @param validatedObject validatedObject
 	 * @param valueToValidate must be {@link Entity}; if not, this returns <code>true</code>
-	 * @returns <code>true</code>, if valudateToValidate is <code>null</code>; otherwise, true only if valueToValidate is valid
+	 * @param context context
+	 * @param validator validator
+	 * @return <code>true</code>, if valudateToValidate is <code>null</code>; otherwise, true only if valueToValidate is valid
 	 */
 	@Override
 	public boolean isSatisfied(Object validatedObject, Object valueToValidate, OValContext context, Validator validator) throws OValException {
@@ -120,7 +124,8 @@ public class HasValidValuesForEntityPropertiesCheck extends AbstractAnnotationCh
 			if (entityType != null) {
 				synchronized (invalidPropertyNames) {
 					invalidPropertyNames.clear();
-					for (final EntityProperty entityProperty : ConfigurationManager.getInstance().getEntityConfigHelper().findEntityTypeDefinition(entityType).getEntityProperty()) {
+					for (final EntityProperty entityProperty : ConfigurationManager.getInstance().getEntityConfigHelper().findEntityTypeDefinition(
+							entityType).getEntityProperty()) {
 						final String value = ObjectConverter.getProperty(entity, entityProperty.getName());
 						if (!isValidValue(entityProperty, value)) {
 							invalidPropertyNames.add(entityProperty.getDisplayName());

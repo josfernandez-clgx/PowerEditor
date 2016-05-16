@@ -185,8 +185,8 @@ public class ImportService implements ReplacementDateSynonymProvider {
 			for (Map.Entry<String, PowereditorData> entry : dataMap.entrySet()) {
 				final PowereditorData dataFromList = entry.getValue();
 				if (!ConfigurationManager.getInstance().isFeatureEnabled(FeatureNameType.CBR)) {
-					if (dataFromList.getCbrData() != null
-							&& (!dataFromList.getCbrData().getCbrAttribute().isEmpty() || !dataFromList.getCbrData().getCbrCase().isEmpty() || !dataFromList.getCbrData().getCbrCaseBase().isEmpty())) {
+					if (dataFromList.getCbrData() != null && (!dataFromList.getCbrData().getCbrAttribute().isEmpty() || !dataFromList.getCbrData().getCbrCase().isEmpty()
+							|| !dataFromList.getCbrData().getCbrCaseBase().isEmpty())) {
 						addError(entry.getKey(), "CBR feature is not enabled. CBR data will not be imported!");
 					}
 				}
@@ -304,6 +304,7 @@ public class ImportService implements ReplacementDateSynonymProvider {
 	}
 
 
+	@Override
 	public synchronized DateSynonym getReplacementDateSynonymForImport() throws ImportException {
 		String replacementDateName = "Replacement For Unspecified Effective Date For Import";
 
@@ -344,11 +345,10 @@ public class ImportService implements ReplacementDateSynonymProvider {
 	/**
 	 * Imports PE data specified in the content and returns status message.
 	 * 
-	 * @param importSpec
-	 * @param result
-	 * @param user
-	 * @throws ImportException
-	 *             on error while importing data
+	 * @param importSpec importSpec
+	 * @param entitiesOnly entitiesOnly
+	 * @param user user
+	 * @throws ImportException on error while importing data
 	 */
 	public synchronized void importDataXML(final ImportSpec importSpec, final boolean entitiesOnly, final com.mindbox.pe.server.model.User user) throws ImportException {
 		reset(user);
@@ -415,11 +415,26 @@ public class ImportService implements ReplacementDateSynonymProvider {
 				TemplateImportOptionalData templateImportOptionalData = new TemplateImportOptionalData(entityImportOptionalData, templateIDMap, actionIDMap, unimportedTemplateIDs);
 
 				// 3.1. import guideline actions and test conditions
-				new GuidelineActionImporter(importBusinessLogic).importData(powereditorDataToUse.getGuidelineActionData(), importResult, importSpec.isMerge(), user, templateImportOptionalData);
-				new TestConditionImporter(importBusinessLogic).importData(powereditorDataToUse.getTestConditionData(), importResult, importSpec.isMerge(), user, templateImportOptionalData);
+				new GuidelineActionImporter(importBusinessLogic).importData(
+						powereditorDataToUse.getGuidelineActionData(),
+						importResult,
+						importSpec.isMerge(),
+						user,
+						templateImportOptionalData);
+				new TestConditionImporter(importBusinessLogic).importData(
+						powereditorDataToUse.getTestConditionData(),
+						importResult,
+						importSpec.isMerge(),
+						user,
+						templateImportOptionalData);
 
 				// 3.2. import templates
-				new GuidelineTemplateImporter(importBusinessLogic).importData(powereditorDataToUse.getTemplateData(), importResult, importSpec.isMerge(), user, templateImportOptionalData);
+				new GuidelineTemplateImporter(importBusinessLogic).importData(
+						powereditorDataToUse.getTemplateData(),
+						importResult,
+						importSpec.isMerge(),
+						user,
+						templateImportOptionalData);
 				LOG.debug("    importDataXML: all templates processed");
 
 				// Import grids
@@ -442,9 +457,9 @@ public class ImportService implements ReplacementDateSynonymProvider {
 
 	/**
 	 * Equivalent to <code>importDataXML(importSpec, false, user)</code>.
-	 * @param importSpec
-	 * @param user
-	 * @throws ImportException
+	 * @param importSpec importSpec
+	 * @param user user
+	 * @throws ImportException on error
 	 */
 	public synchronized void importDataXML(ImportSpec importSpec, com.mindbox.pe.server.model.User user) throws ImportException {
 		importDataXML(importSpec, false, user);

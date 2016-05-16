@@ -53,7 +53,7 @@ public interface Communicator {
 	 * @param oldCaseBaseID oldCaseBaseID
 	 * @param newCaseBaseName newCaseBaseName
 	 * @return The new case base id.
-	 * @throws ServerException
+	 * @throws ServerException on error
 	 * @since 4.1.0
 	 */
 	int cloneCaseBases(int oldCaseBaseID, String newCaseBaseName) throws ServerException;
@@ -62,7 +62,7 @@ public interface Communicator {
 	 * Clones all guideline activations for the specified template for the new template id.
 	 * @param oldTemplateID oldTemplateID
 	 * @param newTemplateID newTemplateID
-	 * @throws ServerException
+	 * @throws ServerException on error
 	 * @since 4.0.0
 	 */
 	void cloneGuidelines(int oldTemplateID, int newTemplateID) throws ServerException;
@@ -70,13 +70,16 @@ public interface Communicator {
 	/**
 	 * 
 	 * @param data data
-	 * @throws ServerException
+	 * @throws ServerException on error
 	 * @since 3.0.0
 	 */
 	void delete(GenericEntityCompatibilityData data) throws ServerException;
 
 	/**
 	 * @since 3.0.0
+	 * @param entityID entity id
+	 * @param type type 
+	 * @throws ServerException on error
 	 */
 	void delete(int entityID, GenericEntityType type) throws ServerException;
 
@@ -86,7 +89,7 @@ public interface Communicator {
 	 * 
 	 * @param categoryType categoryType
 	 * @param categoryID categoryID
-	 * @throws ServerException
+	 * @throws ServerException on error
 	 * @since 3.1.0
 	 */
 	void deleteGenericCategory(int categoryType, int categoryID) throws ServerException;
@@ -111,7 +114,7 @@ public interface Communicator {
 	 * This is called when export data is to be written on client machine
 	 * @param filter filter
 	 * @return byte array which contains the file to be written
-	 * @throws ServerException
+	 * @throws ServerException on error
 	 */
 	byte[] exportDataToClient(GuidelineReportFilter filter) throws ServerException;
 
@@ -120,7 +123,7 @@ public interface Communicator {
 	 * @param filter filter
 	 * @param filename the filename to save
 	 * @return int
-	 * @throws ServerException
+	 * @throws ServerException on error
 	 */
 	// TODO Kim: remove this; and do this on the server
 	int exportDataToServer(GuidelineReportFilter filter, String filename) throws ServerException;
@@ -132,7 +135,7 @@ public interface Communicator {
 	 * @param entityType1 entityType1
 	 * @param entityType2 entityType2
 	 * @return list of the specified compatibility data
-	 * @throws ServerException
+	 * @throws ServerException on error
 	 * @since 3.0.0
 	 */
 	List<GenericEntityCompatibilityData> fetchCompatibilityData(GenericEntityType entityType1, GenericEntityType entityType2) throws ServerException;
@@ -162,6 +165,7 @@ public interface Communicator {
 	 * Gets parameters for the specified template
 	 * @param templateID the id of the template
 	 * @return list of the parameters for the specified template
+	 * @throws ServerException on error
 	 * @since 2.2.0
 	 */
 	List<ParameterGrid> fetchParameters(int templateID) throws ServerException;
@@ -174,7 +178,7 @@ public interface Communicator {
 	 * @param cutoverDate cutoverDate
 	 * @return list of two lists of instances of {@link com.mindbox.pe.model.GuidelineReportData}; 
 	 *         first list contains guidelines to cut over; second those to remain as is
-	 * @throws ServerException
+	 * @throws ServerException on error
 	 * @since 4.2.0
 	 */
 	List<List<GuidelineReportData>> findCutoverGuidelines(int templateID, DateSynonym cutoverDate) throws ServerException;
@@ -184,7 +188,7 @@ public interface Communicator {
 	 * @param reportSpec reportSpec
 	 * @param guidelines guidelines
 	 * @return generate report content as byte array
-	 * @throws ServerException
+	 * @throws ServerException on error
 	 */
 	byte[] generatePolicySummaryReport(AbstractReportSpec reportSpec, List<GuidelineReportData> guidelines) throws ServerException;
 
@@ -234,6 +238,9 @@ public interface Communicator {
 	boolean isInUse(DateSynonym dateSynonym) throws ServerException;
 
 	/**
+	 * @param entityID entit ID
+	 * @param type type
+	 * @throws ServerException on error
 	 * @since 3.0.0
 	 */
 	void lock(int entityID, GenericEntityType type) throws ServerException;
@@ -254,6 +261,7 @@ public interface Communicator {
 	 * @param oldTemplateID source template id
 	 * @param newVersion a new version template
 	 * @param cutoverDate the cutover date
+	 * @param guidelinesToCutOver guidelines to cut over
 	 * @return new template ID
 	 * @throws ServerException on error
 	 * @since 4.2.0
@@ -285,7 +293,7 @@ public interface Communicator {
 	 * @param object object
 	 * @param lock lock
 	 * @return id
-	 * @throws ServerException
+	 * @throws ServerException on error
 	 */
 	int save(Persistent object, boolean lock) throws ServerException;
 

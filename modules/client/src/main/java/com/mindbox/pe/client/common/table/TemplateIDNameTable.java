@@ -10,16 +10,22 @@ import com.mindbox.pe.model.template.GridTemplate;
  * @author MindBox
  */
 public class TemplateIDNameTable extends IDNameObjectSelectionTable<TemplateIDNameTableModel, GridTemplate> {
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = -3951228734910107454L;
 
 	/**
-	 * @param tableModel
+	 * @param tableModel tableModel
 	 */
 	public TemplateIDNameTable(TemplateIDNameTableModel tableModel) {
 		super(tableModel, true);
+	}
+
+	public List<Integer> getSelectedTemplateIDs() {
+		return getSelectedObjectIDs();
+	}
+
+	public List<GridTemplate> getSelectedTemplates() {
+		return getSelectedDataObjects();
 	}
 
 	@Override
@@ -29,13 +35,5 @@ public class TemplateIDNameTable extends IDNameObjectSelectionTable<TemplateIDNa
 			getColumnModel().getColumn(0).setPreferredWidth(300);
 			getColumnModel().getColumn(1).setPreferredWidth(50);
 		}
-	}
-
-	public List<GridTemplate> getSelectedTemplates() {
-		return getSelectedDataObjects();
-	}
-
-	public List<Integer> getSelectedTemplateIDs() {
-		return getSelectedObjectIDs();
 	}
 }

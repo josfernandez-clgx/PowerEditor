@@ -2,7 +2,7 @@ package com.mindbox.pe.server.generator.rule;
 
 
 /**
- * Concrete implementation of {@link ValueSlot} of type {@link ValueSlot#TIME_SLICE}.
+ * Concrete implementation of {@link ValueSlot} of type {@link ValueSlot.Type#TIME_SLICE}.
  *
  */
 public class TimeSlicePatternValueSlot extends AbstractPatternValueSlot {

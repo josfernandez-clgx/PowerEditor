@@ -49,49 +49,27 @@ import com.mindbox.pe.server.cache.GuidelineFunctionManager;
  */
 public final class RuleDefinitionUtil {
 
-	public static String toString(RuleDefinition ruleDefinition) {
-		if (ruleDefinition == null) return "";
-		return RuleDefinitionStringWriter.writeAsString(ruleDefinition);
-	}
-
-	/**
-	 * Equivalent to <code>parseToRuleDefinition(ruleDefStr, null)</code>.
-	 */
-	public static RuleDefinition parseToRuleDefinition(String ruleDefStr) throws SAXException, IOException, ParserConfigurationException {
-		return parseToRuleDefinition(ruleDefStr, null);
-	}
-
-	/**
-	 * 
-	 * @param ruleDefStr
-	 * @param actionIDMap <code>null</code> or a valid map of "action:"&lt;integer&gt; to Integer for merge import
-	 * @return
-	 * @throws SAXException
-	 * @throws IOException
-	 * @throws ParserConfigurationException
-	 */
-	public static RuleDefinition parseToRuleDefinition(String ruleDefStr, Map<String, Integer> actionIDMap) throws SAXException, IOException, ParserConfigurationException {
-		if (ruleDefStr == null || ruleDefStr.trim().length() == 0) return null;
-		return new RuleDefinitionUtil(actionIDMap).convertToRuleDefinition(ruleDefStr.trim());
-	}
-
-	public static void produceTemplateColumns(GridTemplate template, RuleDefinition ruleDef, List<String> valueList) {
-		new Producer().generateColumns(template, ruleDef, valueList);
-	}
-
 	private static class Producer {
 
 		private final Logger logger = Logger.getLogger(getClass());
 
-		void generateColumns(GridTemplate template, RuleDefinition ruleDef, List<String> valueList) {
-			logger.debug(">>> generateColumns: " + template + "," + ruleDef + "," + valueList);
-			addColumns(template, ruleDef.getRootElement(), valueList);
-			RuleAction tempRuleAction = ruleDef.getRuleAction();
-			addColumns(template, tempRuleAction, valueList);
+		private void addColumn(GridTemplate template, Condition condition, List<String> valueList) {
+			int columnNo = template.getNumColumns() + 1;
+			GridTemplateColumn column = TemplateUtil.generateColumnsFromAttribute(
+					DomainManager.getInstance(),
+					template.getUsageType(),
+					condition.getReference().getClassName() + "." + condition.getReference().getAttributeName(),
+					condition.getOp(),
+					columnNo);
 
-			ruleDef.updateAction(tempRuleAction);
+			template.addGridTemplateColumn(column);
+			// add value
+			logger.debug("... addColumn: adding to valueList: " + condition.getValue().toString());
+			valueList.add(condition.getValue().toString());
 
-			logger.debug("<<< generateColumns");
+			condition.setValue(RuleElementFactory.getInstance().createValue(RuleElementFactory.getInstance().createColumnReference(columnNo)));
+
+			logger.debug("... addColumn: set value of condition to " + condition.getValue());
 		}
 
 		private void addColumns(GridTemplate template, CompoundLHSElement compoundElement, List<String> valueList) {
@@ -104,21 +82,6 @@ public final class RuleDefinitionUtil {
 					addColumns(template, (CompoundLHSElement) element, valueList);
 				}
 			}
-		}
-
-		private void addColumn(GridTemplate template, Condition condition, List<String> valueList) {
-			int columnNo = template.getNumColumns() + 1;
-			GridTemplateColumn column = TemplateUtil.generateColumnsFromAttribute(DomainManager.getInstance(), template.getUsageType(), condition.getReference().getClassName() + "."
-					+ condition.getReference().getAttributeName(), condition.getOp(), columnNo);
-
-			template.addGridTemplateColumn(column);
-			// add value
-			logger.debug("... addColumn: adding to valueList: " + condition.getValue().toString());
-			valueList.add(condition.getValue().toString());
-
-			condition.setValue(RuleElementFactory.getInstance().createValue(RuleElementFactory.getInstance().createColumnReference(columnNo)));
-
-			logger.debug("... addColumn: set value of condition to " + condition.getValue());
 		}
 
 		private void addColumns(GridTemplate template, RuleAction ruleAction, List<String> valueList) {
@@ -154,54 +117,61 @@ public final class RuleDefinitionUtil {
 			TemplateUtil.generateAndAddColumns(template, ruleAction.getActionType());
 			logger.debug("<<< addColumns");
 		}
+
+		void generateColumns(GridTemplate template, RuleDefinition ruleDef, List<String> valueList) {
+			logger.debug(">>> generateColumns: " + template + "," + ruleDef + "," + valueList);
+			addColumns(template, ruleDef.getRootElement(), valueList);
+			RuleAction tempRuleAction = ruleDef.getRuleAction();
+			addColumns(template, tempRuleAction, valueList);
+
+			ruleDef.updateAction(tempRuleAction);
+
+			logger.debug("<<< generateColumns");
+		}
+	}
+
+	/**
+	 * Equivalent to <code>parseToRuleDefinition(ruleDefStr, null)</code>.
+	 * @param ruleDefStr ruleDefStr
+	 * @return rule definition
+	 * @throws SAXException on error
+	 * @throws IOException on error
+	 * @throws ParserConfigurationException on error
+	 */
+	public static RuleDefinition parseToRuleDefinition(String ruleDefStr) throws SAXException, IOException, ParserConfigurationException {
+		return parseToRuleDefinition(ruleDefStr, null);
+	}
+
+	/**
+	 * 
+	 * @param ruleDefStr ruleDefStr
+	 * @param actionIDMap <code>null</code> or a valid map of "action:"&lt;integer&gt; to Integer for merge import
+	 * @return rule definition
+	 * @throws SAXException on error
+	 * @throws IOException on error
+	 * @throws ParserConfigurationException on error
+	 */
+	public static RuleDefinition parseToRuleDefinition(String ruleDefStr, Map<String, Integer> actionIDMap) throws SAXException, IOException, ParserConfigurationException {
+		if (ruleDefStr == null || ruleDefStr.trim().length() == 0) return null;
+		return new RuleDefinitionUtil(actionIDMap).convertToRuleDefinition(ruleDefStr.trim());
+	}
+
+	public static void produceTemplateColumns(GridTemplate template, RuleDefinition ruleDef, List<String> valueList) {
+		new Producer().generateColumns(template, ruleDef, valueList);
+	}
+
+	public static String toString(RuleDefinition ruleDefinition) {
+		if (ruleDefinition == null) return "";
+		return RuleDefinitionStringWriter.writeAsString(ruleDefinition);
 	}
 
 	private final Logger logger = Logger.getLogger(getClass());
 	private final Map<String, Integer> actionIDMap = new HashMap<String, Integer>();
 
-	/**
-	 * 
-	 */
 	private RuleDefinitionUtil(Map<String, Integer> actionIDMap) {
 		if (actionIDMap != null) {
 			this.actionIDMap.putAll(actionIDMap);
 		}
-	}
-
-	private RuleDefinition convertToRuleDefinition(String ruleDefStr) throws SAXException, IOException, ParserConfigurationException {
-		final Document document = XmlUtil.parseAsDomDocument(new StringReader(ruleDefStr), true);
-		Element rootElement = document.getDocumentElement();
-		return readToRule(rootElement);
-	}
-
-	private RuleDefinition readToRule(Element ruleElement) {
-		int id = Integer.parseInt(ruleElement.getAttribute("id"));
-		String name = ruleElement.getAttribute("name");
-
-		String desc = XmlUtil.getValueOfFirstChild(ruleElement, "Description");
-
-		CompoundLHSElement rootCondition = null;
-		Element lhsElement = XmlUtil.getFirstChild(ruleElement, "LHS");
-		if (lhsElement != null) {
-			rootCondition = readToRootCondition(XmlUtil.getFirstChild(lhsElement, "AND"));
-		}
-		else {
-			rootCondition = RuleElementFactory.getInstance().createAndCompoundCondition();
-		}
-
-		RuleAction action = readToRuleAction(XmlUtil.getFirstChild(ruleElement, "Action"));
-
-		RuleDefinition rule = new RuleDefinition(id, name, desc, rootCondition, action);
-		return rule;
-	}
-
-	private CompoundLHSElement readToRootCondition(Element condElement) {
-		CompoundLHSElement rootCondition = RuleElementFactory.getInstance().createAndCompoundCondition();
-
-		if (condElement != null) {
-			addLHSElements(rootCondition, condElement);
-		}
-		return rootCondition;
 	}
 
 	private void addLHSElements(CompoundLHSElement lshCompoundElement, Element compoundElement) {
@@ -231,6 +201,35 @@ public final class RuleDefinitionUtil {
 		}
 	}
 
+	private CompoundLHSElement asAnd(Element element) {
+		CompoundLHSElement compoundElement = RuleElementFactory.getInstance().createAndCompoundCondition();
+		compoundElement.setComment(XmlUtil.getValueOfFirstChild(element, "Comment"));
+
+		addLHSElements(compoundElement, element);
+		return compoundElement;
+	}
+
+	private ColumnReference asColumnReference(Element element) {
+		String columnStr = element.getAttribute("columnNo");
+		try {
+			return RuleElementFactory.getInstance().createColumnReference(Integer.parseInt(columnStr));
+		}
+		catch (Exception ex) {
+			logger.warn("Failed to create column reference from " + element, ex);
+			throw new IllegalArgumentException("Invalid column no: " + columnStr + " at " + element);
+		}
+	}
+
+	private Condition asCondition(Element element) {
+		Condition condition = RuleElementFactory.getInstance().createCondition();
+		condition.setComment(XmlUtil.getValueOfFirstChild(element, "Comment"));
+		condition.setOp(Condition.Aux.toOpInt(XmlUtil.getValueOfFirstChild(element, "Operator")));
+		condition.setReference(asReference(XmlUtil.getFirstChild(element, "Reference")));
+		condition.setValue(asValue(XmlUtil.getFirstChild(element, "Value")));
+		condition.setObjectName(XmlUtil.getValueOfFirstChild(element, "ObjectName", null));
+		return condition;
+	}
+
 	private ExistExpression asExistExpression(Element element) {
 		String value = element.getAttribute("class");
 		ExistExpression expression = RuleElementFactory.getInstance().createExistExpression(value);
@@ -250,8 +249,18 @@ public final class RuleDefinitionUtil {
 		return expression;
 	}
 
-	private CompoundLHSElement asAnd(Element element) {
-		CompoundLHSElement compoundElement = RuleElementFactory.getInstance().createAndCompoundCondition();
+	private Value asMathExpressionValue(Element element) {
+		Element childElement = XmlUtil.getFirstChild(element, "ColumnRef");
+		ColumnReference colRef = asColumnReference(childElement);
+		String operator = XmlUtil.getValueOfFirstChild(element, "Operator");
+		childElement = XmlUtil.getFirstChild(element, "Reference");
+		Reference attrRef = asReference(childElement);
+
+		return RuleElementFactory.getInstance().createValue(colRef, operator, attrRef);
+	}
+
+	private CompoundLHSElement asNot(Element element) {
+		CompoundLHSElement compoundElement = RuleElementFactory.getInstance().createNotCompoundCondition();
 		compoundElement.setComment(XmlUtil.getValueOfFirstChild(element, "Comment"));
 
 		addLHSElements(compoundElement, element);
@@ -264,61 +273,6 @@ public final class RuleDefinitionUtil {
 
 		addLHSElements(compoundElement, element);
 		return compoundElement;
-	}
-
-	private CompoundLHSElement asNot(Element element) {
-		CompoundLHSElement compoundElement = RuleElementFactory.getInstance().createNotCompoundCondition();
-		compoundElement.setComment(XmlUtil.getValueOfFirstChild(element, "Comment"));
-
-		addLHSElements(compoundElement, element);
-		return compoundElement;
-	}
-
-	private Condition asCondition(Element element) {
-		Condition condition = RuleElementFactory.getInstance().createCondition();
-		condition.setComment(XmlUtil.getValueOfFirstChild(element, "Comment"));
-		condition.setOp(Condition.Aux.toOpInt(XmlUtil.getValueOfFirstChild(element, "Operator")));
-		condition.setReference(asReference(XmlUtil.getFirstChild(element, "Reference")));
-		condition.setValue(asValue(XmlUtil.getFirstChild(element, "Value")));
-		condition.setObjectName(XmlUtil.getValueOfFirstChild(element, "ObjectName", null));
-		return condition;
-	}
-
-	private Value asValue(Element element) {
-		Element childElement = XmlUtil.getFirstChild(element, "MathExpression");
-		if (childElement != null) {
-			return asMathExpressionValue(childElement);
-		}
-		childElement = XmlUtil.getFirstChild(element, "Reference");
-		if (childElement != null) {
-			return RuleElementFactory.getInstance().createValue(asReference(childElement));
-		}
-		childElement = XmlUtil.getFirstChild(element, "ColumnRef");
-		if (childElement != null) {
-			return RuleElementFactory.getInstance().createValue(asColumnReference(childElement));
-		}
-		return RuleElementFactory.getInstance().createValue(XmlUtil.getValue(element));
-	}
-
-	private Value asMathExpressionValue(Element element) {
-		Element childElement = XmlUtil.getFirstChild(element, "ColumnRef");
-		ColumnReference colRef = asColumnReference(childElement);
-		String operator = XmlUtil.getValueOfFirstChild(element, "Operator");
-		childElement = XmlUtil.getFirstChild(element, "Reference");
-		Reference attrRef = asReference(childElement);
-
-		return RuleElementFactory.getInstance().createValue(colRef, operator, attrRef);
-	}
-
-	private ColumnReference asColumnReference(Element element) {
-		String columnStr = element.getAttribute("columnNo");
-		try {
-			return RuleElementFactory.getInstance().createColumnReference(Integer.parseInt(columnStr));
-		}
-		catch (Exception ex) {
-			logger.warn("Failed to create column reference from " + element, ex);
-			throw new IllegalArgumentException("Invalid column no: " + columnStr + " at " + element);
-		}
 	}
 
 	private Reference asReference(Element element) {
@@ -366,6 +320,28 @@ public final class RuleDefinitionUtil {
 		return test;
 	}
 
+	private Value asValue(Element element) {
+		Element childElement = XmlUtil.getFirstChild(element, "MathExpression");
+		if (childElement != null) {
+			return asMathExpressionValue(childElement);
+		}
+		childElement = XmlUtil.getFirstChild(element, "Reference");
+		if (childElement != null) {
+			return RuleElementFactory.getInstance().createValue(asReference(childElement));
+		}
+		childElement = XmlUtil.getFirstChild(element, "ColumnRef");
+		if (childElement != null) {
+			return RuleElementFactory.getInstance().createValue(asColumnReference(childElement));
+		}
+		return RuleElementFactory.getInstance().createValue(XmlUtil.getValue(element));
+	}
+
+	private RuleDefinition convertToRuleDefinition(String ruleDefStr) throws SAXException, IOException, ParserConfigurationException {
+		final Document document = XmlUtil.parseAsDomDocument(new StringReader(ruleDefStr), true);
+		Element rootElement = document.getDocumentElement();
+		return readToRule(rootElement);
+	}
+
 	private int findMappedActionID(int actionID) {
 		if (actionIDMap == null || actionIDMap.isEmpty()) return actionID;
 		Integer mappedInt = actionIDMap.get("action:" + actionID);
@@ -376,6 +352,36 @@ public final class RuleDefinitionUtil {
 		if (actionIDMap == null || actionIDMap.isEmpty()) return actionID;
 		Integer mappedInt = actionIDMap.get("test:" + actionID);
 		return (mappedInt == null ? actionID : mappedInt.intValue());
+	}
+
+	private CompoundLHSElement readToRootCondition(Element condElement) {
+		CompoundLHSElement rootCondition = RuleElementFactory.getInstance().createAndCompoundCondition();
+
+		if (condElement != null) {
+			addLHSElements(rootCondition, condElement);
+		}
+		return rootCondition;
+	}
+
+	private RuleDefinition readToRule(Element ruleElement) {
+		int id = Integer.parseInt(ruleElement.getAttribute("id"));
+		String name = ruleElement.getAttribute("name");
+
+		String desc = XmlUtil.getValueOfFirstChild(ruleElement, "Description");
+
+		CompoundLHSElement rootCondition = null;
+		Element lhsElement = XmlUtil.getFirstChild(ruleElement, "LHS");
+		if (lhsElement != null) {
+			rootCondition = readToRootCondition(XmlUtil.getFirstChild(lhsElement, "AND"));
+		}
+		else {
+			rootCondition = RuleElementFactory.getInstance().createAndCompoundCondition();
+		}
+
+		RuleAction action = readToRuleAction(XmlUtil.getFirstChild(ruleElement, "Action"));
+
+		RuleDefinition rule = new RuleDefinition(id, name, desc, rootCondition, action);
+		return rule;
 	}
 
 	private RuleAction readToRuleAction(Element actionElement) {
@@ -415,8 +421,6 @@ public final class RuleDefinitionUtil {
 
 		String comment = XmlUtil.getValueOfFirstChild(actionElement, "Comment");
 		action.setComment(comment);
-
 		return action;
 	}
-
 }

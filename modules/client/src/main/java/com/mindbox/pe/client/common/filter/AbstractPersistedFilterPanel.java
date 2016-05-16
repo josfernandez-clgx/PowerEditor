@@ -28,11 +28,7 @@ import com.mindbox.pe.model.Persistent;
  * @since PowerEditor 1.10.0
  */
 public abstract class AbstractPersistedFilterPanel<T extends Persistent, B extends ButtonPanel> extends AbstractFilterPanel<T, B> {
-	/**
-	 * @since PowerEditor 4.2.0
-	 * @author Inna Nill
-	 * 
-	 */
+
 	private class ClearL implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -40,9 +36,6 @@ public abstract class AbstractPersistedFilterPanel<T extends Persistent, B exten
 		}
 	}
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -3951228734910107454L;
 
 	protected static final void addComponent(JPanel panel, GridBagLayout bag, GridBagConstraints c, Component component) {
@@ -55,16 +48,10 @@ public abstract class AbstractPersistedFilterPanel<T extends Persistent, B exten
 	private JButton filterButton;
 	private JButton clearSearchFieldsButton;
 
-	/**
-	 * @param selectionPanel selectionPanel
-	 */
 	protected AbstractPersistedFilterPanel(AbstractSelectionPanel<T, B> selectionPanel, GenericEntityType filterGenericEntityType, boolean hideManagementButtons) {
 		this(selectionPanel, null, filterGenericEntityType, hideManagementButtons);
 	}
 
-	/**
-	 * @param selectionPanel selectionPanel
-	 */
 	protected AbstractPersistedFilterPanel(AbstractSelectionPanel<T, B> selectionPanel, PeDataType filterEntityType, boolean hideManagementButtons) {
 		this(selectionPanel, filterEntityType, null, hideManagementButtons);
 	}

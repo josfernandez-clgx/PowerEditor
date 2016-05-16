@@ -42,34 +42,8 @@ import com.mindbox.pe.server.generator.RuleGenerationException;
  */
 public class DeploymentManager extends AbstractCacheManager {
 
-	private static class EnumValueMap {
-
-		private EnumValue enumValueInstance;
-
-		EnumValueMap(EnumValue enumValue) {
-			enumValueInstance = enumValue;
-		}
-	}
-
-	private static final ExecutorService DEPLOY_EXECUTOR = Executors.newSingleThreadExecutor();
-	private static final long CLEANUP_THRESHOLD_MILLIS = 60 * 60 * 1000L; // one hour
-	private static final int NOT_RUNNING_ID = -1;
-	private static DeploymentManager singleton = null;
-
-	public static synchronized DeploymentManager getInstance() {
-		if (singleton == null) {
-			singleton = new DeploymentManager();
-		}
-		return singleton;
-	}
-
-	public static synchronized void deinitialize() {
-		if (singleton != null && singleton.cleanUpWorkFuture != null) {
-			singleton.cleanUpWorkFuture.cancel(true);
-		}
-	}
-
 	private class CleanUpWork implements Runnable {
+		@Override
 		public void run() {
 			synchronized (generateStatMap) {
 				final List<Integer> idsToDelete = new ArrayList<Integer>();
@@ -84,6 +58,34 @@ public class DeploymentManager extends AbstractCacheManager {
 				}
 			}
 		}
+	}
+
+	private static class EnumValueMap {
+
+		private EnumValue enumValueInstance;
+
+		EnumValueMap(EnumValue enumValue) {
+			enumValueInstance = enumValue;
+		}
+	}
+
+	private static final ExecutorService DEPLOY_EXECUTOR = Executors.newSingleThreadExecutor();
+	private static final long CLEANUP_THRESHOLD_MILLIS = 60 * 60 * 1000L; // one hour
+	private static final int NOT_RUNNING_ID = -1;
+
+	private static DeploymentManager singleton = null;
+
+	public static synchronized void deinitialize() {
+		if (singleton != null && singleton.cleanUpWorkFuture != null) {
+			singleton.cleanUpWorkFuture.cancel(true);
+		}
+	}
+
+	public static synchronized DeploymentManager getInstance() {
+		if (singleton == null) {
+			singleton = new DeploymentManager();
+		}
+		return singleton;
 	}
 
 
@@ -170,10 +172,6 @@ public class DeploymentManager extends AbstractCacheManager {
 		}
 	}
 
-	synchronized void resetCurrentDeployId() {
-		currentRunId.set(NOT_RUNNING_ID);
-	}
-
 	public String getCurrentDeployDir() {
 		return currentDeployDir.get();
 	}
@@ -184,9 +182,9 @@ public class DeploymentManager extends AbstractCacheManager {
 
 	/**
 	 * 
-	 * @param runID
+	 * @param runID runID
 	 * @return the deploy error string
-	 * @throws IOException
+	 * @throws IOException on error
 	 */
 	public String getDeployErrorStr(int runID) throws IOException {
 		File errorFile = null;
@@ -220,10 +218,10 @@ public class DeploymentManager extends AbstractCacheManager {
 
 	/**
 	 * Equivalent to <code>getEnumDeployValue(className,attributeName,deployID,returnNullIfNotFound,false)</code>.
-	 * @param className
-	 * @param attributeName
-	 * @param deployID
-	 * @param returnNullIfNotFound
+	 * @param className className
+	 * @param attributeName attributeName
+	 * @param deployID deployID
+	 * @param returnNullIfNotFound returnNullIfNotFound
 	 * @return the enumeration deploy value
 	 */
 	public String getEnumDeployValue(String className, String attributeName, String deployID, boolean returnNullIfNotFound) {
@@ -241,9 +239,9 @@ public class DeploymentManager extends AbstractCacheManager {
 	 * If so, it returns the deploy value of the enum.
 	 * If not, this returns <code>null</code>, if <code>returnNullIfNotFound</code>
 	 * is set to <code>true</code>; otherwse, this returns <code>deployID</code>.
-	 * @param className
-	 * @param attributeName
-	 * @param deployID
+	 * @param className className
+	 * @param attributeName attributeName
+	 * @param deployID deployID
 	 * @param returnNullIfNotFound if set to <code>true</code>, this returns <code>null</code> 
 	 *                               if <code>displayString</code> is not found or attribute has no enum values;
 	 *                              this returns the displayString, otherwise
@@ -310,9 +308,9 @@ public class DeploymentManager extends AbstractCacheManager {
 	/**
 	 * Gets a list of the deploy value of enumeration values that are in the specified <code>enumValues</code>.
 	 * If list is <code>null</code>, this returns <code>null</code>
-	 * @param className
-	 * @param attributeName
-	 * @param enumValues
+	 * @param className className
+	 * @param attributeName attributeName
+	 * @param enumValues enumValues
 	 * @return a list of the deploy value of an enumeration value e such that e is in <code>enumValues</code>, 
 	 */
 	public String[] getEnumDeployValues(String className, String attributeName, EnumValues<?> enumValues) {
@@ -376,6 +374,10 @@ public class DeploymentManager extends AbstractCacheManager {
 		synchronized (generateStatMap) {
 			return generateStatMap.get(deployId);
 		}
+	}
+
+	synchronized void resetCurrentDeployId() {
+		currentRunId.set(NOT_RUNNING_ID);
 	}
 
 	public boolean validateDeployDefinition() {

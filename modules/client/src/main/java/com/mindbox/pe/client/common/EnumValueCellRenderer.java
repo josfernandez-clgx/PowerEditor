@@ -25,6 +25,7 @@ public class EnumValueCellRenderer extends DefaultListCellRenderer {
 	 * @param value Either an EnumValue object (b/c the table model holds EnumValue objects)
 	 * or an EnumValue's displayLabel String (b/c the cell editor list of values is a list of display value strings).
 	 * In either case we want to display the displayLabel.
+	 * @return display label
 	 */
 	public static String getDisplayLabel(Object value) {
 		if (value == null) {
@@ -36,12 +37,15 @@ public class EnumValueCellRenderer extends DefaultListCellRenderer {
 	/** 
 	 * Similar to {@link #getDisplayLabel(Object)}, but if <code>value</code> is an EnumValue's deployId then
 	 * returns the display label for the identified EnumValue instance in the <code>validEnumValues</code> list.
+	 * @param value value
+	 * @param validEnumValues valid enum values
+	 * @return display label
 	 */
 	public static String getDisplayLabel(Object value, List<EnumValue> validEnumValues) {
 		return getDisplayLabel(idToEnumValue(value, validEnumValues));
 	}
 
-	/** 
+	/*
 	 * If <code>value</code> is a String containing the Id of one of the EnumValues in <code>validEnumValues</code>
 	 * then return that instance of EnumValue, otherwise return <code>value</code> as is.
 	 */

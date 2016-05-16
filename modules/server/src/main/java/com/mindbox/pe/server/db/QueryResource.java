@@ -27,6 +27,7 @@ public final class QueryResource {
 
 	/**
 	 * @param key the query key
+	 * @return query
 	 * @throws IllegalArgumentException if key is invalid or not found
 	 */
 	public String getQuery(String key) {

@@ -42,14 +42,7 @@ public class PEWSClient implements Callable<String> {
 	}
 
 	private static final String DEFAULT_USER = "demo";
-
 	private static final String DEFAULT_PASSWORD = "demo";
-
-	private static String getVersion() throws Exception {
-		final Properties properties = new Properties();
-		properties.load(PEWSClient.class.getResourceAsStream("app.properties"));
-		return properties.getProperty("app.version");
-	}
 
 	/**
 	 * Display a list of messages with a given heading.
@@ -73,10 +66,16 @@ public class PEWSClient implements Callable<String> {
 
 	}
 
+	private static String getVersion() throws Exception {
+		final Properties properties = new Properties();
+		properties.load(PEWSClient.class.getResourceAsStream("app.properties"));
+		return properties.getProperty("app.version");
+	}
+
 	/**
 	 * Allows all kinds of web services calls.  See usage messages for details.
-	 * @param args
-	 * @throws Exception
+	 * @param args arguments
+	 * @throws Exception on error
 	 */
 	public static void main(String... args) throws Exception {
 		try {
@@ -95,8 +94,9 @@ public class PEWSClient implements Callable<String> {
 	}
 
 	private static void printUsage() {
-		System.out.format("Usage: %n  java -jar PEWSClient.jar <PE-URL> <command> + arguments%n%nArguments vary by command:"
-				+ "%n---------------------------------%ncommand arguments%n---------------------------------%n");
+		System.out.format(
+				"Usage: %n  java -jar PEWSClient.jar <PE-URL> <command> + arguments%n%nArguments vary by command:"
+						+ "%n---------------------------------%ncommand arguments%n---------------------------------%n");
 		System.out.println("import  <filename> [merge] [username] [password]");
 		System.out.println("   filename: the name of the file to import");
 		System.out.println("   merge:    must be true or false; defaults to false, if missing");
@@ -254,9 +254,9 @@ public class PEWSClient implements Callable<String> {
 	}
 
 	private PowerEditorAPIInterface getPowerEditorAPIInterface() {
-		final PowerEditorAPIInterface powerEditorAPIInterface = new PowerEditorAPIInterfaceService(getClass().getResource("/PowerEditorAPIInterfaceService.wsdl"), new QName(
-				"http://webservices.server.pe.mindbox.com/",
-				"PowerEditorAPIInterfaceService")).getPowerEditorAPIInterfacePort();
+		final PowerEditorAPIInterface powerEditorAPIInterface = new PowerEditorAPIInterfaceService(
+				getClass().getResource("/PowerEditorAPIInterfaceService.wsdl"),
+				new QName("http://webservices.server.pe.mindbox.com/", "PowerEditorAPIInterfaceService")).getPowerEditorAPIInterfacePort();
 		final BindingProvider bp = BindingProvider.class.cast(powerEditorAPIInterface);
 		bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, String.format("%s/PowerEditorWebService", serverUrl.toExternalForm()));
 		return powerEditorAPIInterface;

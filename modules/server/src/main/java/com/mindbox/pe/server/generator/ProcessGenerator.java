@@ -15,9 +15,8 @@ import com.mindbox.pe.model.process.PhaseReference;
 import com.mindbox.pe.model.process.ProcessRequest;
 import com.mindbox.pe.server.cache.ProcessManager;
 
-
 /**
- * Process data (phases & requests) generator.
+ * Process data (phases and requests) generator.
  *
  * @author kim
  * @since PowerEditor  3.3.0
@@ -171,7 +170,9 @@ public class ProcessGenerator implements ErrorContextProvider {
 
 	@Override
 	public String getErrorContext() {
-		return (currentRequest == null ? (currentPhase == null ? "" : currentPhase.getID() + ": " + currentPhase.getName()) : currentRequest.getId() + ": " + currentRequest.getName());
+		return (currentRequest == null
+				? (currentPhase == null ? "" : currentPhase.getID() + ": " + currentPhase.getName())
+				: currentRequest.getId() + ": " + currentRequest.getName());
 	}
 
 	private void writeAttributeValue(String attribute, String value) {
@@ -185,6 +186,4 @@ public class ProcessGenerator implements ErrorContextProvider {
 	private void writeAttributeValueAsString(String attribute, String value) {
 		writeAttributeValue(attribute, '"' + value + '"');
 	}
-
-
 }

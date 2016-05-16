@@ -9,43 +9,25 @@ import javax.swing.JButton;
  *
  */
 public class IntegerRangeEditButton extends JButton {
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = -3951228734910107454L;
 
-	/**
-	 * 
-	 */
 	public IntegerRangeEditButton() {
 		super();
 	}
 
-	/**
-	 * @param arg0
-	 */
-	public IntegerRangeEditButton(String arg0) {
-		super(arg0);
-	}
-
-	/**
-	 * @param arg0
-	 */
 	public IntegerRangeEditButton(Action arg0) {
 		super(arg0);
 	}
 
-	/**
-	 * @param arg0
-	 */
 	public IntegerRangeEditButton(Icon arg0) {
 		super(arg0);
 	}
 
-	/**
-	 * @param arg0
-	 * @param arg1
-	 */
+	public IntegerRangeEditButton(String arg0) {
+		super(arg0);
+	}
+
 	public IntegerRangeEditButton(String arg0, Icon arg1) {
 		super(arg0, arg1);
 	}

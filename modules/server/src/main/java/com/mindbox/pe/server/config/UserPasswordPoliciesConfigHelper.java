@@ -4,7 +4,6 @@
  */
 package com.mindbox.pe.server.config;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +20,7 @@ import com.mindbox.pe.xsd.config.UserPasswordPolicies;
  * in the PowerEditorConfiguration.xml file.
  * <p>
  * <b>Note:</b><br>
- * Changes to this class may require changes to {@link com.mindbox.pe.server.config.ConfigXMLDigester#digestUserPasswordPoliciesConfig(File, UserPasswordPoliciesConfigHelper)}.
+ * Changes to this class may require changes to <code>com.mindbox.pe.server.config.ConfigXMLDigester#digestUserPasswordPoliciesConfig(File, UserPasswordPoliciesConfigHelper)</code>.
  * @author davies
  * @since PowerEditor 5.1.0
  */

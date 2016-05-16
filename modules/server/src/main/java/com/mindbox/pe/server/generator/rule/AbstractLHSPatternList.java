@@ -20,39 +20,23 @@ public abstract class AbstractLHSPatternList implements LHSPatternList {
 		this.type = type;
 	}
 
-	protected final boolean hasPatternForClassName(String className) {
-		for (Iterator<LHSPattern> iter = list.iterator(); iter.hasNext();) {
-			LHSPattern element = iter.next();
-			if (element instanceof ObjectPattern) {
-				if (((ObjectPattern) element).getClassName().equals(className)) {
-					return true;
-				}
-			}
-			else if (element instanceof AbstractLHSPatternList) {
-				boolean result = ((AbstractLHSPatternList) element).hasPatternForClassName(className);
-				if (result) return true;
-			}
-		}
-		return false;
+	@Override
+	public void append(FunctionCallPattern testPattern) {
+		list.add(testPattern);
+	}
+
+	@Override
+	public void append(LHSPatternList patternList) {
+		list.add(patternList);
 	}
 
 	/**
-	 * 
-	 * @param variableName
-	 * @return
-	 * @throws NullPointerException if variableName is <code>null</code>
+	 * This blindly appends the specified object pattern to this.
+	 * Sub-classes should overwrite this to provide more meaningful implementation.
 	 */
-	protected final boolean hasPatternForVariableName(String variableName) {
-		if (variableName == null) throw new NullPointerException("variableName cannot be null");
-		for (Iterator<LHSPattern> iter = list.iterator(); iter.hasNext();) {
-			LHSPattern element = iter.next();
-			if (element instanceof ObjectPattern) {
-				if (OptimizingObjectPattern.isMatchingVariableName(variableName, ((ObjectPattern) element).getVariableName())) {
-					return true;
-				}
-			}
-		}
-		return false;
+	@Override
+	public void append(ObjectPattern objectPattern) throws RuleGenerationException {
+		list.add(objectPattern);
 	}
 
 	protected final ObjectPattern find(String variableName) {
@@ -69,70 +53,17 @@ public abstract class AbstractLHSPatternList implements LHSPatternList {
 		return null;
 	}
 
-	protected final int indexOfPatternWithVariable(String variableName) {
-		if (variableName == null) throw new NullPointerException("variableName cannot be null");
-		for (int i = 0; i < list.size(); i++) {
-			LHSPattern element = list.get(i);
-			if (element instanceof ObjectPattern) {
-				if (OptimizingObjectPattern.isMatchingVariableName(variableName, ((ObjectPattern) element).getVariableName())) {
-					return i;
-				}
-			}
-			// DO NOT check embedded LHSPatternList
-		}
-		return -1;
-	}
-
-	/**
-	 * This blindly appends the specified object pattern to this.
-	 * Sub-classes should overwrite this to provide more meaningful implementation.
-	 */
-	public void append(ObjectPattern objectPattern) throws RuleGenerationException {
-		list.add(objectPattern);
-	}
-
-	public void append(FunctionCallPattern testPattern) {
-		list.add(testPattern);
-	}
-
-	public void append(LHSPatternList patternList) {
-		list.add(patternList);
-	}
-
-	/**
-	 * This blindly inserts the specified object pattern to this.
-	 * Sub-classes should overwrite this to provide more meaningful implementation.
-	 */
-	public final void insert(ObjectPattern objectPattern) throws RuleGenerationException {
-		insert(objectPattern, false);
-	}
-
-	public void insertBefore(ObjectPattern objectPattern, String variableName) throws RuleGenerationException {
-		int index = indexOfPatternWithVariable(variableName);
-		if (index >= 0) {
-			list.add(index, objectPattern);
-		}
-		else {
-			list.add(objectPattern);
-		}
-	}
-
-	/**
-	 * This blindly inserts the specified object pattern to this, ignoring <code>preserveOrderIfPatternExists</code>.
-	 * Sub-classes should overwrite this to provide more meaningful implementation.
-	 */
-	public void insert(ObjectPattern objectPattern, boolean preserveOrderIfPatternExists) throws RuleGenerationException {
-		list.add(0, objectPattern);
-	}
-
+	@Override
 	public LHSPattern get(int index) {
 		return list.get(index);
 	}
 
+	@Override
 	public int getType() {
 		return type;
 	}
 
+	@Override
 	public boolean hasConflictingAttributePattern(String objectVarName, AttributePattern attributePattern) {
 		if (attributePattern == null) throw new NullPointerException("attributePattern cannot be null");
 		for (Iterator<LHSPattern> iter = list.iterator(); iter.hasNext();) {
@@ -152,6 +83,23 @@ public abstract class AbstractLHSPatternList implements LHSPatternList {
 		return false;
 	}
 
+	protected final boolean hasPatternForClassName(String className) {
+		for (Iterator<LHSPattern> iter = list.iterator(); iter.hasNext();) {
+			LHSPattern element = iter.next();
+			if (element instanceof ObjectPattern) {
+				if (((ObjectPattern) element).getClassName().equals(className)) {
+					return true;
+				}
+			}
+			else if (element instanceof AbstractLHSPatternList) {
+				boolean result = ((AbstractLHSPatternList) element).hasPatternForClassName(className);
+				if (result) return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
 	public boolean hasPatternForReference(Reference reference) {
 		if (reference == null) throw new NullPointerException("reference cannot be null");
 		logger.debug(">>> hasPatternForReference: " + reference);
@@ -170,14 +118,79 @@ public abstract class AbstractLHSPatternList implements LHSPatternList {
 		return false;
 	}
 
+	/**
+	 * 
+	 * @param variableName variableName
+	 * @return true if has pattern; false, otherwise
+	 * @throws NullPointerException if variableName is <code>null</code>
+	 */
+	protected final boolean hasPatternForVariableName(String variableName) {
+		if (variableName == null) throw new NullPointerException("variableName cannot be null");
+		for (Iterator<LHSPattern> iter = list.iterator(); iter.hasNext();) {
+			LHSPattern element = iter.next();
+			if (element instanceof ObjectPattern) {
+				if (OptimizingObjectPattern.isMatchingVariableName(variableName, ((ObjectPattern) element).getVariableName())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	protected final int indexOfPatternWithVariable(String variableName) {
+		if (variableName == null) throw new NullPointerException("variableName cannot be null");
+		for (int i = 0; i < list.size(); i++) {
+			LHSPattern element = list.get(i);
+			if (element instanceof ObjectPattern) {
+				if (OptimizingObjectPattern.isMatchingVariableName(variableName, ((ObjectPattern) element).getVariableName())) {
+					return i;
+				}
+			}
+			// DO NOT check embedded LHSPatternList
+		}
+		return -1;
+	}
+
+	/**
+	 * This blindly inserts the specified object pattern to this.
+	 * Sub-classes should overwrite this to provide more meaningful implementation.
+	 */
+	@Override
+	public final void insert(ObjectPattern objectPattern) throws RuleGenerationException {
+		insert(objectPattern, false);
+	}
+
+	/**
+	 * This blindly inserts the specified object pattern to this, ignoring <code>preserveOrderIfPatternExists</code>.
+	 * Sub-classes should overwrite this to provide more meaningful implementation.
+	 */
+	@Override
+	public void insert(ObjectPattern objectPattern, boolean preserveOrderIfPatternExists) throws RuleGenerationException {
+		list.add(0, objectPattern);
+	}
+
+	@Override
+	public void insertBefore(ObjectPattern objectPattern, String variableName) throws RuleGenerationException {
+		int index = indexOfPatternWithVariable(variableName);
+		if (index >= 0) {
+			list.add(index, objectPattern);
+		}
+		else {
+			list.add(objectPattern);
+		}
+	}
+
+	@Override
 	public boolean isEmpty() {
 		return list.isEmpty();
 	}
 
+	@Override
 	public void remove(ObjectPattern objectPattern) {
 		list.remove(objectPattern);
 	}
 
+	@Override
 	public int size() {
 		return list.size();
 	}

@@ -18,13 +18,17 @@ public class RootTreeNode implements TreeNode {
 
 	private static class IteratorEnum implements Enumeration<TreeNode> {
 		private final Iterator<TreeNode> iter;
+
 		public IteratorEnum(List<TreeNode> list) {
 			this.iter = list.iterator();
 		}
+
+		@Override
 		public boolean hasMoreElements() {
 			return iter.hasNext();
 		}
 
+		@Override
 		public TreeNode nextElement() {
 			return iter.next();
 		}
@@ -34,30 +38,64 @@ public class RootTreeNode implements TreeNode {
 	private List<TreeNode> children;
 	protected Object data;
 
-	/**
-	 *
-	 */
 	public RootTreeNode(Object data) {
 		super();
 		this.data = data;
 		this.children = new ArrayList<TreeNode>();
 	}
-	
+
+	public final void addChild(TreeNode node, boolean sort) {
+		synchronized (children) {
+			this.children.add(node);
+			if (sort) {
+				Collections.sort(children, new TreeNodeComparator());
+			}
+		}
+	}
+
+	@Override
+	public final Enumeration<TreeNode> children() {
+		synchronized (children) {
+			return new IteratorEnum(children);
+		}
+	}
+
 	public void clear() {
 		this.data = null;
 		this.children = null;
 	}
 
-	public final void removeAllChildren() {
-		synchronized (children) {
-			children.clear();
-		}
+	public final boolean containsChild(TreeNode node) {
+		return children.contains(node);
 	}
 
+	@Override
+	public boolean getAllowsChildren() {
+		return false;
+	}
+
+	@Override
 	public final TreeNode getChildAt(int index) {
 		synchronized (children) {
 			return children.get(index);
 		}
+	}
+
+	@Override
+	public final int getChildCount() {
+		synchronized (children) {
+			return children.size();
+		}
+	}
+
+	@Override
+	public int getIndex(TreeNode arg0) {
+		return 0;
+	}
+
+	@Override
+	public TreeNode getParent() {
+		return null;
 	}
 
 	public final int indexOfChild(TreeNode node) {
@@ -72,59 +110,30 @@ public class RootTreeNode implements TreeNode {
 		}
 		return -1;
 	}
-	
-	public final int getChildCount() {
-		synchronized (children) {
-			return children.size();
-		}
-	}
 
-	public int getIndex(TreeNode arg0) {
-		return 0;
-	}
-
-	public boolean getAllowsChildren() {
-		return false;
-	}
-
+	@Override
 	public final boolean isLeaf() {
 		synchronized (children) {
 			return children.isEmpty();
 		}
 	}
 
-	public final boolean containsChild(TreeNode node) {
-		return children.contains(node);
-	}
-
-	public final Enumeration<TreeNode> children() {
+	public final void removeAllChildren() {
 		synchronized (children) {
-			return new IteratorEnum(children);
+			children.clear();
 		}
 	}
 
-	public TreeNode getParent() {
-		return null;
-	}
-
-	public final void addChild(TreeNode node, boolean sort) {
-		synchronized (children) {
-			this.children.add(node);
-			if(sort){
-			   Collections.sort(children, new TreeNodeComparator());	
-			}
-		}
-	}
-	
 	public final void removeChild(TreeNode node, boolean sort) {
 		synchronized (children) {
 			this.children.remove(node);
-			if(sort){
-			Collections.sort(children, new TreeNodeComparator());
+			if (sort) {
+				Collections.sort(children, new TreeNodeComparator());
 			}
 		}
 	}
 
+	@Override
 	public String toString() {
 		return (data == null ? "NULL" : data.toString());
 	}

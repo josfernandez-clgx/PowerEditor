@@ -23,10 +23,6 @@ import javax.swing.SwingConstants;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
-import mseries.Calendar.MFieldListener;
-import mseries.ui.MChangeEvent;
-import mseries.ui.MChangeListener;
-
 import com.mindbox.pe.client.EntityModelCacheFactory;
 import com.mindbox.pe.client.applet.UIFactory;
 import com.mindbox.pe.client.common.AbstractThreadedActionAdapter;
@@ -34,6 +30,10 @@ import com.mindbox.pe.client.common.dialog.MDateDateField;
 import com.mindbox.pe.model.GenericCategory;
 import com.mindbox.pe.model.GenericEntity;
 import com.mindbox.pe.model.GenericEntityType;
+
+import mseries.Calendar.MFieldListener;
+import mseries.ui.MChangeEvent;
+import mseries.ui.MChangeListener;
 
 /**
  * Generic category selection tree.
@@ -59,25 +59,8 @@ public abstract class AbstractGenericCategorySelectionTree extends AbstractSelec
 	private final JButton refreshButton;
 	private JPanel panel = null;
 
-	protected AbstractGenericCategorySelectionTree(int categoryType, boolean allowEntity, int selectionMode, boolean showRoot,
-			boolean showRootHandles, boolean showCollapseExpandButtons, boolean sort) {
-		this(
-				GenericEntityType.forCategoryType(categoryType),
-				allowEntity,
-				selectionMode,
-				showRoot,
-				showRootHandles,
-				showCollapseExpandButtons,
-				sort);
-	}
-
-	/**
-	 * 
-	 * @param selectionMode tree selection mode
-	 * @param showRoot show root flag
-	 */
-	protected AbstractGenericCategorySelectionTree(GenericEntityType entityType, boolean allowEntity, int selectionMode, boolean showRoot,
-			boolean showRootHandles, boolean showCollapseExpandButtons, boolean sort) {
+	protected AbstractGenericCategorySelectionTree(GenericEntityType entityType, boolean allowEntity, int selectionMode, boolean showRoot, boolean showRootHandles,
+			boolean showCollapseExpandButtons, boolean sort) {
 		super(selectionMode, showRoot, showRootHandles, showCollapseExpandButtons, sort);
 		if (entityType == null) throw new NullPointerException("entityType cannot be null");
 		tree.setCellRenderer(new NavigationTreeCellRenderer());
@@ -86,6 +69,7 @@ public abstract class AbstractGenericCategorySelectionTree extends AbstractSelec
 		dateField = new MDateDateField(true, false, true);
 		dateField.setValue(new Date());
 		refreshButton = UIFactory.createJButton("label.refresh", null, new AbstractThreadedActionAdapter() {
+			@Override
 			public void performAction(ActionEvent event) throws Exception {
 				if (dateField.getDate() != null) {
 					refreshTree();
@@ -93,84 +77,139 @@ public abstract class AbstractGenericCategorySelectionTree extends AbstractSelec
 			}
 		}, null);
 		refreshButton.addFocusListener(new FocusListener() {
+			@Override
 			public void focusGained(FocusEvent e) {
 				refreshButton.setEnabled(dateField.getDate() != null);
 			}
 
+			@Override
 			public void focusLost(FocusEvent e) {
 			}
 		});
 		dateField.addMChangeListener(new MChangeListener() {
+			@Override
 			public void valueChanged(MChangeEvent arg0) {
 				refreshButton.setEnabled(dateField.getDate() != null);
 			}
 		});
 		dateField.addMFieldListener(new MFieldListener() {
+			@Override
 			public void fieldEntered(FocusEvent arg0) {
 				refreshButton.setEnabled(dateField.getDate() != null);
 			}
 
+			@Override
 			public void fieldExited(FocusEvent arg0) {
 				refreshButton.setEnabled(dateField.getDate() != null);
 			}
 		});
 
-		tree.setModel(EntityModelCacheFactory.getInstance().createGenericCategoryTreeModel(
-				entityType.getCategoryType(),
-				dateField.getDate(),
-				allowEntity,
-				sort));
+		tree.setModel(EntityModelCacheFactory.getInstance().createGenericCategoryTreeModel(entityType.getCategoryType(), dateField.getDate(), allowEntity, sort));
 	}
 
-	/**
-	 * Recalibrates the tree using the currently selected date, if date has changed.
-	 *
-	 */
-	protected final void refreshTree() {
-		GenericCategory selectedCategory = getSelectedGenericCategory();
-		GenericEntity selectedEntity = getSelectedGenericEntity();
-		Enumeration<?> e = tree.getExpandedDescendants(new TreePath(tree.getModel().getRoot()));
-		List<Integer> expandedCategories = new ArrayList<Integer>();
-		while (e != null && e.hasMoreElements()) {
-			TreePath path = (TreePath) e.nextElement();
-			expandedCategories.add(new Integer(((GenericCategoryNode) path.getLastPathComponent()).getGenericCategoryID()));
-		}
-		tree.clearSelection(); // TT 2010 - NullPointerException when Refresh on the "New Parent Category Association" dialog
-		getDatedTreeModel().recalibrate(getSelectedDate());
-		expandCategories(new TreePath(tree.getModel().getRoot()), expandedCategories);
-		if (selectedCategory != null) {
-			selectGenericCategory(selectedCategory.getID());
-		}
-		if (selectedEntity != null) {
-			selectGenericEntity(selectedEntity.getID());
+	protected AbstractGenericCategorySelectionTree(int categoryType, boolean allowEntity, int selectionMode, boolean showRoot, boolean showRootHandles,
+			boolean showCollapseExpandButtons, boolean sort) {
+		this(GenericEntityType.forCategoryType(categoryType), allowEntity, selectionMode, showRoot, showRootHandles, showCollapseExpandButtons, sort);
+	}
+
+	public final void addRefreshButtonListener(ActionListener actionListener) {
+		refreshButton.addActionListener(actionListener);
+	}
+
+	public void expandCategories(TreePath parent, List<Integer> categoryIDs) {
+		for (Iterator<Integer> i = categoryIDs.iterator(); i.hasNext();) {
+			Integer catID = i.next();
+			expandGenericCategory(catID.intValue());
 		}
 	}
 
-	public final Date getSelectedDate() {
-		return dateField.getDate();
+	public final void expandGenericCategory(int catID) {
+		if (catID < 0) {
+			tree.clearSelection();
+		}
+		else {
+			GenericCategoryNode node = findNode(catID);
+			if (node != null) {
+				TreePath path = getTreePath(node);
+				tree.expandPath(path);
+			}
+		}
+	}
+
+	private GenericEntityNode findEntityNode(GenericCategoryNode parent, int catID) {
+		if (parent.isLeaf()) {
+			return null;
+		}
+		else {
+			GenericEntityNode node = null;
+			for (Enumeration<?> enumeration = parent.children(); enumeration.hasMoreElements() && node == null;) {
+				Object obj = enumeration.nextElement();
+				if (obj instanceof GenericCategoryNode) {
+					node = findEntityNode((GenericCategoryNode) obj, catID);
+				}
+				else if (obj instanceof GenericEntityNode) {
+					node = findEntityNode((GenericEntityNode) obj, catID);
+				}
+			}
+			return node;
+		}
+	}
+
+	private GenericEntityNode findEntityNode(GenericEntityNode node, int catID) {
+		if (node.getGenericEntity().getID() == catID) {
+			return node;
+		}
+		else {
+			return null;
+		}
+	}
+
+	private GenericEntityNode findEntityNode(int catID) {
+		GenericEntityNode node = null;
+		for (Enumeration<?> enumeration = ((TreeNode) tree.getModel().getRoot()).children(); enumeration.hasMoreElements() && node == null;) {
+			Object obj = enumeration.nextElement();
+			if (obj instanceof GenericCategoryNode) {
+				node = findEntityNode((GenericCategoryNode) obj, catID);
+			}
+		}
+		return node;
+	}
+
+	private GenericCategoryNode findNode(GenericCategoryNode parent, int catID) {
+		if (parent.getGenericCategory().getID() == catID) {
+			return parent;
+		}
+		else if (parent.isLeaf()) {
+			return null;
+		}
+		else {
+			GenericCategoryNode node = null;
+			for (Enumeration<?> enumeration = parent.children(); enumeration.hasMoreElements() && node == null;) {
+				Object element = enumeration.nextElement();
+				if (element instanceof GenericCategoryNode) {
+					node = findNode((GenericCategoryNode) element, catID);
+				}
+			}
+			return node;
+		}
+	}
+
+	private GenericCategoryNode findNode(int catID) {
+		GenericCategoryNode node = null;
+		for (Enumeration<?> enumeration = ((GenericCategoryNode) tree.getModel().getRoot()).children(); enumeration.hasMoreElements() && node == null;) {
+			Object element = enumeration.nextElement();
+			if (element instanceof GenericCategoryNode) {
+				node = findNode((GenericCategoryNode) element, catID);
+			}
+		}
+		return node;
 	}
 
 	public DatedCategoryTreeModel getDatedTreeModel() {
 		return (DatedCategoryTreeModel) tree.getModel();
 	}
 
-	public final void updateTreeForEntities(boolean showEntities) {
-		List<GenericCategoryNode> categories = new ArrayList<GenericCategoryNode>();
-		Enumeration<?> e = tree.getExpandedDescendants(new TreePath(tree.getModel().getRoot()));
-		getDatedTreeModel().setCategoriesNeedLoading((GenericCategoryNode) tree.getModel().getRoot(), true);
-		while (e != null && e.hasMoreElements()) {
-			TreePath path = (TreePath) e.nextElement();
-			if (path.getLastPathComponent() instanceof GenericCategoryNode) {
-				GenericCategoryNode parent = (GenericCategoryNode) path.getLastPathComponent();
-				categories.add(parent);
-				parent.setEntitiesNeedLoading(false);
-			}
-		}
-
-		getDatedTreeModel().resetShowEntities(showEntities, categories);
-		tree.repaint();
-	}
-
+	@Override
 	public final JPanel getJComponent() {
 		if (panel == null) {
 			GridBagLayout bag = new GridBagLayout();
@@ -224,6 +263,10 @@ public abstract class AbstractGenericCategorySelectionTree extends AbstractSelec
 		}
 	}
 
+	public final Date getSelectedDate() {
+		return dateField.getDate();
+	}
+
 	public final GenericCategory getSelectedGenericCategory() {
 		TreePath selectedPath = tree.getSelectionPath();
 		if (selectedPath != null) {
@@ -233,6 +276,49 @@ public abstract class AbstractGenericCategorySelectionTree extends AbstractSelec
 			}
 		}
 		return null;
+	}
+
+	public final GenericEntity getSelectedGenericEntity() {
+		TreePath selectionPath = tree.getSelectionPath();
+		if (selectionPath != null) {
+			if (selectionPath.getLastPathComponent() instanceof GenericEntityNode) {
+				return ((GenericEntityNode) selectionPath.getLastPathComponent()).getGenericEntity();
+			}
+		}
+		return null;
+	}
+
+	public final TreePath getTreePath(int catID) {
+		GenericCategoryNode node = findNode(catID);
+		return (node == null ? null : getTreePath(node));
+	}
+
+	/**
+	 * Recalibrates the tree using the currently selected date, if date has changed.
+	 *
+	 */
+	protected final void refreshTree() {
+		GenericCategory selectedCategory = getSelectedGenericCategory();
+		GenericEntity selectedEntity = getSelectedGenericEntity();
+		Enumeration<?> e = tree.getExpandedDescendants(new TreePath(tree.getModel().getRoot()));
+		List<Integer> expandedCategories = new ArrayList<Integer>();
+		while (e != null && e.hasMoreElements()) {
+			TreePath path = (TreePath) e.nextElement();
+			expandedCategories.add(new Integer(((GenericCategoryNode) path.getLastPathComponent()).getGenericCategoryID()));
+		}
+		tree.clearSelection(); // TT 2010 - NullPointerException when Refresh on the "New Parent Category Association" dialog
+		getDatedTreeModel().recalibrate(getSelectedDate());
+		expandCategories(new TreePath(tree.getModel().getRoot()), expandedCategories);
+		if (selectedCategory != null) {
+			selectGenericCategory(selectedCategory.getID());
+		}
+		if (selectedEntity != null) {
+			selectGenericEntity(selectedEntity.getID());
+		}
+	}
+
+	public final void removeRefreshButtonListener(ActionListener actionListener) {
+		refreshButton.removeActionListener(actionListener);
 	}
 
 	public final void selectGenericCategory(int catID) {
@@ -249,29 +335,6 @@ public abstract class AbstractGenericCategorySelectionTree extends AbstractSelec
 		}
 	}
 
-	public final void expandGenericCategory(int catID) {
-		if (catID < 0) {
-			tree.clearSelection();
-		}
-		else {
-			GenericCategoryNode node = findNode(catID);
-			if (node != null) {
-				TreePath path = getTreePath(node);
-				tree.expandPath(path);
-			}
-		}
-	}
-
-	public final GenericEntity getSelectedGenericEntity() {
-		TreePath selectionPath = tree.getSelectionPath();
-		if (selectionPath != null) {
-			if (selectionPath.getLastPathComponent() instanceof GenericEntityNode) {
-				return ((GenericEntityNode) selectionPath.getLastPathComponent()).getGenericEntity();
-			}
-		}
-		return null;
-	}
-
 	public final void selectGenericEntity(int entityID) {
 		if (entityID < 0) {
 			tree.clearSelection();
@@ -286,94 +349,20 @@ public abstract class AbstractGenericCategorySelectionTree extends AbstractSelec
 		}
 	}
 
-	private GenericEntityNode findEntityNode(int catID) {
-		GenericEntityNode node = null;
-		for (Enumeration<?> enumeration = ((TreeNode) tree.getModel().getRoot()).children(); enumeration.hasMoreElements() && node == null;) {
-			Object obj = enumeration.nextElement();
-			if (obj instanceof GenericCategoryNode) {
-				node = findEntityNode((GenericCategoryNode) obj, catID);
+	public final void updateTreeForEntities(boolean showEntities) {
+		List<GenericCategoryNode> categories = new ArrayList<GenericCategoryNode>();
+		Enumeration<?> e = tree.getExpandedDescendants(new TreePath(tree.getModel().getRoot()));
+		getDatedTreeModel().setCategoriesNeedLoading((GenericCategoryNode) tree.getModel().getRoot(), true);
+		while (e != null && e.hasMoreElements()) {
+			TreePath path = (TreePath) e.nextElement();
+			if (path.getLastPathComponent() instanceof GenericCategoryNode) {
+				GenericCategoryNode parent = (GenericCategoryNode) path.getLastPathComponent();
+				categories.add(parent);
+				parent.setEntitiesNeedLoading(false);
 			}
 		}
-		return node;
-	}
 
-	private GenericEntityNode findEntityNode(GenericCategoryNode parent, int catID) {
-		if (parent.isLeaf()) {
-			return null;
-		}
-		else {
-			GenericEntityNode node = null;
-			for (Enumeration<?> enumeration = parent.children(); enumeration.hasMoreElements() && node == null;) {
-				Object obj = enumeration.nextElement();
-				if (obj instanceof GenericCategoryNode) {
-					node = findEntityNode((GenericCategoryNode) obj, catID);
-				}
-				else if (obj instanceof GenericEntityNode) {
-					node = findEntityNode((GenericEntityNode) obj, catID);
-				}
-			}
-			return node;
-		}
+		getDatedTreeModel().resetShowEntities(showEntities, categories);
+		tree.repaint();
 	}
-
-	private GenericEntityNode findEntityNode(GenericEntityNode node, int catID) {
-		if (node.getGenericEntity().getID() == catID) {
-			return node;
-		}
-		else {
-			return null;
-		}
-	}
-
-	public final TreePath getTreePath(int catID) {
-		GenericCategoryNode node = findNode(catID);
-		return (node == null ? null : getTreePath(node));
-	}
-
-	private GenericCategoryNode findNode(int catID) {
-		GenericCategoryNode node = null;
-		for (Enumeration<?> enumeration = ((GenericCategoryNode) tree.getModel().getRoot()).children(); enumeration.hasMoreElements()
-				&& node == null;) {
-			Object element = enumeration.nextElement();
-			if (element instanceof GenericCategoryNode) {
-				node = findNode((GenericCategoryNode) element, catID);
-			}
-		}
-		return node;
-	}
-
-	private GenericCategoryNode findNode(GenericCategoryNode parent, int catID) {
-		if (parent.getGenericCategory().getID() == catID) {
-			return parent;
-		}
-		else if (parent.isLeaf()) {
-			return null;
-		}
-		else {
-			GenericCategoryNode node = null;
-			for (Enumeration<?> enumeration = parent.children(); enumeration.hasMoreElements() && node == null;) {
-				Object element = enumeration.nextElement();
-				if (element instanceof GenericCategoryNode) {
-					node = findNode((GenericCategoryNode) element, catID);
-				}
-			}
-			return node;
-		}
-	}
-
-	public void expandCategories(TreePath parent, List<Integer> categoryIDs) {
-		for (Iterator<Integer> i = categoryIDs.iterator(); i.hasNext();) {
-			Integer catID = i.next();
-			expandGenericCategory(catID.intValue());
-		}
-	}
-
-	public final void addRefreshButtonListener(ActionListener actionListener) {
-		refreshButton.addActionListener(actionListener);
-	}
-
-	public final void removeRefreshButtonListener(ActionListener actionListener) {
-		refreshButton.removeActionListener(actionListener);
-	}
-
 }

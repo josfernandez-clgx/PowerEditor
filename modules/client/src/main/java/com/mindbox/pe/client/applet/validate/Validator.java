@@ -205,6 +205,7 @@ public class Validator {
 	/**
 	 * Ensures that no other grid in the list has the same activation dates
 	 * 
+	 * @param <G> grid type
 	 * @param abstractgrid abstractgrid
 	 * @param gridList gridList
 	 * @param dsEff dsEff

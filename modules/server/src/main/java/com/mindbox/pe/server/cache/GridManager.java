@@ -97,7 +97,8 @@ public class GridManager extends AbstractCacheManager {
 				}
 			}
 			else if (EnumValue.class.isInstance(cellValue)) {
-				return (ignoreCase && EnumValue.class.cast(cellValue).getDisplayLabel().equalsIgnoreCase(value)) || (!ignoreCase && EnumValue.class.cast(cellValue).getDisplayLabel().equals(value));
+				return (ignoreCase && EnumValue.class.cast(cellValue).getDisplayLabel().equalsIgnoreCase(value))
+						|| (!ignoreCase && EnumValue.class.cast(cellValue).getDisplayLabel().equals(value));
 			}
 			else {
 				// TT-21 make sure cell value isn't null & check the inclusion of the specified value
@@ -109,7 +110,7 @@ public class GridManager extends AbstractCacheManager {
 	// /////////////////// Instance Fields and Methods ////////////////
 
 	/**
-	 * @param prodGrids
+	 * @param prodGrids prodGrids
 	 *            grid array; length must be >= 1
 	 * @return the guideline report data
 	 * @throws ServerException 
@@ -184,9 +185,21 @@ public class GridManager extends AbstractCacheManager {
 	/**
 	 * Adds the specified product grid into the cache. If templateID is not valid (e.g., not found
 	 * in the loaded template cache), this does not add the grid into the cache (no-op).
+	 * 
+	 * @param gridID gridID
+	 * @param templateID templateID
+	 * @param comments comments
+	 * @param gridValues gridValues
+	 * @param status status
+	 * @param statusChanged statusChanged
+	 * @param effDate effDate
+	 * @param expDate expDate
+	 * @param numRows numRows
+	 * @param cloneOf cloneOf
+	 * @param created created
 	 */
-	public synchronized void addProductGrid(int gridID, int templateID, String comments, GridValueContainable gridValues, String status, Date statusChanged, DateSynonym effDate, DateSynonym expDate,
-			int numRows, int cloneOf, Date created) {
+	public synchronized void addProductGrid(int gridID, int templateID, String comments, GridValueContainable gridValues, String status, Date statusChanged, DateSynonym effDate,
+			DateSynonym expDate, int numRows, int cloneOf, Date created) {
 		GridTemplate template = GuidelineTemplateManager.getInstance().getTemplate(templateID);
 		if (template == null) {
 			logger.warn("* template ID " + templateID + " not loaded; grid " + gridID + " not loaded!!!");
@@ -271,6 +284,7 @@ public class GridManager extends AbstractCacheManager {
 	}
 
 	/**
+	 * @param templateID templateID
 	 * @return the list of grids for the template
 	 */
 	public List<ProductGrid> getAllGridsForTemplate(int templateID) {
@@ -300,10 +314,10 @@ public class GridManager extends AbstractCacheManager {
 	 * Returns a list of {@link GuidelineReportData} for the specified template. For generating
 	 * reports.
 	 * 
-	 * @param templateID
-	 * @param username
+	 * @param templateID templateID
+	 * @param username username
 	 * @return a list of GuidelineReportData objects
-	 * @throws ServerException 
+	 * @throws ServerException on error
 	 */
 	public List<GuidelineReportData> getAllGuidelineReportDataForTemplate(int templateID, String username) throws ServerException {
 		List<ProductGrid> gridList = getAllGridsForTemplate(templateID);
@@ -351,9 +365,9 @@ public class GridManager extends AbstractCacheManager {
 	/**
 	 * Gets grid to category ids map for deleting the specified product category.
 	 * 
-	 * @param type
+	 * @param type type
 	 *            entity type
-	 * @param categoryID
+	 * @param categoryID categoryID
 	 *            category id for delete
 	 * @return map: Integer to int array; value will be <code>null</code> if the grid no longer
 	 *         has category ids
@@ -373,6 +387,11 @@ public class GridManager extends AbstractCacheManager {
 
 	/**
 	 * Gets the id of the grid that matches the specified criteria exactly.
+	 * @param templateID templateID
+	 * @param context context
+	 * @param effDate effDate
+	 * @param expDate expDate
+	 * @return grid id
 	 */
 	public int getGridID(int templateID, GuidelineContext[] context, DateSynonym effDate, DateSynonym expDate) {
 		List<ProductGrid> list = getAllGridsForTemplate(templateID);
@@ -449,6 +468,9 @@ public class GridManager extends AbstractCacheManager {
 
 	/**
 	 * Get list of guidelines that apply to the specified context.
+	 * @param templateID templateID
+	 * @param context context
+	 * @return list of guidelines that apply to the specified context
 	 */
 	public List<ProductGrid> getProductGrids(int templateID, GuidelineContext[] context) {
 		return getApplicableGuidelineGrids(templateID, context);
@@ -462,9 +484,9 @@ public class GridManager extends AbstractCacheManager {
 
 	/**
 	 * Tests if the specified grid id exists and it's associated with the specified template id.
-	 * @param gridID
-	 * @param templateID
-	 * @return
+	 * @param gridID gridID
+	 * @param templateID templateID
+	 * @return true if exists; false, otherwise
 	 */
 	public boolean hasGrid(int gridID, int templateID) {
 		ProductGrid grid = getProductGrid(gridID);
@@ -474,7 +496,7 @@ public class GridManager extends AbstractCacheManager {
 	/**
 	 * Tests if the specified template has any guidelines.
 	 * 
-	 * @param templateID
+	 * @param templateID templateID
 	 * @return <code>true</code> if template with the specified id has at least one guideline;
 	 *         <code>false</code>, otherwise
 	 * @since PowerEditor 4.3.7
@@ -495,7 +517,8 @@ public class GridManager extends AbstractCacheManager {
 		if (list != null && !list.isEmpty()) {
 			for (Iterator<ProductGrid> iter = list.iterator(); iter.hasNext();) {
 				ProductGrid grid = iter.next();
-				if (grid.getID() != gridID && Util.isSame(grid.getEffectiveDate(), target.getEffectiveDate()) && Util.isSame(grid.getExpirationDate(), target.getExpirationDate())) {
+				if (grid.getID() != gridID && Util.isSame(grid.getEffectiveDate(), target.getEffectiveDate())
+						&& Util.isSame(grid.getExpirationDate(), target.getExpirationDate())) {
 					return grid.hasSameContext(target);
 				}
 			}
@@ -505,7 +528,7 @@ public class GridManager extends AbstractCacheManager {
 
 	/**
 	 * Tests if the specifie date synonym is used by at least one guideline grid.
-	 * @param dateSynonym
+	 * @param dateSynonym dateSynonym
 	 * @return <code>true</code> if <code>dateSynonym</code> is used by at least one guideline grid; 
 	 *         <code>false</code>, otherwise
 	 * @throws NullPointerException if <code>dateSynonym</code> is <code>null</code>
@@ -543,10 +566,8 @@ public class GridManager extends AbstractCacheManager {
 	/**
 	 * Removes the specified generic category from all context.
 	 * 
-	 * @param categoryType
-	 *            category type
-	 * @param categoryID
-	 *            category id
+	 * @param categoryType  category type
+	 * @param categoryID category id
 	 */
 	public void removeCategoryFromAllContext(int categoryType, int categoryID) {
 		GenericEntityType type = ConfigurationManager.getInstance().getEntityConfigHelper().findEntityTypeForCategoryType(categoryType);
@@ -605,9 +626,8 @@ public class GridManager extends AbstractCacheManager {
 
 	/**
 	 * Removes the specified product category from all context.
-	 * 
-	 * @param categoryID
-	 *            category id
+	 * @param type type
+	 * @param categoryID category id
 	 */
 	public void removeGenericCategoryFromAllContext(GenericEntityType type, int categoryID) {
 		for (Iterator<ProductGrid> iter = this.productGridMap.values().iterator(); iter.hasNext();) {
@@ -620,9 +640,8 @@ public class GridManager extends AbstractCacheManager {
 
 	/**
 	 * Removes the specified generic entity from all context.
-	 * 
-	 * @param categoryID
-	 *            category id
+	 * @param type type
+	 * @param entityID entity id
 	 */
 	public void removeGenericEntityFromAllContext(GenericEntityType type, int entityID) {
 		for (Iterator<ProductGrid> iter = this.productGridMap.values().iterator(); iter.hasNext();) {
@@ -636,7 +655,7 @@ public class GridManager extends AbstractCacheManager {
 	/**
 	 * Removes all guidelines for the specified template from the cache.
 	 * 
-	 * @param templateID
+	 * @param templateID templateID
 	 * @since PowerEditor 4.3.7
 	 */
 	public synchronized void removeGuidelinesForTemplate(int templateID) {
@@ -738,7 +757,8 @@ public class GridManager extends AbstractCacheManager {
 
 	/**
 	 * Update context of the specified grid.
-	 * 
+	 * @param gridID gridID
+	 * @param context context
 	 * @since PowerEditor 4.2.0
 	 */
 	public void updateGridContext(int gridID, GuidelineContext[] context) {

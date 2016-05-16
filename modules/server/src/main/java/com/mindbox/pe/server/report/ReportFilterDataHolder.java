@@ -51,7 +51,8 @@ public final class ReportFilterDataHolder {
 			for (int i = 0; i < contextString.length; i++) {
 				String[] contextData = contextString[i].split(":");
 
-				if ((contextData == null) || (contextData.length != 3) || !(String.valueOf(contextData[1]).equalsIgnoreCase("category") || String.valueOf(contextData[1]).equalsIgnoreCase("entity"))) {
+				if ((contextData == null) || (contextData.length != 3)
+						|| !(String.valueOf(contextData[1]).equalsIgnoreCase("category") || String.valueOf(contextData[1]).equalsIgnoreCase("entity"))) {
 					errorMessageStorage.addErrorMessage("Invalid structure for context element: " + contextString[i]);
 					continue;
 				}
@@ -68,8 +69,9 @@ public final class ReportFilterDataHolder {
 
 					if (entityContextMap.get(type) != null) {
 						if (categoryOrEntity.equalsIgnoreCase("category")) {
-							errorMessageStorage.addErrorMessage("For each entity type either categories or entities can be specified. " + "For entity type " + entityType
-									+ " an entity has already been specified as well as the following category: " + contextElements);
+							errorMessageStorage.addErrorMessage(
+									"For each entity type either categories or entities can be specified. " + "For entity type " + entityType
+											+ " an entity has already been specified as well as the following category: " + contextElements);
 							continue;
 						}
 
@@ -84,8 +86,9 @@ public final class ReportFilterDataHolder {
 					}
 					else if (catContextMap.get(type) != null) {
 						if (categoryOrEntity.equalsIgnoreCase("entity")) {
-							errorMessageStorage.addErrorMessage("For each entity type either categories or entities can be specified. " + "For entity type " + entityType
-									+ " a category has already been specified as well as the following entity: " + contextElements);
+							errorMessageStorage.addErrorMessage(
+									"For each entity type either categories or entities can be specified. " + "For entity type " + entityType
+											+ " a category has already been specified as well as the following entity: " + contextElements);
 							continue;
 						}
 						else {
@@ -180,8 +183,9 @@ public final class ReportFilterDataHolder {
 
 	private final ErrorMessageStorage errorMessageStorage;
 
-	public ReportFilterDataHolder(ErrorMessageStorage errorMessageStorage, boolean addAllTemplatesIfNoneSpecified, String templateName, String templateID, String usageType, String columns,
-			String contextElements, String includeChildren, String includeParents, String filterColumnData, String includeEmptyContexts, String status, String dateStr) {
+	public ReportFilterDataHolder(ErrorMessageStorage errorMessageStorage, boolean addAllTemplatesIfNoneSpecified, String templateName, String templateID, String usageType,
+			String columns, String contextElements, String includeChildren, String includeParents, String filterColumnData, String includeEmptyContexts, String status,
+			String dateStr) {
 		// Note: create errorMessages first
 		this.errorMessageStorage = errorMessageStorage;
 		this.templateName = templateName;
@@ -273,7 +277,7 @@ public final class ReportFilterDataHolder {
 	}
 
 	/**
-	 * @param contextContainer
+	 * @param contextContainer contextContainer
 	 * @return true if the contextContainer contains all of the contexts requested for the report.
 	 */
 	public boolean containsContext(ContextContainer contextContainer) {

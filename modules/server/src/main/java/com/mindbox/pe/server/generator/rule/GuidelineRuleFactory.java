@@ -11,9 +11,9 @@ import com.mindbox.pe.server.generator.RuleGenerationException;
  * Factory for {@link LHSPatternList}.
  * Usage:
  * <ol><li>Create a new instance; e.g., <code>new GuidelineRuleFactory(helper);</code></li>
- * <li>Call {@link #createGuidelineRule(RuleDefinition)}</li>
+ * <li>Call {@link #createGuidelineRule(GridTemplate, RuleDefinition)}</li>
  * </ol>
- * This is not thread-safe. At most one invocation of {@link #createGuidelineRule(RuleDefinition)} on the same object is allowed. 
+ * This is not thread-safe. At most one invocation of {@link #createGuidelineRule(GridTemplate, RuleDefinition)} on the same object is allowed. 
  *
  */
 public final class GuidelineRuleFactory {

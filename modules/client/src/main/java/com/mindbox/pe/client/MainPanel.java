@@ -63,15 +63,7 @@ import com.mindbox.pe.xsd.config.GuidelineTab;
  * @since PowerEditor 4.2.0
  */
 public final class MainPanel extends JPanel implements MainApplication {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3951228734910107454L;
-
 	private final class TabbedSelectionPanel extends JPanel {
-		/**
-		 * 
-		 */
 		private static final long serialVersionUID = -3951228734910107454L;
 
 		private final PowerEditorTab tabbedPane;
@@ -89,14 +81,6 @@ public final class MainPanel extends JPanel implements MainApplication {
 			add(this.tabbedPane);
 
 			addTabs();
-		}
-
-		private void selectTemplateManagementTab() {
-			this.tabbedPane.setSelectedIndex((entitiesTab == null ? 0 : 1));
-			PolicyTab tmp = (PolicyTab) this.tabbedPane.getSelectedComponent();
-			Component tmp2 = tmp.getComponentAt(1);
-			tmp.setSelectedComponent(tmp2);
-			((GuidelinesTab) tmp2).setSelectedIndex(0);
 		}
 
 		private void addTab(String tabLabel, String iconName, JComponent comp, String tooltipName) {
@@ -152,6 +136,7 @@ public final class MainPanel extends JPanel implements MainApplication {
 			}
 
 			this.tabbedPane.addChangeListener(new ChangeListener() {
+				@Override
 				public void stateChanged(ChangeEvent changeevent) {
 					if (tabbedPane.getSelectedComponent() == adminTab && adminTab.getTabCount() == 1) {
 						adminTab.loadCurrentPanel();
@@ -160,7 +145,17 @@ public final class MainPanel extends JPanel implements MainApplication {
 			});
 
 		}
+
+		private void selectTemplateManagementTab() {
+			this.tabbedPane.setSelectedIndex((entitiesTab == null ? 0 : 1));
+			PolicyTab tmp = (PolicyTab) this.tabbedPane.getSelectedComponent();
+			Component tmp2 = tmp.getComponentAt(1);
+			tmp.setSelectedComponent(tmp2);
+			((GuidelinesTab) tmp2).setSelectedIndex(0);
+		}
 	}
+
+	private static final long serialVersionUID = -3951228734910107454L;
 
 	private PowerEditorLoggedApplet parentApplet = null;
 	private JTabbedPane entitiesTab;
@@ -179,12 +174,16 @@ public final class MainPanel extends JPanel implements MainApplication {
 
 	/**
 	 * Constructs a new main frame with the specified session and user profile information.
-	 * @param applet
-	 * @param sessionID
-	 * @param userProfile
-	 * @throws ServerException
-	 * @throws ClassNotFoundException
-	 * @throws IOException
+	 * @param applet applet
+	 * @param sessionID sessionID
+	 * @param entityConfiguration entity config
+	 * @param userProfile userProfile
+	 * @param guidelineTabConfigList guidelineTabConfigList
+	 * @param entityTabMap entityTabMap
+	 * @param readOnly readOnly flag
+	 * @throws ServerException on error
+	 * @throws ClassNotFoundException on class not found error
+	 * @throws IOException on I/O error
 	 */
 	public MainPanel(PowerEditorLoggedApplet applet, String sessionID, EntityConfigHelper entityConfiguration, UserProfile userProfile, List<GuidelineTab> guidelineTabConfigList,
 			Map<GenericEntityType, EntityTab> entityTabMap, boolean readOnly) throws ServerException, IOException, ClassNotFoundException {
@@ -213,113 +212,6 @@ public final class MainPanel extends JPanel implements MainApplication {
 		ClientUtil.getLogger().info(String.format("Created MainPanel with %s (session=%s,readonly=%b)", entityTabMap, sessionID, readOnly));
 	}
 
-	public void initPanel() throws ServerException, IOException, ClassNotFoundException {
-		initBase();
-
-		// initialize domain model -- do this before creating tabs
-		DomainModel.initInstance();
-
-		createTabs();
-	}
-
-	public void showTemplateEditPanel(GridTemplate template) throws CanceledException {
-		this.mainTabPanel.templateManagementTab.editTemplate(template);
-		this.mainTabPanel.selectTemplateManagementTab();
-	}
-
-	public String getSessionID() {
-		return sessionID;
-	}
-
-	public void handleRuntimeException(Exception ex) {
-		ClientUtil.getLogger().warn("Handling Exception", ex);
-		if (ex instanceof ServerException) {
-			ClientUtil.getInstance().showErrorDialog((ServerException) ex);
-		}
-		else if (ex instanceof AbstractClientGeneratedRuntimeException) {
-			ClientUtil.getInstance().showErrorMessage(ex.getMessage());
-		}
-		else {
-			ClientUtil.getInstance().showErrorDialog("ClientErrorMsg", new Object[] { ex.getMessage(), ex.getClass().getName() });
-		}
-	}
-
-	private void initBase() {
-		Dimension dimension = getToolkit().getScreenSize();
-		setSize(dimension.width - 28, dimension.height - 28);
-
-		setLayout(new BorderLayout(2, 2));
-		addKeyListener(new KeyAdapter() {
-		});
-		addMouseListener(new MouseAdapter() {
-		});
-		setCursor(Cursor.getPredefinedCursor(3));
-	}
-
-	public Communicator getCommunicator() {
-		if (communicator == null) {
-			communicator = new DefaultCommunicator(this);
-		}
-		return communicator;
-	}
-
-	private boolean processUnsavedChangesIfAny() {
-		PowerEditorTabPanel peTabPanel = this.mainTabPanel.tabbedPane.getSelectedPowerEditorTabPanel();
-		if (peTabPanel != null) {
-			boolean hasChanges = peTabPanel.hasUnsavedChanges();
-			if (hasChanges) {
-				Boolean result = ClientUtil.getInstance().showSaveDiscardCancelDialog();
-				if (result == null) {
-					return false;
-				}
-				else if (result.booleanValue()) {
-					try {
-						peTabPanel.saveChanges();
-						return true;
-					}
-					catch (CanceledException e) {
-						return false;
-					}
-					catch (Exception ex) {
-						ClientUtil.handleRuntimeException(ex);
-						return false;
-					}
-				}
-				else {
-					peTabPanel.discardChanges();
-					return true;
-				}
-			}
-		}
-		return true;
-	}
-
-	public boolean confirmExit() {
-		if (processUnsavedChangesIfAny()) {
-			return ClientUtil.getInstance().showConfirmation("msg.question.close.applet");
-		}
-		else {
-			return false;
-		}
-	}
-
-	public String getUserID() {
-		return userID;
-	}
-
-	public boolean checkPermissionByPrivilegeName(String privName) {
-		boolean returnVal = false;
-		Set<Privilege> privSet = userSession.getPrivileges();
-		for (Iterator<Privilege> iter1 = privSet.iterator(); iter1.hasNext();) {
-			Privilege priv = iter1.next();
-			if (priv.getName().equals(privName)) {
-				returnVal = true;
-				break;
-			}
-		}
-		return returnVal;
-	}
-
 	// Determine if the logged in user should see the Policies tab
 	private boolean canHavePoliciesTab() {
 		if (checkPermissionByPrivilegeName(PrivilegeConstants.PRIV_MANAGE_PARAMETERS)) {
@@ -340,6 +232,21 @@ public final class MainPanel extends JPanel implements MainApplication {
 		return false;
 	}
 
+	@Override
+	public boolean checkPermissionByPrivilegeName(String privName) {
+		boolean returnVal = false;
+		Set<Privilege> privSet = userSession.getPrivileges();
+		for (Iterator<Privilege> iter1 = privSet.iterator(); iter1.hasNext();) {
+			Privilege priv = iter1.next();
+			if (priv.getName().equals(privName)) {
+				returnVal = true;
+				break;
+			}
+		}
+		return returnVal;
+	}
+
+	@Override
 	public boolean checkViewOrEditGuidelinePermission(GuidelineTab gtConfig) {
 		for (GuidelineTab.UsageType guidelineUsageType : gtConfig.getUsageType()) {
 			TemplateUsageType usageType = TemplateUsageType.valueOf(guidelineUsageType.getName());
@@ -350,6 +257,7 @@ public final class MainPanel extends JPanel implements MainApplication {
 		return false;
 	}
 
+	@Override
 	public boolean checkViewOrEditGuidelinePermissionOnUsageType(TemplateUsageType usageType) {
 		GuidelineTab tabConfig = findTabConfigFor(usageType);
 		if (tabConfig != null) {
@@ -365,6 +273,7 @@ public final class MainPanel extends JPanel implements MainApplication {
 		return false;
 	}
 
+	@Override
 	public boolean checkViewOrEditTemplatePermission(GuidelineTab gtConfig) {
 		for (GuidelineTab.UsageType guidelineUsageType : gtConfig.getUsageType()) {
 			TemplateUsageType usageType = TemplateUsageType.valueOf(guidelineUsageType.getName());
@@ -375,6 +284,7 @@ public final class MainPanel extends JPanel implements MainApplication {
 		return false;
 	}
 
+	@Override
 	public boolean checkViewOrEditTemplatePermissionOnUsageType(TemplateUsageType usageType) {
 		GuidelineTab tabConfig = findTabConfigFor(usageType);
 		if (tabConfig != null) {
@@ -390,27 +300,136 @@ public final class MainPanel extends JPanel implements MainApplication {
 		return false;
 	}
 
-	/**
+	@Override
+	public boolean confirmExit() {
+		if (processUnsavedChangesIfAny()) {
+			return ClientUtil.getInstance().showConfirmation("msg.question.close.applet");
+		}
+		else {
+			return false;
+		}
+	}
+
+	private void createTabs() throws ServerException {
+		JPanel jpanel = UIFactory.createJPanel(new BorderLayout());
+
+		// TODO Kim: make UI read-only 
+
+		// iff entity tab is enabled, show it
+		if (hasAtLeastOneEntityTab() && hasAtLeastOneEntityPrivilege()) {
+			entitiesTab = new EntitiesTab(readOnly);
+		}
+
+		adminTab = new AdminTab(readOnly);
+		CBRPanel.getNewInstance(readOnly);
+
+		this.guidelineTabs = new JComponent[guidelineTabConfigList.size()];
+
+		this.mainTabPanel = new TabbedSelectionPanel();
+		jpanel.add(mainTabPanel, BorderLayout.CENTER);
+		add(jpanel);
+	}
+
+	@Override
+	public void dispose() {
+		logout();
+	}
+
+	/*
 	 * This ensures that the UsageType for which we are checking some privilege (edit/view, guideline/template)
 	 * exists in some GuideineTab. if not, then it is supposed to be hidden, hence its privileges dont matter
-	 * @param usage
+	 * @param usage usage
 	 * @return value or null
 	 */
 	private GuidelineTab findTabConfigFor(TemplateUsageType usageType) {
 		return ConfigUtil.findTabConfigFor(guidelineTabConfigList, usageType);
 	}
 
-
-	public void setStatusMsg(String s) {
-		parentApplet.showStatus(s);
+	@Override
+	public Communicator getCommunicator() {
+		if (communicator == null) {
+			communicator = new DefaultCommunicator(this);
+		}
+		return communicator;
 	}
 
+	public EntityConfigHelper getEntityConfiguration() {
+		return entityConfiguration;
+	}
+
+	@Override
+	public String getSessionID() {
+		return sessionID;
+	}
+
+	@Override
+	public String getUserID() {
+		return userID;
+	}
+
+	@Override
 	public UserProfile getUserSession() {
 		return userSession;
 	}
 
-	public void dispose() {
-		logout();
+	@Override
+	public void handleRuntimeException(Exception ex) {
+		ClientUtil.getLogger().warn("Handling Exception", ex);
+		if (ex instanceof ServerException) {
+			ClientUtil.getInstance().showErrorDialog((ServerException) ex);
+		}
+		else if (ex instanceof AbstractClientGeneratedRuntimeException) {
+			ClientUtil.getInstance().showErrorMessage(ex.getMessage());
+		}
+		else {
+			ClientUtil.getInstance().showErrorDialog("ClientErrorMsg", new Object[] { ex.getMessage(), ex.getClass().getName() });
+		}
+	}
+
+	/*
+	 * Returns true if user has atleast one entity type privilege. 
+	 * Either view or rdit
+	 * @return boolean
+	 */
+	private boolean hasAtLeastOneEntityPrivilege() {
+		for (Privilege priv : ClientUtil.getUserSession().getPrivileges()) {
+			if (priv.getPrivilegeType() == PrivilegeConstants.ENTITY_TYPE_PRIV) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean hasAtLeastOneEntityTab() {
+		for (Iterator<GenericEntityType> iter = entityTabMap.keySet().iterator(); iter.hasNext();) {
+			GenericEntityType key = iter.next();
+			EntityTab tabConfig = entityTabMap.get(key);
+			if (tabConfig != null && UtilBase.asBoolean(tabConfig.isShowTab(), true)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private void initBase() {
+		Dimension dimension = getToolkit().getScreenSize();
+		setSize(dimension.width - 28, dimension.height - 28);
+
+		setLayout(new BorderLayout(2, 2));
+		addKeyListener(new KeyAdapter() {
+		});
+		addMouseListener(new MouseAdapter() {
+		});
+		setCursor(Cursor.getPredefinedCursor(3));
+	}
+
+	public void initPanel() throws ServerException, IOException, ClassNotFoundException {
+		initBase();
+
+		// initialize domain model -- do this before creating tabs
+		DomainModel.initInstance();
+
+		createTabs();
 	}
 
 	/**
@@ -456,60 +475,52 @@ public final class MainPanel extends JPanel implements MainApplication {
 		isUserLoggedIn = false;
 	}
 
-	private void createTabs() throws ServerException {
-		JPanel jpanel = UIFactory.createJPanel(new BorderLayout());
-
-		// TODO Kim: make UI read-only 
-
-		// iff entity tab is enabled, show it
-		if (hasAtLeastOneEntityTab() && hasAtLeastOneEntityPrivilege()) {
-			entitiesTab = new EntitiesTab(readOnly);
-		}
-
-		adminTab = new AdminTab(readOnly);
-		CBRPanel.getNewInstance(readOnly);
-
-		this.guidelineTabs = new JComponent[guidelineTabConfigList.size()];
-
-		this.mainTabPanel = new TabbedSelectionPanel();
-		jpanel.add(mainTabPanel, BorderLayout.CENTER);
-		add(jpanel);
-	}
-
-	/**
-	 * Returns true if user has atleast one entity type privilege. 
-	 * Either view or rdit
-	 * @return boolean
-	 */
-	private boolean hasAtLeastOneEntityPrivilege() {
-		for (Privilege priv : ClientUtil.getUserSession().getPrivileges()) {
-			if (priv.getPrivilegeType() == PrivilegeConstants.ENTITY_TYPE_PRIV) {
-				return true;
+	private boolean processUnsavedChangesIfAny() {
+		PowerEditorTabPanel peTabPanel = this.mainTabPanel.tabbedPane.getSelectedPowerEditorTabPanel();
+		if (peTabPanel != null) {
+			boolean hasChanges = peTabPanel.hasUnsavedChanges();
+			if (hasChanges) {
+				Boolean result = ClientUtil.getInstance().showSaveDiscardCancelDialog();
+				if (result == null) {
+					return false;
+				}
+				else if (result.booleanValue()) {
+					try {
+						peTabPanel.saveChanges();
+						return true;
+					}
+					catch (CanceledException e) {
+						return false;
+					}
+					catch (Exception ex) {
+						ClientUtil.handleRuntimeException(ex);
+						return false;
+					}
+				}
+				else {
+					peTabPanel.discardChanges();
+					return true;
+				}
 			}
 		}
-		return false;
+		return true;
 	}
 
-	private boolean hasAtLeastOneEntityTab() {
-		for (Iterator<GenericEntityType> iter = entityTabMap.keySet().iterator(); iter.hasNext();) {
-			GenericEntityType key = iter.next();
-			EntityTab tabConfig = entityTabMap.get(key);
-			if (tabConfig != null && UtilBase.asBoolean(tabConfig.isShowTab(), true)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
+	@Override
 	public void reloadTemplates() throws ServerException {
 		this.mainTabPanel.templateManagementTab.reloadTemplates();
 		TestConditionEditDialog.resetTypeList();
 		ActionEditDialog.resetTypeListMap();
 	}
 
-	public EntityConfigHelper getEntityConfiguration() {
-		return entityConfiguration;
+	@Override
+	public void setStatusMsg(String s) {
+		parentApplet.showStatus(s);
 	}
 
-
+	@Override
+	public void showTemplateEditPanel(GridTemplate template) throws CanceledException {
+		this.mainTabPanel.templateManagementTab.editTemplate(template);
+		this.mainTabPanel.selectTemplateManagementTab();
+	}
 }

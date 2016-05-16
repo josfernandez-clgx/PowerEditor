@@ -39,9 +39,6 @@ public class NonSortingRootTreeNode implements TreeNode {
 	private final LinkedList<Object> children;
 	protected Object data;
 
-	/**
-	 *
-	 */
 	public NonSortingRootTreeNode(Object data) {
 		super();
 		this.data = data;
@@ -123,11 +120,6 @@ public class NonSortingRootTreeNode implements TreeNode {
 		}
 	}
 
-	/**
-	 * 
-	 * @param index1 index1
-	 * @param index2 index2
-	 */
 	public void swapChildren(int index1, int index2) {
 		if (index1 == index2) return;
 		synchronized (children) {
