@@ -7,7 +7,7 @@ Filename...: pom.xml Description: POM for PowerEditor Project.
 	<groupId>com.mindbox.pe</groupId>
 	<artifactId>powereditor-pom</artifactId>
 	<name>PowerEditor</name>
-	<version>5.9.7-SNAPSHOT</version>
+	<version>5.9.7</version>
 	<packaging>pom</packaging>
 	<modules>
 		<module>modules/parser</module>
@@ -43,7 +43,7 @@ Filename...: pom.xml Description: POM for PowerEditor Project.
 		<url>http://www.mindbox.com</url>
 	</organization>
 	<scm>
-		<developerConnection>scm:svn:${coreLogicSvnPath}/${project.name}-Main/trunk</developerConnection>
+		<developerConnection>scm:svn:https://svn.corelogic.net/svn/repos/apps/PowerEditor-Main/tags/V5.9.7</developerConnection>
 	</scm>
 	<!-- Defines dependency versions -->
 	<dependencyManagement>
