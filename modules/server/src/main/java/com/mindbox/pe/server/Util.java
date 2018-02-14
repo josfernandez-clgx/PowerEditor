@@ -1,7 +1,5 @@
 package com.mindbox.pe.server;
 
-COBY inserted this line to intentionally break the build as a build demonstration and will remove it and check back in
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
