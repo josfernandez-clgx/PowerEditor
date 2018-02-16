@@ -1,6 +1,6 @@
 <%@ page errorPage="/error.jsp" contentType="text/html; encoding='UTF-8'" %>
 <%@ taglib prefix="pe" uri="/WEB-INF/powereditor.tld" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jstl/core" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <html>
 <head>
