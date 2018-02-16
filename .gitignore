@@ -1,0 +1,15 @@
+*.log
+*~
+.gitignore
+TAGS
+modules/client/target
+modules/common/target
+modules/dist/target
+modules/parser/target
+modules/pwd-tool/target
+modules/server/target
+modules/unit-test-support/target
+modules/version-tool/target
+modules/webserviceclient/target
+PE-files
+PE-sources
