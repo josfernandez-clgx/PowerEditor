@@ -2,7 +2,11 @@ package com.mindbox.pe.client;
 
 import java.applet.AppletContext;
 import java.applet.AppletStub;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
+import java.awt.Rectangle;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;
@@ -144,10 +148,15 @@ public class PearRunner {
 
 		PearApplet applet = new PearApplet();
 
+		GraphicsEnvironment graphics_environment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice[] graphics_devices = graphics_environment.getScreenDevices();
+		GraphicsConfiguration graphics_configuration = graphics_devices[0].getDefaultConfiguration();
+		Rectangle graphics_rectangle = graphics_configuration.getBounds();
+		
 		JFrame frame = new JFrame("Pear Runner");
+		frame.setSize(graphics_rectangle.width - 6, graphics_rectangle.height - 58);
 		frame.getContentPane().setLayout(new GridLayout(1,1));
 		frame.getContentPane().add(applet);
-		frame.setSize(800,600);
 
 		applet.setStub(stub);
 		applet.init();
