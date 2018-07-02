@@ -8,17 +8,17 @@ import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.io.DataOutputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookieStore;
 import java.net.HttpCookie;
 import java.net.HttpURLConnection;
-import java.util.HashMap;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
 import javax.swing.JFrame;
 
 import com.mindbox.pe.client.applet.PearApplet;
@@ -36,28 +36,33 @@ public class PearRunner {
 			this.rootURL = new URL(server);
 		}
 
+		@Override
 		public boolean isActive() {
 			return true;
 		}
 
+		@Override
 		public void appletResize(int arg0, int arg1) {
 		}
 
+		@Override
 		public AppletContext getAppletContext() {
 			return null;
 		}
 
+		@Override
 		public URL getCodeBase() {
 			return rootURL;
 		}
 
+		@Override
 		public URL getDocumentBase() {
 			return rootURL;
 		}
 
+		@Override
 		public String getParameter(String name) {
-			if (null == name)
-				return null;
+			if (null == name) return null;
 			return parameters.getProperty(name);
 		}
 
@@ -84,18 +89,18 @@ public class PearRunner {
 		return output.toString();
 	}
 
-	public static void main(String[] args) throws Exception {
-		if (args.length != 3) {
-			System.out.println("Arguments expected: PowerEditorURL username password");
-			System.exit(0);
-		}
-
+	/**
+	 * Runs the application using information passed in
+	 * @param pearRunInfo
+	 * @throws Exception
+	 */
+	private static void runPear(Map<String, String> pearRunInfo) throws Exception {
 		CookieManager cookieManager = new CookieManager();
 		CookieHandler.setDefault(cookieManager);
 
-		final String peURL = removeTrailingSlashes(args[0]);
-		final String userid = args[1];
-		final String password = args[2];
+		final String peURL = removeTrailingSlashes(pearRunInfo.get("url"));
+		final String userid = pearRunInfo.get("userid");
+		final String password = pearRunInfo.get("password");
 
 		URL loginURL = new URL(peURL + "/login_pear.jsp");
 		HttpURLConnection connection = (HttpURLConnection) loginURL.openConnection();
@@ -119,7 +124,7 @@ public class PearRunner {
 
 		connection.getContent();
 
-		AppletStubImpl stub = new AppletStubImpl(peURL);
+		AppletStubImpl stub = new AppletStubImpl(peURL + "/");
 
 		CookieStore cookieStore = cookieManager.getCookieStore();
 		List<HttpCookie> cookieList = cookieStore.getCookies();
@@ -144,5 +149,36 @@ public class PearRunner {
 
 		frame.setVisible(true);
 		applet.start();
+
+	}
+
+	/**
+	 * Application  orchestration logic
+	 * 
+	 * @param args
+	 * @throws Exception
+	 */
+	public static void main(String[] args) throws Exception {
+
+		if (args.length != 1) {
+			System.out.println("Arguments expected: PowerEditorURL");
+			System.exit(0);
+		}
+
+		PearLogin pearLogin = new PearLogin();
+		Map<String, String> pearRunInfo = pearLogin.usrLogin(args[0]);
+		pearRunInfo.put("url", args[0]);
+
+		// Get rid of login object
+		pearLogin = null;
+
+		// check for possible invalid entries in map
+		if (!pearRunInfo.containsKey("userid") || !pearRunInfo.containsKey("password") || !pearRunInfo.containsKey("url") || pearRunInfo.size() > 3) {
+			System.out.println("WARNING: Invalid Login");
+			System.exit(0);
+		}
+
+		runPear(pearRunInfo);
+
 	}
 }
