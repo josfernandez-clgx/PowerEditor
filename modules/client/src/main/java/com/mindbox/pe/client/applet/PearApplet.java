@@ -17,6 +17,7 @@ import java.net.URL;
 import java.util.List;
 
 import javax.swing.JApplet;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -47,172 +48,40 @@ import com.mindbox.pe.xsd.config.UserInterfaceConfig.UsageTypeList.UsageType;
  */
 public class PearApplet extends PowerEditorLoggedApplet {
 	/**
-	 * 
+	 *
 	 */
-	private static final long serialVersionUID = -3951228734910107454L;
+	private static final long serialVersionUID = -2588077856342092948L;
 
-	private MainApplication application = null;
-	private String sessionID = null;
-	private String logOffURL = null;
-	private JPanel contentPanel = null;
-	private CardLayout cardLayout = new CardLayout();
-	private JPanel timedOutPanel = null;
+	private JFrame outerFrame = null;
+	public static PearApplet selfReference = null;
 
-	public PearApplet() {
-		application = null;
+	public PearApplet() throws Exception {
+	  super();
+	  if (null != selfReference) {
+	    throw new Exception("PearApplet instance already exists");
+	  }
+	  selfReference = this;
 	}
 
-	@SuppressWarnings("deprecation")
-	private boolean checkSecurity() {
-		SecurityManager sm = System.getSecurityManager();
-		try {
-			if (sm != null) {
-				sm.checkSystemClipboardAccess();
-			}
-		}
-		catch (SecurityException ex) {
-			ex.printStackTrace(System.err);
-			ClientUtil.getInstance().showErrorDialog("msg.error.init.security.clipboard");
-			setMessage(ClientUtil.getInstance().getMessage("msg.error.init.security.clipboard"));
-			return false;
-		}
-		return true;
-	}
-
-	@Override
-	public void destroy() {
-		try {
-			if (application != null) {
-				ClientUtil.printInfo("Calling Dispose from Applet.destroy");
-				application.dispose();
-			}
-		}
-		finally {
-			super.destroy();
-		}
+	public void setOuterFrame(JFrame frame) throws Exception {
+	  if (null != outerFrame) {
+		throw new Exception("Outer frame already set");
+	  }
+	  outerFrame = frame;
+	  outerFrame.addWindowListener(new java.awt.event.WindowAdapter() {
+	      @Override
+	      public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+		((MainPanel) application).logout();
+		PearApplet.selfReference.logoff();
+		System.exit(0);
+	      }
+	    });
 	}
 
 	@Override
-	public String getAppletInfo() {
-		return "MindBox PowerEditor";
-	}
-
-	private JPanel getTimedOutPanel() {
-		if (timedOutPanel == null) {
-			final JLabel messageLabel = new JLabel(
-					String.format("<html><body><font size='+1'><b>%s</b></font></body></html>", ClientUtil.getInstance().getMessage("msg.warning.timed.out")));
-			timedOutPanel = UIFactory.createFlowLayoutPanel(FlowLayout.CENTER, 12, 40);
-			timedOutPanel.setBackground(Color.WHITE);
-			timedOutPanel.setOpaque(true);
-			timedOutPanel.add(messageLabel);
-		}
-		return timedOutPanel;
-	}
-
-	protected URL getURL(String s) {
-		URL url = getCodeBase();
-		URL url1 = null;
-
-		try {
-			url1 = new URL(url, s);
-		}
-		catch (MalformedURLException _ex) {
-			ClientUtil.getLogger().warn("Couldn't create image: badly specified URL", _ex);
-			return null;
-		}
-
-		return url1;
-	}
-
-	private void gotoLoginScreen() {
-		this.setVisible(false);
-		try {
-			getAppletContext().showDocument(getURL(logOffURL));
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			getAppletContext().showDocument(getURL("/powererditor/login.jsp"));
-		}
-	}
-
-	@Override
-	public synchronized void init() {
-		System.out.println("---> PEApplet: init");
-
-		final ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
-		try {
-			Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
-			final InputStream log4jConfigIn = getClass().getClassLoader().getResourceAsStream("log4j.properties");
-			if (log4jConfigIn != null) {
-				PropertyConfigurator.configure(log4jConfigIn);
-			}
-			else {
-				BasicConfigurator.configure();
-				System.out.println("WARNING: log4j.properties not found");
-			}
-		}
-		finally {
-			Thread.currentThread().setContextClassLoader(currentClassLoader);
-		}
-
-		ClientUtil.getLogger().info("---> init");
-		ClientUtil.getInstance().setApplet(this);
-
-		printPackageInfo();
-
-		sessionID = this.getParameter("ssid");
-		ClientUtil.getLogger().info("sessionID = " + sessionID);
-
-		if (sessionID == null) {
-			ClientUtil.getInstance().showErrorMessage("Failed to initialize PowerEditor application. Please contact Administrator");
-		}
-
-		final String server = this.getParameter("server");
-		RequestComm.setServletURL(server);
-		ClientUtil.getLogger().info("server = " + server);
-
-		this.logOffURL = this.getParameter("logoffURL");
-		ClientUtil.getLogger().info("logOffURL = " + logOffURL);
-
-		//Execute a job on the event-dispatching thread:
-		try {
-			SwingUtilities.invokeAndWait(new Runnable() {
-
-				@Override
-				public void run() {
-					initGUI();
-				}
-			});
-		}
-		catch (Exception e) {
-			ClientUtil.getLogger().error("Initialization failed", e);
-			System.err.println("Applet initialization incomplete: " + e.getMessage());
-		}
-
-		ClientUtil.getLogger().info("<--- init");
-		System.out.println("<--- PEApplet: init");
-	}
-
-	private void initEntityTypeDefs(final List<EntityType> entityTypes) {
-		// @since 3.0.0 - create generic entity instances
-		for (final EntityType entityType : entityTypes) {
-			GenericEntityType.makeInstance(entityType);
-		}
-		ClientUtil.getLogger().debug("entity configuration initialized");
-	}
-
-	private void initGUI() {
-		contentPanel = UIFactory.createJPanel();
-		contentPanel.setLayout(cardLayout);
-		contentPanel.setBackground(Color.WHITE);
-		contentPanel.setOpaque(true);
-		setContentPane(contentPanel);
-	}
-
 	public void logoff() {
 		ClientUtil.getLogger().info("--> logoff");
 
-		// showStatus(ClientUtil.getInstance().getMessage("msg.logoff.success"));
 		getContentPane().setCursor(Cursor.getDefaultCursor());
 		getGlassPane().setVisible(false);
 		application = null;
@@ -221,42 +90,12 @@ public class PearApplet extends PowerEditorLoggedApplet {
 		ClientUtil.getLogger().info("<-- logoff");
 	}
 
-	private PowerEditorConfiguration parsePowerEditorConfiguration(final String configXmlString) throws JAXBException {
-		PowerEditorConfiguration powerEditorConfiguration = null;
-		try {
-			powerEditorConfiguration = unmarshal(configXmlString, PowerEditorConfiguration.class);
-		}
-		catch (Exception e) {
-			logWarn(ClientUtil.getLogger(), e, "Failed to parse config xml using default method; trying alternate approach...");
-			final JAXBContext jaxbContext = JAXBContext.newInstance(
-					PowerEditorConfiguration.class.getPackage().toString(),
-					new PowerEditorConfiguration().getClass().getClassLoader());
-			final Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-			powerEditorConfiguration = PowerEditorConfiguration.class.cast(unmarshaller.unmarshal(new StringReader(configXmlString)));
-		}
-		return powerEditorConfiguration;
-	}
-
-	private void printPackageInfo() {
-		Package appletPackage = Package.getPackage("com.mindbox.pe.client.applet");
-		if (appletPackage != null) {
-			ClientUtil.getLogger().info("*** Specification Title:   " + appletPackage.getSpecificationTitle());
-			ClientUtil.getLogger().info("*** Specification Version: " + appletPackage.getSpecificationVersion());
-			ClientUtil.getLogger().info("*** Implementation Version: " + appletPackage.getImplementationVersion());
-		}
+	@Override
+	protected void setMessage(String messageStr) {
 	}
 
 	@Override
-	public void sessionTimedOut() {
-		System.out.println("[PEApplet] Session timed out!");
-		cardLayout.show(contentPanel, "TIMEOUT");
-	}
-
-	private void setMessage(String messageStr) {
-	  // showStatus(messageStr);
-	}
-
-	private boolean showMainFrame() throws ServerException, IOException, ClassNotFoundException, JAXBException {
+	protected boolean showMainFrame() throws ServerException, IOException, ClassNotFoundException, JAXBException {
 	  // showStatus("Running PowerEditor...");
 
 		// retrieve PE configuration first...
