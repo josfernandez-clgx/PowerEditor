@@ -144,6 +144,7 @@ public class PearRunner {
 		frame.getContentPane().setLayout(new GridLayout(1, 1));
 		frame.getContentPane().add(applet);
 
+		applet.setOuterFrame(frame);
 		applet.setStub(stub);
 		applet.init();
 
@@ -153,21 +154,25 @@ public class PearRunner {
 	}
 
 	/**
-	 * Application  orchestration logic
-	 * 
+	 * Application	orchestration logic
+	 *
 	 * @param args
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
 
+	  	String peURL = null;
 		if (args.length != 1) {
-			System.out.println("Arguments expected: PowerEditorURL");
-			System.exit(0);
+		  // System.out.println("Arguments expected: PowerEditorURL");
+		  //	System.exit(0);
+		  peURL = "http://localhost:8210/powereditor";
+		} else {
+		  peURL = args[0];
 		}
 
 		PearLogin pearLogin = new PearLogin();
-		Map<String, String> pearRunInfo = pearLogin.usrLogin(args[0]);
-		pearRunInfo.put("url", args[0]);
+		Map<String, String> pearRunInfo = pearLogin.usrLogin(peURL);
+		pearRunInfo.put("url", peURL);
 
 		// Get rid of login object
 		pearLogin = null;
