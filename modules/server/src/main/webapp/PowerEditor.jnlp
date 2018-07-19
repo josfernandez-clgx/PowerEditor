@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- JNLP File for PowerEditor (PEAR) Applet -->
+<jnlp
+  spec="6.0+"
+  codebase="http://localhost:8080/powereditor/"
+  href="PowerEditor.jnlp">
+    <!-- -->
+    <information>
+        <title>PowerEditor (PEAR) Application</title>
+        <vendor>CoreLogic, Inc.</vendor>
+        <homepage href="http://localhost:8080/powereditor/"/>
+        <description>PowerEditor Jnlp</description>
+        <description kind="short">PEAR</description>
+    </information>
+    <!-- -->
+    <resources>
+        <j2se version="1.6+" />
+        <jar href="PowerEditor.jar" main="true" />
+    </resources>
+    <!-- -->
+    <security>
+        <all-permissions/>
+    </security>
+    <!-- -->
+    <application-desc
+          documentBase="http://localhost:8080/powereditor"
+          name="PowerEditor Application Launch"
+          main-class="com.mindbox.pe.client.PearRunner.class"
+          width="500"
+          height="400">
+        <argument>http://localhost:8080/powereditor</argument>
+    </application-desc>
+</jnlp>
