@@ -439,13 +439,13 @@ CREATE TABLE MB_TEMPLATE_MESSAGE (
 	entity_id        INT NOT NULL ,
 	cond_delim       VARCHAR2(64) NULL ,
 	cond_final_delim VARCHAR2(64) NULL ,
-	message_text     VARCHAR2(1024) NULL
+	message_text     VARCHAR2(2048) NULL
 );
 
 CREATE TABLE MB_TEMPLATE_MESSAGE_FRAGMENT (
 	template_id      INT NOT NULL ,
 	column_no        INT NOT NULL ,
-	message_text     VARCHAR2(1024) NULL ,
+	message_text     VARCHAR2(2048) NULL ,
 	type             VARCHAR2(64) NULL ,	
 	cell_selection   VARCHAR2(64) NULL ,
 	enum_delim       VARCHAR2(64) NULL ,
