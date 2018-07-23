@@ -24,7 +24,7 @@ import javax.swing.event.DocumentListener;
 public class PearLoginFrame extends JFrame implements ActionListener, DocumentListener {
 
 	/**
-	 * Generated Serial Number 
+	 * Generated Serial Number
 	 */
 	private static final long serialVersionUID = 107149976230411451L;
 
@@ -54,7 +54,7 @@ public class PearLoginFrame extends JFrame implements ActionListener, DocumentLi
 
 	/**
 	 * define constructor
-	 * 
+	 *
 	 */
 	public PearLoginFrame() {
 		setLayoutManager();
@@ -177,7 +177,7 @@ public class PearLoginFrame extends JFrame implements ActionListener, DocumentLi
 			userID = userTextField.getText();
 			password = passwordTextField.getText();
 			// set the flag to trigger login
-			doLoginFlag = true;
+			setDoLoginFlag (true);
 		}
 
 		// cancel button action handling
@@ -199,7 +199,7 @@ public class PearLoginFrame extends JFrame implements ActionListener, DocumentLi
 	}
 
 	private void showNewChangePasswordUI() {
-		// instantiate Change Password frame   
+		// instantiate Change Password frame
 		PearChangePasswordFrame pearChangePasswordFrame = new PearChangePasswordFrame();
 
 		this.setAlwaysOnTop(false);
@@ -261,7 +261,7 @@ public class PearLoginFrame extends JFrame implements ActionListener, DocumentLi
 	}
 
 	/**
-	 * add functionality to toggle the login button on 
+	 * add functionality to toggle the login button on
 	 * and off based on values in user and password text fields.
 	 * if both have values then enable login button else disable it
 	 */
@@ -283,9 +283,11 @@ public class PearLoginFrame extends JFrame implements ActionListener, DocumentLi
 		return password;
 	}
 
-	public boolean getDoLoginFlag() {
+	public synchronized boolean getDoLoginFlag() {
 		return doLoginFlag;
 	}
 
+	public synchronized void setDoLoginFlag(boolean value) {
+		doLoginFlag = value;
+	}
 }
-
