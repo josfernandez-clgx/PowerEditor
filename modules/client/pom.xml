@@ -104,9 +104,9 @@
 				<configuration>
 					<archive>${project.build.directory}/${project.build.finalName}-jar-with-dependencies.jar</archive>
 					<keystore>src/main/certificate/keystore.jks</keystore>
-					<alias>mbpecert</alias>
+					<alias>te-e57546b3-0b49-44e7-a1da-0abcf131c08a</alias>
 					<storepass>mbpecert</storepass>
-					<keypass>mbpecert</keypass>
+					<keypass>jt2490tw</keypass>
 					<verbose>true</verbose>
 				</configuration>
 			</plugin>
