@@ -3,6 +3,7 @@ package com.mindbox.pe.server.servlet;
 import static com.mindbox.pe.common.LogUtil.logInfo;
 
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.management.ManagementFactory;
@@ -204,7 +205,7 @@ public class PowerEditorServlet extends HttpServlet {
 		String debugHeader = "createJNLP\"(" + powerEditorURI + "\")";
 		LOG.debug(debugHeader);
 		try {
-			String jnlpFile = getServletContext().getRealPath(".") + "\\PowerEditor.jnlp";
+			String jnlpFile = getServletContext().getRealPath(".") + File.separator + "PowerEditor.jnlp";
 			LOG.debug(debugHeader + " creating " + jnlpFile);
 			PrintStream jnlpStream = new PrintStream(jnlpFile);
 			jnlpStream.format("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
