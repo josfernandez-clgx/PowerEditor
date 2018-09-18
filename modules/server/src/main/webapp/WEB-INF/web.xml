@@ -70,10 +70,19 @@
 		<servlet-class>com.sun.xml.ws.transport.http.servlet.WSServlet</servlet-class>
 		<load-on-startup>2</load-on-startup>
 	</servlet>
+	<servlet>
+		<servlet-name>PEARServlet</servlet-name>
+		<servlet-class>com.mindbox.pe.server.servlet.PEARServlet</servlet-class>
+		<load-on-startup>3</load-on-startup>
+	</servlet>
 
 	<servlet-mapping>
 		<servlet-name>PEAPIServiceServlet</servlet-name>
 		<url-pattern>/PowerEditorWebService</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>PEARServlet</servlet-name>
+		<url-pattern>/PEARServlet</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>PowerEditorServlet</servlet-name>

@@ -16,7 +16,7 @@ import com.mindbox.pe.server.servlet.ServletActionException;
 
 /**
  * Manages user sessions.
- * Basic session management functionality is provided by J2EE container (or Servlet container). 
+ * Basic session management functionality is provided by J2EE container (or Servlet container).
  * This class enforces concurrent session limits.
  * @author Geneho Kim
  * @since PowerEditor 1.0
@@ -72,7 +72,7 @@ public class SessionManager extends AbstractCacheManager {
 	/**
 	 * Tests if there already exists a PE session for the specified Http session id.
 	 * @param sessionId session id
-	 * @return <code>true</code> if there is a PE session for <code>sessionId</code>; <code>false</code>, otherwise 
+	 * @return <code>true</code> if there is a PE session for <code>sessionId</code>; <code>false</code>, otherwise
 	 */
 	public boolean hasSession(final String sessionId) {
 		return sessionMap.containsKey(sessionId);
@@ -114,8 +114,8 @@ public class SessionManager extends AbstractCacheManager {
 
 	public void registerSession(PowerEditorSession session) throws ServletActionException {
 		logger.debug(">>> registerSession: " + session);
-		logger.debug("    registerSession: maxUserSessions = " + maxUserSessions);
-		logger.debug("    registerSession: sessionMap.size = " + sessionMap.size());
+		logger.debug("	  registerSession: maxUserSessions = " + maxUserSessions);
+		logger.debug("	  registerSession: sessionMap.size = " + sessionMap.size());
 
 		terminateExpiredSessions();
 		if (sessionMap.size() >= maxUserSessions) {
@@ -124,7 +124,8 @@ public class SessionManager extends AbstractCacheManager {
 			throw new ServletActionException("SessionLimitExceededMsg", "Num sessions " + sessionMap.size() + " exceeds limit of " + maxUserSessions);
 		}
 
-		sessionMap.put(session.getSessionId(), session);
+		String ID = session.getSessionId();
+		sessionMap.put(ID, session);
 		reloginList.remove(session.getSessionId());
 	}
 
@@ -198,4 +199,16 @@ public class SessionManager extends AbstractCacheManager {
 		return "SessionManager[no. of sessions = " + sessionMap.size() + "]";
 	}
 
+	public String mapToString() {
+		StringBuffer buffer = new StringBuffer("sessionMap{");
+		for (Map.Entry<String, PowerEditorSession> entry : sessionMap.entrySet()) {
+			buffer.append("[key=\"");
+			buffer.append(entry.getKey());
+			buffer.append("\",value=\"");
+			buffer.append(entry.getValue().toString());
+			buffer.append("\"]");
+		}
+		buffer.append('}');
+		return buffer.toString();
+	}
 }

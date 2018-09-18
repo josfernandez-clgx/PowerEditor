@@ -12,4 +12,5 @@ modules/unit-test-support/target
 modules/version-tool/target
 modules/webserviceclient/target
 PE-files
+PE-java
 PE-sources

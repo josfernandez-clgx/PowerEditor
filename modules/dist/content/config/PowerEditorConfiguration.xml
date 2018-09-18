@@ -586,8 +586,7 @@ Server Configurations
 				<Param name="regexp" value=".*([\p{Lower}]).*" />
 				<Param name="regexp" value=".*([\p{Digit}]).*" />
 				<Param name="regexp" value=".*([\p{Punct}]).*" />
-				<Param name="description"
-					value="Passwords must be a minimum of eight characters, must not equal the previous three past passwords, and must contain at least three of the following four criteria: One upper case alpha character, one lower case alpha character, one numeric character, one non-alphanumeric character" />
+				<Param name="description" value="Passwords must be a minimum of eight characters, &lt;br/&gt; must not equal the previous three past passwords,&lt;br/&gt;and must contain at least three of the following four criteria:&lt;br/&gt;One upper case alpha character, one lower case alpha character,&lt;br/&gt;one numeric character, one non-alphanumeric character" />
 			</Validator>
 			<Change cannotChangeIntervalMins="1440" />
 			<Expiration expirationDays="60" notificationDays="14" />

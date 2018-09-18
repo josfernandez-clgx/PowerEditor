@@ -488,6 +488,7 @@
 			</xsd:element>
 			<xsd:element name="Session" type="SessionConfig" />
 			<xsd:element name="UserPasswordPolicies" type="UserPasswordPolicies" minOccurs="0" />
+			<xsd:element name="Hostname" type="xsd:string"></xsd:element>
 		</xsd:sequence>
 	</xsd:complexType>
 
