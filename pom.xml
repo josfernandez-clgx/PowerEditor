@@ -7,7 +7,7 @@ Filename...: pom.xml Description: POM for PowerEditor Project.
 	<groupId>com.mindbox.pe</groupId>
 	<artifactId>powereditor-pom</artifactId>
 	<name>PowerEditor</name>
-	<version>5.9.8-SNAPSHOT</version>
+	<version>5.10.0</version>
 	<packaging>pom</packaging>
 	<modules>
 		<module>modules/parser</module>
