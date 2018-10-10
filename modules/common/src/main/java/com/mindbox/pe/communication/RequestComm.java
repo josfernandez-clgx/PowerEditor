@@ -61,7 +61,7 @@ public abstract class RequestComm<T extends ResponseComm> extends SapphireComm<T
 	 */
 	@SuppressWarnings("unchecked")
 	public synchronized T sendRequest(final TimeOutController timeOutController) throws ServerException {
-		assert (servletURL == null) : "SERVLET URL NOT SET FROM APPLET!";
+		assert (servletURL != null) : "SERVLET URL NOT SET FROM APPLET!";
 		try {
 			final URL url = new URL(servletURL);
 			final URLConnection urlconnection = url.openConnection();

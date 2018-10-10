@@ -58,6 +58,10 @@ public final class TypeEnumValueComboBox extends JComboBox<TypeEnumValue> {
 		ComboBoxModel<TypeEnumValue> model = getModel();
 		for (int i = 0; i < model.getSize(); i++) {
 			TypeEnumValue item = model.getElementAt(i);
+			if (item == null) {
+				// skip null items which are controlled by the isRequired="No" attribute of a EntityProperty element
+				continue;
+			}
 			if (item.getID() == enumValueID) {
 				setSelectedIndex(i);
 				return;
@@ -72,6 +76,10 @@ public final class TypeEnumValueComboBox extends JComboBox<TypeEnumValue> {
 		ComboBoxModel<TypeEnumValue> model = getModel();
 		for (int i = 0; i < model.getSize(); i++) {
 			TypeEnumValue item = model.getElementAt(i);
+			if (item == null) {
+				// skip null items which are controlled by the isRequired="No" attribute of a EntityProperty element
+				continue;
+			}
 			if (item.getValue().equals(value)) {
 				setSelectedIndex(i);
 				return;

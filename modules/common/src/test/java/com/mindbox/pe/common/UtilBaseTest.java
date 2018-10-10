@@ -248,5 +248,41 @@ public class UtilBaseTest extends AbstractTestBase {
 		assertFalse(UtilBase.contains(new int[] { 1, 2, 3, 4, 99 }, new int[] { 1, 2, 3, 4, 5, 6, 7 }));
 		assertFalse(UtilBase.contains(new int[] { 1, 2, 3, 4 }, new int[] { 2, 3, 4, 5, 6, 7 }));
 	}
+	
+	@Test
+	public void testRemoveTrailingChar() {
+	    String expected = "alpha";
+	    char c = 'c';
+	    String input = expected + String.valueOf(c);
+	    String result = UtilBase.removeTrailing(input, c);
+	    assertEquals(expected, result);
+	}
+
+    @Test
+    public void testRemoveAllTrailingChar() {
+        String expected = "alpha";
+        char c = 'c';
+        String input = expected + "cccc";
+        String result = UtilBase.removeAllTrailing(input, c);
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void testRemoveTrailingString() {
+        String expected = "alpha";
+        String trailer = "beta";
+        String input = expected + trailer;
+        String result = UtilBase.removeTrailing(input, trailer);
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void testRemoveAllTrailingString() {
+        String expected = "alpha";
+        String trailer = "beta";
+        String input = expected + trailer + trailer;
+        String result = UtilBase.removeAllTrailing(input, trailer);
+        assertEquals(expected, result);
+    }
 
 }

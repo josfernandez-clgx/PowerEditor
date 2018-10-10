@@ -47,12 +47,12 @@ import com.mindbox.pe.xsd.config.UserInterfaceConfig.UsageTypeList.UsageType;
  */
 public class PowerEditorLoggedApplet extends JApplet implements TimeOutHandler {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -3951228734910107454L;
 
-	private MainApplication application = null;
-	private String sessionID = null;
+	protected MainApplication application = null;
+	protected String sessionID = null;
 	private String logOffURL = null;
 	private JPanel contentPanel = null;
 	private CardLayout cardLayout = new CardLayout();
@@ -63,7 +63,7 @@ public class PowerEditorLoggedApplet extends JApplet implements TimeOutHandler {
 	}
 
 	@SuppressWarnings("deprecation")
-	private boolean checkSecurity() {
+	protected boolean checkSecurity() {
 		SecurityManager sm = System.getSecurityManager();
 		try {
 			if (sm != null) {
@@ -97,7 +97,7 @@ public class PowerEditorLoggedApplet extends JApplet implements TimeOutHandler {
 		return "MindBox PowerEditor";
 	}
 
-	private JPanel getTimedOutPanel() {
+	protected JPanel getTimedOutPanel() {
 		if (timedOutPanel == null) {
 			final JLabel messageLabel = new JLabel(
 					String.format("<html><body><font size='+1'><b>%s</b></font></body></html>", ClientUtil.getInstance().getMessage("msg.warning.timed.out")));
@@ -124,7 +124,7 @@ public class PowerEditorLoggedApplet extends JApplet implements TimeOutHandler {
 		return url1;
 	}
 
-	private void gotoLoginScreen() {
+	protected void gotoLoginScreen() {
 		this.setVisible(false);
 		try {
 			getAppletContext().showDocument(getURL(logOffURL));
@@ -193,7 +193,7 @@ public class PowerEditorLoggedApplet extends JApplet implements TimeOutHandler {
 		System.out.println("<--- PEApplet: init");
 	}
 
-	private void initEntityTypeDefs(final List<EntityType> entityTypes) {
+	protected void initEntityTypeDefs(final List<EntityType> entityTypes) {
 		// @since 3.0.0 - create generic entity instances
 		for (final EntityType entityType : entityTypes) {
 			GenericEntityType.makeInstance(entityType);
@@ -221,7 +221,7 @@ public class PowerEditorLoggedApplet extends JApplet implements TimeOutHandler {
 		ClientUtil.getLogger().info("<-- logoff");
 	}
 
-	private PowerEditorConfiguration parsePowerEditorConfiguration(final String configXmlString) throws JAXBException {
+	protected PowerEditorConfiguration parsePowerEditorConfiguration(final String configXmlString) throws JAXBException {
 		PowerEditorConfiguration powerEditorConfiguration = null;
 		try {
 			powerEditorConfiguration = unmarshal(configXmlString, PowerEditorConfiguration.class);
@@ -240,7 +240,7 @@ public class PowerEditorLoggedApplet extends JApplet implements TimeOutHandler {
 	private void printPackageInfo() {
 		Package appletPackage = Package.getPackage("com.mindbox.pe.client.applet");
 		if (appletPackage != null) {
-			ClientUtil.getLogger().info("*** Specification Title:   " + appletPackage.getSpecificationTitle());
+			ClientUtil.getLogger().info("*** Specification Title:	" + appletPackage.getSpecificationTitle());
 			ClientUtil.getLogger().info("*** Specification Version: " + appletPackage.getSpecificationVersion());
 			ClientUtil.getLogger().info("*** Implementation Version: " + appletPackage.getImplementationVersion());
 		}
@@ -252,11 +252,11 @@ public class PowerEditorLoggedApplet extends JApplet implements TimeOutHandler {
 		cardLayout.show(contentPanel, "TIMEOUT");
 	}
 
-	private void setMessage(String messageStr) {
+	protected void setMessage(String messageStr) {
 		showStatus(messageStr);
 	}
 
-	private boolean showMainFrame() throws ServerException, IOException, ClassNotFoundException, JAXBException {
+	protected boolean showMainFrame() throws ServerException, IOException, ClassNotFoundException, JAXBException {
 		showStatus("Running PowerEditor...");
 
 		// retrieve PE configuration first...

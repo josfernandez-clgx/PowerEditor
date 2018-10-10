@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <%@ page contentType="text/xml; charset=utf-8" errorPage="/error.jsp" %>
-<%@ taglib uri="http://java.sun.com/jstl/core" prefix="c" %> 
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %> 
 
 <%@ page import="java.util.Iterator" %>
 <%@ page import="java.util.Map" %>
