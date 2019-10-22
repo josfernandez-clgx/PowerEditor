@@ -636,7 +636,7 @@ public class UtilBase {
             if (0 != s.length()) {
                 StringBuffer b = new StringBuffer(s);
                 b.reverse();
-                while ((0 != b.length()) && (c != b.charAt(0))) {
+                while ((0 != b.length()) && (c == b.charAt(0))) {
                     b.deleteCharAt(0);
                 }
                 b.reverse();
