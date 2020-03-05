@@ -1,6 +1,7 @@
 *.log
 *~
 .gitignore
+.m2
 TAGS
 modules/client/target
 modules/common/target
