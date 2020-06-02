@@ -16,6 +16,7 @@ Filename...: pom.xml Description: POM for PowerEditor Project.
 		<module>modules/client</module>
 		<module>modules/server</module>
 		<module>modules/pwd-tool</module>
+		<module>modules/version-tool</module>
 		<module>modules/webserviceclient</module>
 		<module>modules/dist</module>
 	</modules>
